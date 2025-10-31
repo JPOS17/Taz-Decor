@@ -1,18 +1,29 @@
 import "../styles/ListItem.css";
-const ListItem = () => {
+
+// content of object
+interface item {
+  id: number;
+  name: string;
+  category: string;
+  price: string;
+  img: string;
+}
+
+// dewrap
+interface ListItemProps {
+  item: item;
+}
+
+const ListItem = ({ item }: ListItemProps) => {
   return (
-    <>
-      <div className="list-item ">
-        <div className="image-container">
-          <img src="/public/Scapular.jpeg.avif" alt="picture of Scapular" />
-        </div>
-        <h5 className="item-title">
-          Our Lady of Mount Carmel Embroidered small brown Scapular: Catholic
-          Devotional
-        </h5>
-        <p className="item-price">$10</p>
+    <div className="list-item">
+      <div className="image-container">
+        <img src={item.img} alt={item.name} />
       </div>
-    </>
+
+      <h5 className="item-title">{item.name}</h5>
+      <p className="item-price">{item.price}</p>
+    </div>
   );
 };
 

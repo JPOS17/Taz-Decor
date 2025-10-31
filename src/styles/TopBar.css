@@ -1,53 +1,50 @@
-/* Styling specific to NavLinks component */
+/*NavLinks component styling*/
+
 .topbar .nav-header-links .nav-link {
-  position: relative;
-  text-decoration: none;
-  margin: 0 0.3rem; /* Add spacing between NavLinks */
+  text-decoration: none; /* removes default underline from link */
+  margin: 0 0.5rem; /* addes horizontal spacing */
+
+  position: relative;   /* allows psuedo element (underline) to position itself relative */
+  display: flex;             /* make link a flex container */
+  flex-direction: column;    /* stack text and underline vertically */
+  align-items: center;       /* center underline horizontally */
 }
 
-/* Underline animation only for NavLinks */
 .topbar .nav-header-links .nav-link::after {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 2px;
-  left: 50%; /* Start from center */
-  bottom: -3px;
-  background-color: currentColor;
-  transform: translateX(-50%); /* Center the line */
-  transition: width 0.3s ease;
+  content: ""; /* creates underline */
+  background-color: currentColor; /* sets underline color same as text */
+
+  width: 0; /* starts with no width */ 
+  height: 2px; /* thickness of of underline */
+  bottom: -1px; /* sets distance between text and underline */
+
+  position: absolute; /* positions according to above */
+
+  transition: width 0.3s ease; /* animation effect */ 
 }
 
-.topbar .nav-header-links .nav-link:hover::after {
-  width: 100%;
-}
-
+.topbar .nav-header-links .nav-link:hover::after,
 .topbar .nav-header-links .nav-link.active::after {
-  width: 100%;
+  width: 100%; /* sets width of underline */ 
 }
 
-
-/* Target icons inside NavIcons area */
+/* navIcons component styling */
 .topbar .nav-icons  {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: center; /* vertical alignment */
+  justify-content: center; /* horizontal alignment */
+  
+  /* icons align with hover effect */
   width: 40px;
   height: 40px;
-  border-radius: 60%;
-  transition: background-color 0.3s ease;
+  border-radius: 100%;
   margin: 0 0.02rem;
   color: black;
+
+  transition: background-color 0.5s ease;
 }
 
-/* Hover effect */
 .topbar .nav-icons:hover {
-  background-color: rgba(190, 190, 190, 0.5); /* light background */
+  background-color: rgba(190, 190, 190, 0.6);
 }
 
-/* Optional: adjust color for dark theme */
-@media (prefers-color-scheme: dark) {
-  .topbar .nav-icons-container:hover {
-    background-color: rgba(190, 190, 190, 0.5);
-  }
-}

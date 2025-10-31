@@ -17,13 +17,13 @@ const NavBar = () => {
   return (
     <nav className="topbar navbar navbar-expand-md border-bottom">
       <div className="container-fluid">
-        {/* Drop down toggle and Logo */}
+        {/* drop down toggle and logo */}
         <div className="d-flex align-items-center gap-3">
           <DropDownToggle />
           <Logo />
         </div>
 
-        {/* Nav Links */}
+        {/* nav links */}
         <div
           className="nav-header-links navbar-nav collapse navbar-collapse align-items-center"
           id="navbarNavAltMarkup"
@@ -31,7 +31,7 @@ const NavBar = () => {
           <NavLinks />
         </div>
 
-        {/* Nav Icons */}
+        {/* nav icons */}
         <div className="d-flex flex-row align-items-center ">
           <NavIcons />
         </div>
