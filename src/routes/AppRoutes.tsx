@@ -1,23 +1,193 @@
-import { Routes, Route } from "react-router";
+import { Routes, Route, Navigate, useLocation } from "react-router";
 
-import Home from "../pages/Home";
-import Features from "../pages/Features";
-import Pricing from "../pages/Pricing";
-import Cart from "../pages/Cart";
-import Profile from "../pages/Profile";
-import WishList from "../pages/WishList";
-import SearchResults from "../pages/SearchResults";
+import Home from "../pages/main/Home";
+import Cart from "../pages/customer/Cart";
+import WishList from "../pages/customer/Saved";
+import Items from "../pages/main/Items";
+import Listing from "../pages/main/Listing";
+
+import Profile from "../pages/main/Profile";
+
+import Login from "../pages/signin/Login";
+import Register from "../pages/signin/Register";
+import VerifyEmail from "../pages/signin/VerifyEmail";
+import ForgotPassword from "../pages/signin/ForgotPassword";
+import ResetPassword from "../pages/signin/ResetPassword";
+
+import CheckoutPage from "../pages/customer/CheckoutPage";
+import GuestOrderLookup from "../pages/customer/GuestOrderLookup";
+import OrderConfirmation from "../pages/customer/OrderConfirmation";
+import Orders from "../pages/customer/Orders";
+
+import ManagerDashboard from "../pages/manager/ManagerDashboard";
+
+import ProductManagementDirectory from "../pages/manager/Inventory/ProductManagementDirectory";
+import CreateProduct from "../pages/manager/Inventory/CreateNewProduct";
+import ManageProducts from "../pages/manager/Inventory/ManageInventory";
+import ManageCategories from "../pages/manager/Inventory/ManageCategories";
+import ManageProductTypes from "../pages/manager/Inventory/MangeProductTypes";
+
+import CouponsPage from "../pages/manager/CouponsPage";
+
+import OrderStatusPage from "../pages/manager/OrderStatus";
+
+import Settings from "../pages/manager/Settings";
+
+import AdminDashboard from "../pages/admin/AdminDashboard";
+
+import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes = () => {
+  const location = useLocation();
+
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/Features" element={<Features />} />
-      <Route path="/Pricing" element={<Pricing />} />
-      <Route path="/Cart" element={<Cart />} />
-      <Route path="/WishList" element={<WishList />} />
-      <Route path="/Profile" element={<Profile />} />
-      <Route path="/Search" element={<SearchResults />} />
+      <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/items" element={<Items />} />
+      {/* Add key prop to force remount when variantId changes */}
+      <Route
+        path="/items/:variantId"
+        element={<Listing key={location.pathname} />}
+      />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/verify-email/:token" element={<VerifyEmail />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+      {/* Public routes - no login required */}
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/saved" element={<WishList />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/order-lookup" element={<GuestOrderLookup />} />
+
+      {/* Order routes - with parameter for order number */}
+      <Route
+        path="/order-confirmation/:orderNumber"
+        element={<OrderConfirmation />}
+      />
+
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <Orders />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Protected Routes - Login Required */}
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Manager/Admin Only Routes */}
+      <Route
+        path="/manager"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <ManagerDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Manager Dashboard Sub-routes */}
+      <Route
+        path="/manager/inventory"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <ProductManagementDirectory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/manager/inventory/edit"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <ManageProducts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/manager/inventory/create"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <CreateProduct />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/manager/inventory/categories"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <ManageCategories />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/manager/inventory/types"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <ManageProductTypes />
+          </ProtectedRoute>
+        }
+      />
+      {/* Placeholder routes for future implementation */}
+      <Route
+        path="/manager/analytics"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <div style={{ padding: "2rem", textAlign: "center" }}>
+              <h2>Analytics Dashboard</h2>
+              <p>Coming soon...</p>
+            </div>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Order Status Management - now correctly routed to /manager/orders */}
+      <Route
+        path="/manager/orders"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <OrderStatusPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/manager/coupons"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <CouponsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/manager/settings"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Admin Only Routes */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requiredRoles={["admin"]}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

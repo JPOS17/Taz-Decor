@@ -1,0 +1,283 @@
+/* ============================================================================
+   ITEMS PAGE
+   ============================================================================ */
+
+/* ============================================================================
+   BASE LAYOUT
+   ============================================================================ */
+
+.items-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.items-container {
+  display: flex;
+  width: 100%;
+}
+
+/* ============================================================================
+   SIDEBAR SECTION
+   ============================================================================ */
+
+.items-sidebar-wrapper {
+  width: 250px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.items-sidebar-hidden {
+  display: none;
+}
+
+/* ============================================================================
+   MAIN CONTENT SECTION
+   ============================================================================ */
+
+.items-main-content {
+  flex: 1;
+  min-width: 0;
+  background-color: #ffffff7e;
+}
+
+/* ============================================================================
+   CATEGORY DROPDOWN (Mobile)
+   ============================================================================ */
+
+.items-category-dropdown-mobile {
+  display: none;
+  padding: 1rem;
+  background-color: white;
+  border-bottom: 2px solid #753a1e;
+}
+
+/* ============================================================================
+   HEADER SECTION
+   ============================================================================ */
+
+.items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem 1rem 1.5rem;
+  background-color: white;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.items-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.items-category-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #753a1e;
+}
+
+/* ============================================================================
+   CATEGORY COUPON BADGE
+   ============================================================================ */
+
+.items-category-coupon-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.items-discount-badge {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.items-free-shipping-badge {
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.items-verification-badge {
+  background-color: #ffc107;
+  color: #000;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================================
+   FILTER BAR SECTION
+   ============================================================================ */
+
+.items-filter-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* ============================================================================
+   CONTENT STATES
+   ============================================================================ */
+
+.items-loading-state,
+.items-error-state,
+.items-empty-state {
+  padding: 2rem 1.5rem;
+}
+
+.items-loading-state {
+  color: #753a1e;
+  font-size: 1.1rem;
+}
+
+.items-error-state {
+  color: #dc3545;
+  font-size: 1.1rem;
+}
+
+.items-empty-state {
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* ============================================================================
+   PRODUCTS GRID
+   ============================================================================ */
+
+.items-products-grid {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: 1fr;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN - MEDIA QUERIES
+   ============================================================================ */
+
+/* Small screens (sm): 2 columns */
+@media (min-width: 576px) {
+  .items-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Medium screens (md): Show sidebar, 3 columns */
+@media (min-width: 768px) {
+  .items-sidebar-wrapper {
+    display: block;
+  }
+
+  .items-sidebar-hidden {
+    display: none;
+  }
+
+  .items-category-dropdown-mobile {
+    display: none;
+  }
+
+  .items-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Large screens (lg): 4 columns */
+@media (min-width: 992px) {
+  .items-products-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Extra large screens (xl): 5 columns */
+@media (min-width: 1200px) {
+  .items-products-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 767px) {
+  .items-sidebar-wrapper {
+    display: none;
+  }
+
+  .items-sidebar-hidden {
+    display: none;
+  }
+
+  .items-category-dropdown-mobile {
+    display: block;
+  }
+
+  .items-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .items-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .items-category-title {
+    font-size: 1.5rem;
+  }
+
+  .items-filter-wrapper {
+    width: 100%;
+  }
+
+  .items-category-coupon-badge {
+    width: 100%;
+  }
+}
+
+/* Extra small mobile */
+@media (max-width: 576px) {
+  .items-header {
+    padding: 0.75rem;
+  }
+
+  .items-category-title {
+    font-size: 1.25rem;
+  }
+
+  .items-products-grid {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .items-discount-badge,
+  .items-free-shipping-badge,
+  .items-verification-badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+}
+
+/* Add this media query to match the sidebar width change */
+@media (min-width: 768px) and (max-width: 991px) {
+  .items-sidebar-wrapper {
+    width: 200px; /* Match the sidebar's reduced width */
+  }
+}

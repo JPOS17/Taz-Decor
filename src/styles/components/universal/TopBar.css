@@ -1,0 +1,352 @@
+/* ============================================================================
+   TOPBAR NAVIGATION
+   ============================================================================ */
+
+/* ============================================================================
+   BASE NAVBAR STYLES
+   ============================================================================ */
+
+.topbar {
+  width: 100%;
+  border-bottom: 1px solid #dee2e6;
+  background-color: white;
+  position: relative;
+  z-index: 999;
+}
+
+.topbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* ============================================================================
+   LEFT SECTION (Dropdown Toggle + Logo)
+   ============================================================================ */
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ============================================================================
+   LOGO STYLES
+   ============================================================================ */
+
+.topbar-logo {
+  font-family: Georgia, serif;
+  text-decoration: none;
+  color: #333;
+  font-size: 1.25rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.topbar-logo:hover {
+  color: #753a1e;
+}
+
+/* ============================================================================
+   CENTER SECTION (Navigation Links)
+   ============================================================================ */
+
+.topbar-nav-links {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.topbar-nav-links .nav-link {
+  text-decoration: none;
+  color: #333;
+  padding: 0.5rem 1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.topbar-nav-links .nav-link::after {
+  content: "";
+  background-color: currentColor;
+  width: 0;
+  height: 2px;
+  bottom: -1px;
+  position: absolute;
+  transition: width 0.3s ease;
+}
+
+.topbar-nav-links .nav-link:hover {
+  color: #753a1e;
+}
+
+.topbar-nav-links .nav-link:hover::after,
+.topbar-nav-links .nav-link.active::after {
+  width: 80%;
+}
+
+.topbar-nav-links .nav-link.active {
+  color: #753a1e;
+}
+
+/* ============================================================================
+   RIGHT SECTION (Navigation Icons)
+   ============================================================================ */
+
+.topbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ============================================================================
+   ICON LINK STYLES
+   ============================================================================ */
+
+.topbar-icon-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #333;
+  background-color: transparent;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+/* Icon wrapper for positioning badge */
+.topbar-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Badge styling */
+.topbar-icon-badge {
+  position: absolute;
+  top: -14px;
+  right: -10px;
+  color: white;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: rgb(78, 175, 255);
+  border-radius: 10px;
+  padding: 0 4px;
+}
+
+/* Hover bubble effect */
+.topbar-icon-link::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(78, 175, 255, 0.25);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: -1;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.topbar-icon-link:hover::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.topbar-icon-link:hover {
+  color: #002142;
+}
+
+/* Tooltip */
+.topbar-icon-link::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1001;
+}
+
+.topbar-icon-link:hover::after {
+  opacity: 1;
+}
+
+/* ============================================================================
+   MOBILE DROPDOWN TOGGLE
+   ============================================================================ */
+
+.topbar-mobile-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background-color: transparent;
+  border: 2px solid #753a1e;
+  border-radius: 6px;
+  color: #753a1e;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.topbar-mobile-toggle:hover {
+  background-color: #f0c58e1a;
+  border-color: #8b4513;
+  box-shadow: 0 2px 8px rgba(117, 58, 30, 0.2);
+}
+
+.topbar-mobile-toggle:focus {
+  outline: none;
+  border-color: #5c2e1a;
+  box-shadow: 0 0 0 3px rgba(117, 58, 30, 0.15);
+}
+
+.topbar-mobile-toggle:active {
+  background-color: #f0c58e2e;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN - MEDIA QUERIES
+   ============================================================================ */
+
+/* Mobile: Stack nav links vertically below topbar */
+@media (max-width: 767px) {
+  .topbar {
+    flex-wrap: wrap;
+  }
+  
+  .topbar-nav-links {
+    display: flex; /* Change from display: none to display: flex */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border-bottom: 2px solid #753a1e;
+    box-shadow: 0 4px 12px rgba(117, 58, 30, 0.3);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem 0;
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  .topbar-nav-links.open {
+    max-height: 400px;
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .topbar-nav-links .nav-link {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    text-align: left;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+  }
+  
+  .topbar-nav-links .nav-link::after {
+    display: none;
+  }
+  
+  .topbar-nav-links .nav-link:hover,
+  .topbar-nav-links .nav-link.active {
+    background-color: #f0c58e4d;
+    border-left-color: #753a1e;
+  }
+  
+  .topbar-nav-links .nav-link.active {
+    background-color: #d4a574;
+    font-weight: 600;
+  }
+}
+
+/* Medium screens and up - show navigation links, hide toggle */
+@media (min-width: 768px) {
+  .topbar-mobile-toggle {
+    display: none;
+  }
+  
+  .topbar-nav-links {
+    display: flex;
+  }
+  
+  .topbar-left {
+    gap: 1.5rem;
+  }
+}
+
+/* Large screens - adjust padding and spacing */
+@media (min-width: 992px) {
+  .topbar-container {
+    padding: 0.5rem 1.5rem;
+  }
+  
+  .topbar-nav-links {
+    gap: 1rem;
+  }
+  
+  .topbar-logo {
+    font-size: 1.5rem;
+  }
+}
+
+/* Extra large screens - max width container */
+@media (min-width: 1200px) {
+  .topbar-container {
+    max-width: 1400px;
+    padding: 0.5rem 2rem;
+    margin: 0 auto; /* Add this to center the container */
+  }
+}
+
+/* For very large screens - increase max width */
+@media (min-width: 1400px) {
+  .topbar-container {
+    max-width: 1600px;
+  }
+}
+
+/* For extra wide screens - make it full width with padding */
+@media (min-width: 1920px) {
+  .topbar-container {
+    max-width: none;
+    width: 100%;
+    padding: 0.5rem 3rem;
+  }
+}

@@ -1,0 +1,145 @@
+/* ============================================================================
+   SIDEBAR NAVIGATION
+   ============================================================================ */
+
+/* ============================================================================
+   BASE SIDEBAR STYLES
+   ============================================================================ */
+
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background-color: #f0c58e7e;
+  border-right: 3px solid #753a1e;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(117, 58, 30, 0.1);
+}
+
+/* ============================================================================
+   LOADING & ERROR STATES
+   ============================================================================ */
+
+.sidebar-loading,
+.sidebar-error {
+  padding: 1.5rem;
+  text-align: center;
+  color: #753a1e;
+  font-weight: 500;
+}
+
+.sidebar-error {
+  color: #dc3545;
+}
+
+/* ============================================================================
+   NAVIGATION LIST
+   ============================================================================ */
+
+.sidebar-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sidebar-nav-item {
+  width: 100%;
+}
+
+/* ============================================================================
+   NAVIGATION LINKS
+   ============================================================================ */
+
+.sidebar-nav-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 1rem 1.5rem;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.sidebar-nav-link:hover {
+  background-color: #e8d5bd;
+  color: #000;
+}
+
+.sidebar-nav-link.active {
+  background-color: #d4a574;
+  border-right-color: #753a1e;
+  color: #000;
+  font-weight: 600;
+}
+
+/* ============================================================================
+   LINK TEXT WITH UNDERLINE ANIMATION
+   ============================================================================ */
+
+.sidebar-link-text {
+  position: relative;
+  display: inline-block;
+}
+
+.sidebar-link-text::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 2px;
+  background-color: #753a1e;
+  transition: width 0.3s ease-in-out;
+}
+
+.sidebar-nav-link:hover .sidebar-link-text::after,
+.sidebar-nav-link.active .sidebar-link-text::after {
+  width: 100%;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN - MEDIA QUERIES
+   ============================================================================ */
+
+/* Hide sidebar on mobile/tablet (< 768px) */
+@media (max-width: 767px) {
+  .sidebar {
+    display: none;
+  }
+}
+
+/* Medium screens and up (>= 768px) */
+@media (min-width: 768px) {
+  .sidebar {
+    display: flex;
+  }
+}
+
+/* Adjust sidebar width on smaller desktop screens */
+@media (min-width: 768px) and (max-width: 991px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .sidebar-nav-link {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Optimal width for large screens */
+@media (min-width: 992px) {
+  .sidebar {
+    width: 250px;
+  }
+}

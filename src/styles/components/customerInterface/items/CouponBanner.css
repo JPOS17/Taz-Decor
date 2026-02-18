@@ -1,0 +1,381 @@
+/* Compact Coupon Banner Styles */
+.coupon-banner-compact {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.875rem;
+}
+
+.coupon-banner-header-compact {
+  background-color: #198754;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.compact-coupons-list {
+  padding: 0.5rem;
+}
+
+.compact-coupons-list.scrollable {
+  /* Adjust this value to control scroll height - lower = less space, higher = more space */
+  /* Current: 280px - try 220px, 240px, 260px to reduce height */
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #198754 #f8f9fa;
+  transition: max-height 0.3s ease;
+}
+
+/* When any coupon is expanded, allow container to grow */
+.compact-coupons-list.scrollable.has-expanded {
+  max-height: 500px; /* Larger height when expanded - adjust as needed */
+}
+
+.compact-coupons-list.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.compact-coupons-list.scrollable::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 3px;
+}
+
+.compact-coupons-list.scrollable::-webkit-scrollbar-thumb {
+  background: #198754;
+  border-radius: 3px;
+}
+
+.compact-coupons-list.scrollable::-webkit-scrollbar-thumb:hover {
+  background: #146c43;
+}
+
+.compact-coupon-item {
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.compact-coupon-item:hover {
+  border-color: #198754;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.compact-coupon-item:last-child {
+  margin-bottom: 0;
+}
+
+.compact-coupon-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f8f9fa;
+}
+
+.compact-coupon-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.compact-coupon-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.compact-coupon-first-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.compact-coupon-code {
+  background: white;
+  border: 1px solid #198754;
+  color: #198754;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.compact-coupon-code:hover {
+  background: #198754;
+  color: white;
+}
+
+.compact-coupon-deal {
+  color: #495057;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.compact-coupon-min-purchase {
+  font-size: 0.7rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.compact-coupon-free-shipping {
+  font-size: 0.7rem;
+  color: #0d6efd;
+  font-weight: 600;
+  margin-top: 0.125rem;
+}
+
+.compact-coupon-expiration {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  color: #dc3545;
+  margin-top: 0.125rem;
+  font-weight: 500;
+}
+
+.compact-expand-icon {
+  flex-shrink: 0;
+  color: #6c757d;
+  transition: transform 0.2s ease;
+}
+
+.compact-expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.compact-coupon-details {
+  padding: 0.75rem;
+  border-top: 1px solid #e9ecef;
+  background: white;
+}
+
+.compact-coupon-description {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.compact-coupon-info-note {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.7rem;
+  color: #495057;
+  background: #f8f9fa;
+  padding: 0.375rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  border-left: 3px solid #6c757d;
+}
+
+.compact-bogo-explanation {
+  background: #e7f3ff;
+  border-left: 3px solid #0d6efd;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  border-radius: 4px;
+}
+
+.compact-bogo-title {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #0a58ca;
+  margin-bottom: 0.25rem;
+}
+
+.compact-bogo-text {
+  font-size: 0.7rem;
+  color: #495057;
+  margin: 0;
+}
+
+.compact-eligible-section {
+  margin-top: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+.compact-eligible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.compact-eligible-title {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.compact-view-all {
+  background: none;
+  border: none;
+  color: #0d6efd;
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.compact-view-all:hover {
+  color: #0a58ca;
+  text-decoration: underline;
+}
+
+.compact-loading {
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.compact-products-preview {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f8f9fa;
+}
+
+.compact-products-preview::-webkit-scrollbar {
+  height: 4px;
+}
+
+.compact-products-preview::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 2px;
+}
+
+.compact-products-preview::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 2px;
+}
+
+.compact-product-card {
+  min-width: 80px;
+  max-width: 80px;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 0.375rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.compact-product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-color: #0d6efd;
+}
+
+.compact-product-image {
+  width: 100%;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 3px;
+  margin-bottom: 0.25rem;
+}
+
+.compact-product-name {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.2;
+}
+
+.compact-product-price {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #198754;
+}
+
+.compact-usage-info {
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.compact-footer {
+  background: #f8f9fa;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.7rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Selected coupon item styling */
+.compact-coupon-item.selected {
+  border-color: #198754;
+  background: #f0fdf4;
+  box-shadow: 0 2px 8px rgba(25, 135, 84, 0.15);
+}
+
+.compact-coupon-item.selected .compact-coupon-header {
+  background: #e8f5e9;
+}
+
+/* Selected coupon code button */
+.compact-coupon-code.selected {
+  background: #198754;
+  color: white;
+  border-color: #146c43;
+  box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.2);
+}
+
+.compact-coupon-code.selected:hover {
+  background: #146c43;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .coupon-banner-compact {
+    font-size: 0.8rem;
+  }
+
+  .compact-product-card {
+    min-width: 70px;
+    max-width: 70px;
+  }
+
+  .compact-product-image {
+    height: 50px;
+  }
+}

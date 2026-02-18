@@ -1,0 +1,272 @@
+.list-item {
+  text-align: center;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background-color: #f0c58e7e; /* Light brown background */
+  border: 2px solid #753a1e; /* Dark brown border */
+  position: relative; /* For positioning badges */
+}
+
+.list-item:hover {
+  box-shadow: 0 4px 12px rgba(92, 64, 51, 0.4);
+  transform: translateY(-4px);
+  background-color: #e8d5bd; /* Slightly darker light brown on hover */
+}
+
+/* Wishlist icon container */
+.wishlist-icon-container {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background-color: rgba(116, 71, 4, 0.301);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.list-item:hover .wishlist-icon-container {
+  opacity: 1;
+}
+
+/* Always show if item is in wishlist */
+.wishlist-icon-container:has(.wishlist-icon.filled) {
+  opacity: 1;
+}
+
+.wishlist-icon {
+  font-size: 18px;
+  color: #753a1e;
+  transition: transform 0.2s ease;
+}
+
+.wishlist-icon.filled {
+  color: #dc3545; /* Bootstrap danger red */
+}
+
+.wishlist-icon-container:hover .wishlist-icon {
+  transform: scale(1.2);
+}
+
+/* Discount badge in top-left corner */
+.discount-badge-corner {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.image-container {
+  width: 100%;
+  height: 0;
+  padding-bottom: 80%;
+  position: relative;
+  overflow: hidden;
+  margin-top: 0.5rem;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-container img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 94%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.item-title {
+  font-size: 1.20rem;
+  font-weight: 480;
+  color: #000000;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+/* Price container */
+.item-price-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+  flex-wrap: wrap;
+}
+
+.item-price {
+  font-size: 1.25rem;
+  font-weight: 640;
+  color: #000000;
+  margin: 0;
+}
+
+/* Original price with strikethrough */
+.item-price-original {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6c757d;
+  text-decoration: line-through;
+  margin: 0;
+}
+
+/* Discounted price */
+.item-price-discounted {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #dc3545;
+  margin: 0;
+}
+
+/* Verification required icon */
+.verification-required-icon {
+  display: inline-flex;
+  align-items: center;
+  color: #ffc107;
+  cursor: help;
+}
+
+/* Category coupon badges in header */
+.category-coupon-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.discount-badge {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.free-shipping-badge-small {
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.verification-required-badge {
+  background-color: #ffc107;
+  color: #000;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Grid container for listings */
+.listings-grid {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Default (mobile): 1 column */
+.listings-grid {
+  grid-template-columns: 1fr;
+}
+
+/* Small screens (sm): 2 columns */
+@media (min-width: 576px) {
+  .listings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Medium screens (md): 3 columns */
+@media (min-width: 768px) {
+  .listings-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Large screens (lg): 4 columns */
+@media (min-width: 992px) {
+  .listings-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Free shipping badge in top-right corner */
+.free-shipping-badge-corner {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* When both discount and free shipping badges exist, adjust positioning */
+.list-item:has(.discount-badge-corner):has(.free-shipping-badge-corner) .free-shipping-badge-corner {
+}
+
+/* Adjust wishlist icon when free shipping badge is present */
+.list-item .wishlist-icon-container {
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+}
+
+.list-item:hover .wishlist-icon-container {
+  opacity: 1;
+}
+
+/* If free shipping badge exists, move wishlist icon down on hover */
+.list-item:has(.free-shipping-badge-corner):hover .wishlist-icon-container {
+  top: 50px;
+}
+
+/* Always show wishlist icon if item is in wishlist */
+.wishlist-icon-container:has(.wishlist-icon.filled) {
+  opacity: 1;
+}
+
+/* If item is in wishlist AND has free shipping badge, position accordingly */
+.list-item:has(.free-shipping-badge-corner) .wishlist-icon-container:has(.wishlist-icon.filled) {
+  top: 50px;
+}

@@ -1,0 +1,210 @@
+/* ProductForms.css - Unified styling for all product forms */
+
+/* Form Container */
+.product-form {
+  width: 100%;
+}
+
+/* Section Headers */
+.product-form .form-section-header {
+  margin: 0 0 1rem 0;
+  padding-top: 1rem;
+  border-top: 2px solid #dee2e6;
+  color: #753a1e;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Form Sections */
+.product-form .form-section {
+  margin-bottom: 1.5rem;
+}
+
+/* Section Title (for reusable components like ShippingFields) */
+.product-form .section-title {
+  margin: 0 0 0.5rem 0;
+  padding-top: 1rem;
+  border-top: 2px solid #dee2e6;
+  color: #753a1e;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.product-form .section-subtitle {
+  color: #6c757d;
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/* Form Groups */
+.product-form .form-group {
+  margin-bottom: 1rem;
+}
+
+/* Labels */
+.product-form .form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.product-form .form-label.required::after {
+  content: " *";
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* Input Fields */
+.product-form .form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  background-color: white;
+}
+
+.product-form .form-control:focus {
+  outline: none;
+  border-color: #753a1e;
+  box-shadow: 0 0 0 3px rgba(117, 58, 30, 0.1);
+}
+
+.product-form .form-control.invalid {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.product-form .form-control.invalid:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* Textarea */
+.product-form textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Select */
+.product-form select.form-control {
+  cursor: pointer;
+  background-color: white;
+}
+
+/* Error Messages */
+.product-form .warning-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Error message in labels (for package dimensions) */
+.product-form .label-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Helper Text */
+.product-form .form-text {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Grid Layout for Dimensions */
+.product-form .dimensions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Dimension error messages (smaller font for inline dimension errors) */
+.product-form .dimensions-grid .warning-message {
+  font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .product-form .dimensions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Info Box (for shared product info in variant form) */
+.product-form .info-box {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  border: 2px solid #dee2e6;
+}
+
+.product-form .info-box h4 {
+  margin: 0 0 0.75rem 0;
+  color: #753a1e;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.product-form .info-box-content {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.product-form .info-box-content strong {
+  color: #333;
+}
+
+/* SKU Preview Special Styling */
+.product-form .sku-field {
+  background-color: #e7f3ff;
+  border: 2px solid #2196F3;
+}
+
+.product-form .sku-field:focus {
+  border-color: #1976D2;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.sku-preview-container {
+  background-color: #e7f3ff;
+  border: 2px solid #2196F3;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sku-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sku-preview-label {
+  font-weight: 600;
+  color: #1565C0;
+}
+
+.sku-preview-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0D47A1;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+}
+
+.sku-preview-helper {
+  font-size: 0.875rem;
+  color: #555;
+  margin-top: 0.5rem;
+}

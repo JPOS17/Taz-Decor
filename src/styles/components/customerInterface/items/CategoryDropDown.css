@@ -1,0 +1,240 @@
+/* ============================================================================
+   CATEGORY DROPDOWN (Mobile Navigation)
+   ============================================================================ */
+
+/* ============================================================================
+   BASE CONTAINER STYLES
+   ============================================================================ */
+
+.category-dropdown-container {
+  padding: 1rem 1.5rem;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ============================================================================
+   LOADING & ERROR STATES
+   ============================================================================ */
+
+.category-dropdown-loading,
+.category-dropdown-error {
+  padding: 1.5rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.category-dropdown-loading {
+  color: #753a1e;
+}
+
+.category-dropdown-error {
+  color: #dc3545;
+}
+
+/* ============================================================================
+   DROPDOWN WRAPPER
+   ============================================================================ */
+
+.category-dropdown-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* ============================================================================
+   DROPDOWN TOGGLE BUTTON
+   ============================================================================ */
+
+.category-dropdown-toggle {
+  width: 100%;
+  padding: 0.875rem 3rem 0.875rem 1rem;
+  background-color: white;
+  border: 2px solid #753a1e;
+  border-radius: 6px;
+  color: #753a1e;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.category-dropdown-toggle:hover {
+  background-color: #f0c58e1a;
+  border-color: #8b4513;
+  box-shadow: 0 2px 8px rgba(117, 58, 30, 0.2);
+}
+
+.category-dropdown-toggle:focus {
+  outline: none;
+  border-color: #5c2e1a;
+  box-shadow: 0 0 0 3px rgba(117, 58, 30, 0.15);
+}
+
+.category-dropdown-toggle.open {
+  background-color: #f0c58e2e;
+  border-color: #5c2e1a;
+}
+
+/* ============================================================================
+   DROPDOWN TOGGLE ICON
+   ============================================================================ */
+
+.category-dropdown-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #753a1e;
+  transition: transform 0.3s ease;
+  pointer-events: none;
+  font-size: 1.2rem;
+}
+
+.category-dropdown-toggle.open .category-dropdown-icon {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* ============================================================================
+   DROPDOWN MENU
+   ============================================================================ */
+
+.category-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 2px solid #753a1e;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(117, 58, 30, 0.3);
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0;
+  z-index: 1000;
+  max-height: 400px;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+}
+
+.category-dropdown-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* ============================================================================
+   DROPDOWN MENU SCROLLBAR
+   ============================================================================ */
+
+.category-dropdown-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.category-dropdown-menu::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+  border-radius: 4px;
+}
+
+.category-dropdown-menu::-webkit-scrollbar-thumb {
+  background-color: #753a1e;
+  border-radius: 4px;
+}
+
+.category-dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background-color: #5c2e1a;
+}
+
+/* ============================================================================
+   DROPDOWN MENU ITEMS
+   ============================================================================ */
+
+.category-dropdown-item {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.category-dropdown-item-button {
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  background-color: transparent;
+  border: none;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: block;
+}
+
+.category-dropdown-item-button:hover {
+  background-color: #f0c58e4d;
+  color: #000;
+}
+
+.category-dropdown-item-button.active {
+  background-color: #d4a574;
+  color: #000;
+  font-weight: 600;
+}
+
+/* ============================================================================
+   DROPDOWN DIVIDER
+   ============================================================================ */
+
+.category-dropdown-divider {
+  height: 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-top: 1px solid #dee2e6;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN - MEDIA QUERIES
+   ============================================================================ */
+
+/* Extra small mobile */
+@media (max-width: 576px) {
+  .category-dropdown-container {
+    padding: 0.75rem 1rem;
+  }
+
+  .category-dropdown-toggle {
+    padding: 0.75rem 2.5rem 0.75rem 0.875rem;
+    font-size: 0.95rem;
+  }
+
+  .category-dropdown-menu {
+    max-height: 300px;
+  }
+
+  .category-dropdown-item-button {
+    padding: 0.625rem 1rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Small screens and up - adjust max-height */
+@media (min-width: 576px) and (max-width: 767px) {
+  .category-dropdown-menu {
+    max-height: 350px;
+  }
+}
+
+/* Hide on medium screens and up (sidebar takes over) */
+@media (min-width: 768px) {
+  .category-dropdown-container {
+    display: none;
+  }
+}

@@ -1,0 +1,490 @@
+/* ============================================================================
+   MANAGE PRODUCT TYPES
+   ============================================================================ */
+
+/* Base Container */
+.manage-product-types {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* ============================================================================
+   HEADER SECTION
+   ============================================================================ */
+
+.manage-product-types .types-header {
+  background-color: #753a1e;
+  color: white;
+  padding: 1.5rem 0;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.manage-product-types .back-button {
+  background: none;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  transition: opacity 0.2s ease;
+}
+
+.manage-product-types .back-button:hover {
+  opacity: 0.8;
+}
+
+.manage-product-types .types-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.manage-product-types .types-subtitle {
+  margin: 0.5rem 0 0 0;
+  opacity: 0.9;
+}
+
+/* ============================================================================
+   CONTENT AREA
+   ============================================================================ */
+
+.manage-product-types .types-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.manage-product-types .types-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.manage-product-types .section-title {
+  margin: 0;
+  color: #753a1e;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* ============================================================================
+   BUTTONS
+   ============================================================================ */
+
+.manage-product-types .btn-create {
+  background-color: #753a1e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.manage-product-types .btn-create:hover:not(:disabled) {
+  background-color: #5c2e1a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.manage-product-types .btn-create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.manage-product-types .btn-edit {
+  background-color: #753a1e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.manage-product-types .btn-edit:hover:not(:disabled) {
+  background-color: #5c2e1a;
+}
+
+.manage-product-types .btn-edit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.manage-product-types .btn-save {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.manage-product-types .btn-save:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.manage-product-types .btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #6c757d;
+}
+
+.manage-product-types .btn-cancel {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.manage-product-types .btn-cancel:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+/* ============================================================================
+   EDIT FORM
+   ============================================================================ */
+
+.manage-product-types .edit-form {
+  background-color: #f8f9fa;
+  border: 2px solid #753a1e;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.manage-product-types .form-title {
+  margin: 0 0 1rem 0;
+  color: #753a1e;
+  font-size: 1.1rem;
+}
+
+.manage-product-types .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.manage-product-types .form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.manage-product-types .form-input,
+.manage-product-types .form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.manage-product-types .form-input:focus,
+.manage-product-types .form-textarea:focus {
+  outline: none;
+  border-color: #753a1e;
+}
+
+.manage-product-types .form-input:disabled,
+.manage-product-types .form-textarea:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.manage-product-types .form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.manage-product-types .form-helper {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.manage-product-types .format-preview {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: #e7f3ff;
+  border: 1px solid #2196F3;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.manage-product-types .format-preview strong {
+  color: #1565C0;
+}
+
+.manage-product-types .format-preview span {
+  color: #0D47A1;
+  font-weight: 600;
+}
+
+.manage-product-types .form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================================================
+   TABLE
+   ============================================================================ */
+
+.manage-product-types .types-table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 2px solid #dee2e6;
+}
+
+.manage-product-types .types-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.manage-product-types .types-table thead {
+  background-color: #753a1e;
+  color: white;
+}
+
+.manage-product-types .types-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #5c2e1a;
+}
+
+.manage-product-types .types-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.manage-product-types .types-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.manage-product-types .types-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.manage-product-types .types-table tbody tr.editing {
+  background-color: #fff3cd;
+}
+
+.manage-product-types .types-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table Cells */
+.manage-product-types .sku-cell {
+  width: 120px;
+  font-weight: 600;
+}
+
+.manage-product-types .sku-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #753a1e 0%, #a0522d 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.manage-product-types .type-name-cell {
+  font-weight: 600;
+  color: #333;
+}
+
+.manage-product-types .description-cell {
+  color: #555;
+}
+
+.manage-product-types .actions-column {
+  width: 120px;
+  text-align: center;
+}
+
+.manage-product-types .actions-cell {
+  text-align: center;
+}
+
+/* ============================================================================
+   LOADING & EMPTY STATES
+   ============================================================================ */
+
+.manage-product-types .loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+}
+
+.manage-product-types .loading-state .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border: 0.25em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.manage-product-types .empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: #6c757d;
+}
+
+.manage-product-types .empty-state p {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+@media (max-width: 992px) {
+  .manage-product-types .types-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .manage-product-types .btn-create {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .manage-product-types .types-table th,
+  .manage-product-types .types-table td {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .manage-product-types .types-title {
+    font-size: 1.5rem;
+  }
+
+  .manage-product-types .types-content {
+    padding: 1rem;
+  }
+
+  .manage-product-types .form-actions {
+    flex-direction: column;
+  }
+
+  .manage-product-types .form-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Stack table on mobile */
+  .manage-product-types .types-table-container {
+    border: none;
+  }
+
+  .manage-product-types .types-table,
+  .manage-product-types .types-table thead,
+  .manage-product-types .types-table tbody,
+  .manage-product-types .types-table th,
+  .manage-product-types .types-table td,
+  .manage-product-types .types-table tr {
+    display: block;
+  }
+
+  .manage-product-types .types-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .manage-product-types .types-table tr {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+  }
+
+  .manage-product-types .types-table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    text-align: right;
+  }
+
+  .manage-product-types .types-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.75rem;
+    font-weight: 600;
+    color: #753a1e;
+    text-align: left;
+  }
+
+  .manage-product-types .actions-cell {
+    padding-left: 0.75rem;
+    text-align: left;
+  }
+
+  .manage-product-types .btn-edit {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .manage-product-types .types-header {
+    padding: 1rem 0;
+  }
+
+  .manage-product-types .types-content {
+    padding: 0.75rem;
+  }
+
+  .manage-product-types .section-title {
+    font-size: 1.25rem;
+  }
+}
