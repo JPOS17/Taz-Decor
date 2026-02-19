@@ -31,7 +31,7 @@
 
 .about-page {
   min-height: 100vh;
-  background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-alt) 50%, var(--color-bg-deep) 100%);
+  background-color: #f8f9fa;
   font-family: "Lato", -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--color-text-mid);
 }

@@ -378,7 +378,6 @@ const Saved = () => {
                         className="btn-add-to-cart"
                         onClick={() => handleAddToCart(item)}
                       >
-                        <FaShoppingCart className="btn-icon" />
                         Add to Cart
                       </button>
 
@@ -386,7 +385,6 @@ const Saved = () => {
                         className="btn-remove-wishlist"
                         onClick={() => removeFromWishlist(item.variant_id)}
                       >
-                        <FaHeart className="btn-icon" />
                         Remove
                       </button>
                     </div>

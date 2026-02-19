@@ -11,7 +11,7 @@
 
 .home-page {
   min-height: 100vh;
-  background: linear-gradient(160deg, #fdf8f0 0%, #f5ede0 50%, #ede3d5 100%);
+  background-color: #f8f9fa;
   font-family: "Lato", -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   flex-direction: column;
