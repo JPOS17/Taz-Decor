@@ -1,31 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;600;700&display=swap");
+
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #f8f9fa;
   padding: 20px;
+  font-family: "Lato", sans-serif;
 }
 
 .login-card {
-  background: white;
+  background: linear-gradient(160deg, #fdf8f0 0%, #f9f1e4 100%);
+  border: 1.5px solid #d4a96a;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 440px;
   padding: 48px 40px;
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .login-header {
@@ -34,16 +31,19 @@
 }
 
 .login-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
   font-size: 28px;
   font-weight: 700;
-  color: #1a202c;
+  color: #3d2b0e;
   margin-bottom: 8px;
+  letter-spacing: 0.01em;
 }
 
 .login-subtitle {
-  font-size: 16px;
-  color: #718096;
+  font-size: 15px;
+  color: #9b7d56;
   margin: 0;
+  line-height: 1.5;
 }
 
 .login-form {
@@ -59,13 +59,15 @@
 }
 
 .form-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #2d3748;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5a4228;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .required {
-  color: #ef4444;
+  color: #b5341e;
   margin-left: 2px;
 }
 
@@ -77,60 +79,90 @@
 
 .forgot-link {
   font-size: 13px;
-  color: #667eea;
+  color: #8a6030;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
 .forgot-link:hover {
-  color: #764ba2;
+  color: #5a4228;
   text-decoration: underline;
 }
 
 .form-input {
-  padding: 12px 16px;
-  font-size: 16px;
-  border: 2px solid #e2e8f0;
+  padding: 11px 15px;
+  font-family: "Lato", sans-serif;
+  font-size: 15px;
+  background: #ffffff;
+  border: 1.5px solid #d9c2a3;
   border-radius: 8px;
-  transition: all 0.2s ease;
+  color: #3d2b0e;
+  transition: all 0.22s ease;
   outline: none;
 }
 
 .form-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #c9a97a;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(201, 169, 122, 0.2);
 }
 
 .form-input::placeholder {
-  color: #a0aec0;
+  color: #c0a882;
+}
+
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-input:-webkit-autofill:focus,
+.form-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #3d2b0e !important;
+  caret-color: #3d2b0e;
+  border-color: #c9a97a !important;
 }
 
 .error-message {
-  background-color: #fee;
-  color: #c53030;
-  padding: 12px 16px;
+  background: rgba(181, 52, 30, 0.07);
+  color: #8c2515;
+  padding: 11px 15px;
   border-radius: 8px;
-  font-size: 14px;
-  border-left: 4px solid #fc8181;
+  font-size: 13.5px;
+  border-left: 3px solid #b5341e;
 }
 
 .submit-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2e7d52 0%, #1e5c3a 100%) !important;
   color: white;
-  padding: 14px 24px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 13px 24px;
+  font-family: "Lato", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   margin-top: 8px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 14px rgba(30, 92, 58, 0.28);
+  position: relative;
+  overflow: hidden;
 }
+
+.submit-button::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.4s ease;
+}
+
+.submit-button:hover:not(:disabled)::before { left: 100%; }
 
 .submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 22px rgba(30, 92, 58, 0.36);
+  background: linear-gradient(135deg, #38936a 0%, #2a6e48 100%);
 }
 
 .submit-button:active:not(:disabled) {
@@ -138,7 +170,7 @@
 }
 
 .submit-button:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
@@ -153,32 +185,36 @@
 .divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #d9c2a3;
 }
 
 .divider span {
   padding: 0 12px;
-  color: #a0aec0;
-  font-size: 14px;
+  color: #c0a882;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .guest-button {
-  background: white;
-  color: #667eea;
-  padding: 14px 24px;
-  font-size: 16px;
+  background: linear-gradient(160deg, #fdf8f0 0%, #f5ede0 100%);
+  color: #7a5c35;
+  padding: 13px 24px;
+  font-family: "Lato", sans-serif;
+  font-size: 15px;
   font-weight: 600;
-  border: 2px solid #667eea;
+  border: 1.5px solid #d4a96a;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.22s ease;
+  letter-spacing: 0.02em;
 }
 
 .guest-button:hover {
-  background: #f7fafc;
+  background: linear-gradient(135deg, #8a6030 0%, #c9a97a 100%);
+  border-color: transparent;
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 6px 16px rgba(117, 58, 30, 0.22);
 }
 
 .guest-button:active {
@@ -189,24 +225,24 @@
   text-align: center;
   margin-top: 24px;
   padding-top: 24px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #d9c2a3;
 }
 
 .auth-link-text {
   font-size: 14px;
-  color: #718096;
+  color: #9b7d56;
   margin: 0;
 }
 
 .auth-link {
-  color: #667eea;
-  font-weight: 600;
+  color: #8a6030;
+  font-weight: 700;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .auth-link:hover {
-  color: #764ba2;
+  color: #5a4228;
   text-decoration: underline;
 }
 

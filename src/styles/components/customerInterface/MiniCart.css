@@ -415,14 +415,15 @@
 }
 
 .mini-cart-btn-primary {
-  background: linear-gradient(135deg, #753a1e 0%, #5c2e1a 100%);
+  background: linear-gradient(135deg, #2e7d52 0%, #1e5c3a 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(117, 58, 30, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 92, 58, 0.3);
 }
 
 .mini-cart-btn-primary:hover {
+  background: linear-gradient(135deg, #38936a 0%, #2a6e48 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(117, 58, 30, 0.4);
+  box-shadow: 0 6px 16px rgba(30, 92, 58, 0.4);
 }
 
 .mini-cart-btn-primary:active {
@@ -447,13 +448,14 @@
 
 .mini-cart-btn-outline {
   background-color: white;
-  color: #753a1e;
-  border: 2px solid #753a1e;
+  color: #6c757d;
+  border: 2px solid #dee2e6;
 }
 
 .mini-cart-btn-outline:hover {
-  background-color: #753a1e;
-  color: white;
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+  color: #495057;
   transform: translateY(-2px);
 }
 

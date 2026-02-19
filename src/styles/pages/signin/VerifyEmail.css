@@ -1,54 +1,49 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;600;700&display=swap");
+
 .verify-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #f8f9fa;
   padding: 20px;
+  font-family: "Lato", sans-serif;
 }
 
 .verify-card {
-  background: white;
+  background: linear-gradient(160deg, #fdf8f0 0%, #f9f1e4 100%);
+  border: 1.5px solid #d4a96a;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 480px;
   padding: 48px 40px;
   text-align: center;
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .loading-spinner {
   width: 60px;
   height: 60px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #667eea;
+  border: 4px solid #e8d9c4;
+  border-top-color: #c9a97a;
   border-radius: 50%;
   margin: 0 auto 24px;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .success-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #2e7d52 0%, #1e5c3a 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -56,13 +51,14 @@
   font-size: 48px;
   color: white;
   margin: 0 auto 24px;
-  animation: scaleIn 0.5s ease-out;
+  box-shadow: 0 8px 24px rgba(30, 92, 58, 0.28);
+  animation: scaleIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .error-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #b5341e 0%, #8c2515 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -70,42 +66,41 @@
   font-size: 48px;
   color: white;
   margin: 0 auto 24px;
-  animation: scaleIn 0.5s ease-out;
+  box-shadow: 0 8px 24px rgba(140, 37, 21, 0.28);
+  animation: scaleIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 @keyframes scaleIn {
-  from {
-    transform: scale(0);
-  }
-  to {
-    transform: scale(1);
-  }
+  from { transform: scale(0); }
+  to { transform: scale(1); }
 }
 
 .verify-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
   font-size: 28px;
   font-weight: 700;
-  color: #1a202c;
+  color: #3d2b0e;
   margin-bottom: 16px;
+  letter-spacing: 0.01em;
 }
 
 .verify-message {
-  font-size: 16px;
-  color: #718096;
+  font-size: 15px;
+  color: #9b7d56;
   margin-bottom: 24px;
   line-height: 1.6;
 }
 
 .verify-help {
-  font-size: 14px;
-  color: #a0aec0;
+  font-size: 13.5px;
+  color: #c0a882;
   margin-bottom: 24px;
   line-height: 1.5;
 }
 
 .verify-redirect {
   font-size: 14px;
-  color: #667eea;
+  color: #8a6030;
   margin-bottom: 24px;
 }
 
@@ -117,40 +112,61 @@
 
 .verify-button {
   display: inline-block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2e7d52 0%, #1e5c3a 100%);
   color: white;
-  padding: 14px 24px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 13px 24px;
+  font-family: "Lato", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
   border: none;
   border-radius: 8px;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 14px rgba(30, 92, 58, 0.28);
+  position: relative;
+  overflow: hidden;
 }
+
+.verify-button::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.4s ease;
+}
+
+.verify-button:hover::before { left: 100%; }
 
 .verify-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 22px rgba(30, 92, 58, 0.36);
+  background: linear-gradient(135deg, #38936a 0%, #2a6e48 100%);
 }
 
 .verify-button-secondary {
   display: inline-block;
-  background: white;
-  color: #667eea;
-  padding: 14px 24px;
-  font-size: 16px;
+  background: linear-gradient(160deg, #fdf8f0 0%, #f5ede0 100%);
+  color: #7a5c35;
+  padding: 13px 24px;
+  font-family: "Lato", sans-serif;
+  font-size: 15px;
   font-weight: 600;
-  border: 2px solid #667eea;
+  border: 1.5px solid #d4a96a;
   border-radius: 8px;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.22s ease;
+  letter-spacing: 0.02em;
 }
 
 .verify-button-secondary:hover {
-  background: #f7fafc;
+  background: linear-gradient(135deg, #8a6030 0%, #c9a97a 100%);
+  border-color: transparent;
+  color: white;
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(117, 58, 30, 0.22);
 }
 
 @media (max-width: 480px) {

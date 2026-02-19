@@ -66,7 +66,7 @@ const IndividualListing = () => {
     updateWishlistCoupon,
     updateCartCoupon,
     wishlistItems,
-    cartItems, // ADDED
+    cartItems,
   } = useCart();
   const { user } = useAuth();
 
@@ -156,7 +156,7 @@ const IndividualListing = () => {
     };
 
     loadProduct();
-  }, [variantId, wishlistItems, cartItems]); // ADDED cartItems
+  }, [variantId, wishlistItems, cartItems]);
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
@@ -208,9 +208,9 @@ const IndividualListing = () => {
 
     const cartItem = {
       variant_id: Number(variantId),
-      product_id: product.product_id, // ADDED
-      category_id: product.category_id, // ADDED
-      product_type_id: product.product_type_id, // ADDED
+      product_id: product.product_id,
+      category_id: product.category_id,
+      product_type_id: product.product_type_id,
       name: product.name,
       price: product.price,
       image: product.images[0],
@@ -232,9 +232,9 @@ const IndividualListing = () => {
 
     const wishlistItem = {
       variant_id: Number(variantId),
-      product_id: product.product_id, // ADDED
-      category_id: product.category_id, // ADDED
-      product_type_id: product.product_type_id, // ADDED
+      product_id: product.product_id,
+      category_id: product.category_id,
+      product_type_id: product.product_type_id,
       name: product.name,
       price: product.price,
       image: product.images[0],

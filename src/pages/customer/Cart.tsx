@@ -483,7 +483,9 @@ const Cart = () => {
           </button>
         </div>
 
-        <div className="cart-content-wrapper">
+        {/* ── KEY CHANGE: cart-layout (was cart-content-wrapper) ── */}
+        <div className="cart-layout">
+          {/* LEFT COLUMN — all cart items grouped together */}
           <div className="cart-items-section">
             {!isEmailVerified && (
               <div className="cart-verification-banner">
@@ -510,7 +512,6 @@ const Cart = () => {
 
                 if (itemCoupon && isEmailVerified) {
                   if (isBogo) {
-                    // For BOGO, use pre-calculated discount
                     const bogoDiscount =
                       bogoDiscounts.get(item.variant_id) || 0;
                     const itemTotal = item.price * item.quantity - bogoDiscount;
@@ -525,7 +526,6 @@ const Cart = () => {
                     hasDiscount =
                       bogoDiscount > 0 && shouldShowDiscountedPrice(itemCoupon);
                   } else {
-                    // For non-BOGO, calculate normally
                     discountInfo = calculateDiscount(
                       item.price,
                       itemCoupon,
@@ -748,12 +748,13 @@ const Cart = () => {
               })}
           </div>
 
+          {/* RIGHT COLUMN — order summary (sticky on desktop, below on mobile) */}
           <div className="cart-summary-section">
             <div className="cart-summary-card">
               <h4 className="cart-summary-title">Order Summary</h4>
 
               <div className="summary-row">
-                <span className="summary-label">Subtotal:</span>
+                <span className="summary-label">Subtotal</span>
                 <span className="summary-value">
                   ${originalSubtotal.toFixed(2)}
                 </span>
@@ -761,7 +762,7 @@ const Cart = () => {
 
               {totalDiscount > 0 && (
                 <div className="summary-row summary-discount">
-                  <span className="summary-label">Discount:</span>
+                  <span className="summary-label">Discount</span>
                   <span className="summary-value summary-value-discount">
                     -${totalDiscount.toFixed(2)}
                   </span>
@@ -769,22 +770,20 @@ const Cart = () => {
               )}
 
               <div className="summary-row">
-                <span className="summary-label">Shipping:</span>
+                <span className="summary-label">Shipping</span>
                 <span className="summary-value summary-value-muted">
                   Calculated at checkout
                 </span>
               </div>
 
-              <div className="summary-divider"></div>
-
               <div className="summary-row summary-total">
-                <strong className="summary-label">Total:</strong>
+                <strong className="summary-label">Total</strong>
                 <strong className="summary-value summary-value-total">
                   ${subtotalWithDiscounts.toFixed(2)}
                 </strong>
               </div>
 
-              <p className="summary-note">Plus tax and shipping</p>
+              <p className="summary-note">Plus applicable tax and shipping</p>
 
               <button
                 className="btn-checkout"
@@ -802,6 +801,7 @@ const Cart = () => {
             </div>
           </div>
         </div>
+        {/* end .cart-layout */}
       </div>
 
       {/* Coupon Modal */}

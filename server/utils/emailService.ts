@@ -1,21 +1,34 @@
 import nodemailer from "nodemailer";
+import { google } from "googleapis";
 
 // ============================================================================
-// NODEMAILER CONFIGURATION
+// NODEMAILER + GMAIL OAUTH2 CONFIGURATION
 // ============================================================================
 
-/**
- * Configure nodemailer transporter
- */
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || "smtp.gmail.com",
-  port: Number(process.env.EMAIL_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GMAIL_CLIENT_ID,
+  process.env.GMAIL_CLIENT_SECRET,
+  "https://developers.google.com/oauthplayground"
+);
+
+oauth2Client.setCredentials({
+  refresh_token: process.env.GMAIL_REFRESH_TOKEN,
 });
+
+const createTransporter = async () => {
+  const accessTokenResponse = await oauth2Client.getAccessToken();
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      type: "OAuth2",
+      user: process.env.EMAIL_USER,
+      clientId: process.env.GMAIL_CLIENT_ID,
+      clientSecret: process.env.GMAIL_CLIENT_SECRET,
+      refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+      accessToken: accessTokenResponse.token!,
+    },
+  });
+};
 
 // ============================================================================
 // EMAIL - VERIFICATION
@@ -107,6 +120,7 @@ export const sendVerificationEmail = async (
   };
 
   try {
+    const transporter = await createTransporter();
     await transporter.sendMail(mailOptions);
     console.log("Verification email sent to:", email);
   } catch (error) {
@@ -205,6 +219,7 @@ export const sendPasswordResetEmail = async (
   };
 
   try {
+    const transporter = await createTransporter();
     await transporter.sendMail(mailOptions);
     console.log("Password reset email sent to:", email);
   } catch (error) {
@@ -248,7 +263,6 @@ export const sendOrderConfirmationEmail = async (
   isGuest: boolean = false
 ): Promise<void> => {
   const baseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-  // Guests use the public order-lookup page; registered users go to their order detail page
   const orderUrl = isGuest
     ? `${baseUrl}/order-lookup`
     : `${baseUrl}/order-confirmation/${orderData.order_number}`;
@@ -487,6 +501,7 @@ export const sendOrderConfirmationEmail = async (
   };
 
   try {
+    const transporter = await createTransporter();
     await transporter.sendMail(mailOptions);
     console.log("Order confirmation email sent to:", email);
   } catch (error) {
@@ -512,7 +527,6 @@ export const sendShippingNotificationEmail = async (
   },
   isGuest: boolean = false
 ): Promise<void> => {
-  // USPS tracking URL
   const uspsTrackingUrl = `https://tools.usps.com/go/TrackConfirmAction?tLabels=${orderData.tracking_number}`;
   const baseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
   const orderUrl = isGuest
@@ -664,6 +678,7 @@ export const sendShippingNotificationEmail = async (
   };
 
   try {
+    const transporter = await createTransporter();
     await transporter.sendMail(mailOptions);
     console.log("Shipping notification email sent to:", email);
   } catch (error) {
@@ -755,6 +770,7 @@ export const sendAdminEmail = async (
   };
 
   try {
+    const transporter = await createTransporter();
     await transporter.sendMail(mailOptions);
     console.log("Admin email sent to:", email);
   } catch (error) {
