@@ -1,0 +1,475 @@
+/* ================================
+   ABOUT PAGE STYLES
+   Taz Decor Catholic Shop
+   ================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;600&display=swap");
+
+:root {
+  --color-bg: #fdf8f0;
+  --color-bg-alt: #f5ede0;
+  --color-bg-deep: #ede3d5;
+  --color-text-dark: #3d2b0e;
+  --color-text-mid: #5a4228;
+  --color-text-light: #8a6540;
+  --color-gold: #9b7d56;
+  --color-gold-dark: #7a5c35;
+  --color-gold-btn: #8a6030;
+  --color-gold-btn-hover: #9a6e38;
+  --color-white: #ffffff;
+  --color-card-bg: #fffaf4;
+  --color-card-border: #e8d9c0;
+  --shadow-soft: 0 4px 20px rgba(120, 80, 30, 0.1);
+  --shadow-medium: 0 8px 32px rgba(120, 80, 30, 0.15);
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+
+/* ================================
+   PAGE WRAPPER
+   ================================ */
+
+.about-page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--color-bg) 0%, var(--color-bg-alt) 50%, var(--color-bg-deep) 100%);
+  font-family: "Lato", -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--color-text-mid);
+}
+
+/* ================================
+   PAGE HEADER (reduced height)
+   ================================ */
+
+.about-header {
+  background: linear-gradient(135deg, #a8803f 0%, #8d6d43 60%, #946d40 100%);
+  padding: 2.5rem 2rem 2.25rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-header::before {
+  content: "✝";
+  position: absolute;
+  font-size: 14rem;
+  color: rgba(255, 255, 255, 0.04);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  line-height: 1;
+}
+
+.about-header-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.about-cross {
+  display: block;
+  font-size: 1.5rem;
+  color: rgba(255, 220, 150, 0.7);
+  margin-bottom: 0.5rem;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.about-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: #fdf8f0;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.02em;
+  animation: fadeInDown 0.7s ease-out;
+}
+
+.about-subtitle {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-style: italic;
+  color: rgba(253, 220, 160, 0.85);
+  margin: 0 0 1.25rem;
+  font-weight: 400;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+/* ================================
+   EMAIL PILL IN HEADER
+   ================================ */
+
+.about-email-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50px;
+  color: #fdf8f0;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(4px);
+  transition: all 0.25s ease;
+  animation: fadeInDown 0.9s ease-out;
+}
+
+.about-email-pill:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.55);
+  transform: translateY(-2px);
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================
+   BODY WRAPPER
+   ================================ */
+
+.about-body {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ================================
+   SECTION SHARED
+   ================================ */
+
+.about-section {
+  padding: 0.5rem 0;
+}
+
+.section-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  background: rgba(155, 125, 86, 0.1);
+  border: 1px solid rgba(155, 125, 86, 0.25);
+  padding: 0.35rem 1rem;
+  border-radius: 50px;
+  margin-bottom: 1.5rem;
+}
+
+.section-heading {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin: 0 0 1.5rem;
+  line-height: 1.2;
+}
+
+.section-heading.centered {
+  text-align: center;
+}
+
+/* ================================
+   STORY SECTION
+   ================================ */
+
+.story-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 3rem;
+  align-items: start;
+}
+
+.story-text p {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  color: var(--color-text-mid);
+  margin: 0 0 1.25rem;
+  font-weight: 300;
+}
+
+.story-text p:last-child {
+  margin-bottom: 0;
+}
+
+.story-card {
+  background: var(--color-card-bg);
+  border: 2px solid var(--color-card-border);
+  border-radius: var(--radius);
+  padding: 2rem 1.5rem;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: sticky;
+  top: 2rem;
+}
+
+.story-stat {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-gold-dark);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.story-divider {
+  color: var(--color-gold);
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+
+/* ================================
+   DIVIDER
+   ================================ */
+
+.about-divider {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.5rem 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-card-border), transparent);
+}
+
+.divider-cross {
+  color: var(--color-gold);
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* ================================
+   MISSION SECTION
+   ================================ */
+
+.mission-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.mission-card {
+  background: var(--color-card-bg);
+  border: 2px solid var(--color-card-border);
+  border-radius: var(--radius);
+  padding: 2rem 1.5rem;
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+  transition: all 0.25s ease;
+}
+
+.mission-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+  border-color: var(--color-gold);
+}
+
+.mission-icon {
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.mission-card h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin: 0 0 0.75rem;
+}
+
+.mission-card p {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--color-text-mid);
+  margin: 0;
+  font-weight: 300;
+}
+
+/* ================================
+   CONTACT SECTION
+   ================================ */
+
+.contact-intro {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 2.5rem;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--color-text-mid);
+  font-weight: 300;
+}
+
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 2rem 1.5rem;
+  background: var(--color-card-bg);
+  border: 2px solid var(--color-card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.25s ease;
+}
+
+.contact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+  border-color: var(--color-gold);
+}
+
+.contact-icon {
+  font-size: 2.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.contact-card-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.contact-card-email {
+  font-size: 0.875rem;
+  color: var(--color-gold-dark);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.contact-card-sub {
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+  font-weight: 300;
+}
+
+/* ================================
+   FOOTER NOTE
+   ================================ */
+
+.about-footer-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 2.5rem 2rem;
+  border-top: 1px solid var(--color-card-border);
+  margin-top: 1rem;
+}
+
+.about-footer-note p {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--color-text-light);
+  margin: 0;
+}
+
+.cross-symbol {
+  color: var(--color-gold);
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media (max-width: 900px) {
+  .story-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .story-card {
+    position: static;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .story-divider {
+    display: none;
+  }
+
+  .mission-cards {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .custom-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-quote {
+    order: -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-header {
+    padding: 2rem 1.25rem 2rem;
+  }
+
+  .about-email-pill {
+    font-size: 0.8rem;
+    padding: 0.5rem 1.1rem;
+  }
+
+  .about-body {
+    padding: 2rem 1.25rem 1.5rem;
+  }
+
+  .contact-cards {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+  }
+
+  .about-footer-note {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .section-heading {
+    font-size: 1.6rem;
+  }
+}

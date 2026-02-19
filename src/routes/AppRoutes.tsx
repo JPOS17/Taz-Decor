@@ -1,11 +1,12 @@
 import { Routes, Route, Navigate, useLocation } from "react-router";
 
 import Home from "../pages/main/Home";
+import About from "../pages/main/About";
+import Reviews from "../pages/main/Reviews";
 import Cart from "../pages/customer/Cart";
 import WishList from "../pages/customer/Saved";
 import Items from "../pages/main/Items";
 import Listing from "../pages/main/Listing";
-
 import Profile from "../pages/main/Profile";
 
 import Login from "../pages/signin/Login";
@@ -20,30 +21,39 @@ import OrderConfirmation from "../pages/customer/OrderConfirmation";
 import Orders from "../pages/customer/Orders";
 
 import ManagerDashboard from "../pages/manager/ManagerDashboard";
-
 import ProductManagementDirectory from "../pages/manager/Inventory/ProductManagementDirectory";
 import CreateProduct from "../pages/manager/Inventory/CreateNewProduct";
 import ManageProducts from "../pages/manager/Inventory/ManageInventory";
 import ManageCategories from "../pages/manager/Inventory/ManageCategories";
 import ManageProductTypes from "../pages/manager/Inventory/MangeProductTypes";
-
 import CouponsPage from "../pages/manager/CouponsPage";
-
 import OrderStatusPage from "../pages/manager/OrderStatus";
-
 import Settings from "../pages/manager/Settings";
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
 
 import ProtectedRoute from "./ProtectedRoute";
 
+import PrivacyPolicy from "../footer/PrivacyPolicy";
+import ShippingPolicy from "../footer/ShippingPolicy";
+import ReturnPolicy from "../footer/ReturnPolicy";
+import TermsAndConditions from "../footer/TermsConditions";
+
 const AppRoutes = () => {
   const location = useLocation();
 
   return (
     <Routes>
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+      <Route path="/return-policy" element={<ReturnPolicy />} />
+      <Route path="/shipping-policy" element={<ShippingPolicy />} />
+
       <Route path="/" element={<Navigate to="/home" replace />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/reviews" element={<Reviews />} />
+
       <Route path="/items" element={<Items />} />
       {/* Add key prop to force remount when variantId changes */}
       <Route

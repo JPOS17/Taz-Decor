@@ -1,0 +1,236 @@
+/* ============================================================
+   footer.css
+   Shared styles for Footer + all Legal Policy pages
+   ============================================================ */
+
+/* ── CSS Variables ─────────────────────────────────────────── */
+:root {
+  --brand-blue: #1a56db;
+  --brand-blue-hover: #1e429f;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --border-color: #e5e7eb;
+  --border-dark: #d1d5db;
+  --bg-table-head: #1f2937;
+  --bg-table-row-alt: #f9fafb;
+
+  /* Footer */
+  --footer-bg: #111827;
+  --footer-border: #374151;
+  --footer-text: #d1d5db;
+  --footer-text-muted: #6b7280;
+  --footer-link: #d1d5db;
+  --footer-link-hover: #ffffff;
+  --footer-divider: #374151;
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+.footer {
+  background-color: var(--footer-bg);
+  color: var(--footer-text);
+  padding: 24px 24px;
+  text-align: center;
+  border-top: 1px solid var(--footer-border);
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 12px;
+  margin-bottom: 12px;
+  list-style: none;
+  padding: 0;
+  margin-left: 0;
+}
+
+.footer__link {
+  color: var(--footer-link);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer__link:hover {
+  color: var(--footer-link-hover);
+  text-decoration: underline;
+}
+
+.footer__divider {
+  color: var(--footer-divider);
+  user-select: none;
+}
+
+.footer__copyright {
+  margin: 0;
+  color: var(--footer-text-muted);
+  font-size: 0.8rem;
+}
+
+/* ── Legal Pages – Shared Layout ───────────────────────────── */
+.legal-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  font-family: Georgia, serif;
+  color: var(--text-primary);
+  line-height: 1.8;
+}
+
+/* Page title */
+.legal-page__title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--text-primary);
+  padding-bottom: 12px;
+  margin-bottom: 6px;
+}
+
+/* "Last updated" line */
+.legal-page__date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+}
+
+/* Intro paragraph */
+.legal-page__intro {
+  margin-bottom: 24px;
+}
+
+/* Section heading (numbered or named) */
+.legal-page__section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 6px;
+  margin-top: 40px;
+  margin-bottom: 16px;
+}
+
+/* Sub-heading within a section */
+.legal-page__subhead {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+/* Standard paragraph spacing */
+.legal-page p {
+  margin-bottom: 16px;
+}
+
+/* Lists */
+.legal-page ul,
+.legal-page ol {
+  margin-left: 24px;
+  margin-bottom: 16px;
+}
+
+.legal-page li {
+  margin-bottom: 6px;
+}
+
+/* Links inside legal pages */
+.legal-page a {
+  color: var(--brand-blue);
+  text-decoration: none;
+}
+
+.legal-page a:hover {
+  color: var(--brand-blue-hover);
+  text-decoration: underline;
+}
+
+/* Block address (return address, contact block) */
+.legal-page__address {
+  font-style: normal;
+  margin-top: 8px;
+  line-height: 2;
+  padding-left: 16px;
+  border-left: 3px solid var(--border-dark);
+}
+
+/* Table of contents ordered list */
+.legal-page__toc {
+  margin-left: 24px;
+  margin-bottom: 32px;
+}
+
+.legal-page__toc li {
+  margin-bottom: 4px;
+  color: var(--brand-blue);
+}
+
+/* Data table (used in Privacy Policy – TX rights) */
+.legal-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+  overflow-x: auto;
+}
+
+.legal-page__table th {
+  padding: 10px 14px;
+  text-align: left;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-table-head);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.legal-page__table td {
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  vertical-align: top;
+}
+
+.legal-page__table tr:nth-child(even) td {
+  background-color: var(--bg-table-row-alt);
+}
+
+.legal-page__table td:last-child {
+  text-align: center;
+}
+
+/* Uppercase disclaimer blocks (Disclaimer / Liability sections) */
+.legal-page__uppercase-block {
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  line-height: 1.85;
+}
+
+/* Footer note at bottom of each policy */
+.legal-page__footer-note {
+  margin-top: 48px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .legal-page {
+    padding: 32px 16px 48px;
+  }
+
+  .legal-page__title {
+    font-size: 1.5rem;
+  }
+
+  .footer__nav {
+    gap: 8px 10px;
+  }
+}
