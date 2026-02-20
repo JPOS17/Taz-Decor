@@ -417,17 +417,42 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     try {
       await client.query('BEGIN');
 
-      // Verify address belongs to user
+      // Verify address belongs to user AND fetch its data in one shot
       const addressCheck = await client.query(
-        'SELECT * FROM user_addresses WHERE address_id = $1 AND user_id = $2',
+        `SELECT 
+          address_id,
+          address_line1,
+          address_line2,
+          city,
+          state,
+          zip,
+          country
+        FROM user_addresses 
+        WHERE address_id = $1 AND user_id = $2`,
         [shipping_address_id, user.userId]
       );
 
       if (addressCheck.rows.length === 0) {
         await client.query('ROLLBACK');
         res.status(400).json({ message: "Invalid shipping address" });
-      return;
+        return;
       }
+
+      const addressData = addressCheck.rows[0];
+
+      // Fetch user's name and email for the snapshot
+      const userResult = await client.query(
+        'SELECT email, first_name, last_name FROM users WHERE user_id = $1',
+        [user.userId]
+      );
+
+      if (userResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        res.status(400).json({ message: "User not found" });
+        return;
+      }
+
+      const { email: userEmail, first_name, last_name } = userResult.rows[0];
 
       // Get the location_id from the first item
       const firstVariantResult = await client.query(
@@ -438,13 +463,12 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       if (firstVariantResult.rows.length === 0) {
         await client.query('ROLLBACK');
         res.status(400).json({ message: "Invalid product" });
-      return;
+        return;
       }
 
       const location_id = firstVariantResult.rows[0].location_id;
 
       // ========== BOX SELECTION ==========
-      // Get variant dimensions for box packing algorithm
       const variantIds = cart_items.map((item: any) => item.variant_id);
       const variantsResult = await client.query(
         `SELECT 
@@ -478,13 +502,13 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         };
       });
 
-      // Calculate total weight for all items in the order
+      // Calculate total weight
       let totalWeightOz = 0;
       for (const cartItem of cart_items) {
         const variant = variantsResult.rows.find(
           (v: any) => v.variant_id === cartItem.variant_id
         );
-        const weightOz = variant?.weight_oz ? parseFloat(variant.weight_oz) : 8; // Default 8oz if not set
+        const weightOz = variant?.weight_oz ? parseFloat(variant.weight_oz) : 8;
         totalWeightOz += weightOz * cartItem.quantity;
       }
       console.log(`⚖️  Order total weight: ${totalWeightOz}oz (${(totalWeightOz / 16).toFixed(2)}lbs)`);
@@ -501,29 +525,42 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         }
       } catch (boxError) {
         console.error("❌ Box selection failed for order:", boxError);
-        // Don't fail the order, just log it
       }
-      // ========== END BOX SELECTION & WEIGHT CALCULATION ==========
+      // ========== END BOX SELECTION ==========
 
       // Generate unique order number
       const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-      // Create order with separate discount tracking, selected box, and total weight
+      // Create order with address snapshot
       const orderResult = await client.query(
         `INSERT INTO orders 
         (user_id, shipping_address_id, location_id, order_number, subtotal, 
         discount_amount, item_level_discount, cart_level_discount,
-        shipping_cost, tax_amount, total_price, selected_box_id, total_weight_oz, status, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'pending', NOW())
+        shipping_cost, tax_amount, total_price, selected_box_id, total_weight_oz,
+        first_name, last_name, address_line1, address_line2, city, state, zip, country, customer_email,
+        status, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, 'pending', NOW())
         RETURNING *`,
-        [user.userId, shipping_address_id, location_id, orderNumber, subtotal, 
-        discount_amount, item_level_discount || 0, cart_level_discount || 0,
-        shipping_cost, tax_amount || 0, total_price, selectedBoxId, totalWeightOz]
+        [
+          user.userId, shipping_address_id, location_id, orderNumber, subtotal,
+          discount_amount, item_level_discount || 0, cart_level_discount || 0,
+          shipping_cost, tax_amount || 0, total_price, selectedBoxId, totalWeightOz,
+          // Address snapshot
+          first_name,
+          last_name,
+          addressData.address_line1,
+          addressData.address_line2 || null,
+          addressData.city,
+          addressData.state,
+          addressData.zip,
+          addressData.country || 'USA',
+          userEmail
+        ]
       );
 
       const order = orderResult.rows[0];
 
-      // ✅ NEW: Log initial order status as 'pending'
+      // Log initial order status as 'pending'
       await logOrderStatus(
         client,
         order.order_id,
@@ -533,7 +570,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
       // Insert order items
       for (const item of cart_items) {
-        // Get product details
         const productResult = await client.query(
           `SELECT p.name, pv.color, pv.size, pv.price
            FROM product_variants pv
@@ -545,13 +581,12 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         if (productResult.rows.length === 0) {
           await client.query('ROLLBACK');
           res.status(400).json({ message: `Invalid product variant: ${item.variant_id}` });
-      return;
+          return;
         }
 
         const product = productResult.rows[0];
         const variantDetails = [product.color, product.size].filter(Boolean).join(', ');
 
-        // Insert order item
         await client.query(
           `INSERT INTO order_items 
           (order_id, variant_id, product_name, variant_details, quantity, price_at_purchase)
@@ -566,14 +601,13 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         );
       }
 
-      // Track item-level coupons in order_coupons table
+      // Track item-level coupons
       if (applied_coupons && applied_coupons.length > 0) {
         const uniqueCouponIds = new Set<number>();
-        
+
         for (const appliedCoupon of applied_coupons) {
           uniqueCouponIds.add(appliedCoupon.coupon_id);
-          
-          // Insert into order_coupons tracking table
+
           await client.query(
             `INSERT INTO order_coupons (order_id, coupon_id, coupon_type, variant_id)
              VALUES ($1, $2, 'item_level', $3)`,
@@ -581,7 +615,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
           );
         }
 
-        // Update usage counts for unique coupons
         for (const couponId of uniqueCouponIds) {
           await client.query(
             'UPDATE coupons SET usage_count_total = usage_count_total + 1 WHERE coupon_id = $1',
@@ -590,7 +623,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         }
       }
 
-      // Track cart-level coupon in order_coupons table
+      // Track cart-level coupon
       if (cart_level_coupon_id) {
         await client.query(
           `INSERT INTO order_coupons (order_id, coupon_id, coupon_type, variant_id)
@@ -598,7 +631,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
           [order.order_id, cart_level_coupon_id]
         );
 
-        // Update usage count for cart-level coupon
         await client.query(
           'UPDATE coupons SET usage_count_total = usage_count_total + 1 WHERE coupon_id = $1',
           [cart_level_coupon_id]
@@ -613,27 +645,19 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
       await client.query('COMMIT');
 
-      // Fetch the complete order details to send in the email
+      // Fetch complete order details for confirmation email
+      // Now we can read the snapshot directly from the order — no join to user_addresses needed
       const orderDetailsResult = await pool.query(
         `SELECT 
           o.*,
-          ua.address_name,
-          ua.address_line1,
-          ua.address_line2,
-          ua.city,
-          ua.state,
-          ua.zip,
-          ua.country,
           u.first_name,
           u.email
         FROM orders o
-        JOIN user_addresses ua ON o.shipping_address_id = ua.address_id
         JOIN users u ON o.user_id = u.user_id
         WHERE o.order_id = $1`,
         [order.order_id]
       );
 
-      // Fetch order items
       const orderItemsResult = await pool.query(
         `SELECT 
           oi.product_name,
@@ -654,7 +678,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       // Send order confirmation email
       try {
         await sendOrderConfirmationEmail(
-          orderDetailsData.email,
+          orderDetailsData.customer_email,
           orderDetailsData.first_name,
           {
             order_number: orderNumber,
@@ -663,7 +687,8 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
             discount_amount: discount_amount || 0,
             shipping_cost,
             tax_amount: tax_amount || 0,
-            address_name: orderDetailsData.address_name,
+            // All from the snapshot now
+            address_name: null,
             address_line1: orderDetailsData.address_line1,
             address_line2: orderDetailsData.address_line2,
             city: orderDetailsData.city,
@@ -680,7 +705,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
           }
         );
       } catch (emailError) {
-        // Log the error but don't fail the order creation
         console.error("Failed to send order confirmation email:", emailError);
       }
 
@@ -721,7 +745,6 @@ export const getUserOrders = async (req: Request, res: Response): Promise<void> 
 
     const { limit, offset } = req.query;
 
-    // Only bypass the user_id filter when hitting the admin route
     const isAdminRoute = req.path === '/admin/orders';
     const showAllOrders = isAdminRoute && (user.role === 'admin' || user.role === 'manager');
 
@@ -740,21 +763,24 @@ export const getUserOrders = async (req: Request, res: Response): Promise<void> 
         o.shipped_at,
         o.delivered_at,
         o.created_at,
-        ua.address_line1,
-        ua.city,
-        ua.state,
-        ua.zip,
+        o.first_name,
+        o.last_name,
+        o.address_line1,
+        o.address_line2,
+        o.city,
+        o.state,
+        o.zip,
+        o.country,
+        o.customer_email,
         COUNT(oi.order_item_id) as item_count
       FROM orders o
-      LEFT JOIN user_addresses ua ON ua.address_id = o.shipping_address_id
       LEFT JOIN order_items oi ON oi.order_id = o.order_id
       WHERE ($1::boolean = true OR o.user_id = $2)
-      GROUP BY o.order_id, ua.address_id
+      GROUP BY o.order_id
       ORDER BY o.created_at DESC
       LIMIT $3 OFFSET $4`,
       [showAllOrders, user.userId, limit || 20, offset || 0]
     );
-
 
     const orders = result.rows.map(order => ({
       ...order,
@@ -763,7 +789,7 @@ export const getUserOrders = async (req: Request, res: Response): Promise<void> 
       shipping_cost: parseFloat(order.shipping_cost),
       tax_amount: parseFloat(order.tax_amount),
       total_price: parseFloat(order.total_price),
-      total_weight_oz: order.total_weight_oz ? parseFloat(order.total_weight_oz) : null,  // ✅ ADD THIS LINE
+      total_weight_oz: order.total_weight_oz ? parseFloat(order.total_weight_oz) : null,
       item_count: parseInt(order.item_count)
     }));
 
@@ -788,29 +814,39 @@ export const getOrderDetails = async (req: Request, res: Response): Promise<void
 
     const { orderId } = req.params;
 
-    // Get order details
     const orderResult = await pool.query(
       `SELECT 
         o.*,
-        ua.address_name,
-        ua.address_line1,
-        ua.address_line2,
-        ua.city,
-        ua.state,
-        ua.zip,
-        ua.country,
-        u.first_name,
-        u.last_name,
+        -- Auth user snapshot (already on orders row)
+        -- Guest fallback: pull from guest_orders if snapshot fields are null
+        COALESCE(o.first_name, go.guest_first_name)   AS first_name,
+        COALESCE(o.last_name, go.guest_last_name)      AS last_name,
+        COALESCE(o.address_line1, go.address_line1)    AS address_line1,
+        COALESCE(o.address_line2, go.address_line2)    AS address_line2,
+        COALESCE(o.city, go.city)                      AS city,
+        COALESCE(o.state, go.state)                    AS state,
+        COALESCE(o.zip, go.zip)                        AS zip,
+        COALESCE(o.country, go.country)                AS country,
+        COALESCE(o.customer_email, go.guest_email)     AS customer_email,
+        -- Guest-specific fields
+        go.guest_email,
+        go.guest_first_name,
+        go.guest_last_name,
+        go.guest_phone,
+        -- Whether this is a guest order
+        CASE WHEN go.guest_order_id IS NOT NULL THEN true ELSE false END AS is_guest_order,
+        u.first_name   AS user_first_name,
+        u.last_name    AS user_last_name,
         sl.location_name,
-        sl.city as seller_city,
-        sl.state as seller_state,
+        sl.city        AS seller_city,
+        sl.state       AS seller_state,
         sb.box_name,
         sb.box_type,
-        sb.length_in as box_length,
-        sb.width_in as box_width,
-        sb.height_in as box_height
+        sb.length_in   AS box_length,
+        sb.width_in    AS box_width,
+        sb.height_in   AS box_height
       FROM orders o
-      LEFT JOIN user_addresses ua ON ua.address_id = o.shipping_address_id
+      LEFT JOIN guest_orders go ON go.order_id = o.order_id
       LEFT JOIN users u ON u.user_id = o.user_id
       LEFT JOIN seller_locations sl ON sl.location_id = o.location_id
       LEFT JOIN shipping_boxes sb ON sb.box_id = o.selected_box_id
@@ -825,7 +861,6 @@ export const getOrderDetails = async (req: Request, res: Response): Promise<void
 
     const order = orderResult.rows[0];
 
-    // Get order items
     const itemsResult = await pool.query(
       `SELECT 
         oi.*,
@@ -845,7 +880,8 @@ export const getOrderDetails = async (req: Request, res: Response): Promise<void
       shipping_cost: parseFloat(order.shipping_cost),
       tax_amount: parseFloat(order.tax_amount),
       total_price: parseFloat(order.total_price),
-      items: itemsResult.rows.map(item => ({
+      total_weight_oz: order.total_weight_oz ? parseFloat(order.total_weight_oz) : null,
+      items: itemsResult.rows.map((item: any) => ({
         ...item,
         price_at_purchase: parseFloat(item.price_at_purchase)
       }))
@@ -872,17 +908,9 @@ export const getOrderByNumber = async (req: Request, res: Response): Promise<voi
 
     const { orderNumber } = req.params;
 
-    // Get order details
     const orderResult = await pool.query(
       `SELECT 
         o.*,
-        ua.address_name,
-        ua.address_line1,
-        ua.address_line2,
-        ua.city,
-        ua.state,
-        ua.zip,
-        ua.country,
         sl.location_name,
         sl.city as seller_city,
         sl.state as seller_state,
@@ -892,7 +920,6 @@ export const getOrderByNumber = async (req: Request, res: Response): Promise<voi
         sb.width_in as box_width,
         sb.height_in as box_height
       FROM orders o
-      LEFT JOIN user_addresses ua ON ua.address_id = o.shipping_address_id
       LEFT JOIN seller_locations sl ON sl.location_id = o.location_id
       LEFT JOIN shipping_boxes sb ON sb.box_id = o.selected_box_id
       WHERE o.order_number = $1 AND o.user_id = $2`,
@@ -906,7 +933,6 @@ export const getOrderByNumber = async (req: Request, res: Response): Promise<voi
 
     const order = orderResult.rows[0];
 
-    // Get order items
     const itemsResult = await pool.query(
       `SELECT 
         oi.*,
@@ -926,6 +952,7 @@ export const getOrderByNumber = async (req: Request, res: Response): Promise<voi
       shipping_cost: parseFloat(order.shipping_cost),
       tax_amount: parseFloat(order.tax_amount),
       total_price: parseFloat(order.total_price),
+      total_weight_oz: order.total_weight_oz ? parseFloat(order.total_weight_oz) : null,
       items: itemsResult.rows.map(item => ({
         ...item,
         price_at_purchase: parseFloat(item.price_at_purchase)
@@ -1108,7 +1135,6 @@ const calculateBogoDiscount = (
 /**
  * VALIDATE coupons before checkout
  * Handles both item-level and cart-level coupons
- * NOW INCLUDES: free_shipping_only validation AND cross-item BOGO support
  */
 export const validateCoupons = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -1686,7 +1712,6 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
 
 /**
  * GET order status history
- * 
  * This shows all status changes that have occurred for this order
  */
 export const getOrderStatusHistory = async (req: Request, res: Response): Promise<void> => {
@@ -1742,15 +1767,6 @@ export const getOrderStatusHistory = async (req: Request, res: Response): Promis
 
 /**
  * CREATE a guest order (no auth required)
- *
- * Body shape:
- * {
- *   guest_info: { email, first_name, last_name?, phone? },
- *   shipping_address: { address_name?, address_line1, address_line2?, city, state, zip, country? },
- *   cart_items: [{ variant_id, quantity, price }],
- *   subtotal, shipping_cost, tax_amount, total_price,
- *   selected_shipping_rate_id?, shipping_carrier?, shipping_service?
- * }
  */
 export const createGuestOrder = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -1767,7 +1783,7 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
       shipping_service,
     } = req.body;
 
-    // ── Validate required fields ──────────────────────────────────────────────
+    // Validate required fields 
     if (!guest_info?.email || !guest_info?.first_name) {
       res.status(400).json({ message: "Guest email and first name are required" });
       return;
@@ -1792,7 +1808,7 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
     try {
       await client.query('BEGIN');
 
-      // ── Get location_id from the first cart item ───────────────────────────
+      // Get location_id from the first cart item 
       const firstVariantResult = await client.query(
         'SELECT location_id FROM product_variants WHERE variant_id = $1',
         [cart_items[0].variant_id]
@@ -1806,7 +1822,7 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
 
       const location_id = firstVariantResult.rows[0].location_id;
 
-      // ── Fetch variant dimensions for box packing + weight calculation ──────
+      // Fetch variant dimensions for box packing + weight calculation 
       const variantIds = cart_items.map((item: any) => item.variant_id);
       const variantsResult = await client.query(
         `SELECT variant_id, length_in, width_in, height_in, weight_oz
@@ -1832,7 +1848,7 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
         totalWeightOz += weightOz * cartItem.quantity;
       }
 
-      // ── Box selection ──────────────────────────────────────────────────────
+      // Box selection 
       let selectedBoxId: number | null = null;
       try {
         const selectedBox = await selectShippingBox(packingItems, location_id);
@@ -1843,10 +1859,10 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
         console.error("❌ Guest box selection failed:", boxError);
       }
 
-      // ── Generate unique order number ───────────────────────────────────────
-      const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      // Generate unique order number 
+      const orderNumber = `GST-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-      // ── Insert into orders (user_id and shipping_address_id are NULL) ──────
+      // Insert into orders (user_id and shipping_address_id are NULL) 
       const orderResult = await client.query(
         `INSERT INTO orders
           (user_id, shipping_address_id, location_id, order_number,
@@ -1871,7 +1887,7 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
 
       const order = orderResult.rows[0];
 
-      // ── Insert into guest_orders ───────────────────────────────────────────
+      // Insert into guest_orders
       await client.query(
         `INSERT INTO guest_orders
           (order_id, guest_email, guest_first_name, guest_last_name, guest_phone,
@@ -1893,10 +1909,10 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
         ]
       );
 
-      // ── Log initial status ─────────────────────────────────────────────────
+      // Log initial status
       await logOrderStatus(client, order.order_id, 'pending', 'Guest order placed');
 
-      // ── Insert order items + decrement stock ───────────────────────────────
+      // Insert order items + decrement stock 
       for (const item of cart_items) {
         const productResult = await client.query(
           `SELECT p.name, pv.color, pv.size, pv.price
@@ -1930,7 +1946,7 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
 
       await client.query('COMMIT');
 
-      // ── Send order confirmation email ──────────────────────────────────────
+      // Send order confirmation email
       try {
         const orderItemsResult = await pool.query(
           `SELECT oi.product_name, oi.variant_details, oi.quantity, oi.price_at_purchase, pi.img_url
@@ -1966,7 +1982,7 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
               img_url: item.img_url,
             })),
           },
-          true // isGuest — links to /order-lookup instead of /order-confirmation
+          true 
         );
       } catch (emailError) {
         console.error("Failed to send guest order confirmation email:", emailError);

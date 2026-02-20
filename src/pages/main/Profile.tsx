@@ -339,11 +339,16 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="profile-page">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading profile...</p>
-        </div>
+      <div
+        className="profile-page"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <div className="spinner"></div>
       </div>
     );
   }
@@ -451,19 +456,6 @@ const Profile = () => {
                   className="btn-edit"
                   onClick={() => setIsEditingProfile(true)}
                 >
-                  <svg
-                    className="btn-icon"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
                   Edit
                 </button>
               ) : (
@@ -564,24 +556,8 @@ const Profile = () => {
           {/* All Saved Addresses Section - now in primary position */}
           <section className="profile-section">
             <div className="section-header">
-              <h3 className="section-title">
-                Saved Addresses{" "}
-                {allAddresses.length > 0 && `(${allAddresses.length})`}
-              </h3>
+              <h3 className="section-title">Saved Addresses </h3>
               <button className="btn-add" onClick={() => openAddressModal()}>
-                <svg
-                  className="btn-icon"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
                 Add New
               </button>
             </div>
@@ -668,25 +644,6 @@ const Profile = () => {
           onClick={() => setShowAddressModal(false)}
         >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3 className="modal-title">
-                {editingAddressId ? "Edit Address" : "Add New Address"}
-              </h3>
-              <button
-                className="modal-close"
-                onClick={() => setShowAddressModal(false)}
-              >
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-
             <div className="modal-body">
               <AddressForm
                 addressForm={addressForm}

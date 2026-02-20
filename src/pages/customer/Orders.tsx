@@ -91,11 +91,16 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="orders-page">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading your orders...</p>
-        </div>
+      <div
+        className="profile-page"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <div className="spinner"></div>
       </div>
     );
   }
@@ -161,7 +166,7 @@ const Orders = () => {
                     <div className="order-number-section">
                       {getStatusIcon(order.status)}
                       <div>
-                        <h3 className="order-number">{order.order_number}</h3>
+                        <h3 className="order-id-label">{order.order_number}</h3>
                         <p className="order-date">
                           Placed on {formatDate(order.created_at)}
                         </p>

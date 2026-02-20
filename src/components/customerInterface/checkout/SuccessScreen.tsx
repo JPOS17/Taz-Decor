@@ -25,39 +25,39 @@ const SuccessScreen = ({
   if (!orderResult) return null;
 
   return (
-    <div className="checkout-success">
-      <div className="success-content">
-        <div className="success-icon-large">
+    <div className="cp-checkout-success">
+      <div className="cp-success-content">
+        <div className="cp-success-icon-large">
           <FaCheckCircle />
         </div>
-        <h1 className="success-title">Order Successfully Placed!</h1>
-        <p className="success-message">
+        <h1 className="cp-success-title">Order Successfully Placed!</h1>
+        <p className="cp-success-message">
           Thank you for your order. We've sent a confirmation email to{" "}
           <strong>{userEmail}</strong>.
         </p>
 
-        <div className="success-order-info">
-          <div className="order-info-item">
-            <span className="info-label">Order Number</span>
-            <span className="info-value">{orderResult.order_number}</span>
+        <div className="cp-success-order-info">
+          <div className="cp-order-info-item">
+            <span className="cp-info-label">Order Number</span>
+            <span className="cp-info-value">{orderResult.order_number}</span>
           </div>
-          <div className="order-info-item">
-            <span className="info-label">Total Amount</span>
-            <span className="info-value">
+          <div className="cp-order-info-item">
+            <span className="cp-info-label">Total Amount</span>
+            <span className="cp-info-value">
               ${orderResult.total_price.toFixed(2)}
             </span>
           </div>
-          <div className="order-info-item">
-            <span className="info-label">Status</span>
-            <span className="info-value status-badge">
+          <div className="cp-order-info-item">
+            <span className="cp-info-label">Status</span>
+            <span className="cp-info-value cp-status-badge">
               {orderResult.status}
             </span>
           </div>
         </div>
 
-        <div className="success-actions">
+        <div className="cp-success-actions">
           <button
-            className="btn-primary btn-large"
+            className="cp-btn-primary cp-btn-large"
             onClick={() =>
               isGuest
                 ? navigate(`/order-lookup`)
@@ -68,14 +68,14 @@ const SuccessScreen = ({
           </button>
           {!isGuest && (
             <button
-              className="btn-secondary btn-large"
+              className="cp-btn-secondary cp-btn-large"
               onClick={() => navigate("/orders")}
             >
               View All Orders
             </button>
           )}
           <button
-            className="btn-outline btn-large"
+            className="cp-btn-outline cp-btn-large"
             onClick={() => navigate("/")}
           >
             <FaHome /> Continue Shopping
@@ -97,7 +97,7 @@ const SuccessScreen = ({
           </div>
         )}
 
-        <div className="success-note">
+        <div className="cp-success-note">
           <p>
             <strong>What happens next?</strong>
           </p>

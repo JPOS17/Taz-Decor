@@ -20,7 +20,6 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #c9a97a, transparent);
   opacity: 0.45;
   pointer-events: none;
 }

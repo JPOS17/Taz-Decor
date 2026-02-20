@@ -14,7 +14,7 @@ interface PirateShipRow {
   'Length (in)': string;
   'Width (in)': string;
   'Height (in)': string;
-  'Order Number': string;  
+  'Order Number': string;
 }
 
 /**
@@ -25,10 +25,10 @@ const orderToPirateShipRow = (order: OrderDetails): PirateShipRow => {
     ? (order.total_weight_oz / 16).toFixed(2)
     : '0.00';
 
-  // Build full name from user's first/last name instead of address_name
+  // Full name built from snapshotted first/last name on the order
   const fullName = [order.first_name, order.last_name]
     .filter(Boolean)
-    .join(' ') || order.address_name || '';
+    .join(' ') || '';
 
   return {
     'Name': fullName,
@@ -40,7 +40,7 @@ const orderToPirateShipRow = (order: OrderDetails): PirateShipRow => {
     'Length (in)': order.box_length?.toString() || '0',
     'Width (in)': order.box_width?.toString() || '0',
     'Height (in)': order.box_height?.toString() || '0',
-    'Order Number': order.order_number || '', 
+    'Order Number': order.order_number || '',
   };
 };
 

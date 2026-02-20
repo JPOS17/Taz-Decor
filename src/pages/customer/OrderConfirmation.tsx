@@ -114,11 +114,16 @@ const OrderConfirmation = () => {
 
   if (loading) {
     return (
-      <div className="order-confirmation-page">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading order details...</p>
-        </div>
+      <div
+        className="profile-page"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <div className="spinner"></div>
       </div>
     );
   }
@@ -177,7 +182,7 @@ const OrderConfirmation = () => {
             </div>
 
             {/* Order Details */}
-            <div className="order-details-section">
+            <div className="oc-details-section">
               <div className="details-grid">
                 {/* Shipping Address */}
                 <div className="detail-card">
@@ -251,16 +256,6 @@ const OrderConfirmation = () => {
                     {order.box_name && (
                       <p>
                         <strong>Shipping Box:</strong> {order.box_name}
-                        {order.box_type === "envelope" ? " (Envelope)" : ""}
-                        {order.box_length &&
-                          order.box_width &&
-                          order.box_height && (
-                            <span className="box-dimensions">
-                              {" "}
-                              ({order.box_length}×{order.box_width}×
-                              {order.box_height}")
-                            </span>
-                          )}
                       </p>
                     )}
                     <p className="info-note">
@@ -273,7 +268,7 @@ const OrderConfirmation = () => {
             </div>
 
             {/* Order Items */}
-            <div className="order-items-section">
+            <div className="oc-items-section">
               <h3>Order Items</h3>
               <div className="items-list">
                 {order.items.map((item) => (

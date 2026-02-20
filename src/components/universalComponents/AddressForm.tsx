@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 import type { CreateAddressPayload } from "../../api/user";
+import "../../styles/components/universal/Address.css";
 
 interface AddressFormProps {
   addressForm: CreateAddressPayload;
@@ -22,11 +23,11 @@ const AddressForm = ({
   loading,
 }: AddressFormProps) => {
   return (
-    <form className="address-form" onSubmit={onSubmit}>
+    <form className="cp-address-form" onSubmit={onSubmit}>
       <h3>{isEditing ? "Edit Address" : "Add New Address"}</h3>
 
-      <div className="form-row">
-        <div className="form-group">
+      <div className="cp-form-row">
+        <div className="cp-form-group">
           <label>Address Name *</label>
           <input
             type="text"
@@ -38,8 +39,8 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
+      <div className="cp-form-row">
+        <div className="cp-form-group">
           <label>Street Address *</label>
           <input
             type="text"
@@ -51,8 +52,8 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
+      <div className="cp-form-row">
+        <div className="cp-form-group">
           <label>Apt, Suite, etc. (optional)</label>
           <input
             type="text"
@@ -63,8 +64,8 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
+      <div className="cp-form-row">
+        <div className="cp-form-group">
           <label>City *</label>
           <input
             type="text"
@@ -73,7 +74,7 @@ const AddressForm = ({
             required
           />
         </div>
-        <div className="form-group">
+        <div className="cp-form-group">
           <label>State *</label>
           <input
             type="text"
@@ -84,7 +85,7 @@ const AddressForm = ({
             required
           />
         </div>
-        <div className="form-group">
+        <div className="cp-form-group">
           <label>ZIP Code *</label>
           <input
             type="text"
@@ -95,8 +96,8 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="form-group-checkbox">
+      <div className="cp-form-row">
+        <div className="cp-form-group-checkbox">
           <input
             type="checkbox"
             id="is_default"
@@ -107,11 +108,11 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="form-actions">
-        <button type="button" className="btn-cancel" onClick={onCancel}>
+      <div className="cp-form-actions">
+        <button type="button" className="cp-btn-cancel" onClick={onCancel}>
           Cancel
         </button>
-        <button type="submit" className="btn-save" disabled={loading}>
+        <button type="submit" className="cp-btn-save" disabled={loading}>
           {loading
             ? "Saving..."
             : isEditing

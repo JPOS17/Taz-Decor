@@ -1,0 +1,163 @@
+/* ============================================================================
+   CONFIRM MODAL — Universal reusable confirmation dialog
+   ============================================================================ */
+
+.cm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.cm-modal {
+  background: linear-gradient(160deg, #fdf8f0 0%, #f9f1e4 100%);
+  border: 1.5px solid #d9c2a3;
+  border-radius: 14px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(117, 58, 30, 0.18);
+  text-align: center;
+  animation: cm-slideIn 0.25s ease;
+}
+
+@keyframes cm-slideIn {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Icon */
+.cm-icon {
+  margin-bottom: 1rem;
+}
+
+.cm-modal--danger .cm-icon {
+  color: #b5341e;
+}
+
+.cm-modal--warning .cm-icon {
+  color: #c9a440;
+}
+
+.cm-modal--info .cm-icon {
+  color: #3a7bd5;
+}
+
+/* Title */
+.cm-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #3d2b0e;
+  margin: 0 0 0.625rem 0;
+  letter-spacing: 0.01em;
+}
+
+/* Message */
+.cm-message {
+  font-size: 0.9375rem;
+  color: #9b7d56;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+/* Actions */
+.cm-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/* Cancel button */
+.cm-btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background: rgba(138, 96, 48, 0.08);
+  border: 1.5px solid #d9c2a3;
+  border-radius: 8px;
+  color: #6b5640;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.cm-btn-cancel:hover {
+  background: rgba(138, 96, 48, 0.14);
+  border-color: #c9a97a;
+  transform: translateY(-1px);
+}
+
+/* Confirm button base */
+.cm-btn-confirm {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.cm-btn-confirm--danger {
+  background: #b5341e;
+}
+
+.cm-btn-confirm--danger:hover {
+  background: #8c2515;
+  transform: translateY(-1px);
+}
+
+.cm-btn-confirm--warning {
+  background: #c9a440;
+}
+
+.cm-btn-confirm--warning:hover {
+  background: #a8892e;
+  transform: translateY(-1px);
+}
+
+.cm-btn-confirm--info {
+  background: #3a7bd5;
+}
+
+.cm-btn-confirm--info:hover {
+  background: #2c60aa;
+  transform: translateY(-1px);
+}
+
+.cm-btn-cancel:active,
+.cm-btn-confirm:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .cm-modal {
+    padding: 1.5rem;
+  }
+
+  .cm-title {
+    font-size: 1.25rem;
+  }
+
+  .cm-actions {
+    flex-direction: column;
+  }
+
+  .cm-btn-cancel,
+  .cm-btn-confirm {
+    width: 100%;
+  }
+}

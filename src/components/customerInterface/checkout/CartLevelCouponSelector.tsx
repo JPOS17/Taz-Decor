@@ -37,10 +37,7 @@ const CartLevelCouponSelector = ({
     setIsExpanded(false);
   };
 
-  /**
-   * Get discount display text based on coupon type
-   * UPDATED: Now handles free_shipping_only type
-   */
+  // Get discount display text based on coupon type
   const getDiscountDisplay = (coupon: ProductCoupon) => {
     if (coupon.discount_type === "free_shipping_only") {
       return "FREE SHIPPING";
@@ -59,9 +56,6 @@ const CartLevelCouponSelector = ({
     return "Discount";
   };
 
-  /**
-   * Check if user is eligible for this coupon
-   */
   const isEligible = (coupon: ProductCoupon) => {
     // Check email verification
     if (coupon.requires_verified_email && !isEmailVerified) {
@@ -92,9 +86,6 @@ const CartLevelCouponSelector = ({
     return true;
   };
 
-  /**
-   * Get reason why user is ineligible
-   */
   const getIneligibilityReason = (coupon: ProductCoupon) => {
     if (coupon.requires_verified_email && !isEmailVerified) {
       return "Email verification required";
@@ -121,9 +112,6 @@ const CartLevelCouponSelector = ({
     return "";
   };
 
-  /**
-   * Check if this is a free shipping coupon
-   */
   const isFreeShippingCoupon = (coupon: ProductCoupon) => {
     return coupon.discount_type === "free_shipping_only";
   };
@@ -194,7 +182,7 @@ const CartLevelCouponSelector = ({
                     className={`cart-coupon-item ${!eligible ? "ineligible" : ""} ${isSelected ? "selected" : ""} ${isFreeShipping ? "free-shipping-coupon" : ""}`}
                   >
                     <div className="cart-coupon-item-content">
-                      <div className="cart-coupon-info">
+                      <div className="cart-coupon-details">
                         <div className="cart-coupon-code-row">
                           <span className="cart-coupon-code">
                             {coupon.coupon_code}
@@ -202,22 +190,9 @@ const CartLevelCouponSelector = ({
                           <span
                             className={`cart-coupon-discount ${isFreeShipping ? "free-shipping" : ""}`}
                           >
-                            {isFreeShipping && (
-                              <FaShippingFast
-                                size={12}
-                                style={{ marginRight: "4px" }}
-                              />
-                            )}
                             {getDiscountDisplay(coupon)}
                           </span>
                         </div>
-
-                        {/* Description */}
-                        {coupon.description && (
-                          <p className="cart-coupon-description">
-                            {coupon.description}
-                          </p>
-                        )}
 
                         {/* Minimum Purchase Requirement */}
                         {coupon.min_purchase_amount && (

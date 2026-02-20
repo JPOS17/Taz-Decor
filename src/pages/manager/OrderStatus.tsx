@@ -340,7 +340,9 @@ const ExpandedOrderRow = ({
                     <h4>Shipping Address</h4>
                     <div className="address-details">
                       <p>
-                        <strong>{orderDetails.address_name}</strong>
+                        <strong>
+                          {orderDetails.first_name} {orderDetails.last_name}
+                        </strong>
                       </p>
                       <p>{orderDetails.address_line1}</p>
                       {orderDetails.address_line2 && (
@@ -351,7 +353,14 @@ const ExpandedOrderRow = ({
                         {orderDetails.zip}
                       </p>
                       {orderDetails.country && <p>{orderDetails.country}</p>}
-                      {orderDetails.phone && <p>Phone: {orderDetails.phone}</p>}
+                      {orderDetails.customer_email && (
+                        <p>
+                          <strong>Email: </strong>
+                          <a href={`mailto:${orderDetails.customer_email}`}>
+                            {orderDetails.customer_email}
+                          </a>
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}

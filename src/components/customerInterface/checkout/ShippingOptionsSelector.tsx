@@ -23,14 +23,14 @@ const ShippingOptionsSelector = ({
   // If free shipping coupon is applied, show special message
   if (isFreeShippingCoupon) {
     return (
-      <div className="shipping-options-container">
-        <h3 className="shipping-title">Shipping Method</h3>
-        <div className="free-shipping-coupon-notice">
-          <div className="free-shipping-icon-wrapper">
+      <div className="cp-shipping-options-container">
+        <h3 className="cp-shipping-title">Shipping Method</h3>
+        <div className="cp-free-shipping-coupon-notice">
+          <div className="cp-free-shipping-icon-wrapper">
             <FaShippingFast size={32} />
-            <FaCheck className="check-overlay" size={16} />
+            <FaCheck className="cp-check-overlay" size={16} />
           </div>
-          <div className="free-shipping-message">
+          <div className="cp-free-shipping-message">
             <h4>Shipping is covered! 🎉</h4>
             <p>
               Your free shipping coupon has been applied. Our team will select
@@ -44,10 +44,10 @@ const ShippingOptionsSelector = ({
 
   if (loadingShipping) {
     return (
-      <div className="shipping-options-container">
-        <h3 className="shipping-title">Shipping Method</h3>
-        <div className="shipping-loading">
-          <div className="spinner"></div>
+      <div className="cp-shipping-options-container">
+        <h3 className="cp-shipping-title">Shipping Method</h3>
+        <div className="cp-shipping-loading">
+          <div className="cp-spinner"></div>
           <p>Calculating shipping rates...</p>
         </div>
       </div>
@@ -56,12 +56,12 @@ const ShippingOptionsSelector = ({
 
   if (shippingError) {
     return (
-      <div className="shipping-options-container">
-        <h3 className="shipping-title">Shipping Method</h3>
-        <div className="shipping-error">
+      <div className="cp-shipping-options-container">
+        <h3 className="cp-shipping-title">Shipping Method</h3>
+        <div className="cp-shipping-error">
           <FaExclamationTriangle />
           <p>{shippingError}</p>
-          <button onClick={onRetryCalculation} className="btn-retry">
+          <button onClick={onRetryCalculation} className="cp-btn-retry">
             Try again
           </button>
         </div>
@@ -71,9 +71,9 @@ const ShippingOptionsSelector = ({
 
   if (shippingOptions.length === 0) {
     return (
-      <div className="shipping-options-container">
-        <h3 className="shipping-title">Shipping Method</h3>
-        <div className="shipping-placeholder">
+      <div className="cp-shipping-options-container">
+        <h3 className="cp-shipping-title">Shipping Method</h3>
+        <div className="cp-shipping-placeholder">
           <p>Select a shipping address to see available rates</p>
         </div>
       </div>
@@ -81,17 +81,17 @@ const ShippingOptionsSelector = ({
   }
 
   return (
-    <div className="shipping-options-container">
-      <h3 className="shipping-title">
+    <div className="cp-shipping-options-container">
+      <h3 className="cp-shipping-title">
         Shipping Method ({shippingOptions.length} option
         {shippingOptions.length !== 1 ? "s" : ""} available)
       </h3>
 
-      <div className="shipping-options-list">
+      <div className="cp-shipping-options-list">
         {shippingOptions.map((option) => (
           <label
             key={option.rate_id}
-            className={`shipping-option ${
+            className={`cp-shipping-option ${
               selectedShipping?.rate_id === option.rate_id ? "selected" : ""
             }`}
           >
@@ -101,18 +101,18 @@ const ShippingOptionsSelector = ({
               value={option.rate_id}
               checked={selectedShipping?.rate_id === option.rate_id}
               onChange={() => onShippingOptionSelect(option)}
-              className="shipping-radio"
+              className="cp-shipping-radio"
             />
-            <div className="shipping-option-details">
-              <div className="shipping-option-header">
-                <p className="shipping-carrier-name">
+            <div className="cp-shipping-option-details">
+              <div className="cp-shipping-option-header">
+                <p className="cp-shipping-carrier-name">
                   {option.carrier} - {option.service_level_name}
                 </p>
-                <p className="shipping-price">
+                <p className="cp-shipping-price">
                   ${parseFloat(option.amount).toFixed(2)}
                 </p>
               </div>
-              <p className="shipping-estimate">
+              <p className="cp-shipping-estimate">
                 {option.estimated_days
                   ? `Estimated delivery: ${option.estimated_days} business day${option.estimated_days !== 1 ? "s" : ""}`
                   : "Delivery time varies"}

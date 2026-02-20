@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import "../../styles/components/universal/ProfileSideBar.css";
 
 interface ProfileSidebarProps {
   firstName: string;
@@ -20,27 +21,27 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <aside className="profile-sidebar">
-      <div className="profile-avatar-section">
-        <div className="profile-avatar-large">
+    <aside className="psb-sidebar">
+      <div className="psb-avatar-section">
+        <div className="psb-avatar-large">
           {firstName.charAt(0)}
           {lastName.charAt(0)}
         </div>
-        <h2 className="profile-user-name">
+        <h2 className="psb-user-name">
           {firstName} {lastName}
         </h2>
-        <span className={`role-badge role-${role}`}>
+        <span className={`psb-role-badge psb-role-${role}`}>
           {role.charAt(0).toUpperCase() + role.slice(1)}
         </span>
       </div>
 
-      <nav className="profile-nav">
+      <nav className="psb-nav">
         <button
-          className={`nav-item ${isActive("/profile") ? "active" : ""}`}
+          className={`psb-nav-item ${isActive("/profile") ? "active" : ""}`}
           onClick={() => navigate("/profile")}
         >
           <svg
-            className="nav-icon"
+            className="psb-nav-icon"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -55,11 +56,11 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
           Profile Information
         </button>
         <button
-          className={`nav-item ${isActive("/orders") ? "active" : ""}`}
+          className={`psb-nav-item ${isActive("/orders") ? "active" : ""}`}
           onClick={() => navigate("/orders")}
         >
           <svg
-            className="nav-icon"
+            className="psb-nav-icon"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -75,11 +76,11 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
         </button>
         {(role === "manager" || role === "admin") && (
           <button
-            className={`nav-item ${isActive("/manager") ? "active" : ""}`}
+            className={`psb-nav-item ${isActive("/manager") ? "active" : ""}`}
             onClick={() => navigate("/manager")}
           >
             <svg
-              className="nav-icon"
+              className="psb-nav-icon"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -96,9 +97,9 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
         )}
       </nav>
 
-      <button onClick={handleLogout} className="logout-button">
+      <button onClick={handleLogout} className="psb-logout-button">
         <svg
-          className="logout-icon"
+          className="psb-logout-icon"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

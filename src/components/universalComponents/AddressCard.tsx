@@ -1,5 +1,6 @@
 import { FaEdit, FaTimes } from "react-icons/fa";
 import type { Address } from "../../api/user";
+import "../../styles/components/universal/Address.css";
 
 interface AddressCardProps {
   address: Address;
@@ -18,10 +19,10 @@ const AddressCard = ({
 }: AddressCardProps) => {
   return (
     <div
-      className={`address-card ${isSelected ? "selected" : ""}`}
+      className={`cp-address-card ${isSelected ? "selected" : ""}`}
       onClick={onSelect}
     >
-      <div className="address-radio">
+      <div className="cp-address-radio">
         <input
           type="radio"
           name="shipping_address"
@@ -29,18 +30,20 @@ const AddressCard = ({
           onChange={onSelect}
         />
       </div>
-      <div className="address-info">
+      <div className="cp-address-info">
         <h4>{address.address_name}</h4>
         <p>{address.address_line1}</p>
         {address.address_line2 && <p>{address.address_line2}</p>}
         <p>
           {address.city}, {address.state} {address.zip}
         </p>
-        {address.is_default && <span className="default-badge">Default</span>}
+        {address.is_default && (
+          <span className="cp-default-badge">Default</span>
+        )}
       </div>
-      <div className="address-actions">
+      <div className="cp-address-actions">
         <button
-          className="btn-icon"
+          className="cp-btn-icon"
           onClick={(e) => {
             e.stopPropagation();
             onEdit();
@@ -49,7 +52,7 @@ const AddressCard = ({
           <FaEdit />
         </button>
         <button
-          className="btn-icon btn-delete"
+          className="cp-btn-icon cp-btn-delete"
           onClick={(e) => {
             e.stopPropagation();
             onDelete();

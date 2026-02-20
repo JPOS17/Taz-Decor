@@ -1,6 +1,6 @@
 import { FaCheckCircle, FaExclamationTriangle, FaTimes } from "react-icons/fa";
 import type { AddressValidationResult } from "../../api/checkout";
-import "../../styles/components/universal/AddressValidationModal.css";
+import "../../styles/components/universal/Address.css";
 
 interface AddressValidationModalProps {
   validationResult: AddressValidationResult;
@@ -35,9 +35,9 @@ const AddressValidationModal = ({
       validated_address.zip !== originalZip);
 
   return (
-    <div className="modal-overlay">
-      <div className="validation-modal">
-        <div className="modal-header">
+    <div className="avm-overlay">
+      <div className="avm-modal">
+        <div className="avm-header">
           <h3>
             {is_valid ? (
               <>
@@ -49,28 +49,28 @@ const AddressValidationModal = ({
               </>
             )}
           </h3>
-          <button className="modal-close" onClick={onCancel}>
+          <button className="avm-close" onClick={onCancel}>
             <FaTimes />
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="avm-body">
           {is_valid && !hasCorrections && (
-            <div className="validation-success">
+            <div className="avm-validation-success">
               <p>✅ Your address has been validated successfully!</p>
             </div>
           )}
 
           {is_valid && hasCorrections && (
-            <div className="validation-correction">
-              <p className="correction-notice">
+            <div className="avm-validation-correction">
+              <p className="avm-correction-notice">
                 We found a suggested correction for your address:
               </p>
 
-              <div className="address-comparison">
-                <div className="address-column">
+              <div className="avm-address-comparison">
+                <div className="avm-address-column">
                   <h4>You Entered:</h4>
-                  <div className="address-box original">
+                  <div className="avm-address-box original">
                     <p>{originalStreet1}</p>
                     {originalStreet2 && <p>{originalStreet2}</p>}
                     <p>
@@ -79,9 +79,9 @@ const AddressValidationModal = ({
                   </div>
                 </div>
 
-                <div className="address-column">
+                <div className="avm-address-column">
                   <h4>Suggested:</h4>
-                  <div className="address-box corrected">
+                  <div className="avm-address-box corrected">
                     <p>{validated_address.street1}</p>
                     {validated_address.street2 && (
                       <p>{validated_address.street2}</p>
@@ -97,18 +97,18 @@ const AddressValidationModal = ({
           )}
 
           {!is_valid && (
-            <div className="validation-error">
-              <p className="error-notice">
+            <div className="avm-validation-error">
+              <p className="avm-error-notice">
                 ⚠️ We couldn't verify this address. Please review:
               </p>
               {validation_results.messages.length > 0 && (
-                <ul className="validation-messages">
+                <ul className="avm-validation-messages">
                   {validation_results.messages.map((msg, idx) => (
                     <li key={idx}>{msg.text || "Validation issue detected"}</li>
                   ))}
                 </ul>
               )}
-              <div className="address-box original">
+              <div className="avm-address-box original">
                 <p>{originalStreet1}</p>
                 {originalStreet2 && <p>{originalStreet2}</p>}
                 <p>
@@ -119,9 +119,9 @@ const AddressValidationModal = ({
           )}
         </div>
 
-        <div className="modal-actions">
+        <div className="avm-actions">
           {is_valid && !hasCorrections && (
-            <button className="btn-accept" onClick={onAcceptOriginal}>
+            <button className="avm-btn-accept" onClick={onAcceptOriginal}>
               Continue
             </button>
           )}
@@ -129,13 +129,13 @@ const AddressValidationModal = ({
           {is_valid && hasCorrections && (
             <>
               <button
-                className="btn-accept-original"
+                className="avm-btn-accept-original"
                 onClick={onAcceptOriginal}
               >
                 Use Original Address
               </button>
               <button
-                className="btn-accept-corrected"
+                className="avm-btn-accept-corrected"
                 onClick={onAcceptCorrected}
               >
                 Use Suggested Address
@@ -145,10 +145,13 @@ const AddressValidationModal = ({
 
           {!is_valid && (
             <>
-              <button className="btn-cancel" onClick={onCancel}>
+              <button className="avm-btn-cancel" onClick={onCancel}>
                 Go Back & Edit
               </button>
-              <button className="btn-accept-anyway" onClick={onAcceptOriginal}>
+              <button
+                className="avm-btn-accept-anyway"
+                onClick={onAcceptOriginal}
+              >
                 Save Anyway
               </button>
             </>

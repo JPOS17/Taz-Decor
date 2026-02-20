@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import {
   FaCreditCard,
   FaPlus,
+  FaMinus,
   FaExclamationTriangle,
   FaTag,
   FaLock,
@@ -42,11 +43,13 @@ import { validateCoupons } from "../../api/couponValidation";
 
 import StepIndicator from "../../components/customerInterface/checkout/StepIndicator";
 import OrderSummary from "../../components/customerInterface/checkout/OrderSummary";
+import CartLevelCouponSelector from "../../components/customerInterface/checkout/CartLevelCouponSelector";
 import SuccessScreen from "../../components/customerInterface/checkout/SuccessScreen";
 import ShippingOptionsSelector from "../../components/customerInterface/checkout/ShippingOptionsSelector";
 import AddressCard from "../../components/universalComponents/AddressCard";
 import AddressForm from "../../components/universalComponents/AddressForm";
 import AddressValidationModal from "../../components/universalComponents/AddressValidationModal";
+import ConfirmModal from "../../components/universalComponents/ConfirmModal";
 
 import "../../styles/pages/customer/CheckoutPage.css";
 
@@ -60,7 +63,7 @@ interface OrderResult {
   created_at: string;
 }
 
-// ── Blank guest info state ────────────────────────────────────────────────────
+// Blank guest info state
 const EMPTY_GUEST_INFO: GuestInfo = {
   email: "",
   first_name: "",
@@ -81,13 +84,13 @@ const EMPTY_GUEST_ADDRESS: GuestShippingAddress = {
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const { cartItems, clearCart } = useCart();
+  const { cartItems, clearCart, updateQuantity, removeFromCart } = useCart();
 
-  // ── Step management ───────────────────────────────────────────────────────
+  // Step management
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("cart");
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
 
-  // ── Guest vs auth mode ────────────────────────────────────────────────────
+  // Guest vs auth mode
   // null = undecided (shown only after auth finishes loading and user is null)
   const [checkoutMode, setCheckoutMode] = useState<"auth" | "guest" | null>(
     null,
@@ -99,12 +102,12 @@ const CheckoutPage = () => {
     Record<string, string>
   >({});
 
-  // ── Auth user: address management ─────────────────────────────────────────
+  // Auth user: address management
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     null,
   );
-  const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
   const [addressForm, setAddressForm] = useState<CreateAddressPayload>({
     address_name: "",
@@ -117,7 +120,7 @@ const CheckoutPage = () => {
     is_default: false,
   });
 
-  // ── Coupon management (auth users only) ───────────────────────────────────
+  // Coupon management (auth users only)
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
   const [couponValidation, setCouponValidation] = useState<any>(null);
   const [couponErrors, setCouponErrors] = useState<string[]>([]);
@@ -126,7 +129,7 @@ const CheckoutPage = () => {
   const [itemLevelDiscount, setItemLevelDiscount] = useState<number>(0);
   const [cartLevelDiscount, setCartLevelDiscount] = useState<number>(0);
 
-  // ── Shipping management ───────────────────────────────────────────────────
+  // Shipping management
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShipping, setSelectedShipping] =
     useState<ShippingOption | null>(null);
@@ -135,13 +138,23 @@ const CheckoutPage = () => {
   const [shippingCost, setShippingCost] = useState<number>(0);
   const [isFreeShipping, setIsFreeShipping] = useState<boolean>(false);
 
-  // ── Order totals ──────────────────────────────────────────────────────────
+  // Order totals
   const [subtotal, setSubtotal] = useState<number>(0);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
   const [taxAmount, setTaxAmount] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
 
-  // ── Address validation modal ──────────────────────────────────────────────
+  // Confirm modal (universal)
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmLabel?: string;
+    variant?: "danger" | "warning" | "info";
+    onConfirm: () => void;
+  }>({ isOpen: false, title: "", message: "", onConfirm: () => {} });
+
+  // Address validation modal
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [validationResult, setValidationResult] =
     useState<AddressValidationResult | null>(null);
@@ -152,7 +165,7 @@ const CheckoutPage = () => {
     useState<GuestShippingAddress | null>(null);
   const [guestAddressValidated, setGuestAddressValidated] = useState(false);
 
-  // ── Loading / error states ────────────────────────────────────────────────
+  // Loading / error states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<any[]>([]);
@@ -161,7 +174,6 @@ const CheckoutPage = () => {
   const isEmailVerified = user?.isEmailVerified ?? false;
   const isGuest = checkoutMode === "guest";
 
-  // ── Computed: does the guest address form have enough to calculate shipping? ─
   const guestAddressComplete =
     !!guestAddress.address_line1 &&
     !!guestAddress.city &&
@@ -359,7 +371,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // ── Guest info validation ─────────────────────────────────────────────────
+  // Guest info validation
   const validateGuestInfo = (): boolean => {
     const errs: Record<string, string> = {};
     if (!guestInfo.email.trim()) {
@@ -501,7 +513,7 @@ const CheckoutPage = () => {
     setCurrentStep("review");
   };
 
-  // ── Place order (auth) ────────────────────────────────────────────────────
+  // Place order (auth)
   const handlePlaceOrder = async () => {
     if (!selectedAddressId || !selectedShipping) {
       setError("Please complete all required fields");
@@ -555,7 +567,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // ── Place order (guest) ───────────────────────────────────────────────────
+  // Place order (guest)
   const handlePlaceGuestOrder = async () => {
     if (!validateGuestInfo() || !guestAddressComplete || !selectedShipping) {
       setError("Please complete all required fields");
@@ -591,7 +603,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // ── Auth user address handlers ────────────────────────────────────────────
+  // Auth user address handlers
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -605,6 +617,7 @@ const CheckoutPage = () => {
         const validation = await validateAddress(addressForm);
         setPendingAddressData(addressForm);
         setValidationResult(validation);
+        setShowAddressModal(false); // hide address form so validation modal renders on top
         setShowValidationModal(true);
         setLoading(false);
       } else {
@@ -619,6 +632,7 @@ const CheckoutPage = () => {
   };
 
   const saveAddress = async (addressData: CreateAddressPayload) => {
+    const wasEditingSelected = editingAddressId === selectedAddressId;
     setLoading(true);
     try {
       if (editingAddressId) {
@@ -627,12 +641,17 @@ const CheckoutPage = () => {
         await createAddress(addressData);
       }
       await loadAddresses();
-      setIsAddingAddress(false);
+      setShowAddressModal(false);
       setEditingAddressId(null);
       resetAddressForm();
       setShowValidationModal(false);
       setPendingAddressData(null);
       setValidationResult(null);
+      // If the currently-selected address was edited, selectedAddressId won't
+      // change so the shipping useEffect won't fire — trigger it manually.
+      if (wasEditingSelected && selectedAddressId) {
+        handleCalculateShipping();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save address");
     } finally {
@@ -660,6 +679,11 @@ const CheckoutPage = () => {
 
   const handleCancelValidation = () => {
     setShowValidationModal(false);
+    // If this was an auth-user address save (pendingAddressData set), reopen
+    // the address form so the user can correct their input.
+    if (pendingAddressData) {
+      setShowAddressModal(true);
+    }
     setPendingAddressData(null);
     setPendingGuestAddressData(null);
     setValidationResult(null);
@@ -677,19 +701,29 @@ const CheckoutPage = () => {
       is_default: address.is_default,
     });
     setEditingAddressId(address.address_id);
-    setIsAddingAddress(true);
+    setShowAddressModal(true);
   };
 
-  const handleDeleteAddress = async (addressId: number) => {
-    if (!window.confirm("Are you sure you want to delete this address?"))
-      return;
-    try {
-      await deleteAddress(addressId);
-      await loadAddresses();
-      if (selectedAddressId === addressId) setSelectedAddressId(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete address");
-    }
+  const handleDeleteAddress = (addressId: number) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Delete Address?",
+      message: "This address will be permanently removed. Are you sure?",
+      confirmLabel: "Delete",
+      variant: "danger",
+      onConfirm: async () => {
+        setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        try {
+          await deleteAddress(addressId);
+          await loadAddresses();
+          if (selectedAddressId === addressId) setSelectedAddressId(null);
+        } catch (err) {
+          setError(
+            err instanceof Error ? err.message : "Failed to delete address",
+          );
+        }
+      },
+    });
   };
 
   const resetAddressForm = () => {
@@ -712,7 +746,7 @@ const CheckoutPage = () => {
     setAddressForm({ ...addressForm, [field]: value });
   };
 
-  // ── Guest address validation via Shippo ───────────────────────────────────
+  // Guest address validation via Shippo
 
   const handleGuestAddressValidate = async () => {
     setLoading(true);
@@ -730,7 +764,7 @@ const CheckoutPage = () => {
       setValidationResult(validation);
       setShowValidationModal(true);
     } catch (err) {
-      setGuestAddressValidated(false); // ✅ reset if validation call fails
+      setGuestAddressValidated(false);
       setError(
         err instanceof Error ? err.message : "Failed to validate address",
       );
@@ -751,7 +785,7 @@ const CheckoutPage = () => {
         country: "USA",
       });
     }
-    setGuestAddressValidated(true); // ✅ user accepted the corrected address
+    setGuestAddressValidated(true);
     setShowValidationModal(false);
     setPendingGuestAddressData(null);
     setValidationResult(null);
@@ -770,16 +804,16 @@ const CheckoutPage = () => {
 
   if (!isInitialLoad && !user && checkoutMode === null) {
     return (
-      <div className="checkout-page">
-        <div className="checkout-container">
-          <h1 className="checkout-title">Checkout</h1>
-          <div className="checkout-mode-selection">
-            <p className="mode-selection-description">
+      <div className="cp-checkout-page">
+        <div className="cp-checkout-container">
+          <h1 className="cp-checkout-title">Checkout</h1>
+          <div className="cp-checkout-mode-selection">
+            <p className="cp-mode-selection-description">
               How would you like to check out?
             </p>
-            <div className="mode-selection-cards">
+            <div className="cp-mode-selection-cards">
               <button
-                className="mode-card mode-card-login"
+                className="cp-mode-card cp-mode-card-login"
                 onClick={() => navigate("/login?redirect=/checkout")}
               >
                 <FaUser size={32} />
@@ -791,7 +825,7 @@ const CheckoutPage = () => {
               </button>
 
               <button
-                className="mode-card mode-card-guest"
+                className="cp-mode-card cp-mode-card-guest"
                 onClick={() => setCheckoutMode("guest")}
               >
                 <FaUserSecret size={32} />
@@ -802,10 +836,10 @@ const CheckoutPage = () => {
                 </p>
               </button>
             </div>
-            <p className="mode-selection-note">
+            <p className="cp-mode-selection-note">
               Don&apos;t have an account?{" "}
               <button
-                className="btn-link"
+                className="cp-btn-link"
                 onClick={() => navigate("/register?redirect=/checkout")}
               >
                 Create one free
@@ -823,8 +857,8 @@ const CheckoutPage = () => {
 
   if (currentStep === "success") {
     return (
-      <div className="checkout-page">
-        <div className="checkout-container">
+      <div className="cp-checkout-page">
+        <div className="cp-checkout-container">
           <SuccessScreen
             orderResult={orderResult}
             userEmail={isGuest ? guestInfo.email : user?.email}
@@ -840,11 +874,11 @@ const CheckoutPage = () => {
   // ============================================================================
 
   return (
-    <div className="checkout-page">
-      <div className="checkout-container">
-        <h1 className="checkout-title">
+    <div className="cp-checkout-page">
+      <div className="cp-checkout-container">
+        <h1 className="cp-checkout-title">
           Checkout
-          {isGuest && <span className="guest-mode-badge">Guest</span>}
+          {isGuest && <span className="cp-guest-mode-badge">Guest</span>}
         </h1>
 
         <StepIndicator currentStep={currentStep} />
@@ -867,8 +901,51 @@ const CheckoutPage = () => {
           />
         )}
 
+        {/* Address Form Modal */}
+        {showAddressModal && (
+          <div
+            className="cp-modal-overlay"
+            onClick={() => {
+              setShowAddressModal(false);
+              setEditingAddressId(null);
+              resetAddressForm();
+            }}
+          >
+            <div
+              className="cp-modal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <AddressForm
+                addressForm={addressForm}
+                onFormChange={handleAddressFormChange}
+                onSubmit={handleAddressSubmit}
+                onCancel={() => {
+                  setShowAddressModal(false);
+                  setEditingAddressId(null);
+                  resetAddressForm();
+                }}
+                isEditing={!!editingAddressId}
+                loading={loading}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Universal Confirm Modal */}
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmLabel={confirmModal.confirmLabel}
+          variant={confirmModal.variant}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() =>
+            setConfirmModal((prev) => ({ ...prev, isOpen: false }))
+          }
+        />
+
         {error && (
-          <div className="checkout-error">
+          <div className="cp-checkout-error">
             <FaExclamationTriangle />
             <span>{error}</span>
           </div>
@@ -892,10 +969,10 @@ const CheckoutPage = () => {
         )}
 
         {validationErrors.length > 0 && (
-          <div className="checkout-validation-errors">
+          <div className="cp-checkout-validation-errors">
             <h4>Please review the following issues:</h4>
             {validationErrors.map((err, i) => (
-              <div key={i} className="validation-error-item">
+              <div key={i} className="cp-validation-error-item">
                 <FaExclamationTriangle />
                 <span>{err.error}</span>
               </div>
@@ -903,19 +980,37 @@ const CheckoutPage = () => {
           </div>
         )}
 
-        <div className="checkout-content">
-          <div className="checkout-main">
+        <div className="cp-checkout-content">
+          <div className="cp-checkout-main">
             {/* ================================================================
                 CART REVIEW STEP
             ================================================================ */}
             {currentStep === "cart" && (
-              <div className="checkout-section">
-                <h2 className="section-title">Review Your Cart</h2>
-                <p className="section-description">
+              <div className="cp-checkout-section">
+                <h2 className="cp-section-title">Review Your Cart</h2>
+                <p className="cp-section-description">
                   Review your items before proceeding to checkout
                 </p>
 
-                <div className="cart-items-list">
+                {/* Cart-Level Coupon Selector - above cart items */}
+                {!isGuest && coupons && (
+                  <CartLevelCouponSelector
+                    coupons={[
+                      ...coupons.all,
+                      ...coupons.category,
+                      ...coupons.product_type,
+                      ...coupons.product,
+                      ...coupons.variant,
+                      ...coupons.custom_group,
+                    ]}
+                    selectedCoupon={selectedCartLevelCoupon}
+                    onCouponSelect={setSelectedCartLevelCoupon}
+                    subtotalAfterItemDiscounts={subtotal - itemLevelDiscount}
+                    isEmailVerified={isEmailVerified}
+                  />
+                )}
+
+                <div className="cp-cart-items-list">
                   {cartItems.map((item) => {
                     const validatedDiscount =
                       !isGuest &&
@@ -929,46 +1024,91 @@ const CheckoutPage = () => {
                     const itemCoupon = getCouponForItem(item);
 
                     return (
-                      <div key={item.variant_id} className="checkout-cart-item">
+                      <div
+                        key={item.variant_id}
+                        className="cp-checkout-cart-item"
+                      >
                         <img src={item.image} alt={item.name} />
-                        <div className="item-info">
+                        <div className="cp-item-info">
                           <h4>{item.name}</h4>
-                          <p className="item-variant">
+                          <p className="cp-item-variant">
                             {item.color} {item.color && item.size && "•"}{" "}
                             {item.size}
                           </p>
-                          <p className="item-quantity">
-                            Quantity: {item.quantity}
-                          </p>
+                          <div className="cp-quantity-control">
+                            <button
+                              className="cp-quantity-btn"
+                              onClick={() => {
+                                if (item.quantity === 1) {
+                                  setConfirmModal({
+                                    isOpen: true,
+                                    title: "Remove Item?",
+                                    message:
+                                      "This item will be removed from your cart. Are you sure?",
+                                    confirmLabel: "Remove",
+                                    variant: "danger",
+                                    onConfirm: () => {
+                                      removeFromCart(item.variant_id);
+                                      setConfirmModal((prev) => ({
+                                        ...prev,
+                                        isOpen: false,
+                                      }));
+                                    },
+                                  });
+                                } else {
+                                  updateQuantity(
+                                    item.variant_id,
+                                    item.quantity - 1,
+                                  );
+                                }
+                              }}
+                            >
+                              <FaMinus size={10} />
+                            </button>
+                            <span className="cp-quantity-value">
+                              {item.quantity}
+                            </span>
+                            <button
+                              className="cp-quantity-btn"
+                              onClick={() =>
+                                updateQuantity(
+                                  item.variant_id,
+                                  item.quantity + 1,
+                                )
+                              }
+                            >
+                              <FaPlus size={10} />
+                            </button>
+                          </div>
                           {itemCoupon && !isGuest && (
-                            <div className="item-coupon-display">
-                              <div className="item-coupon-code-badge">
+                            <div className="cp-item-coupon-display">
+                              <div className="cp-item-coupon-code-badge">
                                 <FaTag size={10} />
                                 <span>{itemCoupon.coupon_code}</span>
                               </div>
                               {itemCoupon.discount_type !== "bogo" && (
-                                <div className="item-coupon-savings">
+                                <div className="cp-item-coupon-savings">
                                   {itemCoupon.discount_type ===
                                     "percentage" && (
-                                    <span className="savings-badge">
+                                    <span className="cp-savings-badge">
                                       {itemCoupon.discount_value}% OFF
                                     </span>
                                   )}
                                   {itemCoupon.discount_type === "fixed" && (
-                                    <span className="savings-badge">
+                                    <span className="cp-savings-badge">
                                       ${itemCoupon.discount_value} OFF
                                     </span>
                                   )}
                                   {itemCoupon.free_shipping && (
-                                    <span className="savings-badge shipping">
+                                    <span className="cp-savings-badge cp-shipping">
                                       Free Shipping
                                     </span>
                                   )}
                                 </div>
                               )}
                               {itemCoupon.discount_type === "bogo" && (
-                                <div className="item-coupon-savings">
-                                  <span className="savings-badge bogo">
+                                <div className="cp-item-coupon-savings">
+                                  <span className="cp-savings-badge cp-bogo">
                                     {itemCoupon.bogo_discount_percentage === 100
                                       ? `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} FREE`
                                       : `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} ${itemCoupon.bogo_discount_percentage}% OFF`}
@@ -978,27 +1118,29 @@ const CheckoutPage = () => {
                             </div>
                           )}
                         </div>
-                        <div className="item-price-section">
-                          <div className="item-price">
+                        <div className="cp-item-price-section">
+                          <div className="cp-item-price">
                             {hasDiscount ? (
                               <>
-                                <span className="price-original">
+                                <span className="cp-price-original">
                                   ${itemTotal.toFixed(2)}
                                 </span>
-                                <span className="price-final">
+                                <span className="cp-price-final">
                                   ${validatedDiscount.final_price.toFixed(2)}
                                 </span>
                               </>
                             ) : (
-                              <span className="price-final">
+                              <span className="cp-price-final">
                                 ${itemTotal.toFixed(2)}
                               </span>
                             )}
                           </div>
                           {hasDiscount && (
-                            <div className="item-savings">
-                              <span className="savings-label">You Save:</span>
-                              <span className="savings-amount">
+                            <div className="cp-item-savings">
+                              <span className="cp-savings-label">
+                                You Save:
+                              </span>
+                              <span className="cp-savings-amount">
                                 ${validatedDiscount.discount_amount.toFixed(2)}
                               </span>
                             </div>
@@ -1020,15 +1162,15 @@ const CheckoutPage = () => {
                   </div>
                 )}
 
-                <div className="checkout-actions">
+                <div className="cp-checkout-actions">
                   <button
-                    className="btn-back"
+                    className="cp-btn-back"
                     onClick={() => navigate("/cart")}
                   >
                     Back to Cart
                   </button>
                   <button
-                    className="btn-continue"
+                    className="cp-btn-continue"
                     onClick={handleContinueToShipping}
                     disabled={loading || (!isGuest && couponErrors.length > 0)}
                   >
@@ -1042,21 +1184,23 @@ const CheckoutPage = () => {
                 SHIPPING STEP
             ================================================================ */}
             {currentStep === "shipping" && (
-              <div className="checkout-section">
-                <h2 className="section-title">Shipping</h2>
+              <div className="cp-checkout-section">
+                <h2 className="cp-section-title">Shipping</h2>
 
-                {/* ── GUEST: contact info + inline address form ─────────── */}
+                {/* GUEST: contact info + inline address form */}
                 {isGuest && (
                   <>
-                    <div className="guest-contact-section">
-                      <h3 className="subsection-title">Contact Information</h3>
-                      <p className="section-description">
+                    <div className="cp-guest-contact-section">
+                      <h3 className="cp-subsection-title">
+                        Contact Information
+                      </h3>
+                      <p className="cp-section-description">
                         Your order confirmation will be sent here. Save your
                         order number to look up your order later.
                       </p>
 
-                      <div className="guest-form-grid">
-                        <div className="form-group">
+                      <div className="cp-guest-form-grid">
+                        <div className="cp-form-group">
                           <label htmlFor="guest-email">Email Address *</label>
                           <input
                             id="guest-email"
@@ -1070,17 +1214,17 @@ const CheckoutPage = () => {
                             }
                             placeholder="you@example.com"
                             className={
-                              guestInfoErrors.email ? "input-error" : ""
+                              guestInfoErrors.email ? "cp-input-error" : ""
                             }
                           />
                           {guestInfoErrors.email && (
-                            <span className="field-error">
+                            <span className="cp-field-error">
                               {guestInfoErrors.email}
                             </span>
                           )}
                         </div>
 
-                        <div className="form-group">
+                        <div className="cp-form-group">
                           <label htmlFor="guest-first-name">First Name *</label>
                           <input
                             id="guest-first-name"
@@ -1094,17 +1238,17 @@ const CheckoutPage = () => {
                             }
                             placeholder="Jane"
                             className={
-                              guestInfoErrors.first_name ? "input-error" : ""
+                              guestInfoErrors.first_name ? "cp-input-error" : ""
                             }
                           />
                           {guestInfoErrors.first_name && (
-                            <span className="field-error">
+                            <span className="cp-field-error">
                               {guestInfoErrors.first_name}
                             </span>
                           )}
                         </div>
 
-                        <div className="form-group">
+                        <div className="cp-form-group">
                           <label htmlFor="guest-last-name">Last Name</label>
                           <input
                             id="guest-last-name"
@@ -1120,7 +1264,7 @@ const CheckoutPage = () => {
                           />
                         </div>
 
-                        <div className="form-group">
+                        <div className="cp-form-group">
                           <label htmlFor="guest-phone">Phone (optional)</label>
                           <input
                             id="guest-phone"
@@ -1138,11 +1282,11 @@ const CheckoutPage = () => {
                       </div>
                     </div>
 
-                    <div className="guest-address-section">
-                      <h3 className="subsection-title">Shipping Address</h3>
+                    <div className="cp-guest-address-section">
+                      <h3 className="cp-subsection-title">Shipping Address</h3>
 
-                      <div className="guest-form-grid">
-                        <div className="form-group form-group-full">
+                      <div className="cp-guest-form-grid">
+                        <div className="cp-form-group cp-form-group-full">
                           <label htmlFor="g-line1">Address Line 1 *</label>
                           <input
                             id="g-line1"
@@ -1158,7 +1302,7 @@ const CheckoutPage = () => {
                           />
                         </div>
 
-                        <div className="form-group form-group-full">
+                        <div className="cp-form-group cp-form-group-full">
                           <label htmlFor="g-line2">Address Line 2</label>
                           <input
                             id="g-line2"
@@ -1174,7 +1318,7 @@ const CheckoutPage = () => {
                           />
                         </div>
 
-                        <div className="form-group">
+                        <div className="cp-form-group">
                           <label htmlFor="g-city">City *</label>
                           <input
                             id="g-city"
@@ -1190,7 +1334,7 @@ const CheckoutPage = () => {
                           />
                         </div>
 
-                        <div className="form-group">
+                        <div className="cp-form-group">
                           <label htmlFor="g-state">State *</label>
                           <input
                             id="g-state"
@@ -1207,7 +1351,7 @@ const CheckoutPage = () => {
                           />
                         </div>
 
-                        <div className="form-group">
+                        <div className="cp-form-group">
                           <label htmlFor="g-zip">ZIP Code *</label>
                           <input
                             id="g-zip"
@@ -1223,7 +1367,7 @@ const CheckoutPage = () => {
                           />
                         </div>
 
-                        <div className="form-group">
+                        <div className="cp-form-group">
                           <label htmlFor="g-country">Country</label>
                           <input
                             id="g-country"
@@ -1242,7 +1386,7 @@ const CheckoutPage = () => {
                       {guestAddressComplete && (
                         <button
                           type="button"
-                          className="btn-validate-address"
+                          className="cp-btn-validate-address"
                           onClick={handleGuestAddressValidate}
                           disabled={loading}
                         >
@@ -1256,18 +1400,18 @@ const CheckoutPage = () => {
                 {/* ── AUTH: saved address list + add form ───────────────── */}
                 {!isGuest && (
                   <>
-                    <p className="section-description">
+                    <p className="cp-section-description">
                       Select or add a shipping address
                     </p>
 
                     {user?.email && (
-                      <div className="user-email-display">
+                      <div className="cp-user-email-display">
                         <strong>Order confirmation will be sent to:</strong>{" "}
                         {user.email}
                       </div>
                     )}
 
-                    <div className="address-list">
+                    <div className="cp-address-list">
                       {addresses.map((address) => (
                         <AddressCard
                           key={address.address_id}
@@ -1284,29 +1428,16 @@ const CheckoutPage = () => {
                       ))}
                     </div>
 
-                    {!isAddingAddress && (
-                      <button
-                        className="btn-add-address"
-                        onClick={() => setIsAddingAddress(true)}
-                      >
-                        <FaPlus /> Add New Address
-                      </button>
-                    )}
-
-                    {isAddingAddress && (
-                      <AddressForm
-                        addressForm={addressForm}
-                        onFormChange={handleAddressFormChange}
-                        onSubmit={handleAddressSubmit}
-                        onCancel={() => {
-                          setIsAddingAddress(false);
-                          setEditingAddressId(null);
-                          resetAddressForm();
-                        }}
-                        isEditing={!!editingAddressId}
-                        loading={loading}
-                      />
-                    )}
+                    <button
+                      className="cp-btn-add-address"
+                      onClick={() => {
+                        resetAddressForm();
+                        setEditingAddressId(null);
+                        setShowAddressModal(true);
+                      }}
+                    >
+                      <FaPlus /> Add New Address
+                    </button>
                   </>
                 )}
 
@@ -1328,15 +1459,15 @@ const CheckoutPage = () => {
                   />
                 )}
 
-                <div className="checkout-actions">
+                <div className="cp-checkout-actions">
                   <button
-                    className="btn-back"
+                    className="cp-btn-back"
                     onClick={() => setCurrentStep("cart")}
                   >
                     Back to Cart
                   </button>
                   <button
-                    className="btn-continue"
+                    className="cp-btn-continue"
                     onClick={handleContinueToPayment}
                     disabled={
                       (!isGuest &&
@@ -1355,26 +1486,26 @@ const CheckoutPage = () => {
                 PAYMENT STEP
             ================================================================ */}
             {currentStep === "payment" && (
-              <div className="checkout-section">
-                <h2 className="section-title">Payment Information</h2>
-                <div className="payment-placeholder">
+              <div className="cp-checkout-section">
+                <h2 className="cp-section-title">Payment Information</h2>
+                <div className="cp-payment-placeholder">
                   <FaCreditCard size={48} />
                   <p>Payment integration coming soon</p>
-                  <p className="placeholder-text">
+                  <p className="cp-placeholder-text">
                     In production, this would integrate with Stripe, PayPal, or
                     another payment processor
                   </p>
                 </div>
 
-                <div className="checkout-actions">
+                <div className="cp-checkout-actions">
                   <button
-                    className="btn-back"
+                    className="cp-btn-back"
                     onClick={() => setCurrentStep("shipping")}
                   >
                     Back to Shipping
                   </button>
                   <button
-                    className="btn-continue"
+                    className="cp-btn-continue"
                     onClick={handleContinueToReview}
                   >
                     Review Order
@@ -1387,13 +1518,13 @@ const CheckoutPage = () => {
                 REVIEW STEP
             ================================================================ */}
             {currentStep === "review" && (
-              <div className="checkout-section">
-                <h2 className="section-title">Review Your Order</h2>
+              <div className="cp-checkout-section">
+                <h2 className="cp-section-title">Review Your Order</h2>
 
                 {/* Shipping address summary */}
-                <div className="review-section">
+                <div className="cp-review-section">
                   <h3>Shipping Address</h3>
-                  <div className="review-address">
+                  <div className="cp-review-address">
                     {isGuest ? (
                       <>
                         <p>
@@ -1436,9 +1567,9 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Order items */}
-                <div className="review-section">
+                <div className="cp-review-section">
                   <h3>Order Items</h3>
-                  <div className="review-items">
+                  <div className="cp-review-items">
                     {cartItems.map((item) => {
                       const validatedDiscount =
                         !isGuest &&
@@ -1448,9 +1579,9 @@ const CheckoutPage = () => {
                       const itemCoupon = getCouponForItem(item);
 
                       return (
-                        <div key={item.variant_id} className="review-item">
+                        <div key={item.variant_id} className="cp-review-item">
                           <img src={item.image} alt={item.name} />
-                          <div className="review-item-details">
+                          <div className="cp-review-item-details">
                             <h4>{item.name}</h4>
                             <p>
                               {item.color} {item.color && item.size && "•"}{" "}
@@ -1458,34 +1589,34 @@ const CheckoutPage = () => {
                             </p>
                             <p>Qty: {item.quantity}</p>
                             {itemCoupon && !isGuest && (
-                              <div className="review-item-coupon-display">
-                                <div className="review-coupon-code-badge">
+                              <div className="cp-review-item-coupon-display">
+                                <div className="cp-review-coupon-code-badge">
                                   <FaTag size={10} />
                                   <span>{itemCoupon.coupon_code}</span>
                                 </div>
                                 {itemCoupon.discount_type !== "bogo" && (
-                                  <div className="review-coupon-savings">
+                                  <div className="cp-review-coupon-savings">
                                     {itemCoupon.discount_type ===
                                       "percentage" && (
-                                      <span className="savings-badge">
+                                      <span className="cp-savings-badge">
                                         {itemCoupon.discount_value}% OFF
                                       </span>
                                     )}
                                     {itemCoupon.discount_type === "fixed" && (
-                                      <span className="savings-badge">
+                                      <span className="cp-savings-badge">
                                         ${itemCoupon.discount_value} OFF
                                       </span>
                                     )}
                                     {itemCoupon.free_shipping && (
-                                      <span className="savings-badge shipping">
+                                      <span className="cp-savings-badge cp-shipping">
                                         Free Shipping
                                       </span>
                                     )}
                                   </div>
                                 )}
                                 {itemCoupon.discount_type === "bogo" && (
-                                  <div className="review-coupon-savings">
-                                    <span className="savings-badge bogo">
+                                  <div className="cp-review-coupon-savings">
+                                    <span className="cp-savings-badge cp-bogo">
                                       {itemCoupon.bogo_discount_percentage ===
                                       100
                                         ? `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} FREE`
@@ -1496,20 +1627,20 @@ const CheckoutPage = () => {
                               </div>
                             )}
                           </div>
-                          <div className="review-item-price">
+                          <div className="cp-review-item-price">
                             {!isGuest &&
                             validatedDiscount &&
                             validatedDiscount.discount_amount > 0 ? (
                               <>
-                                <span className="price-original">
+                                <span className="cp-price-original">
                                   ${(item.price * item.quantity).toFixed(2)}
                                 </span>
-                                <span className="price-final">
+                                <span className="cp-price-final">
                                   ${validatedDiscount.final_price.toFixed(2)}
                                 </span>
                               </>
                             ) : (
-                              <span className="price-final">
+                              <span className="cp-price-final">
                                 ${(item.price * item.quantity).toFixed(2)}
                               </span>
                             )}
@@ -1520,15 +1651,15 @@ const CheckoutPage = () => {
                   </div>
                 </div>
 
-                <div className="checkout-actions">
+                <div className="cp-checkout-actions">
                   <button
-                    className="btn-back"
+                    className="cp-btn-back"
                     onClick={() => setCurrentStep("payment")}
                   >
                     Back to Payment
                   </button>
                   <button
-                    className="btn-place-order"
+                    className="cp-btn-place-order"
                     onClick={isGuest ? handlePlaceGuestOrder : handlePlaceOrder}
                     disabled={loading || (!isGuest && couponErrors.length > 0)}
                   >
@@ -1539,8 +1670,8 @@ const CheckoutPage = () => {
             )}
           </div>
 
-          {/* ── Order Summary Sidebar ─────────────────────────────────────── */}
-          <div className="checkout-sidebar">
+          {/* Order Summary Sidebar */}
+          <div className="cp-checkout-sidebar">
             <OrderSummary
               cartItems={cartItems}
               currentStep={currentStep}

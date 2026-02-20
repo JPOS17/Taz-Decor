@@ -122,7 +122,6 @@ export interface GuestShippingAddress {
   state: string;
   zip: string;
   country?: string;
-  // Needed by Shippo for the "To" name on the label
   first_name?: string;
   last_name?: string;
 }
@@ -187,10 +186,15 @@ export interface Order {
   shipped_at?: string;
   delivered_at?: string;
   created_at: string;
+  first_name?: string;
+  last_name?: string;
   address_line1?: string;
+  address_line2?: string;
   city?: string;
   state?: string;
   zip?: string;
+  country?: string;
+  customer_email?: string;
   item_count?: number;
 }
 
@@ -205,17 +209,13 @@ export interface OrderItem {
 }
 
 export interface OrderDetails extends Order {
-  address_name?: string;
   address_line2?: string;
   country?: string;
-  phone?: string;
-  first_name?: string;   
-  last_name?: string;    
+  customer_email?: string;
   location_id?: number;
   location_name?: string;
   seller_city?: string;
   seller_state?: string;
-  total_weight_oz?: number;
   box_name?: string;
   box_type?: string;
   box_length?: number;

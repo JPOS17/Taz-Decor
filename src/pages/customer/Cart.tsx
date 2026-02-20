@@ -22,6 +22,7 @@ import {
 } from "../../api/couponCustomer";
 
 import CouponModal from "../../components/customerInterface/items/CouponModal";
+import ConfirmModal from "../../components/universalComponents/ConfirmModal";
 
 import "../../styles/pages/customer/Cart.css";
 
@@ -827,34 +828,16 @@ const Cart = () => {
       )}
 
       {/* Removal Warning Modal */}
-      {showRemovalWarning && (
-        <div className="modal-overlay" onClick={handleCancelRemoval}>
-          <div
-            className="removal-warning-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="warning-icon">
-              <FaExclamationTriangle size={48} />
-            </div>
-            <h3 className="warning-title">Remove Item from Cart?</h3>
-            <p className="warning-message">
-              This item will be removed from your cart. Are you sure you want to
-              continue?
-            </p>
-            <div className="warning-actions">
-              <button className="btn-cancel" onClick={handleCancelRemoval}>
-                Cancel
-              </button>
-              <button
-                className="btn-confirm-remove"
-                onClick={handleConfirmRemoval}
-              >
-                Yes, Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={showRemovalWarning}
+        title="Remove Item from Cart?"
+        message="This item will be removed from your cart. Are you sure you want to continue?"
+        confirmLabel="Yes, Remove"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmRemoval}
+        onCancel={handleCancelRemoval}
+      />
     </div>
   );
 };

@@ -344,8 +344,16 @@ const Items = () => {
 
           {/* Content States */}
           {loading ? (
-            <div className="items-loading-state">
-              <p>Loading products...</p>
+            <div
+              className="profile-page"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "100vh",
+              }}
+            >
+              <div className="spinner"></div>
             </div>
           ) : error ? (
             <div className="items-error-state">
