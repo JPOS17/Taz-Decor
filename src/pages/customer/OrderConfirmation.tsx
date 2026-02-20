@@ -188,11 +188,11 @@ const OrderConfirmation = () => {
                 <div className="detail-card">
                   <h3>Shipping Address</h3>
                   <div className="address-info">
-                    {order.address_name && (
-                      <p>
-                        <strong>{order.address_name}</strong>
-                      </p>
-                    )}
+                    <p>
+                      <strong>
+                        {order.first_name} {order.last_name}
+                      </strong>
+                    </p>
                     <p>{order.address_line1}</p>
                     {order.address_line2 && <p>{order.address_line2}</p>}
                     <p>

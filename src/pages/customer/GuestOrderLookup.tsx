@@ -14,7 +14,7 @@ import {
 
 import "../../styles/pages/customer/GuestOrderLookup.css";
 
-// ── Status helpers ─────────────────────────────────────────────────────────────
+// Status helpers
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Order Received",
@@ -43,7 +43,7 @@ const formatDate = (iso: string) =>
     day: "numeric",
   });
 
-// ── Component ──────────────────────────────────────────────────────────────────
+// Component
 
 const GuestOrderLookup = () => {
   const [orderNumber, setOrderNumber] = useState("");
@@ -98,7 +98,7 @@ const GuestOrderLookup = () => {
     setFieldErrors({});
   };
 
-  // ── Render: lookup form ──────────────────────────────────────────────────────
+  // Lookup Form
 
   if (!order) {
     return (
@@ -180,7 +180,7 @@ const GuestOrderLookup = () => {
     );
   }
 
-  // ── Render: order details ────────────────────────────────────────────────────
+  // Order Details
 
   const statusLabel = STATUS_LABELS[order.status] || order.status;
   const statusIcon = STATUS_ICONS[order.status] || <FaBox />;
@@ -308,7 +308,6 @@ const GuestOrderLookup = () => {
                   {order.guest_first_name} {order.guest_last_name}
                 </strong>
               </p>
-              {order.address_name && <p>{order.address_name}</p>}
               <p>{order.address_line1}</p>
               {order.address_line2 && <p>{order.address_line2}</p>}
               <p>
