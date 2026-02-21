@@ -4,7 +4,6 @@ import { useAuth } from "../../context/AuthContext";
 import {
   fetchUserProfile,
   updateUserProfile,
-  deleteAccount,
   fetchUserAddresses,
   createAddress,
   updateAddress as updateAddressAPI,
@@ -23,7 +22,6 @@ import AddressForm from "../../components/universalComponents/AddressForm";
 import AddressValidationModal from "../../components/universalComponents/AddressValidationModal";
 import ProfileSidebar from "../../components/universalComponents/ProfileSideBar";
 import ConfirmModal from "../../components/universalComponents/ConfirmModal";
-import PasswordInput from "../../components/universalComponents/PasswordInput";
 
 import "../../styles/pages/main/Profile.css";
 
@@ -101,19 +99,6 @@ const Profile = () => {
   // Delete address confirmation state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<number | null>(null);
-
-  // ============================================================================
-  // STATE - DELETE ACCOUNT (two-step)
-  // ============================================================================
-
-  const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] =
-    useState(false);
-  const [showDeletePasswordModal, setShowDeletePasswordModal] = useState(false);
-  const [deletePassword, setDeletePassword] = useState("");
-  const [deleteAccountError, setDeleteAccountError] = useState<string | null>(
-    null,
-  );
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   // ============================================================================
   // EFFECTS
@@ -317,50 +302,6 @@ const Profile = () => {
   };
 
   // ============================================================================
-  // DELETE ACCOUNT HANDLERS
-  // ============================================================================
-
-  const handleOpenDeleteAccountConfirm = () => {
-    setShowDeleteAccountConfirm(true);
-  };
-
-  const handleDeleteAccountConfirmed = () => {
-    setShowDeleteAccountConfirm(false);
-    setDeletePassword("");
-    setDeleteAccountError(null);
-    setShowDeletePasswordModal(true);
-  };
-
-  const handleCloseDeletePasswordModal = () => {
-    setShowDeletePasswordModal(false);
-    setDeletePassword("");
-    setDeleteAccountError(null);
-  };
-
-  const handleConfirmDeleteAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!deletePassword) {
-      setDeleteAccountError("Please enter your password.");
-      return;
-    }
-
-    setIsDeletingAccount(true);
-    setDeleteAccountError(null);
-
-    try {
-      await deleteAccount(deletePassword);
-      logout();
-      navigate("/login");
-    } catch (err: any) {
-      setDeleteAccountError(
-        err.message || "Failed to delete account. Please try again.",
-      );
-    } finally {
-      setIsDeletingAccount(false);
-    }
-  };
-
-  // ============================================================================
   // EMAIL VERIFICATION HANDLERS
   // ============================================================================
 
@@ -423,7 +364,6 @@ const Profile = () => {
           firstName={profileData.first_name}
           lastName={profileData.last_name}
           role={profileData.role}
-          onDeleteAccount={handleOpenDeleteAccountConfirm}
         />
 
         {/* Main Content */}
@@ -734,67 +674,6 @@ const Profile = () => {
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
       />
-
-      {/* Step 1 - Delete Account: "Are you sure?" */}
-      <ConfirmModal
-        isOpen={showDeleteAccountConfirm}
-        title="Delete Your Account?"
-        message="This will permanently delete your account and all associated data. This action cannot be undone."
-        confirmLabel="Yes, Continue"
-        cancelLabel="Cancel"
-        variant="danger"
-        onConfirm={handleDeleteAccountConfirmed}
-        onCancel={() => setShowDeleteAccountConfirm(false)}
-      />
-
-      {/* Step 2 - Delete Account: Password confirmation */}
-      {showDeletePasswordModal && (
-        <div className="dap-overlay" onClick={handleCloseDeletePasswordModal}>
-          <div className="dap-modal" onClick={(e) => e.stopPropagation()}>
-            <h2 className="dap-title">Confirm Your Password</h2>
-            <p className="dap-subtitle">
-              Enter your password to permanently delete your account.
-            </p>
-
-            <form onSubmit={handleConfirmDeleteAccount}>
-              {deleteAccountError && (
-                <p className="dap-error">{deleteAccountError}</p>
-              )}
-
-              <div className="dap-field">
-                <label className="dap-label">Password</label>
-                <PasswordInput
-                  id="delete-account-password"
-                  name="delete-account-password"
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="dap-input"
-                  required
-                />
-              </div>
-
-              <div className="dap-actions">
-                <button
-                  type="button"
-                  className="dap-btn-cancel"
-                  onClick={handleCloseDeletePasswordModal}
-                  disabled={isDeletingAccount}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="dap-btn-confirm"
-                  disabled={isDeletingAccount || !deletePassword}
-                >
-                  {isDeletingAccount ? "Deleting..." : "Delete My Account"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
