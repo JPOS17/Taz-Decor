@@ -48,7 +48,7 @@ const Login = () => {
 
       // Check if there's a return URL in query params
       const params = new URLSearchParams(window.location.search);
-      const returnUrl = params.get("returnUrl");
+      const returnUrl = params.get("redirect") || params.get("returnUrl");
 
       if (returnUrl) {
         // Redirect to the return URL

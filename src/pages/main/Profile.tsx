@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import {
   fetchUserProfile,
   updateUserProfile,
+  deleteAccount,
   fetchUserAddresses,
   createAddress,
   updateAddress as updateAddressAPI,
@@ -21,6 +22,8 @@ import {
 import AddressForm from "../../components/universalComponents/AddressForm";
 import AddressValidationModal from "../../components/universalComponents/AddressValidationModal";
 import ProfileSidebar from "../../components/universalComponents/ProfileSideBar";
+import ConfirmModal from "../../components/universalComponents/ConfirmModal";
+import PasswordInput from "../../components/universalComponents/PasswordInput";
 
 import "../../styles/pages/main/Profile.css";
 
@@ -60,7 +63,6 @@ const Profile = () => {
   // STATE - ADDRESS
   // ============================================================================
 
-  // Address modal and form state
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
   const [addressForm, setAddressForm] = useState<CreateAddressPayload>({
@@ -78,7 +80,6 @@ const Profile = () => {
   // STATE - VALIDATION
   // ============================================================================
 
-  // Validation state (like checkout)
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [validationResult, setValidationResult] =
     useState<AddressValidationResult | null>(null);
@@ -96,6 +97,23 @@ const Profile = () => {
 
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
+
+  // Delete address confirmation state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<number | null>(null);
+
+  // ============================================================================
+  // STATE - DELETE ACCOUNT (two-step)
+  // ============================================================================
+
+  const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] =
+    useState(false);
+  const [showDeletePasswordModal, setShowDeletePasswordModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteAccountError, setDeleteAccountError] = useState<string | null>(
+    null,
+  );
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   // ============================================================================
   // EFFECTS
@@ -115,7 +133,6 @@ const Profile = () => {
       const data = await fetchUserProfile();
       setProfileData(data.user);
 
-      // Load all addresses
       const addresses = await fetchUserAddresses();
       setAllAddresses(addresses);
 
@@ -156,44 +173,33 @@ const Profile = () => {
   // ADDRESS HANDLERS
   // ============================================================================
 
-  // Address form change handler
   const handleAddressFormChange = (
     field: keyof CreateAddressPayload,
     value: string | boolean,
   ) => {
-    setAddressForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setAddressForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Address submit - triggers validation automatically (like checkout)
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError(null);
 
     try {
-      // Only validate U.S. addresses
       if (
         !addressForm.country ||
         addressForm.country === "US" ||
         addressForm.country === "USA"
       ) {
-        // Validate the address with Shippo
         const validation = await validateAddressAPI(addressForm);
-
-        // Store the pending data
         setPendingAddressData(addressForm);
         setValidationResult(validation);
         setShowValidationModal(true);
         setSaving(false);
       } else {
-        // Non-US addresses: save directly without validation
         await saveAddress(addressForm);
       }
     } catch (err) {
-      console.error("Error validating address:", err);
       setError(
         err instanceof Error ? err.message : "Failed to validate address",
       );
@@ -201,7 +207,6 @@ const Profile = () => {
     }
   };
 
-  // Actually save the address to the database
   const saveAddress = async (addressData: CreateAddressPayload) => {
     setSaving(true);
     try {
@@ -228,11 +233,8 @@ const Profile = () => {
     }
   };
 
-  // Validation modal handlers
   const handleAcceptOriginalAddress = () => {
-    if (pendingAddressData) {
-      saveAddress(pendingAddressData);
-    }
+    if (pendingAddressData) saveAddress(pendingAddressData);
   };
 
   const handleAcceptCorrectedAddress = () => {
@@ -256,19 +258,29 @@ const Profile = () => {
     setSaving(false);
   };
 
-  const handleDeleteAddress = async (addressId: number) => {
-    if (!window.confirm("Are you sure you want to delete this address?")) {
-      return;
-    }
+  const handleDeleteAddress = (addressId: number) => {
+    setAddressToDelete(addressId);
+    setShowDeleteConfirm(true);
+  };
 
+  const handleConfirmDelete = async () => {
+    if (addressToDelete === null) return;
     try {
-      await deleteAddress(addressId);
+      await deleteAddress(addressToDelete);
       setSuccess("Address deleted successfully!");
       await loadProfileData();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setShowDeleteConfirm(false);
+      setAddressToDelete(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setAddressToDelete(null);
   };
 
   const openAddressModal = (address?: Address) => {
@@ -302,6 +314,50 @@ const Profile = () => {
       country: "USA",
       is_default: false,
     });
+  };
+
+  // ============================================================================
+  // DELETE ACCOUNT HANDLERS
+  // ============================================================================
+
+  const handleOpenDeleteAccountConfirm = () => {
+    setShowDeleteAccountConfirm(true);
+  };
+
+  const handleDeleteAccountConfirmed = () => {
+    setShowDeleteAccountConfirm(false);
+    setDeletePassword("");
+    setDeleteAccountError(null);
+    setShowDeletePasswordModal(true);
+  };
+
+  const handleCloseDeletePasswordModal = () => {
+    setShowDeletePasswordModal(false);
+    setDeletePassword("");
+    setDeleteAccountError(null);
+  };
+
+  const handleConfirmDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!deletePassword) {
+      setDeleteAccountError("Please enter your password.");
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    setDeleteAccountError(null);
+
+    try {
+      await deleteAccount(deletePassword);
+      logout();
+      navigate("/login");
+    } catch (err: any) {
+      setDeleteAccountError(
+        err.message || "Failed to delete account. Please try again.",
+      );
+    } finally {
+      setIsDeletingAccount(false);
+    }
   };
 
   // ============================================================================
@@ -353,9 +409,7 @@ const Profile = () => {
     );
   }
 
-  if (!profileData) {
-    return null;
-  }
+  if (!profileData) return null;
 
   // ============================================================================
   // RENDER - MAIN CONTENT
@@ -369,6 +423,7 @@ const Profile = () => {
           firstName={profileData.first_name}
           lastName={profileData.last_name}
           role={profileData.role}
+          onDeleteAccount={handleOpenDeleteAccountConfirm}
         />
 
         {/* Main Content */}
@@ -553,10 +608,10 @@ const Profile = () => {
             </div>
           </section>
 
-          {/* All Saved Addresses Section - now in primary position */}
+          {/* Saved Addresses Section */}
           <section className="profile-section">
             <div className="section-header">
-              <h3 className="section-title">Saved Addresses </h3>
+              <h3 className="section-title">Saved Addresses</h3>
               <button className="btn-add" onClick={() => openAddressModal()}>
                 Add New
               </button>
@@ -637,7 +692,7 @@ const Profile = () => {
         </main>
       </div>
 
-      {/* Address Modal - using AddressForm component */}
+      {/* Address Modal */}
       {showAddressModal && (
         <div
           className="modal-overlay"
@@ -658,7 +713,7 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Address Validation Modal - using AddressValidationModal component */}
+      {/* Address Validation Modal */}
       {showValidationModal && validationResult && (
         <AddressValidationModal
           validationResult={validationResult}
@@ -666,6 +721,79 @@ const Profile = () => {
           onAcceptCorrected={handleAcceptCorrectedAddress}
           onCancel={handleCancelValidation}
         />
+      )}
+
+      {/* Delete Address Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        title="Delete Address?"
+        message="This address will be permanently removed from your saved addresses. This action cannot be undone."
+        confirmLabel="Yes, Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+
+      {/* Step 1 - Delete Account: "Are you sure?" */}
+      <ConfirmModal
+        isOpen={showDeleteAccountConfirm}
+        title="Delete Your Account?"
+        message="This will permanently delete your account and all associated data. This action cannot be undone."
+        confirmLabel="Yes, Continue"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleDeleteAccountConfirmed}
+        onCancel={() => setShowDeleteAccountConfirm(false)}
+      />
+
+      {/* Step 2 - Delete Account: Password confirmation */}
+      {showDeletePasswordModal && (
+        <div className="dap-overlay" onClick={handleCloseDeletePasswordModal}>
+          <div className="dap-modal" onClick={(e) => e.stopPropagation()}>
+            <h2 className="dap-title">Confirm Your Password</h2>
+            <p className="dap-subtitle">
+              Enter your password to permanently delete your account.
+            </p>
+
+            <form onSubmit={handleConfirmDeleteAccount}>
+              {deleteAccountError && (
+                <p className="dap-error">{deleteAccountError}</p>
+              )}
+
+              <div className="dap-field">
+                <label className="dap-label">Password</label>
+                <PasswordInput
+                  id="delete-account-password"
+                  name="delete-account-password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="dap-input"
+                  required
+                />
+              </div>
+
+              <div className="dap-actions">
+                <button
+                  type="button"
+                  className="dap-btn-cancel"
+                  onClick={handleCloseDeletePasswordModal}
+                  disabled={isDeletingAccount}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="dap-btn-confirm"
+                  disabled={isDeletingAccount || !deletePassword}
+                >
+                  {isDeletingAccount ? "Deleting..." : "Delete My Account"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

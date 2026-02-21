@@ -204,7 +204,6 @@
 }
 
 .status-icon.status-pending   { color: #c9a97a; }
-.status-icon.status-processing { color: #7a9bc9; }
 .status-icon.status-shipped    { color: #5a7ab5; }
 .status-icon.status-delivered  { color: #2e7d52; }
 
@@ -244,12 +243,6 @@
   background: rgba(201, 169, 122, 0.18);
   color: #7a5c35;
   border: 1px solid #d9c2a3;
-}
-
-.status-badge.status-processing {
-  background: rgba(122, 155, 201, 0.15);
-  color: #3a5a8c;
-  border: 1px solid #b3c8e8;
 }
 
 .status-badge.status-shipped {

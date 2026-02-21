@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  saveSession,
+  loadSession,
+  clearSession,
+} from "../../utils/checkoutSession";
 import { useCart, type CartItem } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -46,6 +51,8 @@ import OrderSummary from "../../components/customerInterface/checkout/OrderSumma
 import CartLevelCouponSelector from "../../components/customerInterface/checkout/CartLevelCouponSelector";
 import SuccessScreen from "../../components/customerInterface/checkout/SuccessScreen";
 import ShippingOptionsSelector from "../../components/customerInterface/checkout/ShippingOptionsSelector";
+import DeliveryEstimate from "../../components/customerInterface/checkout/DeliveryEstimate";
+
 import AddressCard from "../../components/universalComponents/AddressCard";
 import AddressForm from "../../components/universalComponents/AddressForm";
 import AddressValidationModal from "../../components/universalComponents/AddressValidationModal";
@@ -83,21 +90,29 @@ const EMPTY_GUEST_ADDRESS: GuestShippingAddress = {
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
+  const { step: urlStep } = useParams<{ step?: string }>();
   const { user, isLoading } = useAuth();
   const { cartItems, clearCart, updateQuantity, removeFromCart } = useCart();
 
-  // Step management
-  const [currentStep, setCurrentStep] = useState<CheckoutStep>("cart");
+  // Rehydrate from sessionStorage once on mount
+  const session = loadSession();
+
+  // Step management — derive initial step from URL param
+  const stepFromUrl = (urlStep as CheckoutStep) || "cart";
+  const [currentStep, setCurrentStep] = useState<CheckoutStep>(stepFromUrl);
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
 
-  // Guest vs auth mode
-  // null = undecided (shown only after auth finishes loading and user is null)
+  // Guest vs auth mode — rehydrate from session if available
   const [checkoutMode, setCheckoutMode] = useState<"auth" | "guest" | null>(
-    null,
+    session.checkoutMode ?? null,
   );
-  const [guestInfo, setGuestInfo] = useState<GuestInfo>(EMPTY_GUEST_INFO);
-  const [guestAddress, setGuestAddress] =
-    useState<GuestShippingAddress>(EMPTY_GUEST_ADDRESS);
+  const [guestInfo, setGuestInfo] = useState<GuestInfo>(
+    session.guestInfo ?? EMPTY_GUEST_INFO,
+  );
+  const [guestAddress, setGuestAddress] = useState<GuestShippingAddress>(
+    session.guestAddress ?? EMPTY_GUEST_ADDRESS,
+  );
+
   const [guestInfoErrors, setGuestInfoErrors] = useState<
     Record<string, string>
   >({});
@@ -105,7 +120,7 @@ const CheckoutPage = () => {
   // Auth user: address management
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
-    null,
+    session.selectedAddressId ?? null,
   );
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
@@ -132,10 +147,12 @@ const CheckoutPage = () => {
   // Shipping management
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShipping, setSelectedShipping] =
-    useState<ShippingOption | null>(null);
+    useState<ShippingOption | null>(session.selectedShipping ?? null);
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
-  const [shippingCost, setShippingCost] = useState<number>(0);
+  const [shippingCost, setShippingCost] = useState<number>(
+    session.shippingCost ?? 0,
+  );
   const [isFreeShipping, setIsFreeShipping] = useState<boolean>(false);
 
   // Order totals
@@ -163,7 +180,13 @@ const CheckoutPage = () => {
     useState<CreateAddressPayload | null>(null);
   const [pendingGuestAddressData, setPendingGuestAddressData] =
     useState<GuestShippingAddress | null>(null);
-  const [guestAddressValidated, setGuestAddressValidated] = useState(false);
+  const [guestAddressValidated, setGuestAddressValidated] = useState(
+    session.guestAddressValidated ?? false,
+  );
+  // Draft quantity state — tracks in-progress typed values keyed by variant_id
+  const [draftQuantities, setDraftQuantities] = useState<
+    Record<number, string>
+  >({});
 
   // Loading / error states
   const [loading, setLoading] = useState(false);
@@ -241,18 +264,37 @@ const CheckoutPage = () => {
     }
   }, [selectedAddressId]);
 
-  // Recalculate shipping for guests when address becomes complete
+  // Persist key checkout state to sessionStorage whenever it changes
   useEffect(() => {
-    if (isGuest && guestAddressComplete && cartItems.length > 0) {
-      handleCalculateShippingGuest();
-    }
+    if (checkoutMode === null) return;
+    saveSession({
+      checkoutMode,
+      guestInfo,
+      guestAddress,
+      guestAddressValidated,
+      selectedAddressId,
+      selectedShipping,
+      shippingCost,
+    });
   }, [
-    guestAddress.address_line1,
-    guestAddress.city,
-    guestAddress.state,
-    guestAddress.zip,
-    guestAddress.country,
+    checkoutMode,
+    guestInfo,
+    guestAddress,
+    guestAddressValidated,
+    selectedAddressId,
+    selectedShipping,
+    shippingCost,
   ]);
+
+  // Sync current step to the URL
+  useEffect(() => {
+    if (currentStep === "success") return;
+    const target =
+      currentStep === "cart" ? "/checkout" : `/checkout/${currentStep}`;
+    if (window.location.pathname !== target) {
+      navigate(target, { replace: false });
+    }
+  }, [currentStep]);
 
   // ============================================================================
   // DATA LOADING
@@ -387,6 +429,68 @@ const CheckoutPage = () => {
   };
 
   // ============================================================================
+  // QUANTITY INPUT HANDLERS
+  // ============================================================================
+
+  const handleQuantityFocus = (variantId: number, currentQty: number) => {
+    setDraftQuantities((prev) => ({
+      ...prev,
+      [variantId]: String(currentQty),
+    }));
+  };
+
+  const handleQuantityChange = (variantId: number, value: string) => {
+    if (/^\d*$/.test(value)) {
+      setDraftQuantities((prev) => ({ ...prev, [variantId]: value }));
+    }
+  };
+
+  const handleQuantityCommit = (variantId: number) => {
+    const draft = draftQuantities[variantId];
+    setDraftQuantities((prev) => {
+      const next = { ...prev };
+      delete next[variantId];
+      return next;
+    });
+
+    const parsed = parseInt(draft, 10);
+
+    if (!draft || isNaN(parsed) || parsed < 0) return;
+
+    if (parsed === 0) {
+      setConfirmModal({
+        isOpen: true,
+        title: "Remove Item?",
+        message: "This item will be removed from your cart. Are you sure?",
+        confirmLabel: "Remove",
+        variant: "danger",
+        onConfirm: () => {
+          removeFromCart(variantId);
+          setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+        },
+      });
+      return;
+    }
+
+    updateQuantity(variantId, parsed);
+  };
+
+  const handleQuantityKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    variantId: number,
+  ) => {
+    if (e.key === "Enter") e.currentTarget.blur();
+    if (e.key === "Escape") {
+      setDraftQuantities((prev) => {
+        const next = { ...prev };
+        delete next[variantId];
+        return next;
+      });
+      e.currentTarget.blur();
+    }
+  };
+
+  // ============================================================================
   // SHIPPING HANDLERS
   // ============================================================================
 
@@ -419,6 +523,36 @@ const CheckoutPage = () => {
     try {
       const addressForShipping: GuestShippingAddress = {
         ...guestAddress,
+        first_name: guestInfo.first_name,
+        last_name: guestInfo.last_name,
+      };
+      const result = await calculateShippingGuest(
+        cartItems.map((item) => ({
+          variant_id: item.variant_id,
+          quantity: item.quantity,
+        })),
+        addressForShipping,
+      );
+      setShippingOptions(result.shipping_options);
+      setSelectedShipping(null);
+      setShippingCost(0);
+    } catch (err: any) {
+      setShippingError(err.message || "Failed to calculate shipping");
+    } finally {
+      setLoadingShipping(false);
+    }
+  };
+
+  // Overload that accepts an explicit address (used when corrected address
+  // hasn't propagated to state yet)
+  const handleCalculateShippingGuestWithAddress = async (
+    address: GuestShippingAddress,
+  ) => {
+    setLoadingShipping(true);
+    setShippingError(null);
+    try {
+      const addressForShipping: GuestShippingAddress = {
+        ...address,
         first_name: guestInfo.first_name,
         last_name: guestInfo.last_name,
       };
@@ -558,6 +692,7 @@ const CheckoutPage = () => {
       });
 
       clearCart();
+      clearSession();
       setOrderResult(result.order);
       setCurrentStep("success");
     } catch (err: any) {
@@ -594,6 +729,7 @@ const CheckoutPage = () => {
       });
 
       clearCart();
+      clearSession();
       setOrderResult(result.order);
       setCurrentStep("success");
     } catch (err: any) {
@@ -617,7 +753,7 @@ const CheckoutPage = () => {
         const validation = await validateAddress(addressForm);
         setPendingAddressData(addressForm);
         setValidationResult(validation);
-        setShowAddressModal(false); // hide address form so validation modal renders on top
+        setShowAddressModal(false);
         setShowValidationModal(true);
         setLoading(false);
       } else {
@@ -746,6 +882,20 @@ const CheckoutPage = () => {
     setAddressForm({ ...addressForm, [field]: value });
   };
 
+  // Resets guest address validation + shipping when the user edits a field
+  const handleGuestAddressFieldChange = (
+    field: keyof GuestShippingAddress,
+    value: string,
+  ) => {
+    setGuestAddress((prev) => ({ ...prev, [field]: value }));
+    if (guestAddressValidated) {
+      setGuestAddressValidated(false);
+      setShippingOptions([]);
+      setSelectedShipping(null);
+      setShippingCost(0);
+    }
+  };
+
   // Guest address validation via Shippo
 
   const handleGuestAddressValidate = async () => {
@@ -774,8 +924,11 @@ const CheckoutPage = () => {
   };
 
   const handleAcceptCorrectedGuestAddress = () => {
+    let finalAddress = pendingGuestAddressData
+      ? { ...pendingGuestAddressData }
+      : { ...guestAddress };
     if (validationResult?.validated_address && pendingGuestAddressData) {
-      setGuestAddress({
+      finalAddress = {
         ...pendingGuestAddressData,
         address_line1: validationResult.validated_address.street1,
         address_line2: validationResult.validated_address.street2 || "",
@@ -783,12 +936,15 @@ const CheckoutPage = () => {
         state: validationResult.validated_address.state,
         zip: validationResult.validated_address.zip,
         country: "USA",
-      });
+      };
+      setGuestAddress(finalAddress);
     }
     setGuestAddressValidated(true);
     setShowValidationModal(false);
     setPendingGuestAddressData(null);
     setValidationResult(null);
+    // Fetch shipping rates immediately after validation (mirrors auth flow)
+    handleCalculateShippingGuestWithAddress(finalAddress);
   };
 
   const handleAcceptOriginalGuestAddress = () => {
@@ -796,6 +952,8 @@ const CheckoutPage = () => {
     setShowValidationModal(false);
     setPendingGuestAddressData(null);
     setValidationResult(null);
+    // Fetch shipping rates immediately after validation (mirrors auth flow)
+    handleCalculateShippingGuest();
   };
 
   // ============================================================================
@@ -826,7 +984,10 @@ const CheckoutPage = () => {
 
               <button
                 className="cp-mode-card cp-mode-card-guest"
-                onClick={() => setCheckoutMode("guest")}
+                onClick={() => {
+                  setCheckoutMode("guest");
+                  saveSession({ checkoutMode: "guest" });
+                }}
               >
                 <FaUserSecret size={32} />
                 <h3>Guest Checkout</h3>
@@ -1065,9 +1226,34 @@ const CheckoutPage = () => {
                             >
                               <FaMinus size={10} />
                             </button>
-                            <span className="cp-quantity-value">
-                              {item.quantity}
-                            </span>
+                            <input
+                              className="cp-quantity-value"
+                              type="text"
+                              inputMode="numeric"
+                              value={
+                                draftQuantities[item.variant_id] !== undefined
+                                  ? draftQuantities[item.variant_id]
+                                  : item.quantity
+                              }
+                              onFocus={() =>
+                                handleQuantityFocus(
+                                  item.variant_id,
+                                  item.quantity,
+                                )
+                              }
+                              onChange={(e) =>
+                                handleQuantityChange(
+                                  item.variant_id,
+                                  e.target.value,
+                                )
+                              }
+                              onBlur={() =>
+                                handleQuantityCommit(item.variant_id)
+                              }
+                              onKeyDown={(e) =>
+                                handleQuantityKeyDown(e, item.variant_id)
+                              }
+                            />
                             <button
                               className="cp-quantity-btn"
                               onClick={() =>
@@ -1186,7 +1372,6 @@ const CheckoutPage = () => {
             {currentStep === "shipping" && (
               <div className="cp-checkout-section">
                 <h2 className="cp-section-title">Shipping</h2>
-
                 {/* GUEST: contact info + inline address form */}
                 {isGuest && (
                   <>
@@ -1293,10 +1478,10 @@ const CheckoutPage = () => {
                             type="text"
                             value={guestAddress.address_line1}
                             onChange={(e) =>
-                              setGuestAddress({
-                                ...guestAddress,
-                                address_line1: e.target.value,
-                              })
+                              handleGuestAddressFieldChange(
+                                "address_line1",
+                                e.target.value,
+                              )
                             }
                             placeholder="123 Main St"
                           />
@@ -1309,10 +1494,10 @@ const CheckoutPage = () => {
                             type="text"
                             value={guestAddress.address_line2 || ""}
                             onChange={(e) =>
-                              setGuestAddress({
-                                ...guestAddress,
-                                address_line2: e.target.value,
-                              })
+                              handleGuestAddressFieldChange(
+                                "address_line2",
+                                e.target.value,
+                              )
                             }
                             placeholder="Apt, Suite, etc."
                           />
@@ -1325,10 +1510,10 @@ const CheckoutPage = () => {
                             type="text"
                             value={guestAddress.city}
                             onChange={(e) =>
-                              setGuestAddress({
-                                ...guestAddress,
-                                city: e.target.value,
-                              })
+                              handleGuestAddressFieldChange(
+                                "city",
+                                e.target.value,
+                              )
                             }
                             placeholder="New York"
                           />
@@ -1341,10 +1526,10 @@ const CheckoutPage = () => {
                             type="text"
                             value={guestAddress.state}
                             onChange={(e) =>
-                              setGuestAddress({
-                                ...guestAddress,
-                                state: e.target.value,
-                              })
+                              handleGuestAddressFieldChange(
+                                "state",
+                                e.target.value,
+                              )
                             }
                             placeholder="NY"
                             maxLength={2}
@@ -1358,10 +1543,10 @@ const CheckoutPage = () => {
                             type="text"
                             value={guestAddress.zip}
                             onChange={(e) =>
-                              setGuestAddress({
-                                ...guestAddress,
-                                zip: e.target.value,
-                              })
+                              handleGuestAddressFieldChange(
+                                "zip",
+                                e.target.value,
+                              )
                             }
                             placeholder="10001"
                           />
@@ -1374,10 +1559,10 @@ const CheckoutPage = () => {
                             type="text"
                             value={guestAddress.country || "USA"}
                             onChange={(e) =>
-                              setGuestAddress({
-                                ...guestAddress,
-                                country: e.target.value,
-                              })
+                              handleGuestAddressFieldChange(
+                                "country",
+                                e.target.value,
+                              )
                             }
                           />
                         </div>
@@ -1396,7 +1581,6 @@ const CheckoutPage = () => {
                     </div>
                   </>
                 )}
-
                 {/* ── AUTH: saved address list + add form ───────────────── */}
                 {!isGuest && (
                   <>
@@ -1456,6 +1640,12 @@ const CheckoutPage = () => {
                     loadingShipping={loadingShipping}
                     shippingError={shippingError}
                     isFreeShippingCoupon={!isGuest && isFreeShipping}
+                  />
+                )}
+
+                {selectedShipping && (
+                  <DeliveryEstimate
+                    shippingMethodName={selectedShipping.service_level_name}
                   />
                 )}
 
@@ -1564,6 +1754,13 @@ const CheckoutPage = () => {
                       })()
                     )}
                   </div>
+
+                  {selectedShipping && (
+                    <DeliveryEstimate
+                      shippingMethodName={selectedShipping.service_level_name}
+                      className="cp-review-delivery-estimate"
+                    />
+                  )}
                 </div>
 
                 {/* Order items */}

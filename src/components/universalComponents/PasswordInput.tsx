@@ -8,6 +8,7 @@ interface PasswordInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
   required?: boolean;
+  className?: string;
 }
 
 const PasswordInput = ({
@@ -17,6 +18,7 @@ const PasswordInput = ({
   onChange,
   placeholder,
   required = false,
+  className = "form-input",
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -26,7 +28,7 @@ const PasswordInput = ({
         type={showPassword ? "text" : "password"}
         id={id}
         name={name}
-        className="form-input"
+        className={className}
         value={value}
         onChange={onChange}
         placeholder={placeholder}

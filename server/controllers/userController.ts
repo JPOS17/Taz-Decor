@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getUserFromToken } from "../middleware/authMiddleware";
 import { pool } from "../db";
+import bcrypt from "bcrypt";
 
 // ============================================================================
 // USER PROFILE MANAGEMENT
@@ -115,6 +116,53 @@ export const updateUserProfile = async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error("Error updating user profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/**
+ * DELETE account — verifies password before permanently deleting the user
+ */
+export const deleteAccount = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = getUserFromToken(req.headers.authorization);
+    if (!user) {
+      res.status(401).json({ message: "Not authenticated" });
+      return;
+    }
+
+    const { password } = req.body;
+
+    if (!password) {
+      res.status(400).json({ message: "Password is required to delete your account" });
+      return;
+    }
+
+    // Fetch the stored password hash
+    const userResult = await pool.query(
+      "SELECT password_hash FROM users WHERE user_id = $1",
+      [user.userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    // Verify password
+    const isMatch = await bcrypt.compare(password, userResult.rows[0].password_hash);
+    if (!isMatch) {
+      res.status(401).json({ message: "Incorrect password. Please try again." });
+      return;
+    }
+
+    // Delete the user — cascades to addresses and other related data
+    await pool.query("DELETE FROM users WHERE user_id = $1", [user.userId]);
+
+    res.json({ message: "Account deleted successfully" });
+
+  } catch (error) {
+    console.error("Error deleting account:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

@@ -160,6 +160,32 @@
 }
 
 /* ================================
+   DELETE ACCOUNT LINK
+   ================================ */
+
+.psb-delete-account-link {
+  display: block;
+  width: fit-content;
+  margin: 0.875rem auto 0;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: "Lato", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #c0a882;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.psb-delete-account-link:hover {
+  color: #b5341e;
+}
+
+/* ================================
    RESPONSIVE
    ================================ */
 

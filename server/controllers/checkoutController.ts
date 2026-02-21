@@ -400,7 +400,9 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       tax_amount,
       total_price,
       applied_coupons,
-      cart_level_coupon_id
+      cart_level_coupon_id,
+      shipping_carrier,
+      shipping_service,
     } = req.body;
 
     // Validate required fields
@@ -537,14 +539,16 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         (user_id, shipping_address_id, location_id, order_number, subtotal, 
         discount_amount, item_level_discount, cart_level_discount,
         shipping_cost, tax_amount, total_price, selected_box_id, total_weight_oz,
+        shipping_carrier, shipping_service,
         first_name, last_name, address_line1, address_line2, city, state, zip, country, customer_email,
         status, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, 'pending', NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, 'pending', NOW())
         RETURNING *`,
         [
           user.userId, shipping_address_id, location_id, orderNumber, subtotal,
           discount_amount, item_level_discount || 0, cart_level_discount || 0,
           shipping_cost, tax_amount || 0, total_price, selectedBoxId, totalWeightOz,
+          shipping_carrier || null, shipping_service || null,
           // Address snapshot
           first_name,
           last_name,
@@ -687,8 +691,8 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
             discount_amount: discount_amount || 0,
             shipping_cost,
             tax_amount: tax_amount || 0,
-            // All from the snapshot now
-            address_name: null,
+            first_name: orderDetailsData.first_name,  
+            last_name: orderDetailsData.last_name,   
             address_line1: orderDetailsData.address_line1,
             address_line2: orderDetailsData.address_line2,
             city: orderDetailsData.city,
@@ -731,6 +735,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 /**
  * GET user's order history
@@ -1956,34 +1961,34 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
            WHERE oi.order_id = $1`,
           [order.order_id]
         );
-
-        await sendOrderConfirmationEmail(
-          guest_info.email,
-          guest_info.first_name,
-          {
-            order_number: orderNumber,
-            total_price,
-            subtotal,
-            discount_amount: 0,
-            shipping_cost,
-            tax_amount: tax_amount || 0,
-            address_name: shipping_address.address_name || '',
-            address_line1: shipping_address.address_line1,
-            address_line2: shipping_address.address_line2 || '',
-            city: shipping_address.city,
-            state: shipping_address.state,
-            zip: shipping_address.zip,
-            country: shipping_address.country || 'USA',
-            items: orderItemsResult.rows.map((item: any) => ({
-              product_name: item.product_name,
-              variant_details: item.variant_details,
-              quantity: item.quantity,
-              price_at_purchase: parseFloat(item.price_at_purchase),
-              img_url: item.img_url,
-            })),
-          },
-          true 
-        );
+      await sendOrderConfirmationEmail(
+        guest_info.email,
+        guest_info.first_name,
+        {
+          order_number: orderNumber,
+          total_price,
+          subtotal,
+          discount_amount: 0,
+          shipping_cost,
+          tax_amount: tax_amount || 0,
+          first_name: guest_info.first_name,
+          last_name: guest_info.last_name || '',
+          address_line1: shipping_address.address_line1,
+          address_line2: shipping_address.address_line2 || '',
+          city: shipping_address.city,
+          state: shipping_address.state,
+          zip: shipping_address.zip,
+          country: shipping_address.country || 'USA',
+          items: orderItemsResult.rows.map((item: any) => ({
+            product_name: item.product_name,
+            variant_details: item.variant_details,
+            quantity: item.quantity,
+            price_at_purchase: parseFloat(item.price_at_purchase),
+            img_url: item.img_url,
+          })),
+        },
+        true
+      );
       } catch (emailError) {
         console.error("Failed to send guest order confirmation email:", emailError);
       }

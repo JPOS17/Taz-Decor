@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import {
-  FaShoppingBag,
-  FaBox,
-  FaTruck,
-  FaCheckCircle,
-  FaEye,
-} from "react-icons/fa";
+import { FaShoppingBag, FaTruck, FaCheckCircle, FaEye } from "react-icons/fa";
 import {
   fetchUserOrders,
   fetchUserProfile,
@@ -54,14 +48,19 @@ const Orders = () => {
     }
   };
 
+  const formatStatus = (status: string) => {
+    return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case "delivered":
         return <FaCheckCircle className="status-icon status-delivered" />;
       case "shipped":
+      case "ready_to_ship":
         return <FaTruck className="status-icon status-shipped" />;
       case "processing":
-        return <FaBox className="status-icon status-processing" />;
+      case "pending":
       default:
         return <FaShoppingBag className="status-icon status-pending" />;
     }
@@ -72,9 +71,10 @@ const Orders = () => {
       case "delivered":
         return "status-badge status-delivered";
       case "shipped":
+      case "ready_to_ship":
         return "status-badge status-shipped";
+      case "pending":
       case "processing":
-        return "status-badge status-processing";
       default:
         return "status-badge status-pending";
     }
@@ -173,7 +173,7 @@ const Orders = () => {
                       </div>
                     </div>
                     <span className={getStatusClass(order.status)}>
-                      {order.status}
+                      {formatStatus(order.status)}
                     </span>
                   </div>
 

@@ -16,7 +16,9 @@ import ForgotPassword from "../pages/signin/ForgotPassword";
 import ResetPassword from "../pages/signin/ResetPassword";
 
 import CheckoutPage from "../pages/customer/CheckoutPage";
-import GuestOrderLookup from "../pages/customer/GuestOrderLookup";
+import GuestOrderLookup, {
+  GuestOrderResult,
+} from "../pages/customer/GuestOrderLookup";
 import OrderConfirmation from "../pages/customer/OrderConfirmation";
 import Orders from "../pages/customer/Orders";
 
@@ -55,7 +57,6 @@ const AppRoutes = () => {
       <Route path="/reviews" element={<Reviews />} />
 
       <Route path="/items" element={<Items />} />
-      {/* Add key prop to force remount when variantId changes */}
       <Route
         path="/items/:variantId"
         element={<Listing key={location.pathname} />}
@@ -70,7 +71,9 @@ const AppRoutes = () => {
       <Route path="/cart" element={<Cart />} />
       <Route path="/saved" element={<WishList />} />
       <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/checkout/:step" element={<CheckoutPage />} />
       <Route path="/order-lookup" element={<GuestOrderLookup />} />
+      <Route path="/order-lookup/:orderNumber" element={<GuestOrderResult />} />
 
       {/* Order routes - with parameter for order number */}
       <Route
@@ -161,7 +164,7 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Order Status Management - now correctly routed to /manager/orders */}
+      {/* Order Status Management */}
       <Route
         path="/manager/orders"
         element={

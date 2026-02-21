@@ -183,6 +183,7 @@ export interface Order {
   status: string;
   tracking_number?: string;
   shipping_carrier?: string;
+  shipping_service?: string;
   shipped_at?: string;
   delivered_at?: string;
   created_at: string;

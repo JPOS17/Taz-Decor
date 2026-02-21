@@ -101,7 +101,7 @@ export const sendVerificationEmail = async (
             <hr class="divider" />
             <p style="font-size: 13px; color: #9b7d56; margin: 0;">If you didn't create an account, you can safely ignore this email.</p>
           </div>
-          <div class="footer"><p>© 2024 Your Store. All rights reserved.</p></div>
+          <div class="footer"><p>© 2022 Taz Decor Catholic Company. All rights reserved.</p></div>
         </div>
       </body>
     </html>
@@ -166,7 +166,7 @@ export const sendPasswordResetEmail = async (
             <hr class="divider" />
             <p style="font-size: 13px; color: #9b7d56; margin: 0;">If you didn't request a password reset, you can safely ignore this email — your password will remain unchanged.</p>
           </div>
-          <div class="footer"><p>© 2024 Your Store. All rights reserved.</p></div>
+          <div class="footer"><p>© 2022 Taz Decor Catholic Company. All rights reserved.</p></div>
         </div>
       </body>
     </html>
@@ -195,7 +195,8 @@ export const sendOrderConfirmationEmail = async (
     shipping_cost: number;
     tax_amount: number;
     discount_amount: number;
-    address_name?: string;
+    first_name: string;
+    last_name?: string;
     address_line1: string;
     address_line2?: string;
     city: string;
@@ -216,6 +217,8 @@ export const sendOrderConfirmationEmail = async (
   const orderUrl = isGuest
     ? `${baseUrl}/order-lookup`
     : `${baseUrl}/order-confirmation/${orderData.order_number}`;
+
+  const recipientName = [orderData.first_name, orderData.last_name].filter(Boolean).join(" ");
 
   const itemsHtml = orderData.items
     .map(
@@ -293,7 +296,7 @@ export const sendOrderConfirmationEmail = async (
             <div class="section">
               <h2>Shipping Address</h2>
               <div class="address-info">
-                ${orderData.address_name ? `<strong>${orderData.address_name}</strong>` : ""}
+                <strong>${recipientName}</strong><br>
                 ${orderData.address_line1}<br>
                 ${orderData.address_line2 ? `${orderData.address_line2}<br>` : ""}
                 ${orderData.city}, ${orderData.state} ${orderData.zip}<br>
@@ -309,7 +312,7 @@ export const sendOrderConfirmationEmail = async (
             <center><a href="${orderUrl}" class="button">${isGuest ? "Look Up My Order" : "View Order Details"}</a></center>
             <p style="text-align: center; color: #9b7d56; font-size: 14px; margin-top: 24px;">Questions about your order? Reply to this email and we'll be happy to help.</p>
           </div>
-          <div class="footer"><p>© 2024 Your Store. All rights reserved.</p></div>
+          <div class="footer"><p>© 2022 Taz Decor Catholic Company. All rights reserved.</p></div>
         </div>
       </body>
     </html>
@@ -386,8 +389,8 @@ export const sendShippingNotificationEmail = async (
             <div class="section">
               <h3>Order Details</h3>
               <div class="info-row"><span>Order Number:</span><span>#${orderData.order_number}</span></div>
-              <div class="info-row"><span>Order Total:</span><span>$${orderData.total_price.toFixed(2)}</span></div>
               <div class="info-row"><span>Carrier:</span><span>USPS</span></div>
+              <div class="info-row"><span>Order Total:</span><span>$${orderData.total_price.toFixed(2)}</span></div>
             </div>
             <div class="tracking-box">
               <strong style="color: #3d2b0e; display: block; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Tracking Number</strong>
@@ -403,14 +406,14 @@ export const sendShippingNotificationEmail = async (
             <p style="font-size: 15px; font-weight: 700; color: #3d2b0e; margin: 0 0 8px 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px;">Thank you for your order!</p>
             <p style="margin: 0; font-size: 14px; color: #9b7d56;">If you have any questions about your shipment, please don't hesitate to contact us.</p>
           </div>
-          <div class="footer"><p>© 2024 Your Store. All rights reserved.</p></div>
+          <div class="footer"><p>© 2022 Taz Decor Catholic Company. All rights reserved.</p></div>
         </div>
       </body>
     </html>
   `;
 
   try {
-    await sendEmail(email, `Your Order #${orderData.order_number} Has Shipped! 📦`, html);
+    await sendEmail(email, `Your Order #${orderData.order_number} Has Shipped!`, html);
     console.log("Shipping notification email sent to:", email);
   } catch (error) {
     console.error("Error sending shipping notification email:", error);
@@ -459,7 +462,7 @@ export const sendAdminEmail = async (
             <div class="message">${message}</div>
             <p style="color: #9b7d56; font-size: 14px; margin: 20px 0 0 0;">If you have any questions, feel free to reply to this email.</p>
           </div>
-          <div class="footer"><p>© 2024 Your Store. All rights reserved.</p></div>
+          <div class="footer"><p>© 2022 Taz Decor Catholic Company. All rights reserved.</p></div>
         </div>
       </body>
     </html>

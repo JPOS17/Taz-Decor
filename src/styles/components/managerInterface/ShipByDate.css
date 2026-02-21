@@ -1,0 +1,93 @@
+/* =============================================================================
+   ShipByDate.css
+   Companion styles for the ShipByDate manager component.
+   ============================================================================= */
+
+.ship-by-date {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  margin-top: 0.5rem;
+}
+
+/* ── Icon ────────────────────────────────────────────────────────────────── */
+
+.ship-by-date__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+}
+
+/* ── Text ────────────────────────────────────────────────────────────────── */
+
+.ship-by-date__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  line-height: 1.3;
+}
+
+.ship-by-date__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+/* The processing cap note next to the label — e.g. "· Express — 1 day processing" */
+.ship-by-date__cap-note {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.75;
+  font-size: 0.63rem;
+}
+
+.ship-by-date__date {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.ship-by-date__sub {
+  font-size: 0.7rem;
+}
+
+/* =============================================================================
+   Urgency variants
+   ============================================================================= */
+
+/* On time — neutral blue */
+.ship-by-date--on-time {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+.ship-by-date--on-time .ship-by-date__label { color: #3b82f6; }
+.ship-by-date--on-time .ship-by-date__sub   { color: #3b82f6; }
+
+/* Due today — amber warning */
+.ship-by-date--due-today {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+.ship-by-date--due-today .ship-by-date__label { color: #d97706; }
+.ship-by-date--due-today .ship-by-date__sub   { color: #b45309; font-weight: 600; }
+
+/* Overdue — red alert */
+.ship-by-date--overdue {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #7f1d1d;
+}
+.ship-by-date--overdue .ship-by-date__label { color: #dc2626; }
+.ship-by-date--overdue .ship-by-date__date  { color: #b91c1c; }
+.ship-by-date--overdue .ship-by-date__sub   { color: #dc2626; font-weight: 600; }

@@ -20,8 +20,6 @@
   min-height: 100vh;
 }
 
-/* Loading styles are in shared loading.css */
-
 /* ================================
    MAIN CONTENT
    ================================ */
@@ -170,6 +168,13 @@
   letter-spacing: 0.01em;
 }
 
+/* Container for Edit + Delete Account buttons side by side */
+.section-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .btn-edit,
 .btn-add {
   display: flex;
@@ -194,6 +199,29 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(61, 43, 14, 0.26);
   background: linear-gradient(135deg, #7a5c35 0%, #5a4228 100%);
+}
+
+/* Delete Account button — sits next to Edit, outlined red */
+.btn-delete-account {
+  padding: 0.625rem 1.25rem;
+  background: transparent;
+  color: #b5341e;
+  border: 1.5px solid #b5341e;
+  border-radius: 8px;
+  font-family: "Lato", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-delete-account:hover {
+  background: #b5341e;
+  color: white;
+  box-shadow: 0 4px 12px rgba(181, 52, 30, 0.28);
+  transform: translateY(-1px);
 }
 
 .edit-actions {
@@ -486,6 +514,155 @@
 }
 
 /* ================================
+   DELETE ACCOUNT PASSWORD MODAL
+   Scoped with "dap-" prefix to avoid
+   any conflicts with page styles
+   ================================ */
+
+.dap-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1.5rem;
+}
+
+.dap-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.dap-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #3d2b0e;
+  margin: 0 0 0.5rem;
+}
+
+.dap-subtitle {
+  font-size: 0.9375rem;
+  color: #9b7d56;
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+}
+
+.dap-error {
+  font-size: 0.875rem;
+  color: #8c2515;
+  background: rgba(181, 52, 30, 0.07);
+  border-left: 3px solid #b5341e;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 1rem;
+}
+
+.dap-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.dap-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #9b7d56;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* The PasswordInput wrapper already handles layout;
+   we just need to style the inner <input> via the className prop */
+.dap-input {
+  width: 100%;
+  padding: 11px 42px 11px 15px; /* right padding for the toggle button */
+  font-family: "Lato", sans-serif;
+  font-size: 15px;
+  background: #ffffff;
+  border: 1.5px solid #d9c2a3;
+  border-radius: 8px;
+  color: #3d2b0e;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.dap-input:focus {
+  border-color: #c9a97a;
+  box-shadow: 0 0 0 3px rgba(201, 169, 122, 0.2);
+}
+
+.dap-input::placeholder {
+  color: #c0a882;
+}
+
+.dap-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.dap-btn-cancel {
+  flex: 1;
+  padding: 0.625rem 1.25rem;
+  background: rgba(201, 169, 122, 0.15);
+  color: #9b7d56;
+  border: 1px solid #d9c2a3;
+  border-radius: 8px;
+  font-family: "Lato", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dap-btn-cancel:hover:not(:disabled) {
+  background: rgba(201, 169, 122, 0.25);
+  color: #5a4228;
+}
+
+.dap-btn-cancel:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dap-btn-confirm {
+  flex: 1;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #b5341e 0%, #8c2515 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: "Lato", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 10px rgba(181, 52, 30, 0.25);
+}
+
+.dap-btn-confirm:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(181, 52, 30, 0.38);
+}
+
+.dap-btn-confirm:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ================================
    RESPONSIVE DESIGN
    ================================ */
 
@@ -520,10 +697,17 @@
     gap: 1rem;
   }
 
+  .section-header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
   .btn-edit,
-  .btn-add {
+  .btn-add,
+  .btn-delete-account {
     width: 100%;
     justify-content: center;
+    text-align: center;
   }
 
   .edit-actions {
@@ -542,5 +726,13 @@
 
   .modal-content {
     margin: 1rem;
+  }
+
+  .dap-modal {
+    padding: 1.5rem;
+  }
+
+  .dap-actions {
+    flex-direction: column;
   }
 }

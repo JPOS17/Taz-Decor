@@ -108,6 +108,21 @@ export const updateUserProfile = async (payload: UpdateProfilePayload): Promise<
   return response.json();
 };
 
+// DELETE account (password confirmed server-side)
+export const deleteAccount = async (password: string): Promise<{ message: string }> => {
+  const response = await fetch(`${API_URL}/api/user/profile`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to delete account');
+  }
+  return response.json();
+};
+
 // ============================================================================
 // API FUNCTIONS - ADDRESS MANAGEMENT
 // ============================================================================

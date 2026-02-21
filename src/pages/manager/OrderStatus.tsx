@@ -26,44 +26,12 @@ import {
   generatePirateShipFilename,
 } from "../../utils/shippingLabelFormatter";
 
+import ConfirmationModal from "../../components/managerInterface/universal/ConfirmationModal";
+import { useConfirmationModal } from "../../hooks/useConfirmationModal";
+import ShipByDate from "../../components/managerInterface/orders/ShipByDate";
+
 import "../../styles/pages/manager/OrderStatus.css";
 
-interface ConfirmationModalProps {
-  title: string;
-  message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-  confirmText?: string;
-  cancelText?: string;
-}
-
-const ConfirmationModal = ({
-  title,
-  message,
-  onConfirm,
-  onCancel,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
-}: ConfirmationModalProps) => {
-  return (
-    <div className="confirmation-modal-overlay" onClick={onCancel}>
-      <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
-        <h3>{title}</h3>
-        <p>{message}</p>
-        <div className="confirmation-modal-buttons">
-          <button className="btn-cancel" onClick={onCancel}>
-            {cancelText}
-          </button>
-          <button className="btn-confirm" onClick={onConfirm}>
-            {confirmText}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Use API types instead of local interfaces
 type Order = APIOrder;
 type OrderDetails = APIOrderDetails;
 
@@ -86,17 +54,16 @@ const ExpandedOrderRow = ({
   const [showHistory, setShowHistory] = useState(false);
   const [statusHistory, setStatusHistory] = useState<StatusHistoryItem[]>([]);
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
-  const [confirmationModal, setConfirmationModal] = useState<{
-    show: boolean;
-    title: string;
-    message: string;
-    onConfirm: () => void;
-  } | null>(null);
+  const {
+    isOpen: confirmOpen,
+    config: confirmConfig,
+    showConfirmation,
+    handleConfirm,
+    handleCancel,
+  } = useConfirmationModal();
 
-  // Load order details when component mounts
   useEffect(() => {
     loadOrderDetails();
-    // Auto-select USPS as default carrier
     setShippingCarrier("USPS");
   }, [order.order_id]);
 
@@ -123,14 +90,8 @@ const ExpandedOrderRow = ({
       setLoadingDetails(true);
       const data = await fetchOrderDetails(order.order_id);
       setOrderDetails(data);
-
-      // Pre-fill tracking info if it exists
-      if (data.tracking_number) {
-        setTrackingNumber(data.tracking_number);
-      }
-      if (data.shipping_carrier) {
-        setShippingCarrier(data.shipping_carrier);
-      }
+      if (data.tracking_number) setTrackingNumber(data.tracking_number);
+      if (data.shipping_carrier) setShippingCarrier(data.shipping_carrier);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to load order details",
@@ -140,9 +101,8 @@ const ExpandedOrderRow = ({
     }
   };
 
-  const getCurrentStatusIndex = () => {
-    return statusFlow.findIndex((s) => s.value === order.status);
-  };
+  const getCurrentStatusIndex = () =>
+    statusFlow.findIndex((s) => s.value === order.status);
 
   const getNextStatus = () => {
     const currentIndex = getCurrentStatusIndex();
@@ -151,31 +111,24 @@ const ExpandedOrderRow = ({
     return statusFlow[currentIndex + 1];
   };
 
+  const getPreviousStatus = () => {
+    const currentIndex = getCurrentStatusIndex();
+    if (currentIndex <= 0) return null;
+    return statusFlow[currentIndex - 1];
+  };
+
   const handleStatusUpdate = async (newStatus: string) => {
     setLoading(true);
     setError(null);
-
     try {
       const payload: UpdateOrderStatusPayload = {
         status: newStatus,
         notes: notes || undefined,
-        tracking_number: trackingNumber || undefined,
-        shipping_carrier: shippingCarrier || undefined,
       };
-
       await updateOrderStatus(order.order_id, payload);
-
-      // Reset form
       setNotes("");
-
-      // Reload history
-      if (showHistory) {
-        loadStatusHistory();
-      }
-
-      // Call parent callback
+      if (showHistory) loadStatusHistory();
       onStatusUpdated();
-
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update status");
@@ -196,67 +149,82 @@ const ExpandedOrderRow = ({
       shipped: "Make sure you've added tracking information before proceeding.",
       delivered: "This indicates the customer has received their package.",
     };
-
     const message =
       statusMessages[nextStatus.value] ||
       `This will move the order to ${nextStatus.label}.`;
-
-    setConfirmationModal({
-      show: true,
+    showConfirmation({
       title: `Move to ${nextStatus.label}?`,
       message,
-      onConfirm: () => {
-        setConfirmationModal(null);
-        handleStatusUpdate(nextStatus.value);
-      },
+      onConfirm: () => handleStatusUpdate(nextStatus.value),
     });
   };
 
+  const handlePreviousStatusClick = (prevStatus: {
+    value: string;
+    label: string;
+  }) => {
+    showConfirmation({
+      title: `Roll back to ${prevStatus.label}?`,
+      message: `This will move the order back to "${prevStatus.label}". A rollback entry will be recorded in the status history.`,
+      onConfirm: () => handleStatusUpdate(prevStatus.value),
+    });
+  };
+
+  const handleTrackingUpdateConfirmed = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const trackingNote = `Tracking number updated: ${trackingNumber}${shippingCarrier ? ` (${shippingCarrier})` : ""}`;
+      const payload: UpdateOrderStatusPayload = {
+        status: order.status,
+        notes: trackingNote,
+        tracking_number: trackingNumber || undefined,
+        shipping_carrier: shippingCarrier || undefined,
+      };
+      await updateOrderStatus(order.order_id, payload);
+      if (showHistory) loadStatusHistory();
+      onStatusUpdated();
+      setError(null);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update tracking",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleTrackingUpdate = () => {
-    setConfirmationModal({
-      show: true,
+    showConfirmation({
       title: "Update Tracking Information?",
       message:
         "This will update the tracking number and carrier for this order.",
-      onConfirm: () => {
-        setConfirmationModal(null);
-        handleStatusUpdate(order.status);
-      },
+      onConfirm: handleTrackingUpdateConfirmed,
     });
   };
 
   const handleCancelOrder = () => {
-    setConfirmationModal({
-      show: true,
+    showConfirmation({
       title: "Cancel Order?",
       message:
         "This action indicates the order will not be fulfilled. The customer will be notified of the cancellation.",
-      onConfirm: () => {
-        setConfirmationModal(null);
-        handleStatusUpdate("cancelled");
-      },
+      onConfirm: () => handleStatusUpdate("cancelled"),
     });
   };
 
   const handleRefundOrder = () => {
-    setConfirmationModal({
-      show: true,
+    showConfirmation({
       title: "Refund Order?",
       message:
         "This action indicates the customer will receive their money back. Make sure to process the refund through your payment system.",
-      onConfirm: () => {
-        setConfirmationModal(null);
-        handleStatusUpdate("refunded");
-      },
+      onConfirm: () => handleStatusUpdate("refunded"),
     });
   };
 
   const toggleHistory = async () => {
     if (showHistory) {
-      // If history is showing, just hide it
       setShowHistory(false);
     } else {
-      // If history is hidden, load and show it
       await loadStatusHistory();
     }
   };
@@ -283,6 +251,7 @@ const ExpandedOrderRow = ({
   };
 
   const nextStatus = getNextStatus();
+  const previousStatus = getPreviousStatus();
 
   return (
     <tr>
@@ -332,6 +301,36 @@ const ExpandedOrderRow = ({
                   <div className="order-detail-item">
                     <strong>Created:</strong> {formatDate(order.created_at)}
                   </div>
+                  <div className="order-detail-item">
+                    <strong>Ship By:</strong>
+                    <ShipByDate
+                      orderCreatedAt={order.created_at}
+                      orderStatus={order.status}
+                      shippingService={orderDetails?.shipping_service}
+                    />
+                  </div>
+
+                  {/* Weight & Box — from orderDetails since base Order type doesn't include these */}
+                  {orderDetails?.total_weight_oz != null && (
+                    <div className="order-detail-item">
+                      <strong>Total Weight:</strong>{" "}
+                      {orderDetails.total_weight_oz.toFixed(2)} oz (
+                      {(orderDetails.total_weight_oz / 16).toFixed(2)} lbs)
+                    </div>
+                  )}
+                  {orderDetails?.box_name && (
+                    <div className="order-detail-item">
+                      <strong>Selected Box:</strong> {orderDetails.box_name}
+                      {orderDetails.box_length &&
+                        orderDetails.box_width &&
+                        orderDetails.box_height && (
+                          <span className="order-detail-box-dims">
+                            ({orderDetails.box_length}×{orderDetails.box_width}×
+                            {orderDetails.box_height} in)
+                          </span>
+                        )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Shipping Address */}
@@ -356,7 +355,10 @@ const ExpandedOrderRow = ({
                       {orderDetails.customer_email && (
                         <p>
                           <strong>Email: </strong>
-                          <a href={`mailto:${orderDetails.customer_email}`}>
+                          <a
+                            href={`mailto:${orderDetails.customer_email}`}
+                            className="order-contact-email"
+                          >
                             {orderDetails.customer_email}
                           </a>
                         </p>
@@ -408,20 +410,17 @@ const ExpandedOrderRow = ({
               <div className="status-update-section">
                 <h3>Update Order Status</h3>
 
-                {/* Current Status Flow */}
+                {/* Status Flow */}
                 <div className="status-flow">
                   {statusFlow.map((status, index) => {
                     const isCurrent = status.value === order.status;
                     const isPast =
                       statusFlow.findIndex((s) => s.value === order.status) >
                       index;
-
                     return (
                       <div key={status.value} className="status-flow-item">
                         <div
-                          className={`status-circle ${
-                            isCurrent ? "current" : isPast ? "completed" : ""
-                          }`}
+                          className={`status-circle ${isCurrent ? "current" : isPast ? "completed" : ""}`}
                         >
                           {index + 1}
                         </div>
@@ -436,7 +435,7 @@ const ExpandedOrderRow = ({
                   })}
                 </div>
 
-                {/* Tracking Information */}
+                {/* Tracking */}
                 <div className="tracking-section">
                   <h4>Tracking Information</h4>
                   <div className="tracking-inputs">
@@ -451,16 +450,24 @@ const ExpandedOrderRow = ({
                     </div>
                     <div className="form-group">
                       <label>Carrier</label>
-                      <select
-                        value={shippingCarrier}
-                        onChange={(e) => setShippingCarrier(e.target.value)}
-                      >
-                        <option value="">Select Carrier</option>
-                        <option value="USPS">USPS</option>
-                        <option value="UPS">UPS</option>
-                        <option value="FedEx">FedEx</option>
-                        <option value="DHL">DHL</option>
-                      </select>
+                      <div className="tracking-info-block">
+                        {shippingCarrier || "—"}
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>Service</label>
+                      <div className="tracking-info-block">
+                        {orderDetails?.shipping_service
+                          ? ((
+                              {
+                                usps_priority_express: "Priority Mail Express",
+                                usps_priority: "Priority Mail",
+                                usps_ground_advantage: "Ground Advantage",
+                              } as Record<string, string>
+                            )[orderDetails.shipping_service] ??
+                            orderDetails.shipping_service)
+                          : "—"}
+                      </div>
                     </div>
                     <button
                       onClick={handleTrackingUpdate}
@@ -485,7 +492,15 @@ const ExpandedOrderRow = ({
 
                 {/* Action Buttons */}
                 <div className="status-actions">
-                  {/* Next Status Button */}
+                  {previousStatus && (
+                    <button
+                      onClick={() => handlePreviousStatusClick(previousStatus)}
+                      className="btn-prev-status"
+                      disabled={loading}
+                    >
+                      ← Back to {previousStatus.label}
+                    </button>
+                  )}
                   {nextStatus && (
                     <button
                       onClick={() => handleNextStatusClick(nextStatus)}
@@ -495,8 +510,6 @@ const ExpandedOrderRow = ({
                       Move to {nextStatus.label}
                     </button>
                   )}
-
-                  {/* Special Actions */}
                   <div className="special-actions">
                     <button
                       onClick={handleCancelOrder}
@@ -521,17 +534,13 @@ const ExpandedOrderRow = ({
                 <button onClick={toggleHistory} className="btn-toggle-history">
                   {showHistory ? "Hide" : "Show"} Status History
                 </button>
-
                 {showHistory && (
                   <div className="status-history-list">
-                    {statusHistory.map((item) => (
+                    {[...statusHistory].reverse().map((item) => (
                       <div key={item.log_id} className="history-item">
                         <div className="history-item-header">
                           <span
-                            className={`history-status-badge order-status-badge-${
-                              statusFlow.find((s) => s.value === item.status)
-                                ?.color || "gray"
-                            }`}
+                            className={`history-status-badge order-status-badge-${statusFlow.find((s) => s.value === item.status)?.color || "gray"}`}
                           >
                             {item.status.replace(/_/g, " ")}
                           </span>
@@ -552,15 +561,14 @@ const ExpandedOrderRow = ({
             </>
           )}
 
-          {/* Confirmation Modal */}
-          {confirmationModal && (
+          {confirmOpen && confirmConfig && (
             <ConfirmationModal
-              title={confirmationModal.title}
-              message={confirmationModal.message}
-              onConfirm={confirmationModal.onConfirm}
-              onCancel={() => setConfirmationModal(null)}
-              confirmText="Confirm"
-              cancelText="Cancel"
+              title={confirmConfig.title}
+              message={confirmConfig.message}
+              onConfirm={handleConfirm}
+              onCancel={handleCancel}
+              confirmText={confirmConfig.confirmText ?? "Confirm"}
+              cancelText={confirmConfig.cancelText ?? "Cancel"}
             />
           )}
         </div>
@@ -579,8 +587,6 @@ const OrderStatusPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
-
-  // Export functionality state
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<number>>(
     new Set(),
   );
@@ -596,7 +602,6 @@ const OrderStatusPage = () => {
   const loadOrders = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const data = await fetchAllOrders(100, 0);
       setOrders(data);
@@ -637,9 +642,6 @@ const OrderStatusPage = () => {
   // EXPORT FUNCTIONALITY
   // ============================================================================
 
-  /**
-   * Toggle selection of an order for export
-   */
   const toggleOrderSelection = (orderId: number) => {
     setSelectedOrderIds((prev) => {
       const newSet = new Set(prev);
@@ -652,9 +654,6 @@ const OrderStatusPage = () => {
     });
   };
 
-  /**
-   * Select all ready-to-ship orders
-   */
   const selectAllReadyToShip = () => {
     const readyToShipIds = orders
       .filter((order) => order.status === "ready_to_ship")
@@ -662,37 +661,26 @@ const OrderStatusPage = () => {
     setSelectedOrderIds(new Set(readyToShipIds));
   };
 
-  /**
-   * Clear all selections
-   */
   const clearSelection = () => {
     setSelectedOrderIds(new Set());
   };
 
-  /**
-   * Export selected orders to Pirate Ship CSV
-   */
   const exportToPirateShip = async () => {
     if (selectedOrderIds.size === 0) {
       setExportError("Please select at least one order to export");
       return;
     }
-
     setIsExporting(true);
     setExportError(null);
-
     try {
-      // Fetch complete details for all selected orders
       const orderDetailsPromises = Array.from(selectedOrderIds).map((orderId) =>
         fetchOrderDetails(orderId),
       );
       const orderDetailsList = await Promise.all(orderDetailsPromises);
 
-      // Validate that all orders are ready to ship
       const nonReadyOrders = orderDetailsList.filter(
         (order) => order.status !== "ready_to_ship",
       );
-
       if (nonReadyOrders.length > 0) {
         setExportError(
           `Cannot export: ${nonReadyOrders.length} selected order(s) are not in "Ready to Ship" status`,
@@ -701,29 +689,17 @@ const OrderStatusPage = () => {
         return;
       }
 
-      // Get the location_id from the first order (assuming all orders are from same location)
       const locationId = orderDetailsList[0].location_id;
-      if (!locationId) {
-        throw new Error("Order is missing location_id");
-      }
+      if (!locationId) throw new Error("Order is missing location_id");
 
-      // Fetch complete seller location data
       const sellerLocation = await fetchSellerLocationById(locationId);
-
-      // Generate CSV
       const csvContent = generatePirateShipCSV(
         orderDetailsList,
         sellerLocation,
       );
-
-      // Download CSV file
       const filename = generatePirateShipFilename();
       downloadCSV(csvContent, filename);
-
-      // Clear selection after successful export
       clearSelection();
-
-      // Show success message
       alert(
         `Successfully exported ${orderDetailsList.length} order(s) to ${filename}`,
       );
@@ -737,13 +713,11 @@ const OrderStatusPage = () => {
     }
   };
 
-  // Filter orders
   const filteredOrders =
     statusFilter === "all"
       ? orders
       : orders.filter((order) => order.status === statusFilter);
 
-  // Count ready-to-ship orders
   const readyToShipCount = orders.filter(
     (order) => order.status === "ready_to_ship",
   ).length;
@@ -806,18 +780,11 @@ const OrderStatusPage = () => {
         {error && <div className="order-error-message">{error}</div>}
 
         {exportError && (
-          <div className="order-error-message" style={{ marginBottom: "1rem" }}>
+          <div className="order-error-message order-error-dismissible">
             {exportError}
             <button
               onClick={() => setExportError(null)}
-              style={{
-                marginLeft: "1rem",
-                textDecoration: "underline",
-                background: "none",
-                border: "none",
-                color: "inherit",
-                cursor: "pointer",
-              }}
+              className="order-error-dismiss"
             >
               Dismiss
             </button>
@@ -826,71 +793,27 @@ const OrderStatusPage = () => {
 
         {/* Export Actions Bar */}
         {readyToShipCount > 0 && (
-          <div
-            style={{
-              background: "#f8f9fa",
-              border: "1px solid #dee2e6",
-              borderRadius: "8px",
-              padding: "1rem",
-              marginBottom: "1rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: "1rem",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div className="export-actions-bar">
+            <div className="export-actions-left">
               <div>
                 <strong>{selectedOrderIds.size}</strong> order(s) selected
                 {selectedOrderIds.size > 0 && (
                   <button
                     onClick={clearSelection}
-                    style={{
-                      marginLeft: "0.5rem",
-                      background: "none",
-                      border: "none",
-                      color: "#6c757d",
-                      textDecoration: "underline",
-                      cursor: "pointer",
-                      fontSize: "0.9rem",
-                    }}
+                    className="btn-clear-selection"
                   >
                     Clear
                   </button>
                 )}
               </div>
-              <button
-                onClick={selectAllReadyToShip}
-                style={{
-                  padding: "0.5rem 1rem",
-                  background: "#fff",
-                  border: "1px solid #dee2e6",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                }}
-              >
+              <button onClick={selectAllReadyToShip} className="btn-select-all">
                 Select All Ready to Ship ({readyToShipCount})
               </button>
             </div>
-
             <button
               onClick={exportToPirateShip}
               disabled={selectedOrderIds.size === 0 || isExporting}
-              style={{
-                padding: "0.75rem 1.5rem",
-                background: selectedOrderIds.size === 0 ? "#e9ecef" : "#28a745",
-                color: selectedOrderIds.size === 0 ? "#6c757d" : "#fff",
-                border: "none",
-                borderRadius: "6px",
-                cursor: selectedOrderIds.size === 0 ? "not-allowed" : "pointer",
-                fontWeight: "600",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                fontSize: "1rem",
-              }}
+              className={`btn-export-csv ${selectedOrderIds.size === 0 ? "btn-export-csv--disabled" : ""}`}
             >
               <Download size={20} />
               {isExporting ? "Exporting..." : "Export to Pirate Ship CSV"}
@@ -934,9 +857,10 @@ const OrderStatusPage = () => {
             <table className="order-table">
               <thead>
                 <tr>
-                  <th style={{ width: "40px" }}>{/* Checkbox column */}</th>
+                  <th className="order-th-checkbox">{/* Checkbox column */}</th>
                   <th>Order Number</th>
                   <th>Date</th>
+                  <th>Ship By</th>
                   <th>Total</th>
                   <th>Status</th>
                   <th>Tracking</th>
@@ -952,17 +876,10 @@ const OrderStatusPage = () => {
                       <td
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (order.status === "ready_to_ship") {
+                          if (order.status === "ready_to_ship")
                             toggleOrderSelection(order.order_id);
-                          }
                         }}
-                        style={{
-                          cursor:
-                            order.status === "ready_to_ship"
-                              ? "pointer"
-                              : "default",
-                          textAlign: "center",
-                        }}
+                        className={`order-td-checkbox ${order.status === "ready_to_ship" ? "order-td-checkbox--selectable" : ""}`}
                       >
                         {order.status === "ready_to_ship" &&
                           (selectedOrderIds.has(order.order_id) ? (
@@ -972,28 +889,36 @@ const OrderStatusPage = () => {
                           ))}
                       </td>
                       <td
-                        className="order-number-cell"
+                        className="order-number-cell order-td-clickable"
                         onClick={() => handleRowClick(order.order_id)}
-                        style={{ cursor: "pointer" }}
                       >
                         {order.order_number}
                       </td>
                       <td
+                        className="order-td-clickable"
                         onClick={() => handleRowClick(order.order_id)}
-                        style={{ cursor: "pointer" }}
                       >
                         {formatDate(order.created_at)}
                       </td>
                       <td
+                        className="order-td-clickable"
                         onClick={() => handleRowClick(order.order_id)}
-                        style={{ cursor: "pointer" }}
+                      >
+                        <ShipByDate
+                          orderCreatedAt={order.created_at}
+                          orderStatus={order.status}
+                          shippingService={order.shipping_service}
+                        />
+                      </td>
+                      <td
+                        className="order-td-clickable"
+                        onClick={() => handleRowClick(order.order_id)}
                       >
                         ${order.total_price.toFixed(2)}
                       </td>
                       <td
-                        className="order-status-cell"
+                        className="order-status-cell order-td-clickable"
                         onClick={() => handleRowClick(order.order_id)}
-                        style={{ cursor: "pointer" }}
                       >
                         <span
                           className={`order-status-badge order-status-badge-${getStatusColor(order.status)}`}
@@ -1002,29 +927,20 @@ const OrderStatusPage = () => {
                         </span>
                       </td>
                       <td
+                        className="order-td-clickable"
                         onClick={() => handleRowClick(order.order_id)}
-                        style={{ cursor: "pointer" }}
                       >
                         {order.tracking_number ? (
-                          <span
-                            style={{
-                              fontSize: "0.85rem",
-                              fontFamily: "monospace",
-                            }}
-                          >
+                          <span className="order-tracking-number">
                             {order.tracking_number}
                           </span>
                         ) : (
-                          <span
-                            style={{ color: "#6c757d", fontSize: "0.85rem" }}
-                          >
-                            No tracking
-                          </span>
+                          <span className="order-no-tracking">No tracking</span>
                         )}
                       </td>
                       <td
+                        className="order-td-clickable"
                         onClick={() => handleRowClick(order.order_id)}
-                        style={{ cursor: "pointer" }}
                       >
                         <div className="expand-icon">
                           {expandedOrderId === order.order_id ? (

@@ -2,6 +2,7 @@ import express from "express";
 import {
   getUserProfile,
   updateUserProfile,
+  deleteAccount,
   setDefaultAddress,
   getUserAddresses,
   createAddress,
@@ -28,6 +29,9 @@ userRouter.get("/profile", getUserProfile);
 
 // UPDATE user profile (first name, last name, phone)
 userRouter.put("/profile", updateUserProfile);
+
+// DELETE account (requires password confirmation)
+userRouter.delete("/profile", deleteAccount);
 
 // ============================================================================
 // ADDRESS MANAGEMENT ROUTES

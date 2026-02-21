@@ -7,6 +7,7 @@ import {
   type OrderDetails,
 } from "../../api/checkout";
 
+import DeliveryEstimate from "../../components/customerInterface/checkout/DeliveryEstimate";
 import ProfileSidebar from "../../components/universalComponents/ProfileSideBar";
 
 import "../../styles/pages/customer/OrderConfirmation.css";
@@ -106,6 +107,10 @@ const OrderConfirmation = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const formatStatus = (status: string) => {
+    return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
   // ============================================================================
@@ -242,11 +247,16 @@ const OrderConfirmation = () => {
                   <div className="delivery-info">
                     <p>
                       <strong>Status:</strong>{" "}
-                      <span className="status-badge">{order.status}</span>
+                      <span className="status-badge">
+                        {formatStatus(order.status)}
+                      </span>
                     </p>
-                    <p>
-                      <strong>Estimated Delivery:</strong> 5-7 business days
-                    </p>
+                    {order.shipping_service && (
+                      <DeliveryEstimate
+                        shippingMethodName={order.shipping_service}
+                        orderDate={new Date(order.created_at)}
+                      />
+                    )}
                     {order.tracking_number && (
                       <p>
                         <strong>Tracking Number:</strong>{" "}

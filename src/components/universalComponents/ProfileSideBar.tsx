@@ -6,9 +6,15 @@ interface ProfileSidebarProps {
   firstName: string;
   lastName: string;
   role: string;
+  onDeleteAccount: () => void;
 }
 
-const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
+const ProfileSidebar = ({
+  firstName,
+  lastName,
+  role,
+  onDeleteAccount,
+}: ProfileSidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
@@ -55,6 +61,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
           </svg>
           Profile Information
         </button>
+
         <button
           className={`psb-nav-item ${isActive("/orders") ? "active" : ""}`}
           onClick={() => navigate("/orders")}
@@ -74,6 +81,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
           </svg>
           My Orders
         </button>
+
         {(role === "manager" || role === "admin") && (
           <button
             className={`psb-nav-item ${isActive("/manager") ? "active" : ""}`}
@@ -112,6 +120,10 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
           />
         </svg>
         Sign Out
+      </button>
+
+      <button onClick={onDeleteAccount} className="psb-delete-account-link">
+        Delete Account
       </button>
     </aside>
   );
