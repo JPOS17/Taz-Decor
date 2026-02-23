@@ -7,7 +7,6 @@ import { pool } from "../db";
 
 /**
  * GET categories for a specific product
- * Route: GET /api/products/:productId/categories
  */
 export const getProductCategories = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -40,7 +39,6 @@ export const getProductCategories = async (req: Request, res: Response): Promise
 
 /**
  * ADD category to product
- * Route: POST /api/products/:productId/categories
  */
 export const addProductCategory = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
@@ -132,7 +130,6 @@ export const addProductCategory = async (req: Request, res: Response): Promise<v
 
 /**
  * UPDATE product category (mainly for changing primary status)
- * Route: PUT /api/products/:productId/categories/:categoryId
  */
 export const updateProductCategory = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
@@ -194,7 +191,6 @@ export const updateProductCategory = async (req: Request, res: Response): Promis
 
 /**
  * DELETE category from product
- * Route: DELETE /api/products/:productId/categories/:categoryId
  */
 export const removeProductCategory = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();

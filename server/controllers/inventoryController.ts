@@ -8,7 +8,6 @@ import { generateProductSKU, generateVariantSKU } from "../utils/skuGenerator";
 
 /**
  * GET all products for management (includes all variants)
- * Route: GET /api/management/products
  */
 export const getAllProductsForManagement = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -142,7 +141,6 @@ export const getAllProductsForManagement = async (req: Request, res: Response): 
 
 /**
  * GET all variants for a specific product
- * Route: GET /api/management/products/by-product/:productId/variants
  */
 export const getProductVariants = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -177,7 +175,6 @@ export const getProductVariants = async (req: Request, res: Response): Promise<v
 
 /**
  * GET detailed product variant for editing
- * Route: GET /api/management/products/:variantId
  */
 export const getVariantForEdit = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -255,7 +252,6 @@ export const getVariantForEdit = async (req: Request, res: Response): Promise<vo
 
 /**
  * POST create new product
- * Route: POST /api/management/products
  */
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
@@ -278,7 +274,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
       width_in,
       height_in,
       images,
-      additional_category_ids // NEW: array of additional category IDs
+      additional_category_ids 
     } = req.body;
 
     // Validate required fields
@@ -385,7 +381,6 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 
 /**
  * PUT update variant
- * Route: PUT /api/management/products/:variantId
  */
 export const updateVariant = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -524,7 +519,6 @@ export const updateVariant = async (req: Request, res: Response): Promise<void> 
 
 /**
  * POST add image to variant
- * Route: POST /api/management/products/:variantId/images
  */
 export const addImageToVariant = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -562,7 +556,6 @@ export const addImageToVariant = async (req: Request, res: Response): Promise<vo
 
 /**
  * DELETE image
- * Route: DELETE /api/management/products/images/:imageId
  */
 export const deleteImage = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
@@ -623,7 +616,6 @@ export const deleteImage = async (req: Request, res: Response): Promise<void> =>
 
 /**
  * PUT update image display order
- * Route: PUT /api/management/products/:variantId/images/reorder
  */
 export const updateImageOrder = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -656,7 +648,6 @@ export const updateImageOrder = async (req: Request, res: Response): Promise<voi
 
 /**
  * PUT set primary image
- * Route: PUT /api/management/products/images/:imageId/primary
  */
 export const setPrimaryImage = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
@@ -710,7 +701,6 @@ export const setPrimaryImage = async (req: Request, res: Response): Promise<void
 
 /**
  * DELETE variant
- * Route: DELETE /api/management/products/:variantId
  */
 export const deleteVariant = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
@@ -809,7 +799,6 @@ export const deleteVariant = async (req: Request, res: Response): Promise<void> 
 
 /**
  * POST create new variant for existing product
- * Route: POST /api/management/products/by-product/:productId/variants
  */
 export const createVariant = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
@@ -906,7 +895,6 @@ export const createVariant = async (req: Request, res: Response): Promise<void> 
 
 /**
  * PATCH toggle variant active status
- * Route: PATCH /api/management/products/:variantId/status
  */
 export const toggleVariantStatus = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -938,7 +926,6 @@ export const toggleVariantStatus = async (req: Request, res: Response): Promise<
 
 /**
  * POST preview SKU for new product by type
- * Route: POST /api/management/products/preview-sku
  */
 export const previewProductSKUByType = async (req: Request, res: Response) => {
   try {
@@ -957,7 +944,6 @@ export const previewProductSKUByType = async (req: Request, res: Response) => {
 
 /**
  * POST preview SKU for new variant
- * Route: POST /api/management/products/:productId/preview-variant-sku
  */
 export const previewVariantSKU = async (req: Request, res: Response) => {
   try {

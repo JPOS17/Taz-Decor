@@ -2,6 +2,8 @@ import { FaTag, FaShippingFast } from "react-icons/fa";
 import type { CartItem } from "../../../context/CartContext";
 import type { ProductCoupon } from "../../../api/couponCustomer";
 
+import CartLevelCouponSelector from "../checkout/CartLevelCouponSelector";
+
 interface OrderSummaryProps {
   cartItems: CartItem[];
   currentStep: string;
@@ -24,7 +26,9 @@ interface OrderSummaryProps {
 const OrderSummary = ({
   cartItems,
   currentStep,
+  coupons,
   selectedCartLevelCoupon,
+  onCartLevelCouponSelect,
   subtotal,
   itemLevelDiscount,
   cartLevelDiscount,
@@ -33,6 +37,7 @@ const OrderSummary = ({
   isFreeShipping,
   taxAmount,
   total,
+  isEmailVerified,
   getCouponForItem,
   couponValidation,
 }: OrderSummaryProps) => {
@@ -191,8 +196,6 @@ const OrderSummary = ({
           </div>
         )}
 
-        <div className="cp-summary-divider"></div>
-
         <div className="cp-summary-row summary-total">
           <strong>Total:</strong>
           <strong className="cp-summary-value-total">
@@ -200,15 +203,36 @@ const OrderSummary = ({
           </strong>
         </div>
 
-        {/* Free Shipping Notice Badge */}
-        {isFreeShipping && selectedCartLevelCoupon && (
-          <div className="cp-free-shipping-notice">
-            <FaShippingFast size={16} />
-            <span>
-              Free shipping applied with{" "}
-              <strong>{selectedCartLevelCoupon.coupon_code}</strong>
-            </span>
-          </div>
+        <div className="cp-summary-divider"></div>
+
+        {/* Cart-Level Coupon Selector — locked after shipping step */}
+        {isEmailVerified && coupons && (
+          <>
+            {currentStep === "cart" || currentStep === "shipping" ? (
+              <CartLevelCouponSelector
+                coupons={coupons.all}
+                selectedCoupon={selectedCartLevelCoupon}
+                onCouponSelect={onCartLevelCouponSelect}
+                subtotalAfterItemDiscounts={subtotal - itemLevelDiscount}
+                isEmailVerified={isEmailVerified}
+              />
+            ) : selectedCartLevelCoupon ? (
+              <div className="cart-level-coupon-section">
+                <div className="cart-level-coupon-header">
+                  <h3 className="cart-level-coupon-title">
+                    <FaTag /> Cart Discount
+                  </h3>
+                  <div className="selected-cart-coupon">
+                    <div className="selected-coupon-details">
+                      <span className="coupon-code">
+                        {selectedCartLevelCoupon.coupon_code}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </>
         )}
       </div>
     </div>

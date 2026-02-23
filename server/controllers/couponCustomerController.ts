@@ -8,7 +8,6 @@ import { pool } from "../db";
 /**
  * GET all active coupons for listings page
  * Returns all active coupons without location filtering (frontend will handle location matching)
- * Route: GET /api/products/coupons/preview
  */
 export const getProductCouponsPreview = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -91,8 +90,6 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
 
 /**
  * GET applicable coupons for a specific variant
- * CRITICAL: Now filters by variant's location_id
- * Route: GET /api/products/coupons/applicable
  */
 export const getApplicableCouponsForVariant = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -200,13 +197,167 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
 };
 
 // ============================================================================
+// PRODUCT COUPONS - ELIGIBLE PRODUCTS PREVIEW
+// ============================================================================
+
+/**
+ * GET eligible products for a coupon 
+ */
+export const getCouponEligibleProducts = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { couponId } = req.params;
+
+    // Get the coupon details
+    const couponResult = await pool.query(
+      'SELECT applies_to_type, applies_to_id, location_ids FROM coupons WHERE coupon_id = $1 AND is_active = TRUE',
+      [couponId]
+    );
+
+    if (couponResult.rows.length === 0) {
+      res.status(404).json({ message: 'Coupon not found' });
+      return;
+    }
+
+    const { applies_to_type, applies_to_id, location_ids } = couponResult.rows[0];
+
+    let productsQuery = '';
+    let queryParams: any[] = [];
+
+    if (applies_to_type === 'category') {
+      productsQuery = `
+        SELECT DISTINCT ON (p.product_id)
+          pv.variant_id,
+          p.product_id,
+          p.name,
+          pv.price,
+          (
+            SELECT pi.img_url
+            FROM product_images pi
+            WHERE pi.variant_id = pv.variant_id
+            ORDER BY pi.display_order
+            LIMIT 1
+          ) as primary_image
+        FROM product_variants pv
+        JOIN products p ON pv.product_id = p.product_id
+        JOIN product_categories pc ON p.product_id = pc.product_id
+        WHERE pc.category_id = $1
+          AND pv.location_id = ANY($2)
+        ORDER BY p.product_id, pv.variant_id
+        LIMIT 10
+      `;
+      queryParams = [applies_to_id, location_ids];
+    } else if (applies_to_type === 'product') {
+      productsQuery = `
+        SELECT DISTINCT ON (p.product_id)
+          pv.variant_id,
+          p.product_id,
+          p.name,
+          pv.price,
+          (
+            SELECT pi.img_url
+            FROM product_images pi
+            WHERE pi.variant_id = pv.variant_id
+            ORDER BY pi.display_order
+            LIMIT 1
+          ) as primary_image
+        FROM product_variants pv
+        JOIN products p ON pv.product_id = p.product_id
+        WHERE p.product_id = $1
+          AND pv.location_id = ANY($2)
+        ORDER BY p.product_id, pv.variant_id
+        LIMIT 10
+      `;
+      queryParams = [applies_to_id, location_ids];
+    } else if (applies_to_type === 'product_type') {
+      productsQuery = `
+        SELECT DISTINCT ON (p.product_id)
+          pv.variant_id,
+          p.product_id,
+          p.name,
+          pv.price,
+          (
+            SELECT pi.img_url
+            FROM product_images pi
+            WHERE pi.variant_id = pv.variant_id
+            ORDER BY pi.display_order
+            LIMIT 1
+          ) as primary_image
+        FROM product_variants pv
+        JOIN products p ON pv.product_id = p.product_id
+        WHERE p.product_type_id = $1
+          AND pv.location_id = ANY($2)
+        ORDER BY p.product_id, pv.variant_id
+        LIMIT 10
+      `;
+      queryParams = [applies_to_id, location_ids];
+    } else if (applies_to_type === 'variant') {
+      productsQuery = `
+        SELECT
+          pv.variant_id,
+          p.product_id,
+          p.name,
+          pv.price,
+          (
+            SELECT pi.img_url
+            FROM product_images pi
+            WHERE pi.variant_id = pv.variant_id
+            ORDER BY pi.display_order
+            LIMIT 1
+          ) as primary_image
+        FROM product_variants pv
+        JOIN products p ON pv.product_id = p.product_id
+        WHERE pv.variant_id = $1
+        LIMIT 10
+      `;
+      queryParams = [applies_to_id];
+    } else if (applies_to_type === 'custom_group') {
+      productsQuery = `
+        SELECT DISTINCT ON (p.product_id)
+          pv.variant_id,
+          p.product_id,
+          p.name,
+          pv.price,
+          (
+            SELECT pi.img_url
+            FROM product_images pi
+            WHERE pi.variant_id = pv.variant_id
+            ORDER BY pi.display_order
+            LIMIT 1
+          ) as primary_image
+        FROM product_variants pv
+        JOIN products p ON pv.product_id = p.product_id
+        JOIN coupon_variant_groups cvg ON pv.variant_id = cvg.variant_id
+        WHERE cvg.coupon_id = $1
+          AND pv.location_id = ANY($2)
+        ORDER BY p.product_id, pv.variant_id
+        LIMIT 10
+      `;
+      queryParams = [couponId, location_ids];
+    } else {
+      res.json({ products: [] });
+      return;
+    }
+
+    const result = await pool.query(productsQuery, queryParams);
+
+    const products = result.rows.map(row => ({
+      ...row,
+      price: row.price ? parseFloat(row.price) : 0,
+    }));
+
+    res.json({ products });
+  } catch (error) {
+    console.error("Error fetching coupon eligible products:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ============================================================================
 // PRODUCT COUPONS - CUSTOM GROUPS
 // ============================================================================
 
 /**
  * Check which custom group coupons apply to variants
- * CRITICAL: Now only returns coupons that match the variant's location
- * Route: GET /api/products/coupons/check-custom-groups
  */
 export const checkCustomGroupCoupons = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -239,7 +390,6 @@ export const checkCustomGroupCoupons = async (req: Request, res: Response): Prom
         AND pv.location_id = ANY(c.location_ids)
     `, [ids]);
 
-    // Build a map of variant_id -> [coupon_ids]
     const variantCouponMap: Record<number, number[]> = {};
     
     result.rows.forEach(row => {

@@ -1,4 +1,5 @@
 import type { ShippingOption, GuestInfo, GuestShippingAddress } from "../api/checkout";
+import type { ProductCoupon } from "../api/couponCustomer";
 
 // ============================================================================
 // CHECKOUT SESSION — persists checkout state to sessionStorage across refreshes
@@ -12,8 +13,9 @@ export interface CheckoutSession {
   guestAddress: GuestShippingAddress;
   guestAddressValidated: boolean;
   selectedAddressId: number | null;
-  selectedShipping: ShippingOption | null;
   shippingCost: number;
+  cartLevelCouponId: number | null;
+  cartLevelCoupon: ProductCoupon | null;
 }
 
 export const saveSession = (data: Partial<CheckoutSession>): void => {
@@ -24,7 +26,6 @@ export const saveSession = (data: Partial<CheckoutSession>): void => {
       JSON.stringify({ ...existing, ...data }),
     );
   } catch {
-    // sessionStorage unavailable — fail silently
   }
 };
 
@@ -41,6 +42,5 @@ export const clearSession = (): void => {
   try {
     sessionStorage.removeItem(SESSION_KEY);
   } catch {
-    // ignore
   }
 };

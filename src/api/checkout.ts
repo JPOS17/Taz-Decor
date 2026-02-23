@@ -113,7 +113,6 @@ export interface GuestInfo {
   phone?: string;
 }
 
-/** The inline shipping address used for guest checkout and guest shipping calc */
 export interface GuestShippingAddress {
   address_name?: string;
   address_line1: string;
@@ -225,7 +224,6 @@ export interface OrderDetails extends Order {
   items: OrderItem[];
 }
 
-/** OrderDetails extended with guest-specific fields */
 export interface GuestOrderDetails extends Omit<OrderDetails, 'first_name' | 'last_name'> {
   guest_email: string;
   guest_first_name: string;

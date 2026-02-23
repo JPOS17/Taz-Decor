@@ -7,7 +7,6 @@ import { pool } from "../db";
 
 /**
  * GET product stats (wishlist, cart, reviews)
- * Route: GET /api/products/:variantId/stats
  */
 export const getProductStats = async (req: Request, res: Response): Promise<void> => {
   try {

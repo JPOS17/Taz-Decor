@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
+import { loadSession, saveSession } from "../../utils/checkoutSession";
 import {
   FaTrash,
   FaPlus,
@@ -16,12 +17,14 @@ import {
   type GroupedCoupons,
   findBestCoupon,
   calculateDiscount,
+  calculateCartLevelDiscount,
   shouldShowDiscountedPrice,
   checkCustomGroupCoupons,
   isItemLevelCoupon,
 } from "../../api/couponCustomer";
 
 import CouponModal from "../../components/customerInterface/items/CouponModal";
+import CartLevelCouponSelector from "../../components/customerInterface/checkout/CartLevelCouponSelector";
 import ConfirmModal from "../../components/universalComponents/ConfirmModal";
 
 import "../../styles/pages/customer/Cart.css";
@@ -38,9 +41,12 @@ const Cart = () => {
     updateCartCoupon,
     clearCart,
     getCartTotal,
+    cartLevelCouponId,
+    setCartLevelCouponId,
   } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const session = loadSession();
 
   // ============================================================================
   // STATE MANAGEMENT
@@ -51,6 +57,10 @@ const Cart = () => {
   const [customGroupMap, setCustomGroupMap] = useState<
     Record<number, number[]>
   >({});
+
+  // Cart-level coupon object (resolved from cartLevelCouponId stored in context)
+  const [selectedCartLevelCoupon, setSelectedCartLevelCoupon] =
+    useState<ProductCoupon | null>(session.cartLevelCoupon ?? null);
 
   // Modal state
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
@@ -88,6 +98,37 @@ const Cart = () => {
       loadCoupons();
     }
   }, [cartItems.length]);
+
+  // Once coupons are loaded, resolve the stored cart-level coupon ID into an object.
+  // This means if a user selected a coupon in checkout and comes back to cart,
+  // it will still be shown as selected here.
+  useEffect(() => {
+    if (!coupons) return;
+
+    if (cartLevelCouponId) {
+      const found =
+        coupons.all.find((c) => c.coupon_id === cartLevelCouponId) ?? null;
+      setSelectedCartLevelCoupon(found);
+    } else if (!session.cartLevelCoupon) {
+      // Only clear if session also has nothing — don't wipe a valid session restore
+      setSelectedCartLevelCoupon(null);
+    }
+  }, [coupons, cartLevelCouponId]);
+
+  // ============================================================================
+  // CART-LEVEL COUPON HANDLER
+  // ============================================================================
+
+  // When user selects/removes a cart-level coupon in the Cart page, update both
+  // the local display state AND the shared context
+  const handleCartLevelCouponSelect = (coupon: ProductCoupon | null) => {
+    setSelectedCartLevelCoupon(coupon);
+    setCartLevelCouponId(coupon ? coupon.coupon_id : null);
+    saveSession({
+      cartLevelCoupon: coupon,
+      cartLevelCouponId: coupon?.coupon_id ?? null,
+    });
+  };
 
   // ============================================================================
   // COUPON LOGIC
@@ -398,6 +439,17 @@ const Cart = () => {
   const totalDiscount = calculateTotalDiscount();
   const subtotalWithDiscounts = calculateSubtotalWithDiscounts();
 
+  // Cart-level coupon preview — computed client-side so the summary updates
+  // immediately when the user selects/removes a coupon, matching what
+  // validateCoupons will return in CheckoutPage.
+  const cartLevelDiscountInfo = selectedCartLevelCoupon
+    ? calculateCartLevelDiscount(selectedCartLevelCoupon, subtotalWithDiscounts)
+    : null;
+
+  const cartLevelDiscountAmount = cartLevelDiscountInfo?.discountAmount ?? 0;
+  const cartLevelFreeShipping = cartLevelDiscountInfo?.isFreeShipping ?? false;
+  const finalTotal = subtotalWithDiscounts - cartLevelDiscountAmount;
+
   // ============================================================================
   // EVENT HANDLERS
   // ============================================================================
@@ -668,12 +720,15 @@ const Cart = () => {
                           )}
 
                           {/* Change Coupon Button */}
-                          <button
-                            className="btn-change-coupon"
-                            onClick={() => handleOpenCouponModal(item)}
-                          >
-                            {itemCoupon ? "Change Coupon" : "Add Coupon"}
-                          </button>
+                          {(itemCoupon ||
+                            getApplicableCouponsForItem(item).length > 0) && (
+                            <button
+                              className="btn-change-coupon"
+                              onClick={() => handleOpenCouponModal(item)}
+                            >
+                              {itemCoupon ? "Change Coupon" : "Add Coupon"}
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -763,28 +818,56 @@ const Cart = () => {
 
               {totalDiscount > 0 && (
                 <div className="summary-row summary-discount">
-                  <span className="summary-label">Discount</span>
+                  <span className="summary-label">Item Discounts</span>
                   <span className="summary-value summary-value-discount">
                     -${totalDiscount.toFixed(2)}
                   </span>
                 </div>
               )}
 
-              <div className="summary-row">
+              {cartLevelDiscountAmount > 0 && (
+                <div className="summary-row summary-discount">
+                  <span className="summary-label">Cart Discount</span>
+                  <span className="summary-value summary-value-discount">
+                    -${cartLevelDiscountAmount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              <div className="summary-row ">
                 <span className="summary-label">Shipping</span>
-                <span className="summary-value summary-value-muted">
-                  Calculated at checkout
+                <span
+                  className={`summary-value ${cartLevelFreeShipping ? "summary-discount" : "summary-value-muted"}`}
+                >
+                  {cartLevelFreeShipping ? (
+                    <>
+                      <span className="free-shipping-badge">FREE</span>
+                    </>
+                  ) : (
+                    "Calculated at checkout"
+                  )}
                 </span>
               </div>
 
               <div className="summary-row summary-total">
                 <strong className="summary-label">Total</strong>
                 <strong className="summary-value summary-value-total">
-                  ${subtotalWithDiscounts.toFixed(2)}
+                  ${finalTotal.toFixed(2)}
                 </strong>
               </div>
 
               <p className="summary-note">Plus applicable tax and shipping</p>
+
+              {/* Cart-Level Coupon Selector — only shown to verified auth users */}
+              {isEmailVerified && coupons && (
+                <CartLevelCouponSelector
+                  coupons={coupons.all}
+                  selectedCoupon={selectedCartLevelCoupon}
+                  onCouponSelect={handleCartLevelCouponSelect}
+                  subtotalAfterItemDiscounts={subtotalWithDiscounts}
+                  isEmailVerified={isEmailVerified}
+                />
+              )}
 
               <button
                 className="btn-checkout"

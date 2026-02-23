@@ -2,9 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaTag,
-  FaTruck,
   FaPercent,
-  FaDollarSign,
   FaCheckCircle,
   FaShieldAlt,
   FaGift,
@@ -12,14 +10,12 @@ import {
   FaInfoCircle,
   FaBoxOpen,
   FaCalendar,
-  FaShoppingCart,
 } from "react-icons/fa";
 import {
   type ProductCoupon,
   calculateDiscount,
-  isCartLevelCoupon,
+  fetchCouponEligibleProducts,
 } from "../../../api/couponCustomer";
-import { fetchCouponPreview } from "../../../api/couponManagement";
 import "../../../styles/components/customerInterface/items/CouponBanner.css";
 
 interface CouponBannerProps {
@@ -60,18 +56,12 @@ const CouponBanner = ({
     new Set(),
   );
 
-  if (coupons.length === 0) return null;
-
   const getCouponIcon = (coupon: ProductCoupon) => {
     if (coupon.discount_type === "bogo") {
       return <FaGift className="text-warning" size={14} />;
     }
-    if (coupon.free_shipping)
-      return <FaTruck className="text-info" size={14} />;
     if (coupon.discount_type === "percentage")
       return <FaPercent className="text-success" size={14} />;
-    if (coupon.discount_type === "fixed")
-      return <FaDollarSign className="text-success" size={14} />;
     return <FaTag className="text-primary" size={14} />;
   };
 
@@ -80,18 +70,11 @@ const CouponBanner = ({
 
     let text = "";
 
-    if (coupon.discount_type === "free_shipping_only") {
-      text = "Free Shipping";
-    } else if (
+    if (
       coupon.discount_type === "percentage" &&
       coupon.discount_value !== null
     ) {
       text = `${coupon.discount_value}% off - Save $${discountAmount.toFixed(2)}`;
-    } else if (
-      coupon.discount_type === "fixed" &&
-      coupon.discount_value !== null
-    ) {
-      text = `$${coupon.discount_value.toFixed(2)} off cart`;
     } else if (coupon.discount_type === "bogo") {
       const buyQty = coupon.bogo_buy_quantity || 1;
       const getQty = coupon.bogo_get_quantity || 1;
@@ -104,13 +87,7 @@ const CouponBanner = ({
       }
     }
 
-    // Don't add free shipping here - it will be on separate line
     return text;
-  };
-
-  // Check if coupon has only free shipping (no discount)
-  const isFreeShippingOnly = (coupon: ProductCoupon) => {
-    return coupon.discount_type === "free_shipping_only";
   };
 
   const copyCode = (code: string) => {
@@ -163,7 +140,7 @@ const CouponBanner = ({
       new Set(prev).add(coupon.coupon_id),
     );
     try {
-      const data = await fetchCouponPreview(coupon.coupon_id);
+      const data = await fetchCouponEligibleProducts(coupon.coupon_id);
       setEligibleProducts((prev) => ({
         ...prev,
         [coupon.coupon_id]: data.products.slice(0, 10),
@@ -199,14 +176,7 @@ const CouponBanner = ({
   };
 
   const handleCouponClick = (coupon: ProductCoupon) => {
-    // Don't allow selection of cart-level coupons
-    if (isCartLevelCoupon(coupon)) {
-      return;
-    }
-
     if (onCouponSelect) {
-      // Always select the clicked coupon, even if it's already selected
-      // This prevents accidental deselection when clicking the same coupon
       onCouponSelect(coupon);
       setClickedCode(coupon.coupon_code);
     }
@@ -230,14 +200,19 @@ const CouponBanner = ({
     navigate(`/items/${variantId}`);
   };
 
-  // Sort all coupons by best value
-  const sortedCoupons = sortCouponsByValue(coupons);
+  // Filter out cart-level coupons (applies_to_type === "all") - these are only selectable at checkout
+  const itemLevelCoupons = coupons.filter((c) => c.applies_to_type !== "all");
+
+  // Sort item-level coupons by best value
+  const sortedCoupons = sortCouponsByValue(itemLevelCoupons);
+
+  if (sortedCoupons.length === 0) return null;
 
   return (
     <div className="coupon-banner-compact">
       <div className="coupon-banner-header-compact">
         <FaTag size={12} />
-        <span>Offers ({coupons.length})</span>
+        <span>Offers ({sortedCoupons.length})</span>
       </div>
 
       {/* Scrollable Coupons List */}
@@ -249,14 +224,12 @@ const CouponBanner = ({
           const isBogo = coupon.discount_type === "bogo";
           const products = eligibleProducts[coupon.coupon_id] || [];
           const isLoading = loadingProducts.has(coupon.coupon_id);
-          const freeShippingOnly = isFreeShippingOnly(coupon);
           const isSelected = selectedCoupon?.coupon_id === coupon.coupon_id;
-          const isCartLevel = isCartLevelCoupon(coupon);
 
           return (
             <div
               key={coupon.coupon_id}
-              className={`compact-coupon-item ${isSelected ? "selected" : ""} ${isCartLevel ? "cart-level-coupon" : ""}`}
+              className={`compact-coupon-item ${isSelected ? "selected" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleCouponExpand(coupon.coupon_id);
@@ -270,27 +243,16 @@ const CouponBanner = ({
                 <div className="compact-coupon-content">
                   <div className="compact-coupon-first-line">
                     <button
-                      className={`compact-coupon-code ${isCartLevel ? "cart-level" : ""} ${isSelected ? "selected" : ""}`}
+                      className={`compact-coupon-code ${isSelected ? "selected" : ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!isCartLevel) {
-                          copyCode(coupon.coupon_code);
-                          setClickedCode(coupon.coupon_code);
-                          handleCouponClick(coupon);
-                        }
+                        copyCode(coupon.coupon_code);
+                        setClickedCode(coupon.coupon_code);
+                        handleCouponClick(coupon);
                       }}
-                      disabled={isCartLevel}
-                      title={
-                        isCartLevel
-                          ? "This coupon applies at checkout to your entire cart"
-                          : "Click to select this coupon"
-                      }
+                      title="Click to select this coupon"
                     >
-                      {isCartLevel ? (
-                        <>
-                          <FaShoppingCart size={12} /> {coupon.coupon_code}
-                        </>
-                      ) : copiedCode === coupon.coupon_code ? (
+                      {copiedCode === coupon.coupon_code ? (
                         <>
                           <FaCheckCircle size={12} /> Selected!
                         </>
@@ -302,25 +264,9 @@ const CouponBanner = ({
                       )}
                     </button>
                     <span className="compact-coupon-deal">
-                      {freeShippingOnly
-                        ? "Free Shipping"
-                        : getCouponText(coupon)}
+                      {getCouponText(coupon)}
                     </span>
                   </div>
-
-                  {/* Cart-level badge */}
-                  {isCartLevel && (
-                    <div className="compact-coupon-cart-level-badge">
-                      <span>Applied at checkout to entire cart</span>
-                    </div>
-                  )}
-
-                  {/* Free shipping on separate line if there's also a discount */}
-                  {!freeShippingOnly && coupon.free_shipping && (
-                    <div className="compact-coupon-free-shipping">
-                      + Free Shipping
-                    </div>
-                  )}
 
                   {coupon.min_purchase_amount && (
                     <div className="compact-coupon-min-purchase">
@@ -355,23 +301,11 @@ const CouponBanner = ({
                     </p>
                   )}
 
-                  {/* Cart-level explanation */}
-                  {isCartLevel && (
-                    <div className="compact-coupon-info-note cart-level-note">
-                      <FaInfoCircle size={12} />
-                      <span>
-                        This discount will be automatically applied to your
-                        entire cart at checkout when minimum requirements are
-                        met.
-                      </span>
-                    </div>
-                  )}
-
                   {/* Email verification requirement */}
                   {coupon.requires_verified_email && (
                     <div className="compact-coupon-info-note">
                       <FaShieldAlt size={12} />
-                      <span>Requires email verification</span>
+                      <span>Requires an account with us!</span>
                     </div>
                   )}
 
@@ -396,7 +330,7 @@ const CouponBanner = ({
                       </div>
                       <p className="compact-bogo-text">
                         Add the required quantities to your cart. The discount
-                        will automatically apply at checkout.
+                        will automatically apply at cart.
                       </p>
                     </div>
                   )}
@@ -450,7 +384,7 @@ const CouponBanner = ({
                                     {product.name}
                                   </div>
                                   <div className="compact-product-price">
-                                    ${product.price.toFixed(2)}
+                                    ${Number(product.price).toFixed(2)}{" "}
                                   </div>
                                 </div>
                               ))}

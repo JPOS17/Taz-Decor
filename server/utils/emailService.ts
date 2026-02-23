@@ -1,7 +1,7 @@
 import { google } from "googleapis";
 
 // ============================================================================
-// GMAIL API CONFIGURATION (pure HTTPS - no SMTP)
+// GMAIL API CONFIGURATION 
 // ============================================================================
 
 const oauth2Client = new google.auth.OAuth2(
@@ -38,7 +38,7 @@ const encodeEmail = (to: string, from: string, subject: string, html: string): s
 };
 
 /**
- * Send email using Gmail API (pure HTTPS, no SMTP)
+ * Send email using Gmail API 
  */
 const sendEmail = async (to: string, subject: string, html: string): Promise<void> => {
   const from = process.env.EMAIL_FROM || process.env.EMAIL_USER || "";

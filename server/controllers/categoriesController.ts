@@ -7,7 +7,6 @@ import { pool } from "../db";
 
 /**
  * List of words that should remain lowercase in category names
- * (except when they are the first or last word)
  */
 const LOWERCASE_WORDS = ['of', 'in', 'on', 'the', 'and', 'a', 'an'];
 
@@ -47,7 +46,6 @@ function formatCategoryName(input: string): string {
 
 /**
  * GET all categories
- * Route: GET /api/categories
  */
 export const getAllCategories = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -77,7 +75,6 @@ export const getAllCategories = async (req: Request, res: Response): Promise<voi
 
 /**
  * POST create new category
- * Route: POST /api/categories
  */
 export const createCategory = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -129,7 +126,6 @@ export const createCategory = async (req: Request, res: Response): Promise<void>
 
 /**
  * PUT update category
- * Route: PUT /api/categories/:categoryId
  */
 export const updateCategory = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -208,7 +204,6 @@ export const updateCategory = async (req: Request, res: Response): Promise<void>
 
 /**
  * DELETE category
- * Route: DELETE /api/categories/:categoryId
  */
 export const deleteCategory = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -256,7 +251,6 @@ export const deleteCategory = async (req: Request, res: Response): Promise<void>
 
 /**
  * PUT update display order for multiple categories
- * Route: PUT /api/categories/reorder
  */
 export const reorderCategories = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();

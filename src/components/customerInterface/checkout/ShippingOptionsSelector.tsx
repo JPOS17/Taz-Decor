@@ -1,5 +1,6 @@
 import { FaExclamationTriangle, FaShippingFast, FaCheck } from "react-icons/fa";
 import type { ShippingOption } from "../../../api/checkout";
+import DeliveryEstimate from "./DeliveryEstimate";
 
 interface ShippingOptionsSelectorProps {
   loadingShipping: boolean;
@@ -38,6 +39,7 @@ const ShippingOptionsSelector = ({
             </p>
           </div>
         </div>
+        <DeliveryEstimate shippingMethodName="usps ground advantage" />
       </div>
     );
   }

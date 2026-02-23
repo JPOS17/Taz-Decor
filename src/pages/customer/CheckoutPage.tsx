@@ -48,7 +48,6 @@ import { validateCoupons } from "../../api/couponValidation";
 
 import StepIndicator from "../../components/customerInterface/checkout/StepIndicator";
 import OrderSummary from "../../components/customerInterface/checkout/OrderSummary";
-import CartLevelCouponSelector from "../../components/customerInterface/checkout/CartLevelCouponSelector";
 import SuccessScreen from "../../components/customerInterface/checkout/SuccessScreen";
 import ShippingOptionsSelector from "../../components/customerInterface/checkout/ShippingOptionsSelector";
 import DeliveryEstimate from "../../components/customerInterface/checkout/DeliveryEstimate";
@@ -70,7 +69,6 @@ interface OrderResult {
   created_at: string;
 }
 
-// Blank guest info state
 const EMPTY_GUEST_INFO: GuestInfo = {
   email: "",
   first_name: "",
@@ -92,7 +90,14 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const { step: urlStep } = useParams<{ step?: string }>();
   const { user, isLoading } = useAuth();
-  const { cartItems, clearCart, updateQuantity, removeFromCart } = useCart();
+  const {
+    cartItems,
+    clearCart,
+    updateQuantity,
+    removeFromCart,
+    cartLevelCouponId,
+    setCartLevelCouponId,
+  } = useCart();
 
   // Rehydrate from sessionStorage once on mount
   const session = loadSession();
@@ -147,12 +152,10 @@ const CheckoutPage = () => {
   // Shipping management
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShipping, setSelectedShipping] =
-    useState<ShippingOption | null>(session.selectedShipping ?? null);
+    useState<ShippingOption | null>(null);
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
-  const [shippingCost, setShippingCost] = useState<number>(
-    session.shippingCost ?? 0,
-  );
+  const [shippingCost, setShippingCost] = useState<number>(0);
   const [isFreeShipping, setIsFreeShipping] = useState<boolean>(false);
 
   // Order totals
@@ -238,12 +241,22 @@ const CheckoutPage = () => {
 
   // Validate coupons for auth users only
   useEffect(() => {
-    if (user && cartItems.length > 0) validateCouponRules();
-  }, [cartItems, user]);
+    if (user && cartItems.length > 0 && coupons) {
+      validateCouponRules();
+    }
+  }, [cartItems, user, coupons, selectedCartLevelCoupon]);
 
+  // Re-fetch shipping options when free shipping status changes
   useEffect(() => {
-    if (user && cartItems.length > 0) validateCouponRules();
-  }, [selectedCartLevelCoupon]);
+    if (
+      !isGuest &&
+      selectedAddressId &&
+      cartItems.length > 0 &&
+      currentStep === "shipping"
+    ) {
+      handleCalculateShipping();
+    }
+  }, [isFreeShipping]);
 
   // Recalculate totals whenever relevant state changes
   useEffect(() => {
@@ -257,12 +270,33 @@ const CheckoutPage = () => {
     currentStep,
   ]);
 
-  // Recalculate shipping for auth users when address changes
+  // Load shipping options for auth users whenever:
+  // - An address is selected AND addresses have finished loading from the API
+  // - This covers both: user clicks a new address, and page refresh
   useEffect(() => {
-    if (!isGuest && selectedAddressId && cartItems.length > 0) {
+    if (
+      !isGuest &&
+      selectedAddressId &&
+      addresses.length > 0 &&
+      cartItems.length > 0 &&
+      currentStep === "shipping"
+    ) {
       handleCalculateShipping();
     }
-  }, [selectedAddressId]);
+  }, [selectedAddressId, addresses.length, currentStep, isGuest]);
+
+  // Load shipping options for guests on refresh
+  useEffect(() => {
+    if (
+      isGuest &&
+      guestAddressComplete &&
+      guestAddressValidated &&
+      currentStep === "shipping" &&
+      shippingOptions.length === 0
+    ) {
+      handleCalculateShippingGuest();
+    }
+  }, [guestAddressValidated, currentStep, isGuest]);
 
   // Persist key checkout state to sessionStorage whenever it changes
   useEffect(() => {
@@ -273,8 +307,6 @@ const CheckoutPage = () => {
       guestAddress,
       guestAddressValidated,
       selectedAddressId,
-      selectedShipping,
-      shippingCost,
     });
   }, [
     checkoutMode,
@@ -282,8 +314,6 @@ const CheckoutPage = () => {
     guestAddress,
     guestAddressValidated,
     selectedAddressId,
-    selectedShipping,
-    shippingCost,
   ]);
 
   // Sync current step to the URL
@@ -315,13 +345,24 @@ const CheckoutPage = () => {
     try {
       const data = await fetchProductCouponsPreview();
       setCoupons(data);
+
+      const couponIdToFind = cartLevelCouponId ?? session.cartLevelCouponId;
+      if (couponIdToFind) {
+        const found =
+          data.all.find((c: ProductCoupon) => c.coupon_id === couponIdToFind) ??
+          null;
+        if (found) {
+          setSelectedCartLevelCoupon(found);
+          setCartLevelCouponId(found.coupon_id);
+        }
+      }
     } catch (err) {
       console.error("Error loading coupons:", err);
     }
   };
 
   const validateCouponRules = async () => {
-    if (!user) return; // Guests skip coupon validation entirely
+    if (!user) return;
     try {
       const payload = {
         cart_items: cartItems.map((item) => ({
@@ -358,6 +399,16 @@ const CheckoutPage = () => {
       console.error("Error validating coupons:", err);
       setCouponErrors(["Failed to validate coupons"]);
     }
+  };
+
+  // Updates selectedCartLevelCoupon AND keeps CartContext in sync
+  const handleCartLevelCouponSelect = (coupon: ProductCoupon | null) => {
+    setSelectedCartLevelCoupon(coupon);
+    setCartLevelCouponId(coupon ? coupon.coupon_id : null);
+    saveSession({
+      cartLevelCoupon: coupon,
+      cartLevelCouponId: coupon?.coupon_id ?? null,
+    });
   };
 
   // ============================================================================
@@ -635,7 +686,7 @@ const CheckoutPage = () => {
         return;
       }
     }
-    if (!selectedShipping) {
+    if (!selectedShipping && !isFreeShipping) {
       setError("Please select a shipping method");
       return;
     }
@@ -649,7 +700,7 @@ const CheckoutPage = () => {
 
   // Place order (auth)
   const handlePlaceOrder = async () => {
-    if (!selectedAddressId || !selectedShipping) {
+    if (!selectedAddressId || (!selectedShipping && !isFreeShipping)) {
       setError("Please complete all required fields");
       return;
     }
@@ -686,9 +737,9 @@ const CheckoutPage = () => {
         total_price: total,
         applied_coupons: appliedCoupons.length > 0 ? appliedCoupons : undefined,
         cart_level_coupon_id: selectedCartLevelCoupon?.coupon_id || null,
-        selected_shipping_rate_id: selectedShipping.rate_id,
-        shipping_carrier: selectedShipping.carrier,
-        shipping_service: selectedShipping.service,
+        selected_shipping_rate_id: selectedShipping?.rate_id ?? undefined,
+        shipping_carrier: selectedShipping?.carrier ?? undefined,
+        shipping_service: selectedShipping?.service ?? undefined,
       });
 
       clearCart();
@@ -897,7 +948,6 @@ const CheckoutPage = () => {
   };
 
   // Guest address validation via Shippo
-
   const handleGuestAddressValidate = async () => {
     setLoading(true);
     setError(null);
@@ -923,6 +973,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Fetch shipping rates immediately after validation (mirrors auth flow)
   const handleAcceptCorrectedGuestAddress = () => {
     let finalAddress = pendingGuestAddressData
       ? { ...pendingGuestAddressData }
@@ -943,16 +994,15 @@ const CheckoutPage = () => {
     setShowValidationModal(false);
     setPendingGuestAddressData(null);
     setValidationResult(null);
-    // Fetch shipping rates immediately after validation (mirrors auth flow)
     handleCalculateShippingGuestWithAddress(finalAddress);
   };
 
+  // Fetch shipping rates immediately after validation (mirrors auth flow)
   const handleAcceptOriginalGuestAddress = () => {
     setGuestAddressValidated(true);
     setShowValidationModal(false);
     setPendingGuestAddressData(null);
     setValidationResult(null);
-    // Fetch shipping rates immediately after validation (mirrors auth flow)
     handleCalculateShippingGuest();
   };
 
@@ -1152,24 +1202,6 @@ const CheckoutPage = () => {
                 <p className="cp-section-description">
                   Review your items before proceeding to checkout
                 </p>
-
-                {/* Cart-Level Coupon Selector - above cart items */}
-                {!isGuest && coupons && (
-                  <CartLevelCouponSelector
-                    coupons={[
-                      ...coupons.all,
-                      ...coupons.category,
-                      ...coupons.product_type,
-                      ...coupons.product,
-                      ...coupons.variant,
-                      ...coupons.custom_group,
-                    ]}
-                    selectedCoupon={selectedCartLevelCoupon}
-                    onCouponSelect={setSelectedCartLevelCoupon}
-                    subtotalAfterItemDiscounts={subtotal - itemLevelDiscount}
-                    isEmailVerified={isEmailVerified}
-                  />
-                )}
 
                 <div className="cp-cart-items-list">
                   {cartItems.map((item) => {
@@ -1581,7 +1613,7 @@ const CheckoutPage = () => {
                     </div>
                   </>
                 )}
-                {/* ── AUTH: saved address list + add form ───────────────── */}
+                {/* AUTH: saved address list + add form */}
                 {!isGuest && (
                   <>
                     <p className="cp-section-description">
@@ -1625,7 +1657,7 @@ const CheckoutPage = () => {
                   </>
                 )}
 
-                {/* ── Shipping options (shown once we have rates) ───────── */}
+                {/* Shipping options (shown once we have rates) */}
                 {((isGuest && guestAddressValidated) ||
                   (!isGuest && selectedAddressId)) && (
                   <ShippingOptionsSelector
@@ -1872,13 +1904,12 @@ const CheckoutPage = () => {
             <OrderSummary
               cartItems={cartItems}
               currentStep={currentStep}
-              // Pass coupons/coupon state only for auth users
               coupons={!isGuest ? coupons : null}
               selectedCartLevelCoupon={
                 !isGuest ? selectedCartLevelCoupon : null
               }
               onCartLevelCouponSelect={
-                !isGuest ? setSelectedCartLevelCoupon : () => {}
+                !isGuest ? handleCartLevelCouponSelect : () => {}
               }
               subtotal={subtotal}
               itemLevelDiscount={!isGuest ? itemLevelDiscount : 0}

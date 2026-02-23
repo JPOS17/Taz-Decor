@@ -7,7 +7,6 @@ import { pool } from "../db";
 
 /**
  * GET product preview with filters
- * Route: GET /api/products
  */
 export const getProductPreview = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -39,6 +38,7 @@ export const getProductPreview = async (req: Request, res: Response): Promise<vo
             ON pi.variant_id = pv.variant_id        
           AND pi.is_primary = TRUE
         WHERE pv.is_active = TRUE
+          AND pv.quantity > 0
           AND c.is_active = TRUE
           AND ($1::int IS NULL AND pc.is_primary = TRUE OR pc.category_id = $1)
           AND ($2::numeric IS NULL OR pv.price >= $2)
@@ -131,7 +131,6 @@ export const getProductPreview = async (req: Request, res: Response): Promise<vo
 
 /**
  * GET product detail by variant ID
- * Route: GET /api/products/:variantId
  */
 export const getProductDetail = async (req: Request, res: Response): Promise<void> => {
   try {

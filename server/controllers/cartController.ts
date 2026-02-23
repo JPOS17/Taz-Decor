@@ -8,7 +8,6 @@ import { pool } from "../db";
 
 /**
  * POST add item to cart
- * Route: POST /api/cart/add
  */
 export const addToCart = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -54,7 +53,6 @@ export const addToCart = async (req: Request, res: Response): Promise<void> => {
 
 /**
  * DELETE remove item from cart
- * Route: DELETE /api/cart/:variantId
  */
 export const removeFromCart = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -85,7 +83,6 @@ export const removeFromCart = async (req: Request, res: Response): Promise<void>
 
 /**
  * DELETE clear entire cart
- * Route: DELETE /api/cart/clear
  */
 export const clearCart = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -114,7 +111,6 @@ export const clearCart = async (req: Request, res: Response): Promise<void> => {
 
 /**
  * PUT update cart item quantity
- * Route: PUT /api/cart/:variantId
  */
 export const updateCartQuantity = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -128,13 +124,11 @@ export const updateCartQuantity = async (req: Request, res: Response): Promise<v
     const { quantity } = req.body;
 
     if (quantity <= 0) {
-      // Remove if quantity is 0
       await pool.query(
         'DELETE FROM shopping_cart_items WHERE user_id = $1 AND variant_id = $2',
         [user.userId, variantId]
       );
     } else {
-      // Update quantity
       await pool.query(
         'UPDATE shopping_cart_items SET quantity = $1, updated_at = NOW() WHERE user_id = $2 AND variant_id = $3',
         [quantity, user.userId, variantId]
@@ -155,7 +149,6 @@ export const updateCartQuantity = async (req: Request, res: Response): Promise<v
 
 /**
  * PUT update cart item's selected coupon
- * Route: PUT /api/cart/:variantId/coupon
  */
 export const updateCartCoupon = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -187,7 +180,6 @@ export const updateCartCoupon = async (req: Request, res: Response): Promise<voi
 
 /**
  * GET user's cart from database
- * Route: GET /api/cart
  */
 export const getCart = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -236,7 +228,6 @@ export const getCart = async (req: Request, res: Response): Promise<void> => {
 
 /**
  * POST sync localStorage cart to database
- * Route: POST /api/cart/sync
  */
 export const syncCart = async (req: Request, res: Response): Promise<void> => {
   try {

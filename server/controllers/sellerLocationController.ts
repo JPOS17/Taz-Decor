@@ -7,7 +7,6 @@ import { pool } from "../db";
 
 /**
  * GET all active seller locations
- * Route: GET /api/sellerlocation
  */
 export const getActiveLocations = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -41,8 +40,6 @@ export const getActiveLocations = async (req: Request, res: Response): Promise<v
 
 /**
  * GET specific seller location by ID
- * Route: GET /api/sellerlocation/:locationId
- * Used for shipping label export
  */
 export const getLocationById = async (req: Request, res: Response): Promise<void> => {
   try {

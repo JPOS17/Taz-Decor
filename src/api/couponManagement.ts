@@ -110,9 +110,7 @@ export interface LocationOption {
 // API FUNCTIONS - COUPON MANAGEMENT
 // ============================================================================
 
-/**
- * GET all coupons with optional filters
- */
+// GET all coupons with optional filters
 export const fetchCoupons = async (
   status?: string | null,
   appliesTo?: string | null,
@@ -138,9 +136,7 @@ export const fetchCoupons = async (
   return response.json();
 };
 
-/**
- * GET single coupon by ID
- */
+// GET single coupon by ID
 export const fetchCouponById = async (couponId: number): Promise<Coupon> => {
   const response = await fetch(`${API_URL}/api/coupons/${couponId}`, {
     headers: getAuthHeaders(),
@@ -152,9 +148,7 @@ export const fetchCouponById = async (couponId: number): Promise<Coupon> => {
   return response.json();
 };
 
-/**
- * CREATE new coupon
- */
+// CREATE new coupon
 export const createCoupon = async (payload: CreateCouponPayload): Promise<Coupon> => {
   const response = await fetch(`${API_URL}/api/coupons`, {
     method: 'POST',
@@ -169,9 +163,7 @@ export const createCoupon = async (payload: CreateCouponPayload): Promise<Coupon
   return response.json();
 };
 
-/**
- * UPDATE coupon
- */
+// UPDATE coupon
 export const updateCoupon = async (
   couponId: number,
   payload: UpdateCouponPayload
@@ -189,9 +181,7 @@ export const updateCoupon = async (
   return response.json();
 };
 
-/**
- * DELETE coupon
- */
+// DELETE coupon
 export const deleteCoupon = async (couponId: number): Promise<void> => {
   const response = await fetch(`${API_URL}/api/coupons/${couponId}`, {
     method: 'DELETE',
@@ -204,9 +194,7 @@ export const deleteCoupon = async (couponId: number): Promise<void> => {
   }
 };
 
-/**
- * TOGGLE coupon status
- */
+// TOGGLE coupon status
 export const toggleCouponStatus = async (
   couponId: number,
   isActive: boolean
@@ -226,9 +214,7 @@ export const toggleCouponStatus = async (
 // API FUNCTIONS - DROPDOWN DATA
 // ============================================================================
 
-/**
- * GET categories for dropdown
- */
+// GET categories for dropdown
 export const fetchCategoriesForCoupons = async (): Promise<CategoryOption[]> => {
   const response = await fetch(`${API_URL}/api/coupons/categories`, {
     headers: getAuthHeaders(),
@@ -240,9 +226,7 @@ export const fetchCategoriesForCoupons = async (): Promise<CategoryOption[]> => 
   return response.json();
 };
 
-/**
- * GET product types for dropdown
- */
+// GET product types for dropdown
 export const fetchProductTypesForCoupons = async (): Promise<ProductTypeOption[]> => {
   const response = await fetch(`${API_URL}/api/coupons/product-types`, {
     headers: getAuthHeaders(),
@@ -254,9 +238,7 @@ export const fetchProductTypesForCoupons = async (): Promise<ProductTypeOption[]
   return response.json();
 };
 
-/**
- * GET products for dropdown
- */
+// GET products for dropdown
 export const fetchProductsForCoupons = async (): Promise<ProductOption[]> => {
   const response = await fetch(`${API_URL}/api/coupons/products`, {
     headers: getAuthHeaders(),
@@ -268,9 +250,7 @@ export const fetchProductsForCoupons = async (): Promise<ProductOption[]> => {
   return response.json();
 };
 
-/**
- * GET locations for dropdown
- */
+// GET locations for dropdown
 export const fetchLocationsForCoupons = async (): Promise<LocationOption[]> => {
   const response = await fetch(`${API_URL}/api/coupons/locations`, {
     headers: getAuthHeaders(),
@@ -286,9 +266,7 @@ export const fetchLocationsForCoupons = async (): Promise<LocationOption[]> => {
 // API FUNCTIONS - PREVIEW & UTILITY
 // ============================================================================
 
-/**
- * GET all coupon codes for validation
- */
+// GET all coupon codes for validation
 export const fetchAllCouponCodes = async (): Promise<string[]> => {
   const response = await fetch(`${API_URL}/api/coupons/codes`, {
     headers: getAuthHeaders(),
@@ -300,9 +278,7 @@ export const fetchAllCouponCodes = async (): Promise<string[]> => {
   return response.json();
 };
 
-/**
- * GET variant by ID (to get product_id for grouping)
- */
+// GET variant by ID (to get product_id for grouping)
 export const fetchVariantById = async (variantId: number): Promise<any> => {
   const response = await fetch(`${API_URL}/api/coupons/variant/${variantId}`, {
     headers: getAuthHeaders(),
@@ -314,9 +290,7 @@ export const fetchVariantById = async (variantId: number): Promise<any> => {
   return response.json();
 };
 
-/**
- * GET variants for a specific product (for custom group selection)
- */
+// GET variants for a specific product (for custom group selection)
 export const fetchVariantsForProduct = async (productId: number): Promise<any[]> => {
   const response = await fetch(
     `${API_URL}/api/management/products/by-product/${productId}/variants`,
@@ -331,9 +305,7 @@ export const fetchVariantsForProduct = async (productId: number): Promise<any[]>
   return response.json();
 };
 
-/**
- * GET preview of products affected by coupon (for existing coupons)
- */
+// GET preview of products affected by coupon (for existing coupons)
 export const fetchCouponPreview = async (couponId: number): Promise<{ products: any[] }> => {
   const response = await fetch(`${API_URL}/api/coupons/${couponId}/preview`, {
     headers: getAuthHeaders(),
@@ -345,9 +317,7 @@ export const fetchCouponPreview = async (couponId: number): Promise<{ products: 
   return response.json();
 };
 
-/**
- * GET preview of products for a draft coupon (before creation)
- */
+// GET preview of products for a draft coupon (before creation)
 export const fetchDraftCouponPreview = async (
   appliesTo: string,
   appliestoId?: string | number | null,

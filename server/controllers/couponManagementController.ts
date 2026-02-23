@@ -7,7 +7,6 @@ import { pool } from "../db";
 
 /**
  * GET all coupons for management with optional filters
- * Route: GET /api/coupons
  */
 export const getAllCoupons = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -128,7 +127,6 @@ export const getAllCoupons = async (req: Request, res: Response): Promise<void> 
 
 /**
  * GET single coupon by ID
- * Route: GET /api/coupons/:couponId
  */
 export const getCouponById = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -204,7 +202,6 @@ export const getCouponById = async (req: Request, res: Response): Promise<void> 
 
 /**
  * CREATE new coupon
- * Route: POST /api/coupons
  */
 export const createCoupon = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
@@ -382,9 +379,9 @@ export const createCoupon = async (req: Request, res: Response): Promise<void> =
     // Auto-correct free_shipping flag based on discount_type
     let correctedFreeShipping = free_shipping || false;
     if (discount_type === 'free_shipping_only') {
-      correctedFreeShipping = true; // Always true for free_shipping_only
+      correctedFreeShipping = true; 
     } else if (discount_type === 'percentage' || discount_type === 'fixed' || discount_type === 'bogo') {
-      correctedFreeShipping = false; // Always false for other types
+      correctedFreeShipping = false; 
     }
 
     // Auto-correct applies_to_type for fixed and free_shipping_only
@@ -463,7 +460,6 @@ export const createCoupon = async (req: Request, res: Response): Promise<void> =
 
 /**
  * UPDATE existing coupon
- * Route: PUT /api/coupons/:couponId
  */
 export const updateCoupon = async (req: Request, res: Response): Promise<void> => {
   const client = await pool.connect();
@@ -608,9 +604,9 @@ export const updateCoupon = async (req: Request, res: Response): Promise<void> =
     // Auto-correct free_shipping flag based on discount_type
     let correctedFreeShipping = free_shipping;
     if (discount_type === 'free_shipping_only') {
-      correctedFreeShipping = true; // Always true for free_shipping_only
+      correctedFreeShipping = true; 
     } else if (discount_type === 'percentage' || discount_type === 'fixed' || discount_type === 'bogo') {
-      correctedFreeShipping = false; // Always false for other types
+      correctedFreeShipping = false;
     }
 
     // Auto-correct applies_to_type for fixed and free_shipping_only
@@ -776,7 +772,6 @@ export const updateCoupon = async (req: Request, res: Response): Promise<void> =
 
 /**
  * DELETE coupon
- * Route: DELETE /api/coupons/:couponId
  */
 export const deleteCoupon = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -805,7 +800,6 @@ export const deleteCoupon = async (req: Request, res: Response): Promise<void> =
 
 /**
  * TOGGLE coupon active status
- * Route: PUT /api/coupons/:couponId/status
  */
 export const toggleCouponStatus = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -835,7 +829,6 @@ export const toggleCouponStatus = async (req: Request, res: Response): Promise<v
 
 /**
  * GET categories for coupon dropdown
- * Route: GET /api/coupons/categories
  */
 export const getCategoriesForCoupons = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -858,7 +851,6 @@ export const getCategoriesForCoupons = async (req: Request, res: Response): Prom
 
 /**
  * GET product types for coupon dropdown
- * Route: GET /api/coupons/product-types
  */
 export const getProductTypesForCoupons = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -881,7 +873,6 @@ export const getProductTypesForCoupons = async (req: Request, res: Response): Pr
 
 /**
  * GET products for coupon dropdown
- * Route: GET /api/coupons/products
  */
 export const getProductsForCoupons = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -904,7 +895,6 @@ export const getProductsForCoupons = async (req: Request, res: Response): Promis
 
 /**
  * GET locations for coupon dropdown
- * Route: GET /api/coupons/locations
  */
 export const getLocationsForCoupons = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -928,7 +918,6 @@ export const getLocationsForCoupons = async (req: Request, res: Response): Promi
 
 /**
  * GET preview of products affected by existing coupon
- * Route: GET /api/coupons/:couponId/preview
  */
 export const previewCouponProducts = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -1136,7 +1125,6 @@ export const previewCouponProducts = async (req: Request, res: Response): Promis
 
 /**
  * GET preview of products for draft coupon (before creation)
- * Route: GET /api/coupons/preview-draft
  */
 export const previewDraftCoupon = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -1388,7 +1376,6 @@ export const previewDraftCoupon = async (req: Request, res: Response): Promise<v
 
 /**
  * GET all coupon codes for validation
- * Route: GET /api/coupons/codes
  */
 export const getAllCouponCodes = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -1407,7 +1394,6 @@ export const getAllCouponCodes = async (req: Request, res: Response): Promise<vo
 
 /**
  * GET variant by ID (to get product_id for grouping)
- * Route: GET /api/coupons/variant/:variantId
  */
 export const getVariantForCoupon = async (req: Request, res: Response): Promise<void> => {
   try {

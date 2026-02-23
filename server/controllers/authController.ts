@@ -55,7 +55,7 @@ export const register = async (req: Request, res: Response) => {
 
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); 
 
     await pool.query(
       `INSERT INTO email_verification_tokens (user_id, token, expires_at)
@@ -68,7 +68,6 @@ export const register = async (req: Request, res: Response) => {
       await sendVerificationEmail(user.email, verificationToken, user.first_name);
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);
-      // Continue registration even if email fails
     }
 
     // Generate JWT token
@@ -327,13 +326,11 @@ export const resendVerification = async (req: Request, res: Response) => {
       return;
     }
 
-    // Delete old tokens
     await pool.query(
       `DELETE FROM email_verification_tokens WHERE user_id = $1`,
       [user.user_id]
     );
 
-    // Generate new verification token
     const verificationToken = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
@@ -384,7 +381,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     // Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); 
 
     await pool.query(
       `INSERT INTO password_reset_tokens (user_id, token, expires_at)

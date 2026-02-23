@@ -41,9 +41,7 @@ export interface RegisterData {
 // AUTHENTICATION API FUNCTIONS
 // ============================================================================
 
-/**
- * LOGIN user
- */
+// LOGIN user
 export const login = async (
   email: string,
   password: string
@@ -64,9 +62,7 @@ export const login = async (
   return response.json();
 };
 
-/**
- * REGISTER new user
- */
+// REGISTER new user
 export const register = async (
   data: RegisterData
 ): Promise<LoginResponse> => {
@@ -86,9 +82,7 @@ export const register = async (
   return response.json();
 };
 
-/**
- * GET current authenticated user
- */
+// GET current authenticated user
 export const getCurrentUser = async (): Promise<UserResponse> => {
   const token = localStorage.getItem("token");
 
@@ -113,9 +107,7 @@ export const getCurrentUser = async (): Promise<UserResponse> => {
 // EMAIL VERIFICATION API FUNCTIONS
 // ============================================================================
 
-/**
- * VERIFY email with token
- */
+// VERIFY email with token
 export const verifyEmail = async (token: string): Promise<{ message: string }> => {
   const response = await fetch(`${API_URL}/api/auth/verify-email/${token}`, {
     method: "GET",
@@ -132,9 +124,7 @@ export const verifyEmail = async (token: string): Promise<{ message: string }> =
   return response.json();
 };
 
-/**
- * RESEND verification email
- */
+// RESEND verification email
 export const resendVerificationEmail = async (): Promise<{ message: string }> => {
   const response = await fetch(`${API_URL}/api/auth/resend-verification`, {
     method: "POST",
@@ -153,9 +143,7 @@ export const resendVerificationEmail = async (): Promise<{ message: string }> =>
 // PASSWORD RESET API FUNCTIONS
 // ============================================================================
 
-/**
- * REQUEST password reset
- */
+// REQUEST password reset
 export const forgotPassword = async (email: string): Promise<{ message: string }> => {
   const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
     method: "POST",
@@ -173,9 +161,7 @@ export const forgotPassword = async (email: string): Promise<{ message: string }
   return response.json();
 };
 
-/**
- * RESET password with token
- */
+// RESET password with token
 export const resetPassword = async (
   token: string,
   newPassword: string

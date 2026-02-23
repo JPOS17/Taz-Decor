@@ -18,6 +18,7 @@ import CategoryDropDown from "../../components/customerInterface/items/CategoryD
 import SideBar from "../../components/customerInterface/items/SideBar";
 import ItemFilters from "../../components/customerInterface/items/ItemFilters";
 import ItemListings from "../../components/customerInterface/items/ItemListings";
+import CartCouponBanner from "../../components/customerInterface/items/CartCouponBanner";
 
 import "../../styles/pages/main/Items.css";
 import "../../styles/pages/main/Listing.css";
@@ -159,7 +160,6 @@ const Items = () => {
   };
 
   // Helper to get best coupon for a product
-  // NOTE: This now automatically excludes cart-level coupons via findBestCoupon
   const getBestCouponForProduct = (
     product: ProductPreview,
   ): ProductCoupon | null => {
@@ -169,7 +169,6 @@ const Items = () => {
 
     // Helper function to check if coupon applies to this product's location
     const couponMatchesLocation = (coupon: ProductCoupon): boolean => {
-      // If coupon has no location_ids or product has no location_id, allow it (backwards compatibility)
       if (
         !coupon.location_ids ||
         coupon.location_ids.length === 0 ||
@@ -241,7 +240,6 @@ const Items = () => {
     } else if (coupon.discount_type === "bogo") {
       return formatBogoBadge(coupon);
     }
-    // Don't return anything for free shipping only - it will be handled separately
     return null;
   };
 
@@ -296,6 +294,7 @@ const Items = () => {
               onSelectCategory={handleSelectCategory}
             />
           </div>
+          <CartCouponBanner coupons={coupons ? coupons.all : []} />
 
           {/* Header with category name and filters */}
           <div className="items-header">
@@ -311,14 +310,6 @@ const Items = () => {
                       {getCategoryBadgeText(categoryCoupon)}
                     </span>
                   )}
-
-                  {/* Always show free shipping badge if applicable */}
-                  {categoryCoupon.free_shipping && (
-                    <span className="items-free-shipping-badge">
-                      Free Shipping
-                    </span>
-                  )}
-
                   {categoryCoupon.requires_verified_email &&
                     !user?.isEmailVerified && (
                       <span className="items-verification-badge">

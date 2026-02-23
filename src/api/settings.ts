@@ -288,7 +288,7 @@ export const toggleShippingBoxStatus = async (
   }
 };
 
-// REORDER shipping boxes (for drag and drop)
+// REORDER shipping boxes
 export const reorderShippingBoxes = async (
   boxes: Array<{ box_id: number; box_size_order: number }>
 ): Promise<void> => {

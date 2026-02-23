@@ -9,7 +9,6 @@ import { sendAdminEmail } from "../utils/emailService";
 
 /**
  * GET all users
- * Route: GET /api/admin/users
  */
 export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -46,7 +45,6 @@ export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void
 
 /**
  * PATCH update user role
- * Route: PATCH /api/admin/users/:id/role
  */
 export const updateUserRole = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -120,7 +118,6 @@ export const updateUserRole = async (req: AuthRequest, res: Response): Promise<v
 
 /**
  * PATCH toggle user active status
- * Route: PATCH /api/admin/users/:id/status
  */
 export const toggleUserStatus = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -187,7 +184,6 @@ export const toggleUserStatus = async (req: AuthRequest, res: Response): Promise
 
 /**
  * POST send email to specific user
- * Route: POST /api/admin/users/:id/email
  */
 export const sendEmailToUser = async (req: AuthRequest, res: Response): Promise<void> => {
   try {

@@ -8,7 +8,8 @@ import type { BoxDimensions } from "../utils/shippoService";
 
 // ============================================================================
 // HELPER FUNCTIONS
-// =====================================================================
+// ============================================================================
+
 /**
  * Helper function to log order status changes
  * This creates an audit trail of all status changes for an order
@@ -278,10 +279,10 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
         return 
       }
 
-      // If weight is missing, use a default (you should set this in your products)
-      const weightOz = variant.weight_oz || 8; // Default 8oz if not set
+      // If weight is missing, use a default 
+      const weightOz = variant.weight_oz || 8; 
 
-      // Add item for each quantity (for proper weight calculation)
+      // Add item for each quantity 
       for (let i = 0; i < cartItem.quantity; i++) {
         items.push({
           weight_oz: parseFloat(weightOz),
@@ -332,7 +333,6 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
       }
     } catch (boxError) {
       console.error("⚠️  Box selection failed, will use default dimensions:", boxError);
-      // Continue without selected box - will use defaults
     }
 
     // Get real-time shipping rates from Shippo (now with selected box)
@@ -347,7 +347,7 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
         zip: address.zip,
         country: address.country || "US",
       },
-      selectedBox // Pass the selected box dimensions
+      selectedBox 
     );
 
     // Calculate total weight for informational purposes
@@ -470,7 +470,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
       const location_id = firstVariantResult.rows[0].location_id;
 
-      // ========== BOX SELECTION ==========
+      // BOX SELECTION 
       const variantIds = cart_items.map((item: any) => item.variant_id);
       const variantsResult = await client.query(
         `SELECT 
@@ -528,7 +528,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       } catch (boxError) {
         console.error("❌ Box selection failed for order:", boxError);
       }
-      // ========== END BOX SELECTION ==========
 
       // Generate unique order number
       const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -549,7 +548,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
           discount_amount, item_level_discount || 0, cart_level_discount || 0,
           shipping_cost, tax_amount || 0, total_price, selectedBoxId, totalWeightOz,
           shipping_carrier || null, shipping_service || null,
-          // Address snapshot
           first_name,
           last_name,
           addressData.address_line1,
@@ -650,7 +648,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       await client.query('COMMIT');
 
       // Fetch complete order details for confirmation email
-      // Now we can read the snapshot directly from the order — no join to user_addresses needed
       const orderDetailsResult = await pool.query(
         `SELECT 
           o.*,
@@ -1388,14 +1385,14 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
             cart_level_discount = {
               coupon_id: cart_level_coupon_id,
               discount_amount: 0,
-              free_shipping: false,  // ADD THIS
+              free_shipping: false,  
               error: "This coupon is not a cart-level coupon"
             };
           } else if (cartCoupon.valid_until && new Date(cartCoupon.valid_until) < new Date()) {
             cart_level_discount = {
               coupon_id: cart_level_coupon_id,
               discount_amount: 0,
-              free_shipping: false,  // ADD THIS
+              free_shipping: false,  
               error: "Coupon has expired"
             };
           } else if (
@@ -1405,7 +1402,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
             cart_level_discount = {
               coupon_id: cart_level_coupon_id,
               discount_amount: 0,
-              free_shipping: false,  // ADD THIS
+              free_shipping: false,  
               error: "Coupon usage limit reached"
             };
           } else {
@@ -1419,7 +1416,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
                 cart_level_discount = {
                   coupon_id: cart_level_coupon_id,
                   discount_amount: 0,
-                  free_shipping: false,  // ADD THIS
+                  free_shipping: false,  
                   error: "Email verification required"
                 };
               }
@@ -1440,7 +1437,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
                 cart_level_discount = {
                   coupon_id: cart_level_coupon_id,
                   discount_amount: 0,
-                  free_shipping: false,  // ADD THIS
+                  free_shipping: false,  
                   error: `Minimum purchase of $${parseFloat(cartCoupon.min_purchase_amount).toFixed(2)} required (current: $${cartSubtotalAfterItemDiscounts.toFixed(2)})`
                 };
               } else {
@@ -1490,7 +1487,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
           cart_level_discount = {
             coupon_id: cart_level_coupon_id,
             discount_amount: 0,
-            free_shipping: false,  // ADD THIS
+            free_shipping: false,  
             error: "Coupon not found"
           };
         }
@@ -1537,11 +1534,6 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
 
 /**
  * UPDATE order status and log the change
- * 
- * This endpoint allows you to:
- * - Update order status (pending → processing → ready_to_ship → shipped → delivered)
- * - Add tracking information
- * - Log notes about the status change
  */
 export const updateOrderStatus = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -1717,7 +1709,6 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
 
 /**
  * GET order status history
- * This shows all status changes that have occurred for this order
  */
 export const getOrderStatusHistory = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -2172,7 +2163,6 @@ export const calculateShippingGuest = async (req: Request, res: Response): Promi
 
 /**
  * VALIDATE cart items for GUESTS (no auth required)
- * Identical logic — shared as a utility to keep DRY.
  */
 export const validateCartGuest = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -2249,7 +2239,6 @@ export const validateCartGuest = async (req: Request, res: Response): Promise<vo
 
 /**
  * GET guest order by order number + email (no auth required)
- * Used by the public order-lookup page.
  */
 export const getGuestOrderByNumber = async (req: Request, res: Response): Promise<void> => {
   try {

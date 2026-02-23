@@ -9,7 +9,6 @@ import { pool } from "../db";
 
 /**
  * POST add item to wishlist
- * Route: POST /api/wishlist/add
  */
 export const addToWishlist = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -76,7 +75,6 @@ export const addToWishlist = async (req: Request, res: Response): Promise<void> 
 
 /**
  * DELETE remove item from wishlist
- * Route: DELETE /api/wishlist/:variantId
  */
 export const removeFromWishlist = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -107,7 +105,6 @@ export const removeFromWishlist = async (req: Request, res: Response): Promise<v
 
 /**
  * GET user's wishlist from database
- * Route: GET /api/wishlist
  */
 export const getWishlist = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -155,7 +152,6 @@ export const getWishlist = async (req: Request, res: Response): Promise<void> =>
 
 /**
  * POST sync localStorage wishlist to database
- * Route: POST /api/wishlist/sync
  */
 export const syncWishlist = async (req: Request, res: Response): Promise<void> => {
   try {

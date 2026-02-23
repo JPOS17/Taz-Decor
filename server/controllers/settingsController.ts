@@ -291,7 +291,6 @@ export const toggleLocationStatus = async (req: Request, res: Response): Promise
 
 /**
  * GET all shipping boxes
- * Now includes box_size_order and orders by it
  */
 export const getAllShippingBoxes = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -412,7 +411,6 @@ export const getShippingBoxById = async (req: Request, res: Response): Promise<v
 
 /**
  * CREATE new shipping box
- * Automatically assigns the next box_size_order value
  */
 export const createShippingBox = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -644,7 +642,6 @@ export const toggleShippingBoxStatus = async (req: Request, res: Response): Prom
 
 /**
  * REORDER shipping boxes
- * Updates box_size_order for multiple boxes at once
  */
 export const reorderShippingBoxes = async (req: Request, res: Response): Promise<void> => {
   try {

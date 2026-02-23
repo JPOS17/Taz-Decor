@@ -233,7 +233,7 @@ export const createNewVariant = async (
     headers: getAuthHeaders(),
     body: JSON.stringify({
       ...rest,
-      image_urls: images  // Backend expects 'image_urls', not 'images'
+      image_urls: images  
     }),
   });
 
@@ -355,7 +355,6 @@ export const setPrimaryImage = async (imageId: number): Promise<void> => {
 };
 
 // PUT update image order
-// FIX: Changed 'imageOrders' to 'images' to match backend expectation
 export const updateImageOrder = async (
   variantId: number,
   imageOrders: ImageOrderPayload[]
@@ -365,7 +364,7 @@ export const updateImageOrder = async (
     {
       method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify({ images: imageOrders }),  // ← CHANGED FROM imageOrders to images
+      body: JSON.stringify({ images: imageOrders }), 
     }
   );
 

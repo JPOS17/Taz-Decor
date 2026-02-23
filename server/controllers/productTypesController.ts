@@ -7,8 +7,6 @@ import { pool } from '../db';
 
 /**
  * GET all active product types
- * Used in dropdowns for product creation
- * Route: GET /api/product-types
  */
 export const getAllProductTypes = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -39,7 +37,6 @@ export const getAllProductTypes = async (req: Request, res: Response): Promise<v
 
 /**
  * GET a single product type by ID
- * Route: GET /api/product-types/:id
  */
 export const getProductTypeById = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -77,7 +74,6 @@ export const getProductTypeById = async (req: Request, res: Response): Promise<v
 
 /**
  * CREATE a new product type
- * Route: POST /api/product-types
  */
 export const createProductType = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -134,7 +130,6 @@ export const createProductType = async (req: Request, res: Response): Promise<vo
 
 /**
  * UPDATE product type description
- * Route: PATCH /api/product-types/:id
  */
 export const updateProductTypeDescription = async (req: Request, res: Response): Promise<void> => {
   try {

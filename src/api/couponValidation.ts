@@ -41,7 +41,7 @@ export interface CouponValidationResult {
   cart_level_discount?: {
     coupon_id: number;
     discount_amount: number;
-    free_shipping?: boolean;  // ADDED: Free shipping flag
+    free_shipping?: boolean;
     error?: string;
   } | null;
 }
