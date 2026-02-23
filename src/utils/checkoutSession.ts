@@ -14,6 +14,8 @@ export interface CheckoutSession {
   guestAddressValidated: boolean;
   selectedAddressId: number | null;
   shippingCost: number;
+  selectedShipping: ShippingOption | null;
+  shippingOptions: ShippingOption[];
   cartLevelCouponId: number | null;
   cartLevelCoupon: ProductCoupon | null;
 }

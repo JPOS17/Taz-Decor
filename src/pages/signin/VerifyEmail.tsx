@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { verifyEmail } from "../../api/auth";
 
 import "../../styles/pages/signin/VerifyEmail.css";
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 
 // ============================================================================
 // COMPONENT
@@ -15,7 +16,7 @@ const VerifyEmail = () => {
 
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const hasVerified = useRef(false); // Prevent double API calls
+  const hasVerified = useRef(false);
 
   // ============================================================================
   // STATE
@@ -77,14 +78,8 @@ const VerifyEmail = () => {
 
   if (status === "loading") {
     return (
-      <div className="verify-container">
-        <div className="verify-card">
-          <div className="loading-spinner"></div>
-          <h2 className="verify-title">Verifying your email...</h2>
-          <p className="verify-message">
-            Please wait while we verify your account.
-          </p>
-        </div>
+      <div className="verify-container verify-loading-state">
+        <LoadingSpinner message="Verifying your email..." />
       </div>
     );
   }

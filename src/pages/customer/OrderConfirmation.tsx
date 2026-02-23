@@ -8,6 +8,8 @@ import {
 } from "../../api/checkout";
 
 import DeliveryEstimate from "../../components/customerInterface/checkout/DeliveryEstimate";
+
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import ProfileSidebar from "../../components/universalComponents/ProfileSideBar";
 
 import "../../styles/pages/customer/OrderConfirmation.css";
@@ -119,16 +121,8 @@ const OrderConfirmation = () => {
 
   if (loading) {
     return (
-      <div
-        className="profile-page"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <div className="spinner"></div>
+      <div className="profile-page order-loading-state">
+        <LoadingSpinner message="Loading your order..." />
       </div>
     );
   }

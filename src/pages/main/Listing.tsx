@@ -31,6 +31,7 @@ import CouponBanner from "../../components/customerInterface/items/CouponBanner"
 import VariantSelector from "../../components/customerInterface/items/ProductVariant";
 import Lightbox from "../../components/customerInterface/items/ImageLightbox";
 
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import "../../styles/pages/main/Listing.css";
 
 const IndividualListing = () => {
@@ -100,15 +101,17 @@ const IndividualListing = () => {
         setProduct(data);
         setSelectedImage(data.images[0] || "");
 
-        const statsData = await fetchProductStats(Number(variantId));
-        setStats(statsData);
+        const [statsData, couponsData] = await Promise.all([
+          fetchProductStats(Number(variantId)),
+          fetchApplicableCouponsForVariant(
+            Number(variantId),
+            data.product_id,
+            data.category_id,
+            data.product_type_id,
+          ),
+        ]);
 
-        const couponsData = await fetchApplicableCouponsForVariant(
-          Number(variantId),
-          data.product_id,
-          data.category_id,
-          data.product_type_id,
-        );
+        setStats(statsData);
         setCoupons(couponsData);
 
         // Check if item is in cart and has a saved coupon (prioritize cart over wishlist)
@@ -199,7 +202,6 @@ const IndividualListing = () => {
   };
 
   const handleVariantChange = (newVariantId: number) => {
-    // FIX: Always preserve /items as the from path when navigating between variants
     navigate(`/items/${newVariantId}`, { state: { from: "/items" } });
   };
 
@@ -243,7 +245,6 @@ const IndividualListing = () => {
       category: product.category,
     };
 
-    // addToWishlist toggles - if item exists it removes, if not it adds
     addToWishlist(wishlistItem, selectedCoupon?.coupon_id);
   };
 
@@ -274,7 +275,6 @@ const IndividualListing = () => {
     }
   };
 
-  // ADD THESE NEW FUNCTIONS before "if (loading)":
   // Calculate displayed price based on selected coupon
   const getDisplayedPrice = () => {
     if (!product || !selectedCoupon) return product?.price || 0;
@@ -299,10 +299,8 @@ const IndividualListing = () => {
 
   if (loading) {
     return (
-      <div className="individual-listing-page">
-        <div className="loading-container">
-          <p className="loading-text">Loading product details...</p>
-        </div>
+      <div className="individual-listing-page listing-loading-state">
+        <LoadingSpinner message="Loading product details..." />
       </div>
     );
   }

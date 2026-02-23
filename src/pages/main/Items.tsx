@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { fetchProductPreview, type ProductPreview } from "../../api/listings";
+import { fetchCategories, type Category } from "../../api/categories";
 import {
   checkCustomGroupCoupons,
   fetchProductCouponsPreview,
@@ -20,6 +21,7 @@ import ItemFilters from "../../components/customerInterface/items/ItemFilters";
 import ItemListings from "../../components/customerInterface/items/ItemListings";
 import CartCouponBanner from "../../components/customerInterface/items/CartCouponBanner";
 
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import "../../styles/pages/main/Items.css";
 import "../../styles/pages/main/Listing.css";
 
@@ -42,6 +44,7 @@ const Items = () => {
   const onSaleOnly = searchParams.get("onSale") === "true";
 
   const [products, setProducts] = useState<ProductPreview[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
   const [customGroupMap, setCustomGroupMap] = useState<
     Record<number, number[]>
@@ -60,7 +63,7 @@ const Items = () => {
         setLoading(true);
         setError(null);
 
-        const [productsData, couponsData] = await Promise.all([
+        const [productsData, couponsData, categoriesData] = await Promise.all([
           fetchProductPreview({
             categoryId: activeCategoryId,
             minPrice,
@@ -69,10 +72,12 @@ const Items = () => {
             onSaleOnly,
           }),
           fetchProductCouponsPreview(),
+          fetchCategories(false),
         ]);
 
         setProducts(productsData);
         setCoupons(couponsData);
+        setCategories(categoriesData);
 
         // If there are custom_group coupons, fetch the mapping BY VARIANT
         if (couponsData.custom_group.length > 0 && productsData.length > 0) {
@@ -274,6 +279,14 @@ const Items = () => {
     });
   }, [products, coupons, customGroupMap, sortBy]);
 
+  if (loading) {
+    return (
+      <div className="items-page items-loading-state">
+        <LoadingSpinner message="Loading products..." />
+      </div>
+    );
+  }
+
   return (
     <div className="items-page">
       <div className="items-container">
@@ -282,6 +295,7 @@ const Items = () => {
           <SideBar
             activeCategoryId={activeCategoryId}
             onSelectCategory={handleSelectCategory}
+            categories={categories}
           />
         </div>
 
@@ -304,7 +318,6 @@ const Items = () => {
               {/* Category Coupon Badge */}
               {categoryCoupon && (
                 <div className="items-category-coupon-badge">
-                  {/* Only show discount badge if there's an actual discount */}
                   {getCategoryBadgeText(categoryCoupon) && (
                     <span className="items-discount-badge">
                       {getCategoryBadgeText(categoryCoupon)}
@@ -334,19 +347,7 @@ const Items = () => {
           </div>
 
           {/* Content States */}
-          {loading ? (
-            <div
-              className="profile-page"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: "100vh",
-              }}
-            >
-              <div className="spinner"></div>
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="items-error-state">
               <p>Error: {error}</p>
             </div>

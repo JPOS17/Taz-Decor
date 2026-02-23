@@ -15,6 +15,7 @@ import {
 
 import DeliveryEstimate from "../../components/customerInterface/checkout/DeliveryEstimate";
 import "../../styles/pages/customer/GuestOrderLookup.css";
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 
 // Status helpers
 
@@ -216,13 +217,8 @@ const OrderResult = () => {
 
   if (loading) {
     return (
-      <div className="guest-lookup-page">
-        <div className="guest-lookup-container">
-          <div className="guest-lookup-header">
-            <FaSpinner size={40} className="lookup-icon spin" />
-            <h1>Loading Order...</h1>
-          </div>
-        </div>
+      <div className="guest-lookup-page guest-lookup-loading-state">
+        <LoadingSpinner message="Loading your order..." />
       </div>
     );
   }

@@ -23,6 +23,7 @@ import AddressValidationModal from "../../components/universalComponents/Address
 import ProfileSidebar from "../../components/universalComponents/ProfileSideBar";
 import ConfirmModal from "../../components/universalComponents/ConfirmModal";
 
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import "../../styles/pages/main/Profile.css";
 
 interface EditingProfile {
@@ -115,10 +116,11 @@ const Profile = () => {
   const loadProfileData = async () => {
     try {
       setLoading(true);
-      const data = await fetchUserProfile();
+      const [data, addresses] = await Promise.all([
+        fetchUserProfile(),
+        fetchUserAddresses(),
+      ]);
       setProfileData(data.user);
-
-      const addresses = await fetchUserAddresses();
       setAllAddresses(addresses);
 
       setEditingProfile({
@@ -336,16 +338,8 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div
-        className="profile-page"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <div className="spinner"></div>
+      <div className="profile-page profile-loading-state">
+        <LoadingSpinner message="Loading your profile..." />
       </div>
     );
   }

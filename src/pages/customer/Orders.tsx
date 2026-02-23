@@ -8,6 +8,7 @@ import {
   type Order,
 } from "../../api/checkout";
 
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import ProfileSidebar from "../../components/universalComponents/ProfileSideBar";
 
 import "../../styles/pages/customer/Orders.css";
@@ -91,16 +92,8 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div
-        className="profile-page"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <div className="spinner"></div>
+      <div className="orders-page orders-loading-state">
+        <LoadingSpinner message="Loading your orders..." />
       </div>
     );
   }

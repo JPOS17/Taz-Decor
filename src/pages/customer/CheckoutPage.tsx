@@ -57,6 +57,8 @@ import AddressForm from "../../components/universalComponents/AddressForm";
 import AddressValidationModal from "../../components/universalComponents/AddressValidationModal";
 import ConfirmModal from "../../components/universalComponents/ConfirmModal";
 
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
+
 import "../../styles/pages/customer/CheckoutPage.css";
 
 type CheckoutStep = "cart" | "shipping" | "payment" | "review" | "success";
@@ -150,12 +152,16 @@ const CheckoutPage = () => {
   const [cartLevelDiscount, setCartLevelDiscount] = useState<number>(0);
 
   // Shipping management
-  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>(
+    session.shippingOptions ?? [],
+  );
   const [selectedShipping, setSelectedShipping] =
-    useState<ShippingOption | null>(null);
+    useState<ShippingOption | null>(session.selectedShipping ?? null);
   const [loadingShipping, setLoadingShipping] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
-  const [shippingCost, setShippingCost] = useState<number>(0);
+  const [shippingCost, setShippingCost] = useState<number>(
+    session.shippingCost ?? 0,
+  );
   const [isFreeShipping, setIsFreeShipping] = useState<boolean>(false);
 
   // Order totals
@@ -216,8 +222,16 @@ const CheckoutPage = () => {
       setIsInitialLoad(false);
       if (user) {
         setCheckoutMode("auth");
+      } else {
+        // Restore guest session if they were mid-checkout
+        const savedMode = session.checkoutMode;
+        if (savedMode === "guest") {
+          setCheckoutMode("guest");
+        } else {
+          // No valid session — show mode selection
+          setCheckoutMode(null);
+        }
       }
-      // If user is null we wait for them to choose (guest or login)
     }
   }, [isLoading, user]);
 
@@ -292,11 +306,12 @@ const CheckoutPage = () => {
       guestAddressComplete &&
       guestAddressValidated &&
       currentStep === "shipping" &&
-      shippingOptions.length === 0
+      shippingOptions.length === 0 &&
+      cartItems.length > 0
     ) {
       handleCalculateShippingGuest();
     }
-  }, [guestAddressValidated, currentStep, isGuest]);
+  }, [guestAddressValidated, currentStep, isGuest, cartItems.length]);
 
   // Persist key checkout state to sessionStorage whenever it changes
   useEffect(() => {
@@ -325,6 +340,14 @@ const CheckoutPage = () => {
       navigate(target, { replace: false });
     }
   }, [currentStep]);
+
+  useEffect(() => {
+    return () => {
+      // When the user navigates away from checkout entirely, wipe the session
+      // so they start fresh next time (mode selection will show again)
+      clearSession();
+    };
+  }, []);
 
   // ============================================================================
   // DATA LOADING
@@ -558,8 +581,32 @@ const CheckoutPage = () => {
         selectedAddressId,
       );
       setShippingOptions(result.shipping_options);
-      setSelectedShipping(null);
-      setShippingCost(0);
+
+      if (selectedShipping) {
+        const refreshed = result.shipping_options.find(
+          (o) => o.service_level_name === selectedShipping.service_level_name,
+        );
+        if (refreshed) {
+          setSelectedShipping(refreshed);
+          setShippingCost(isFreeShipping ? 0 : parseFloat(refreshed.amount));
+          saveSession({
+            selectedShipping: refreshed,
+            shippingCost: isFreeShipping ? 0 : parseFloat(refreshed.amount),
+            shippingOptions: result.shipping_options,
+          });
+        } else {
+          setSelectedShipping(null);
+          setShippingCost(0);
+          saveSession({
+            selectedShipping: null,
+            shippingCost: 0,
+            shippingOptions: result.shipping_options,
+          });
+        }
+      } else {
+        setShippingCost(0);
+        saveSession({ shippingOptions: result.shipping_options });
+      }
     } catch (err: any) {
       setShippingError(err.message || "Failed to calculate shipping");
     } finally {
@@ -585,8 +632,32 @@ const CheckoutPage = () => {
         addressForShipping,
       );
       setShippingOptions(result.shipping_options);
-      setSelectedShipping(null);
-      setShippingCost(0);
+
+      if (selectedShipping) {
+        const refreshed = result.shipping_options.find(
+          (o) => o.service_level_name === selectedShipping.service_level_name,
+        );
+        if (refreshed) {
+          setSelectedShipping(refreshed);
+          setShippingCost(isFreeShipping ? 0 : parseFloat(refreshed.amount));
+          saveSession({
+            selectedShipping: refreshed,
+            shippingCost: isFreeShipping ? 0 : parseFloat(refreshed.amount),
+            shippingOptions: result.shipping_options,
+          });
+        } else {
+          setSelectedShipping(null);
+          setShippingCost(0);
+          saveSession({
+            selectedShipping: null,
+            shippingCost: 0,
+            shippingOptions: result.shipping_options,
+          });
+        }
+      } else {
+        setShippingCost(0);
+        saveSession({ shippingOptions: result.shipping_options });
+      }
     } catch (err: any) {
       setShippingError(err.message || "Failed to calculate shipping");
     } finally {
@@ -594,8 +665,6 @@ const CheckoutPage = () => {
     }
   };
 
-  // Overload that accepts an explicit address (used when corrected address
-  // hasn't propagated to state yet)
   const handleCalculateShippingGuestWithAddress = async (
     address: GuestShippingAddress,
   ) => {
@@ -615,8 +684,32 @@ const CheckoutPage = () => {
         addressForShipping,
       );
       setShippingOptions(result.shipping_options);
-      setSelectedShipping(null);
-      setShippingCost(0);
+
+      if (selectedShipping) {
+        const refreshed = result.shipping_options.find(
+          (o) => o.service_level_name === selectedShipping.service_level_name,
+        );
+        if (refreshed) {
+          setSelectedShipping(refreshed);
+          setShippingCost(isFreeShipping ? 0 : parseFloat(refreshed.amount));
+          saveSession({
+            selectedShipping: refreshed,
+            shippingCost: isFreeShipping ? 0 : parseFloat(refreshed.amount),
+            shippingOptions: result.shipping_options,
+          });
+        } else {
+          setSelectedShipping(null);
+          setShippingCost(0);
+          saveSession({
+            selectedShipping: null,
+            shippingCost: 0,
+            shippingOptions: result.shipping_options,
+          });
+        }
+      } else {
+        setShippingCost(0);
+        saveSession({ shippingOptions: result.shipping_options });
+      }
     } catch (err: any) {
       setShippingError(err.message || "Failed to calculate shipping");
     } finally {
@@ -625,8 +718,14 @@ const CheckoutPage = () => {
   };
 
   const handleShippingOptionSelect = (option: ShippingOption) => {
+    const cost = isFreeShipping ? 0 : parseFloat(option.amount);
     setSelectedShipping(option);
-    setShippingCost(isFreeShipping ? 0 : parseFloat(option.amount));
+    setShippingCost(cost);
+    saveSession({
+      selectedShipping: option,
+      shippingCost: cost,
+      shippingOptions,
+    });
   };
 
   // ============================================================================
@@ -1005,6 +1104,14 @@ const CheckoutPage = () => {
     setValidationResult(null);
     handleCalculateShippingGuest();
   };
+
+  if (isInitialLoad) {
+    return (
+      <div className="cp-checkout-page cp-checkout-loading-state">
+        <LoadingSpinner message="Loading checkout..." />
+      </div>
+    );
+  }
 
   // ============================================================================
   // RENDER: MODE SELECTION (shown when user is not logged in)
@@ -1675,9 +1782,10 @@ const CheckoutPage = () => {
                   />
                 )}
 
-                {selectedShipping && (
+                {selectedShipping && !loadingShipping && (
                   <DeliveryEstimate
                     shippingMethodName={selectedShipping.service_level_name}
+                    className="cp-review-delivery-estimate"
                   />
                 )}
 
@@ -1692,6 +1800,7 @@ const CheckoutPage = () => {
                     className="cp-btn-continue"
                     onClick={handleContinueToPayment}
                     disabled={
+                      loadingShipping ||
                       (!isGuest &&
                         (!selectedAddressId ||
                           (!selectedShipping && !isFreeShipping))) ||
@@ -1787,7 +1896,7 @@ const CheckoutPage = () => {
                     )}
                   </div>
 
-                  {selectedShipping && (
+                  {selectedShipping && !loadingShipping && (
                     <DeliveryEstimate
                       shippingMethodName={selectedShipping.service_level_name}
                       className="cp-review-delivery-estimate"

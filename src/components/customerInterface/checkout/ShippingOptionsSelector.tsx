@@ -1,6 +1,7 @@
 import { FaExclamationTriangle, FaShippingFast, FaCheck } from "react-icons/fa";
 import type { ShippingOption } from "../../../api/checkout";
 import DeliveryEstimate from "./DeliveryEstimate";
+import LoadingSpinner from "../../universalComponents/LoadingSpinner";
 
 interface ShippingOptionsSelectorProps {
   loadingShipping: boolean;
@@ -48,10 +49,7 @@ const ShippingOptionsSelector = ({
     return (
       <div className="cp-shipping-options-container">
         <h3 className="cp-shipping-title">Shipping Method</h3>
-        <div className="cp-shipping-loading">
-          <div className="cp-spinner"></div>
-          <p>Calculating shipping rates...</p>
-        </div>
+        <LoadingSpinner message="Calculating shipping rates..." />
       </div>
     );
   }

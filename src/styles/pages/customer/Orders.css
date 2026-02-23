@@ -431,3 +431,10 @@
     font-size: 1.5rem;
   }
 }
+
+.orders-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
