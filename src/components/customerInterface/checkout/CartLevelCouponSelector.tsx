@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { FaTag, FaTimes, FaLock, FaShippingFast } from "react-icons/fa";
 import type { ProductCoupon } from "../../../api/couponCustomer";
 import "../../../styles/components/customerInterface/checkout/CartLevelCouponSelector.css";
@@ -19,6 +20,7 @@ const CartLevelCouponSelector = ({
   isEmailVerified,
 }: CartLevelCouponSelectorProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const navigate = useNavigate();
 
   // Filter for cart-level coupons only
   const cartLevelCoupons = coupons.filter((c) => c.applies_to_type === "all");
@@ -37,7 +39,6 @@ const CartLevelCouponSelector = ({
     setIsExpanded(false);
   };
 
-  // Get discount display text based on coupon type
   const getDiscountDisplay = (coupon: ProductCoupon) => {
     if (coupon.discount_type === "free_shipping_only") {
       return "FREE SHIPPING";
@@ -57,64 +58,42 @@ const CartLevelCouponSelector = ({
   };
 
   const isEligible = (coupon: ProductCoupon) => {
-    // Check email verification
-    if (coupon.requires_verified_email && !isEmailVerified) {
-      return false;
-    }
-
-    // Check minimum purchase amount
+    if (coupon.requires_verified_email && !isEmailVerified) return false;
     if (
       coupon.min_purchase_amount &&
       subtotalAfterItemDiscounts < coupon.min_purchase_amount
-    ) {
+    )
       return false;
-    }
-
-    // Check if expired
-    if (coupon.valid_until && new Date(coupon.valid_until) < new Date()) {
+    if (coupon.valid_until && new Date(coupon.valid_until) < new Date())
       return false;
-    }
-
-    // Check usage limits
     if (
       coupon.usage_limit_total &&
       coupon.usage_count_total >= coupon.usage_limit_total
-    ) {
+    )
       return false;
-    }
-
     return true;
   };
 
   const getIneligibilityReason = (coupon: ProductCoupon) => {
-    if (coupon.requires_verified_email && !isEmailVerified) {
+    if (coupon.requires_verified_email && !isEmailVerified)
       return "Email verification required";
-    }
-
     if (
       coupon.min_purchase_amount &&
       subtotalAfterItemDiscounts < coupon.min_purchase_amount
-    ) {
+    )
       return `Min. purchase: $${coupon.min_purchase_amount.toFixed(2)}`;
-    }
-
-    if (coupon.valid_until && new Date(coupon.valid_until) < new Date()) {
+    if (coupon.valid_until && new Date(coupon.valid_until) < new Date())
       return "Expired";
-    }
-
     if (
       coupon.usage_limit_total &&
       coupon.usage_count_total >= coupon.usage_limit_total
-    ) {
+    )
       return "Usage limit reached";
-    }
-
     return "";
   };
 
-  const isFreeShippingCoupon = (coupon: ProductCoupon) => {
-    return coupon.discount_type === "free_shipping_only";
-  };
+  const isFreeShippingCoupon = (coupon: ProductCoupon) =>
+    coupon.discount_type === "free_shipping_only";
 
   return (
     <div className="cart-level-coupon-section">
@@ -160,81 +139,102 @@ const CartLevelCouponSelector = ({
       </div>
 
       {isExpanded && (
-        <div className="cart-coupon-list">
-          {cartLevelCoupons.length === 0 ? (
-            <p className="no-coupons-message">
-              No cart-level coupons available
-            </p>
-          ) : (
-            <>
-              {cartLevelCoupons.map((coupon) => {
-                const eligible = isEligible(coupon);
-                const ineligibilityReason = !eligible
-                  ? getIneligibilityReason(coupon)
-                  : "";
-                const isSelected =
-                  selectedCoupon?.coupon_id === coupon.coupon_id;
-                const isFreeShipping = isFreeShippingCoupon(coupon);
+        <>
+          {/* Guest notice — always shown when not verified, sits above the list */}
+          {!isEmailVerified && (
+            <div className="cart-level-guest-notice">
+              <FaLock className="cart-level-guest-icon" />
+              <p>
+                Coupons are only applicable for signed-in users.{" "}
+                <button
+                  className="cart-level-sign-in-link"
+                  onClick={() => navigate("/login")}
+                >
+                  Sign in to redeem.
+                </button>
+              </p>
+            </div>
+          )}
 
-                return (
-                  <div
-                    key={coupon.coupon_id}
-                    className={`cart-coupon-item ${!eligible ? "ineligible" : ""} ${isSelected ? "selected" : ""} ${isFreeShipping ? "free-shipping-coupon" : ""}`}
-                  >
-                    <div className="cart-coupon-item-content">
-                      <div className="cart-coupon-details">
-                        <div className="cart-coupon-code-row">
-                          <span className="cart-coupon-code">
-                            {coupon.coupon_code}
-                          </span>
-                          <span
-                            className={`cart-coupon-discount ${isFreeShipping ? "free-shipping" : ""}`}
-                          >
-                            {getDiscountDisplay(coupon)}
-                          </span>
-                        </div>
+          {/* Coupon list — always rendered; interactions disabled for guests */}
+          <div
+            style={
+              !isEmailVerified
+                ? { pointerEvents: "none", opacity: 0.75 }
+                : undefined
+            }
+          >
+            <div className="cart-coupon-list">
+              {cartLevelCoupons.length === 0 ? (
+                <p className="no-coupons-message">
+                  No cart-level coupons available
+                </p>
+              ) : (
+                cartLevelCoupons.map((coupon) => {
+                  const eligible = isEligible(coupon);
+                  const ineligibilityReason = !eligible
+                    ? getIneligibilityReason(coupon)
+                    : "";
+                  const isSelected =
+                    selectedCoupon?.coupon_id === coupon.coupon_id;
+                  const isFreeShipping = isFreeShippingCoupon(coupon);
 
-                        {/* Minimum Purchase Requirement */}
-                        {coupon.min_purchase_amount && (
-                          <p className="cart-coupon-requirement">
-                            {isFreeShipping
-                              ? "Min. purchase for free shipping: "
-                              : "Min. purchase: "}
-                            ${coupon.min_purchase_amount.toFixed(2)}
-                          </p>
-                        )}
+                  return (
+                    <div
+                      key={coupon.coupon_id}
+                      className={`cart-coupon-item ${!eligible ? "ineligible" : ""} ${isSelected ? "selected" : ""} ${isFreeShipping ? "free-shipping-coupon" : ""}`}
+                    >
+                      <div className="cart-coupon-item-content">
+                        <div className="cart-coupon-details">
+                          <div className="cart-coupon-code-row">
+                            <span className="cart-coupon-code">
+                              {coupon.coupon_code}
+                            </span>
+                            <span
+                              className={`cart-coupon-discount ${isFreeShipping ? "free-shipping" : ""}`}
+                            >
+                              {getDiscountDisplay(coupon)}
+                            </span>
+                          </div>
 
-                        {/* Ineligibility Reason */}
-                        {!eligible && (
-                          <p className="cart-coupon-ineligible-reason">
-                            {coupon.requires_verified_email &&
-                              !isEmailVerified && (
+                          {coupon.min_purchase_amount && (
+                            <p className="cart-coupon-requirement">
+                              {isFreeShipping
+                                ? "Min. purchase for free shipping: "
+                                : "Min. purchase: "}
+                              ${coupon.min_purchase_amount.toFixed(2)}
+                            </p>
+                          )}
+
+                          {isEmailVerified && !eligible && (
+                            <p className="cart-coupon-ineligible-reason">
+                              {coupon.requires_verified_email &&
+                              !isEmailVerified ? (
                                 <>
                                   <FaLock size={12} /> {ineligibilityReason}
                                 </>
+                              ) : (
+                                ineligibilityReason
                               )}
-                            {!(
-                              coupon.requires_verified_email && !isEmailVerified
-                            ) && ineligibilityReason}
-                          </p>
-                        )}
-                      </div>
+                            </p>
+                          )}
+                        </div>
 
-                      {/* Select Button */}
-                      <button
-                        className="btn-select-cart-coupon"
-                        onClick={() => handleCouponSelect(coupon)}
-                        disabled={!eligible}
-                      >
-                        {isSelected ? "Selected" : "Select"}
-                      </button>
+                        <button
+                          className="btn-select-cart-coupon"
+                          onClick={() => handleCouponSelect(coupon)}
+                          disabled={!eligible}
+                        >
+                          {isSelected ? "Selected" : "Select"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </>
-          )}
-        </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

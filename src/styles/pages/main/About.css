@@ -115,6 +115,7 @@
   animation: fadeInDown 0.9s ease-out;
 }
 
+
 .about-email-pill:hover {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.55);
@@ -329,7 +330,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
-  max-width: 600px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
@@ -347,6 +348,9 @@
   text-decoration: none;
   color: inherit;
   transition: all 0.25s ease;
+  cursor: pointer;
+  font-family: "Lato", sans-serif;
+  width: 100%;
 }
 
 .contact-card:hover {
@@ -373,6 +377,7 @@
   font-weight: 600;
   word-break: break-all;
 }
+
 
 .contact-card-sub {
   font-size: 0.8125rem;
@@ -460,7 +465,7 @@
 
   .contact-cards {
     grid-template-columns: 1fr;
-    max-width: 320px;
+    max-width: 400px;
   }
 
   .about-footer-note {

@@ -1,7 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import "../../styles/pages/main/About.css";
 
 const About = () => {
+  const [copied, setCopied] = useState(false);
+
+  const handleEmailCopy = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const email = "tazdecorcatholiccompany@gmail.com";
+    try {
+      await navigator.clipboard.writeText(email);
+    } catch {
+      // Fallback for older browsers
+      const ta = document.createElement("textarea");
+      ta.value = email;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
   return (
     <div className="about-page">
       {/* Page Header */}
@@ -12,12 +33,11 @@ const About = () => {
           <p className="about-subtitle">
             A family rooted in faith, sharing it with yours.
           </p>
-          <a
-            href="mailto:tazdecorcatholiccompany@gmail.com"
-            className="about-email-pill"
-          >
-            ✉️ tazdecorcatholiccompany@gmail.com
-          </a>
+          <button onClick={handleEmailCopy} className="about-email-pill">
+            {copied
+              ? "📋 Email copied to clipboard!"
+              : "✉️ tazdecorcatholiccompany@gmail.com"}
+          </button>
         </div>
       </div>
 
@@ -130,19 +150,18 @@ const About = () => {
             answer.
           </p>
           <div className="contact-cards">
-            <a
-              href="mailto:tazdecorcatholiccompany@gmail.com"
-              className="contact-card"
-            >
+            <button onClick={handleEmailCopy} className="contact-card">
               <div className="contact-icon">✉️</div>
               <div className="contact-card-title">Send us an Email</div>
               <div className="contact-card-email">
                 tazdecorcatholiccompany@gmail.com
               </div>
               <div className="contact-card-sub">
-                We try to respond as soon as possible!
+                {copied
+                  ? "📋 Copied to clipboard!"
+                  : "Click to copy our email address"}
               </div>
-            </a>
+            </button>
             <a href="/items" className="contact-card">
               <div className="contact-icon">🛍️</div>
               <div className="contact-card-title">Visit Our Shop</div>

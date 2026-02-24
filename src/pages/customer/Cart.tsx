@@ -435,7 +435,7 @@ const Cart = () => {
 
   // Calculate values
   const originalSubtotal = calculateOriginalSubtotal();
-  const bogoDiscounts = calculateBogoDiscounts(); // Calculate once at top level
+  const bogoDiscounts = calculateBogoDiscounts();
   const totalDiscount = calculateTotalDiscount();
   const subtotalWithDiscounts = calculateSubtotalWithDiscounts();
 
@@ -536,22 +536,31 @@ const Cart = () => {
           </button>
         </div>
 
-        {/* ── KEY CHANGE: cart-layout (was cart-content-wrapper) ── */}
+        {/* cart-layout (was cart-content-wrapper) */}
         <div className="cart-layout">
           {/* LEFT COLUMN — all cart items grouped together */}
           <div className="cart-items-section">
-            {!isEmailVerified && (
-              <div className="cart-verification-banner">
-                <FaLock className="banner-icon" />
-                <div className="banner-content">
-                  <h4 className="banner-title">Email Verification Required</h4>
-                  <p className="banner-message">
-                    Please verify your email address to see discounted prices
-                    and apply coupons.
-                  </p>
+            {!isEmailVerified &&
+              cartItems.some(
+                (item) => getApplicableCouponsForItem(item).length > 0,
+              ) && (
+                <div
+                  className="cart-verification-banner"
+                  onClick={() => navigate("/login")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <FaLock className="banner-icon" />
+                  <div className="banner-content">
+                    <h4 className="banner-title">
+                      Email Verification Required for Discounts!
+                    </h4>
+                    <p className="banner-message">
+                      Please create and verify your email address to see apply
+                      coupons.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {cartItems
               .filter((item) => item.quantity > 0)
@@ -641,92 +650,102 @@ const Cart = () => {
                         )}
                       </div>
 
-                      {isEmailVerified && (
+                      {(isEmailVerified ||
+                        getApplicableCouponsForItem(item).length > 0) && (
                         <div className="cart-item-coupon-section">
-                          {isExpired && (
-                            <div className="coupon-expired-warning">
-                              <FaExclamationTriangle />
-                              <span>Selected coupon expired</span>
-                            </div>
-                          )}
-
-                          {fallbackToBest && !isExpired && (
-                            <div className="coupon-fallback-info">
-                              <span>
-                                Selected coupon no longer available. Best coupon
-                                applied.
-                              </span>
-                            </div>
-                          )}
-
-                          {itemCoupon && (
-                            <div className="cart-coupon-display">
-                              <div className="coupon-code-badge">
-                                <FaTag />
-                                <span>{itemCoupon.coupon_code}</span>
-                              </div>
-
-                              {itemCoupon.discount_type !== "bogo" &&
-                                itemCoupon.discount_type !==
-                                  "free_shipping_only" && (
-                                  <div className="cart-coupon-savings">
-                                    {itemCoupon.discount_type ===
-                                      "percentage" && (
-                                      <span className="savings-badge">
-                                        {itemCoupon.discount_value}% OFF
-                                      </span>
-                                    )}
-                                    {itemCoupon.discount_type === "fixed" && (
-                                      <span className="savings-badge">
-                                        ${itemCoupon.discount_value} OFF
-                                      </span>
-                                    )}
-                                    {itemCoupon.free_shipping && (
-                                      <span className="savings-badge shipping">
-                                        Free Shipping
-                                      </span>
-                                    )}
-                                  </div>
-                                )}
-
-                              {itemCoupon.discount_type === "bogo" && (
-                                <div className="cart-coupon-savings">
-                                  <span className="savings-badge bogo">
-                                    {itemCoupon.bogo_discount_percentage === 100
-                                      ? `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} FREE`
-                                      : `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} ${itemCoupon.bogo_discount_percentage}% OFF`}
-                                  </span>
-                                  {itemCoupon.free_shipping && (
-                                    <span className="savings-badge shipping">
-                                      + Free Shipping
-                                    </span>
-                                  )}
-                                  {(() => {
-                                    const bogoInfo =
-                                      getBogoCombinationInfo(item);
-                                    if (bogoInfo.isCombined) {
-                                      return (
-                                        <span className="bogo-combination-note">
-                                          Combined with other items (
-                                          {bogoInfo.totalItems} total)
-                                        </span>
-                                      );
-                                    }
-                                    return null;
-                                  })()}
+                          {isEmailVerified && (
+                            <>
+                              {isExpired && (
+                                <div className="coupon-expired-warning">
+                                  <FaExclamationTriangle />
+                                  <span>Selected coupon expired</span>
                                 </div>
                               )}
-                            </div>
+
+                              {fallbackToBest && !isExpired && (
+                                <div className="coupon-fallback-info">
+                                  <span>
+                                    Selected coupon no longer available. Best
+                                    coupon applied.
+                                  </span>
+                                </div>
+                              )}
+
+                              {itemCoupon && (
+                                <div className="cart-coupon-display">
+                                  <div className="coupon-code-badge">
+                                    <FaTag />
+                                    <span>{itemCoupon.coupon_code}</span>
+                                  </div>
+
+                                  {itemCoupon.discount_type !== "bogo" &&
+                                    itemCoupon.discount_type !==
+                                      "free_shipping_only" && (
+                                      <div className="cart-coupon-savings">
+                                        {itemCoupon.discount_type ===
+                                          "percentage" && (
+                                          <span className="savings-badge">
+                                            {itemCoupon.discount_value}% OFF
+                                          </span>
+                                        )}
+                                        {itemCoupon.discount_type ===
+                                          "fixed" && (
+                                          <span className="savings-badge">
+                                            ${itemCoupon.discount_value} OFF
+                                          </span>
+                                        )}
+                                        {itemCoupon.free_shipping && (
+                                          <span className="savings-badge shipping">
+                                            Free Shipping
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
+
+                                  {itemCoupon.discount_type === "bogo" && (
+                                    <div className="cart-coupon-savings">
+                                      <span className="savings-badge bogo">
+                                        {itemCoupon.bogo_discount_percentage ===
+                                        100
+                                          ? `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} FREE`
+                                          : `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} ${itemCoupon.bogo_discount_percentage}% OFF`}
+                                      </span>
+                                      {itemCoupon.free_shipping && (
+                                        <span className="savings-badge shipping">
+                                          + Free Shipping
+                                        </span>
+                                      )}
+                                      {(() => {
+                                        const bogoInfo =
+                                          getBogoCombinationInfo(item);
+                                        if (bogoInfo.isCombined) {
+                                          return (
+                                            <span className="bogo-combination-note">
+                                              Combined with other items (
+                                              {bogoInfo.totalItems} total)
+                                            </span>
+                                          );
+                                        }
+                                        return null;
+                                      })()}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </>
                           )}
 
-                          {/* Change Coupon Button */}
-                          {(itemCoupon ||
-                            getApplicableCouponsForItem(item).length > 0) && (
+                          {(isEmailVerified
+                            ? itemCoupon ||
+                              getApplicableCouponsForItem(item).length > 0
+                            : getApplicableCouponsForItem(item).length > 0) && (
                             <button
                               className="btn-change-coupon"
                               onClick={() => handleOpenCouponModal(item)}
                             >
-                              {itemCoupon ? "Change Coupon" : "Add Coupon"}
+                              {isEmailVerified && itemCoupon
+                                ? "Change Coupon"
+                                : "Add Coupon"}
                             </button>
                           )}
                         </div>
@@ -858,8 +877,8 @@ const Cart = () => {
 
               <p className="summary-note">Plus applicable tax and shipping</p>
 
-              {/* Cart-Level Coupon Selector — only shown to verified auth users */}
-              {isEmailVerified && coupons && (
+              {/* Cart-Level Coupon Selector — shown to all users */}
+              {coupons && (
                 <CartLevelCouponSelector
                   coupons={coupons.all}
                   selectedCoupon={selectedCartLevelCoupon}

@@ -4,18 +4,19 @@ import {
   FaTag,
   FaPercent,
   FaCheckCircle,
-  FaShieldAlt,
   FaGift,
   FaChevronDown,
   FaInfoCircle,
   FaBoxOpen,
   FaCalendar,
+  FaLock,
 } from "react-icons/fa";
 import {
   type ProductCoupon,
   calculateDiscount,
   fetchCouponEligibleProducts,
 } from "../../../api/couponCustomer";
+import { useAuth } from "../../../context/AuthContext";
 import "../../../styles/components/customerInterface/items/CouponBanner.css";
 
 interface CouponBannerProps {
@@ -44,6 +45,7 @@ const CouponBanner = ({
   selectedCoupon,
 }: CouponBannerProps) => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [clickedCode, setClickedCode] = useState<string | null>(null);
   const [expandedCoupons, setExpandedCoupons] = useState<Set<number>>(
@@ -246,11 +248,19 @@ const CouponBanner = ({
                       className={`compact-coupon-code ${isSelected ? "selected" : ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (!isAuthenticated) {
+                          toggleCouponExpand(coupon.coupon_id);
+                          return;
+                        }
                         copyCode(coupon.coupon_code);
                         setClickedCode(coupon.coupon_code);
                         handleCouponClick(coupon);
                       }}
-                      title="Click to select this coupon"
+                      title={
+                        isAuthenticated
+                          ? "Click to select this coupon"
+                          : "Sign in to use this coupon"
+                      }
                     >
                       {copiedCode === coupon.coupon_code ? (
                         <>
@@ -295,111 +305,127 @@ const CouponBanner = ({
                   className="compact-coupon-details"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {coupon.description && (
-                    <p className="compact-coupon-description">
-                      {coupon.description}
-                    </p>
-                  )}
-
-                  {/* Email verification requirement */}
-                  {coupon.requires_verified_email && (
-                    <div className="compact-coupon-info-note">
-                      <FaShieldAlt size={12} />
-                      <span>Requires an account with us!</span>
+                  {/* Guest sign-in notice — replaces all coupon details for unauthenticated users */}
+                  {!isAuthenticated ? (
+                    <div className="compact-guest-notice">
+                      <FaLock size={13} />
+                      <span>
+                        Coupons are only applicable for signed-in users.{" "}
+                        <button
+                          className="compact-guest-login-link"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate("/login");
+                          }}
+                        >
+                          Sign in to redeem
+                        </button>
+                      </span>
                     </div>
-                  )}
-
-                  {/* Max discount info */}
-                  {coupon.discount_type === "percentage" &&
-                    coupon.max_discount_amount && (
-                      <div className="compact-coupon-info-note">
-                        <FaInfoCircle size={12} />
-                        <span>
-                          Maximum discount: $
-                          {coupon.max_discount_amount.toFixed(2)}
-                        </span>
-                      </div>
-                    )}
-
-                  {/* BOGO Explanation */}
-                  {isBogo && (
-                    <div className="compact-bogo-explanation">
-                      <div className="compact-bogo-title">
-                        <FaInfoCircle size={12} />
-                        <span>How this works</span>
-                      </div>
-                      <p className="compact-bogo-text">
-                        Add the required quantities to your cart. The discount
-                        will automatically apply at cart.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Eligible Products */}
-                  {coupon.applies_to_type !== "variant" && (
-                    <div className="compact-eligible-section">
-                      <div className="compact-eligible-header">
-                        <div className="compact-eligible-title">
-                          <FaBoxOpen size={12} />
-                          <span>
-                            Applies to: {getAppliesDescription(coupon)}
-                          </span>
-                        </div>
-                        {coupon.applies_to_type === "all" && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewAllProducts(coupon);
-                            }}
-                            className="compact-view-all"
-                          >
-                            View all →
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Only show products if NOT "all" */}
-                      {coupon.applies_to_type !== "all" && (
-                        <>
-                          {isLoading ? (
-                            <div className="compact-loading">
-                              <div className="spinner-border spinner-border-sm" />
-                            </div>
-                          ) : products.length > 0 ? (
-                            <div className="compact-products-preview">
-                              {products.map((product: EligibleProduct) => (
-                                <div
-                                  key={product.variant_id}
-                                  className="compact-product-card"
-                                  onClick={(e) =>
-                                    handleProductClick(e, product.variant_id)
-                                  }
-                                >
-                                  <img
-                                    src={product.primary_image}
-                                    alt={product.name}
-                                    className="compact-product-image"
-                                  />
-                                  <div className="compact-product-name">
-                                    {product.name}
-                                  </div>
-                                  <div className="compact-product-price">
-                                    ${Number(product.price).toFixed(2)}{" "}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : null}
-                        </>
+                  ) : (
+                    <>
+                      {coupon.description && (
+                        <p className="compact-coupon-description">
+                          {coupon.description}
+                        </p>
                       )}
-                    </div>
-                  )}
 
-                  {coupon.usage_limit_total && (
-                    <div className="compact-usage-info">
-                      {coupon.usage_limit_total - coupon.usage_count_total} uses
-                      remaining
-                    </div>
+                      {/* Max discount info */}
+                      {coupon.discount_type === "percentage" &&
+                        coupon.max_discount_amount && (
+                          <div className="compact-coupon-info-note">
+                            <FaInfoCircle size={12} />
+                            <span>
+                              Maximum discount: $
+                              {coupon.max_discount_amount.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
+
+                      {/* BOGO Explanation */}
+                      {isBogo && (
+                        <div className="compact-bogo-explanation">
+                          <div className="compact-bogo-title">
+                            <FaInfoCircle size={12} />
+                            <span>How this works</span>
+                          </div>
+                          <p className="compact-bogo-text">
+                            Add the required quantities to your cart. The
+                            discount will automatically apply at cart.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Eligible Products */}
+                      {coupon.applies_to_type !== "variant" && (
+                        <div className="compact-eligible-section">
+                          <div className="compact-eligible-header">
+                            <div className="compact-eligible-title">
+                              <FaBoxOpen size={12} />
+                              <span>
+                                Applies to: {getAppliesDescription(coupon)}
+                              </span>
+                            </div>
+                            {coupon.applies_to_type === "all" && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleViewAllProducts(coupon);
+                                }}
+                                className="compact-view-all"
+                              >
+                                View all →
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Only show products if NOT "all" */}
+                          {coupon.applies_to_type !== "all" && (
+                            <>
+                              {isLoading ? (
+                                <div className="compact-loading">
+                                  <div className="spinner-border spinner-border-sm" />
+                                </div>
+                              ) : products.length > 0 ? (
+                                <div className="compact-products-preview">
+                                  {products.map((product: EligibleProduct) => (
+                                    <div
+                                      key={product.variant_id}
+                                      className="compact-product-card"
+                                      onClick={(e) =>
+                                        handleProductClick(
+                                          e,
+                                          product.variant_id,
+                                        )
+                                      }
+                                    >
+                                      <img
+                                        src={product.primary_image}
+                                        alt={product.name}
+                                        className="compact-product-image"
+                                      />
+                                      <div className="compact-product-name">
+                                        {product.name}
+                                      </div>
+                                      <div className="compact-product-price">
+                                        ${Number(product.price).toFixed(2)}{" "}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : null}
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {coupon.usage_limit_total && (
+                        <div className="compact-usage-info">
+                          {coupon.usage_limit_total - coupon.usage_count_total}{" "}
+                          uses remaining
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}

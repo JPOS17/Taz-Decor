@@ -161,6 +161,51 @@
   background: #2563eb;
 }
 
+/* Guest / signed-out notice */
+.coupon-modal-guest-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 1.25rem;
+  background: #fef3ec;
+  border: 1px solid #e8a87a;
+  border-radius: 8px;
+  color: #a04520;
+  /* Reduced font size to match the dropdown's inline message */
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.coupon-modal-guest-icon {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+  color: #b5341e;
+}
+
+.coupon-modal-guest-notice p {
+  margin: 0;
+}
+
+.coupon-modal-sign-in-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 700;
+  color: #b5341e;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.coupon-modal-sign-in-link:hover {
+  color: #8c2515;
+}
+
 /* Responsive Design */
 @media (max-width: 640px) {
   .coupon-modal-overlay {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaTag,
   FaTimes,
@@ -9,8 +10,10 @@ import {
   FaCheckCircle,
   FaCalendarAlt,
   FaShoppingCart,
+  FaLock,
 } from "react-icons/fa";
 import { type ProductCoupon } from "../../../api/couponCustomer";
+import { useAuth } from "../../../context/AuthContext";
 import "../../../styles/components/customerInterface/items/CartCouponBanner.css";
 
 interface CartCouponBannerProps {
@@ -20,6 +23,8 @@ interface CartCouponBannerProps {
 const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const cartCoupons = coupons.filter((c) => c.applies_to_type === "all");
 
@@ -166,6 +171,25 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
             <p className="ccb-modal-subtitle">
               These codes apply to your entire cart at checkout.
             </p>
+
+            {/* Guest sign-in notice */}
+            {!isAuthenticated && (
+              <div className="ccb-guest-notice">
+                <FaLock size={13} />
+                <span>
+                  Coupons are only applicable for signed-in users.{" "}
+                  <button
+                    className="ccb-guest-login-link"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      navigate("/login");
+                    }}
+                  >
+                    Sign in to redeem
+                  </button>
+                </span>
+              </div>
+            )}
 
             {/* Coupon cards */}
             <div className="ccb-modal-cards">

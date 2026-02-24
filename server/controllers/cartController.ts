@@ -180,6 +180,11 @@ export const updateCartCoupon = async (req: Request, res: Response): Promise<voi
 
 /**
  * GET user's cart from database
+ * Validates selected_coupon_id on each item — returns null if the coupon is:
+ *   - inactive
+ *   - expired (valid_until has passed)
+ *   - over the global usage limit (usage_count_total >= usage_limit_total)
+ *   - over the per-user usage limit (user has used it too many times in past orders)
  */
 export const getCart = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -193,22 +198,39 @@ export const getCart = async (req: Request, res: Response): Promise<void> => {
       `SELECT 
         sci.variant_id,
         sci.quantity,
-        sci.selected_coupon_id,
+        CASE 
+          WHEN sci.selected_coupon_id IS NULL THEN NULL
+          WHEN c_val.coupon_id IS NOT NULL THEN sci.selected_coupon_id
+          ELSE NULL
+        END as selected_coupon_id,
         p.product_id,
         p.name,
         pv.price,
         pv.color,
         pv.size,
-        c.category_id,
-        c.category_name as category,
+        cat.category_id,
+        cat.category_name as category,
         p.product_type_id,
         pi.img_url as image
       FROM shopping_cart_items sci
       JOIN product_variants pv ON pv.variant_id = sci.variant_id
       JOIN products p ON p.product_id = pv.product_id
       JOIN product_categories pc ON pc.product_id = p.product_id AND pc.is_primary = TRUE
-      JOIN categories c ON c.category_id = pc.category_id
+      JOIN categories cat ON cat.category_id = pc.category_id
       LEFT JOIN product_images pi ON pi.variant_id = sci.variant_id AND pi.is_primary = TRUE
+      LEFT JOIN coupons c_val ON c_val.coupon_id = sci.selected_coupon_id
+        AND c_val.is_active = true
+        AND (c_val.valid_until IS NULL OR c_val.valid_until > NOW())
+        AND (c_val.usage_limit_total IS NULL OR c_val.usage_count_total < c_val.usage_limit_total)
+        AND (
+          c_val.usage_limit_per_user IS NULL OR (
+            SELECT COUNT(*)
+            FROM order_coupons oc
+            JOIN orders o ON o.order_id = oc.order_id
+            WHERE oc.coupon_id = sci.selected_coupon_id
+              AND o.user_id = sci.user_id
+          ) < c_val.usage_limit_per_user
+        )
       WHERE sci.user_id = $1
       ORDER BY sci.added_at DESC`,
       [user.userId]
@@ -257,10 +279,7 @@ export const syncCart = async (req: Request, res: Response): Promise<void> => {
       // Merge localStorage items with database items
       for (const item of cartItems) {
         if (existingMap.has(item.variant_id)) {
-          // Update quantity (keep higher quantity) and update coupon if provided
           const existing = existingMap.get(item.variant_id);
-          
-          // Null check for TypeScript
           if (existing) {
             const newQty = Math.max(existing.quantity, item.quantity);
             const newCoupon = item.selected_coupon_id !== undefined ? item.selected_coupon_id : existing.coupon;
@@ -273,7 +292,6 @@ export const syncCart = async (req: Request, res: Response): Promise<void> => {
             );
           }
         } else {
-          // Insert new item
           await client.query(
             `INSERT INTO shopping_cart_items (user_id, variant_id, quantity, selected_coupon_id, added_at)
              VALUES ($1, $2, $3, $4, NOW())`,
@@ -297,4 +315,3 @@ export const syncCart = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Server error" });
   }
 };
-

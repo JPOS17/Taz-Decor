@@ -602,12 +602,6 @@ const IndividualListing = () => {
                     {product.location_state}
                   </span>
                 </div>
-                {coupons.some((c) => c.free_shipping) && (
-                  <div className="shipping-item">
-                    <FaShippingFast className="shipping-icon" />
-                    <span>Free shipping available with coupon!</span>
-                  </div>
-                )}
               </div>
             </div>
           </div>

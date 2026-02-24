@@ -1,0 +1,201 @@
+/* ============================================================================
+   PAGINATION
+   ============================================================================ */
+
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-top: 1.5px solid #e8d8bf;
+  background: linear-gradient(160deg, #fdf8f0 0%, #f9f1e4 100%);
+}
+
+/* ============================================================================
+   ITEM COUNT SUMMARY
+   ============================================================================ */
+
+.pagination-summary {
+  font-family: "Lato", sans-serif;
+  font-size: 0.78rem;
+  color: #9b7d56;
+  font-style: italic;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   CONTROLS ROW
+   ============================================================================ */
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ============================================================================
+   SHARED BUTTON BASE
+   ============================================================================ */
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-family: "Lato", sans-serif;
+  font-weight: 600;
+  border: 1.5px solid #d9c2a3;
+  border-radius: 6px;
+  background: #fff;
+  color: #5c3d18;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.15s ease,
+    box-shadow 0.18s ease;
+  line-height: 1;
+  user-select: none;
+}
+
+.pagination-btn:focus-visible {
+  outline: 2px solid #d4a96a;
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   PAGE NUMBER BUTTONS
+   ============================================================================ */
+
+.pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-btn--page {
+  min-width: 36px;
+  height: 36px;
+  font-size: 0.82rem;
+  padding: 0 0.25rem;
+}
+
+.pagination-btn--page:hover:not(:disabled):not(.pagination-btn--active) {
+  background: #f5ede0;
+  border-color: #c9a87a;
+  color: #3d2b0e;
+}
+
+/* Active / current page */
+.pagination-btn--active {
+  background: linear-gradient(135deg, #b5341e 0%, #8c2515 100%);
+  border-color: #8c2515;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(140, 37, 21, 0.28);
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ============================================================================
+   PREV / NEXT NAV BUTTONS
+   ============================================================================ */
+
+.pagination-btn--nav {
+  height: 36px;
+  padding: 0 0.85rem;
+  font-size: 0.8rem;
+  gap: 0.35rem;
+  letter-spacing: 0.02em;
+}
+
+.pagination-btn--nav:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3d2b0e 0%, #5c3d18 100%);
+  border-color: #3d2b0e;
+  color: #f5e8d0;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(61, 43, 14, 0.2);
+}
+
+.pagination-btn--nav:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.pagination-btn--nav:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  color: #b0966f;
+}
+
+/* ============================================================================
+   ELLIPSIS
+   ============================================================================ */
+
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 36px;
+  font-family: "Lato", sans-serif;
+  font-size: 0.9rem;
+  color: #b0966f;
+  user-select: none;
+  padding-bottom: 4px; /* visual centering of ellipsis glyph */
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  .pagination-wrapper {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem 1.25rem;
+  }
+
+  .pagination-summary {
+    font-size: 0.74rem;
+  }
+
+  .pagination-btn--page {
+    min-width: 34px;
+    height: 34px;
+    font-size: 0.78rem;
+  }
+
+  .pagination-btn--nav {
+    height: 34px;
+    padding: 0 0.7rem;
+    font-size: 0.76rem;
+  }
+}
+
+@media (max-width: 400px) {
+  /* Hide "Prev"/"Next" labels on very small screens, keep only arrow icons */
+  .pagination-btn--nav-label {
+    display: none;
+  }
+
+  .pagination-btn--nav {
+    padding: 0 0.55rem;
+    min-width: 34px;
+  }
+
+  .pagination-pages {
+    gap: 0.15rem;
+  }
+
+  .pagination-btn--page {
+    min-width: 30px;
+    height: 30px;
+    font-size: 0.74rem;
+  }
+}

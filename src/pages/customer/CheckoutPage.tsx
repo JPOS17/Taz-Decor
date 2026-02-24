@@ -248,10 +248,10 @@ const CheckoutPage = () => {
     if (user) loadAddresses();
   }, [user]);
 
-  // Load coupons for auth users only
+  // Load coupons for all users (guests see sign-in prompt inside selector)
   useEffect(() => {
-    if (user && cartItems.length > 0) loadCoupons();
-  }, [user, cartItems]);
+    if (cartItems.length > 0) loadCoupons();
+  }, [cartItems]);
 
   // Validate coupons for auth users only
   useEffect(() => {
@@ -837,8 +837,11 @@ const CheckoutPage = () => {
         applied_coupons: appliedCoupons.length > 0 ? appliedCoupons : undefined,
         cart_level_coupon_id: selectedCartLevelCoupon?.coupon_id || null,
         selected_shipping_rate_id: selectedShipping?.rate_id ?? undefined,
-        shipping_carrier: selectedShipping?.carrier ?? undefined,
-        shipping_service: selectedShipping?.service ?? undefined,
+        shipping_carrier:
+          selectedShipping?.carrier ?? (isFreeShipping ? "USPS" : undefined),
+        shipping_service:
+          selectedShipping?.service ??
+          (isFreeShipping ? "usps_ground_advantage" : undefined),
       });
 
       clearCart();
@@ -1160,7 +1163,7 @@ const CheckoutPage = () => {
                 className="cp-btn-link"
                 onClick={() => navigate("/register?redirect=/checkout")}
               >
-                Create one free
+                Create one
               </button>
             </p>
           </div>
@@ -1782,7 +1785,7 @@ const CheckoutPage = () => {
                   />
                 )}
 
-                {selectedShipping && !loadingShipping && (
+                {selectedShipping && !loadingShipping && !isFreeShipping && (
                   <DeliveryEstimate
                     shippingMethodName={selectedShipping.service_level_name}
                     className="cp-review-delivery-estimate"
@@ -2013,13 +2016,9 @@ const CheckoutPage = () => {
             <OrderSummary
               cartItems={cartItems}
               currentStep={currentStep}
-              coupons={!isGuest ? coupons : null}
-              selectedCartLevelCoupon={
-                !isGuest ? selectedCartLevelCoupon : null
-              }
-              onCartLevelCouponSelect={
-                !isGuest ? handleCartLevelCouponSelect : () => {}
-              }
+              coupons={coupons}
+              selectedCartLevelCoupon={selectedCartLevelCoupon}
+              onCartLevelCouponSelect={handleCartLevelCouponSelect}
               subtotal={subtotal}
               itemLevelDiscount={!isGuest ? itemLevelDiscount : 0}
               cartLevelDiscount={!isGuest ? cartLevelDiscount : 0}

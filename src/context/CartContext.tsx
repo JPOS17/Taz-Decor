@@ -7,6 +7,7 @@ import {
 } from "react";
 import {
   syncCartToDatabase,
+  fetchCartFromDatabase,
   addToCartDB,
   removeFromCartDB,
   clearCartDB,
@@ -15,6 +16,7 @@ import {
 } from "../api/cart";
 import {
   syncWishlistToDatabase,
+  fetchWishlistFromDatabase,
   addToWishlistDB,
   removeFromWishlistDB,
 } from "../api/wishlist";
@@ -74,6 +76,8 @@ interface CartContextType {
   isInCart: (variantId: number) => boolean;
 
   syncToDatabase: () => Promise<void>;
+  loadFromDatabase: () => Promise<void>;
+  resetSession: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -170,10 +174,41 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       await syncCartToDatabase(cartData);
       await syncWishlistToDatabase(wishlistData);
-
-      console.log("Cart and wishlist synced to database");
     } catch (error) {
       console.error("Error syncing to database:", error);
+    }
+  };
+
+  // Fetch cart and wishlist from database after login
+  // Backend validates coupons — expired/inactive ones are returned as null
+  const loadFromDatabase = async () => {
+    try {
+      const [cartData, wishlistData] = await Promise.all([
+        fetchCartFromDatabase(),
+        fetchWishlistFromDatabase(),
+      ]);
+
+      const loadedCartItems: CartItem[] = cartData.map((item: any) => ({
+        ...item,
+        price: parseFloat(item.price),
+        quantity: parseInt(item.quantity, 10),
+        addedAt: Date.now(),
+      }));
+
+      const loadedWishlistItems: WishlistItem[] = wishlistData.map(
+        (item: any) => ({
+          ...item,
+          price: parseFloat(item.price),
+          addedAt: Date.now(),
+        }),
+      );
+
+      setCartItems(loadedCartItems);
+      setWishlistItems(loadedWishlistItems);
+
+      console.log("Cart and wishlist loaded from database");
+    } catch (error) {
+      console.error("Error loading from database:", error);
     }
   };
 
@@ -381,6 +416,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
+  // Reset all session data on logout — clears cart, wishlist, and all coupons
+  // from both state and localStorage so no stale data bleeds into guest session
+  const resetSession = () => {
+    setCartItems([]);
+    setWishlistItems([]);
+    setCartLevelCouponIdState(null);
+    localStorage.removeItem("cart");
+    localStorage.removeItem("wishlist");
+    localStorage.removeItem("cartLevelCouponId");
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -401,6 +447,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         getCartCount,
         isInCart,
         syncToDatabase,
+        loadFromDatabase,
+        resetSession,
       }}
     >
       {children}

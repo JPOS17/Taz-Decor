@@ -17,7 +17,7 @@ const Login = () => {
   // ============================================================================
 
   const { login } = useAuth();
-  const { syncToDatabase } = useCart();
+  const { syncToDatabase, loadFromDatabase } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -43,8 +43,9 @@ const Login = () => {
       // Login returns user data
       await login(email, password);
 
-      // Sync cart and wishlist from localStorage to database
+      // Sync guest cart/wishlist to database, then load full DB state
       await syncToDatabase();
+      await loadFromDatabase();
 
       // Check if there's a return URL in query params
       const params = new URLSearchParams(window.location.search);

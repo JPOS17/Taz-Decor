@@ -167,9 +167,7 @@ const LookupForm = () => {
         </form>
 
         <p className="lookup-help-text">
-          Your order number was included in your confirmation email. If you have
-          an account, <a href="/login">sign in</a> to view your full order
-          history.
+          Your order number was included in your confirmation email.
         </p>
       </div>
     </div>

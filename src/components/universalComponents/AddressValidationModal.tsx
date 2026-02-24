@@ -57,7 +57,7 @@ const AddressValidationModal = ({
         <div className="avm-body">
           {is_valid && !hasCorrections && (
             <div className="avm-validation-success">
-              <p>✅ Your address has been validated successfully!</p>
+              <p>Your address has been validated successfully!</p>
             </div>
           )}
 

@@ -169,14 +169,14 @@ const OrderSummary = ({
         <div className="cp-summary-row">
           <span>Shipping:</span>
           <span>
-            {currentStep === "cart" ? (
-              <span className="cp-summary-value-muted">
-                Calculated at checkout
-              </span>
-            ) : isFreeShipping ? (
+            {isFreeShipping ? (
               <span className="cp-free-shipping-text">
                 <FaShippingFast size={14} style={{ marginRight: "4px" }} />
                 FREE
+              </span>
+            ) : currentStep === "cart" ? (
+              <span className="cp-summary-value-muted">
+                Calculated at checkout
               </span>
             ) : shippingCost > 0 ? (
               `$${shippingCost.toFixed(2)}`
@@ -206,7 +206,7 @@ const OrderSummary = ({
         <div className="cp-summary-divider"></div>
 
         {/* Cart-Level Coupon Selector — locked after shipping step */}
-        {isEmailVerified && coupons && (
+        {coupons && (
           <>
             {currentStep === "cart" || currentStep === "shipping" ? (
               <CartLevelCouponSelector

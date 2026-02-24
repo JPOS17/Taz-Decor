@@ -20,10 +20,13 @@ import SideBar from "../../components/customerInterface/items/SideBar";
 import ItemFilters from "../../components/customerInterface/items/ItemFilters";
 import ItemListings from "../../components/customerInterface/items/ItemListings";
 import CartCouponBanner from "../../components/customerInterface/items/CartCouponBanner";
+import Pagination from "../../components/customerInterface/items/Pagination";
 
 import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import "../../styles/pages/main/Items.css";
 import "../../styles/pages/main/Listing.css";
+
+const ITEMS_PER_PAGE = 20;
 
 const Items = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,6 +45,9 @@ const Items = () => {
     : null;
   const sortBy = searchParams.get("sortBy") || null;
   const onSaleOnly = searchParams.get("onSale") === "true";
+  const currentPage = searchParams.get("page")
+    ? Number(searchParams.get("page"))
+    : 1;
 
   const [products, setProducts] = useState<ProductPreview[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -119,6 +125,8 @@ const Items = () => {
       newParams.set("categoryName", categoryName);
     }
 
+    // Reset to page 1 when category changes
+    newParams.delete("page");
     setSearchParams(newParams);
   };
 
@@ -137,6 +145,8 @@ const Items = () => {
       newParams.set("maxPrice", max.toString());
     }
 
+    // Reset to page 1 when filters change
+    newParams.delete("page");
     setSearchParams(newParams);
   };
 
@@ -149,6 +159,8 @@ const Items = () => {
       newParams.set("sortBy", sort);
     }
 
+    // Reset to page 1 when sort changes
+    newParams.delete("page");
     setSearchParams(newParams);
   };
 
@@ -161,8 +173,25 @@ const Items = () => {
       newParams.delete("onSale");
     }
 
+    // Reset to page 1 when filter changes
+    newParams.delete("page");
     setSearchParams(newParams);
   };
+
+  const handlePageChange = (page: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (page === 1) {
+      newParams.delete("page");
+    } else {
+      newParams.set("page", page.toString());
+    }
+    setSearchParams(newParams);
+  };
+
+  // Scroll to top after React re-renders with the new page
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
 
   // Helper to get best coupon for a product
   const getBestCouponForProduct = (
@@ -181,7 +210,6 @@ const Items = () => {
       ) {
         return true;
       }
-      // Check if product's location is in the coupon's allowed locations
       return coupon.location_ids.includes(product.location_id);
     };
 
@@ -249,7 +277,6 @@ const Items = () => {
   };
 
   // Sort products by effective (post-discount) price when price sort is active.
-  // For all other sort modes, backend ORDER BY is already correct – pass through as-is.
   const sortedProducts = useMemo(() => {
     if (sortBy !== "price-asc" && sortBy !== "price-desc") {
       return products;
@@ -259,8 +286,6 @@ const Items = () => {
       const couponA = getBestCouponForProduct(a);
       const couponB = getBestCouponForProduct(b);
 
-      // Compute effective price the same way ItemListings displays it:
-      // only percentage/fixed actually change the shown price.
       const effectivePriceOf = (
         product: ProductPreview,
         coupon: ProductCoupon | null,
@@ -278,6 +303,15 @@ const Items = () => {
       return sortBy === "price-asc" ? priceA - priceB : priceB - priceA;
     });
   }, [products, coupons, customGroupMap, sortBy]);
+
+  // Pagination derived values
+  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
+  // Clamp currentPage in case filters reduce total pages
+  const safePage = Math.min(Math.max(1, currentPage), totalPages || 1);
+  const paginatedProducts = sortedProducts.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE,
+  );
 
   if (loading) {
     return (
@@ -356,19 +390,29 @@ const Items = () => {
               <p>No products found in this category.</p>
             </div>
           ) : (
-            <div className="items-products-grid">
-              {sortedProducts.map((product) => {
-                const bestCoupon = getBestCouponForProduct(product);
-                return (
-                  <ItemListings
-                    key={product.variant_id}
-                    product={product}
-                    coupon={bestCoupon}
-                    fromPath={`/items${location.search}`}
-                  />
-                );
-              })}
-            </div>
+            <>
+              <div className="items-products-grid">
+                {paginatedProducts.map((product) => {
+                  const bestCoupon = getBestCouponForProduct(product);
+                  return (
+                    <ItemListings
+                      key={product.variant_id}
+                      product={product}
+                      coupon={bestCoupon}
+                      fromPath={`/items${location.search}`}
+                    />
+                  );
+                })}
+              </div>
+
+              <Pagination
+                currentPage={safePage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                totalItems={sortedProducts.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+              />
+            </>
           )}
         </div>
       </div>

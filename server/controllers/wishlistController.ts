@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { getUserFromToken } from "../middleware/authMiddleware";
 import { pool } from "../db";
 
-
 // ============================================================================
 // WISHLIST - ADD ITEM
 // ============================================================================
@@ -105,6 +104,11 @@ export const removeFromWishlist = async (req: Request, res: Response): Promise<v
 
 /**
  * GET user's wishlist from database
+ * Validates selected_coupon_id on each item — returns null if the coupon is:
+ *   - inactive
+ *   - expired (valid_until has passed)
+ *   - over the global usage limit (usage_count_total >= usage_limit_total)
+ *   - over the per-user usage limit (user has used it too many times in past orders)
  */
 export const getWishlist = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -117,7 +121,11 @@ export const getWishlist = async (req: Request, res: Response): Promise<void> =>
     const result = await pool.query(
       `SELECT 
         wi.variant_id,
-        wi.selected_coupon_id,
+        CASE 
+          WHEN wi.selected_coupon_id IS NULL THEN NULL
+          WHEN c_val.coupon_id IS NOT NULL THEN wi.selected_coupon_id
+          ELSE NULL
+        END as selected_coupon_id,
         p.product_id,
         p.name,
         pv.price,
@@ -133,6 +141,19 @@ export const getWishlist = async (req: Request, res: Response): Promise<void> =>
       JOIN product_categories pc ON pc.product_id = p.product_id AND pc.is_primary = TRUE
       JOIN categories c ON c.category_id = pc.category_id
       LEFT JOIN product_images pi ON pi.variant_id = wi.variant_id AND pi.is_primary = TRUE
+      LEFT JOIN coupons c_val ON c_val.coupon_id = wi.selected_coupon_id
+        AND c_val.is_active = true
+        AND (c_val.valid_until IS NULL OR c_val.valid_until > NOW())
+        AND (c_val.usage_limit_total IS NULL OR c_val.usage_count_total < c_val.usage_limit_total)
+        AND (
+          c_val.usage_limit_per_user IS NULL OR (
+            SELECT COUNT(*)
+            FROM order_coupons oc
+            JOIN orders o ON o.order_id = oc.order_id
+            WHERE oc.coupon_id = wi.selected_coupon_id
+              AND o.user_id = wi.user_id
+          ) < c_val.usage_limit_per_user
+        )
       WHERE wi.user_id = $1
       ORDER BY wi.added_at DESC`,
       [user.userId]
@@ -169,7 +190,6 @@ export const syncWishlist = async (req: Request, res: Response): Promise<void> =
       await client.query('BEGIN');
 
       for (const item of wishlistItems) {
-        // Insert if not exists (ON CONFLICT DO NOTHING)
         await client.query(
           `INSERT INTO wishlist_items (user_id, variant_id, selected_coupon_id, added_at)
            VALUES ($1, $2, $3, NOW())

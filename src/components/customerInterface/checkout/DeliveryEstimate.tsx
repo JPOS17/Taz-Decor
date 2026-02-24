@@ -160,8 +160,8 @@ const DeliveryEstimate = ({
   // Processing note varies by method
   const processingNote =
     config.processingDaysMax === 1
-      ? "includes 1 day processing"
-      : "includes 1–2 day processing";
+      ? "Includes 1 day processing"
+      : "Includes 1–2 day processing";
 
   const dayLabel = config.useCalendarDaysForTransit ? "days" : "business days";
 
@@ -174,8 +174,9 @@ const DeliveryEstimate = ({
         <span className="delivery-estimate__label">Estimated Delivery</span>
         <span className="delivery-estimate__range">{rangeText}</span>
         <span className="delivery-estimate__sub">
-          {totalDaysMin}–{totalDaysMax} {dayLabel}&nbsp;·&nbsp;{processingNote}
+          {totalDaysMin}–{totalDaysMax} {dayLabel}
         </span>
+        <span className="delivery-estimate__sub">{processingNote}</span>
         <span className="delivery-estimate__disclaimer">
           Based on {config.label} service standards
         </span>

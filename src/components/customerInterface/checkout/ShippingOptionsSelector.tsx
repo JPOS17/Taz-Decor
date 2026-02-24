@@ -33,7 +33,7 @@ const ShippingOptionsSelector = ({
             <FaCheck className="cp-check-overlay" size={16} />
           </div>
           <div className="cp-free-shipping-message">
-            <h4>Shipping is covered! 🎉</h4>
+            <h4>Shipping is covered!</h4>
             <p>
               Your free shipping coupon has been applied. Our team will select
               the best shipping method for your order.

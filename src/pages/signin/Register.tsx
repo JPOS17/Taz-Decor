@@ -18,7 +18,7 @@ const Register = () => {
   // ============================================================================
 
   const { register } = useAuth();
-  const { syncToDatabase } = useCart();
+  const { syncToDatabase, loadFromDatabase } = useCart();
   const navigate = useNavigate();
 
   // ============================================================================
@@ -141,8 +141,9 @@ const Register = () => {
       // Register returns user data
       await register(registerData);
 
-      // Sync cart and wishlist from localStorage to database
+      // Sync guest cart/wishlist to database, then load full DB state
       await syncToDatabase();
+      await loadFromDatabase();
 
       navigate("/profile");
     } catch (err) {

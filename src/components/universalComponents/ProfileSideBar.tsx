@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 import { deleteAccount } from "../../api/user";
 import ConfirmModal from "../../components/universalComponents/ConfirmModal";
 import PasswordInput from "../../components/universalComponents/PasswordInput";
@@ -16,6 +17,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
+  const { resetSession } = useCart();
 
   // ============================================================================
   // STATE - DELETE ACCOUNT (two-step)
@@ -35,6 +37,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
   // ============================================================================
 
   const handleLogout = () => {
+    resetSession();
     logout();
     navigate("/login");
   };
@@ -66,6 +69,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
 
     try {
       await deleteAccount(deletePassword);
+      resetSession();
       logout();
       navigate("/login");
     } catch (err: any) {

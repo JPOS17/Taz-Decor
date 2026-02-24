@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { FaTimes } from "react-icons/fa";
+import { useNavigate } from "react-router";
+import { FaTimes, FaLock } from "react-icons/fa";
 import {
   fetchApplicableCouponsForVariant,
   type ProductCoupon,
@@ -36,6 +37,7 @@ const CouponModal = ({
 }: CouponModalProps) => {
   const [coupons, setCoupons] = useState<ProductCoupon[]>([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadCoupons = async () => {
@@ -88,6 +90,26 @@ const CouponModal = ({
         </div>
 
         <div className="coupon-modal-body">
+          {/* Guest notice — shown above coupons, margin-bottom in CSS creates separation */}
+          {!isEmailVerified && (
+            <div className="coupon-modal-guest-notice">
+              <FaLock className="coupon-modal-guest-icon" />
+              <p>
+                Coupons are only applicable for signed-in users.{" "}
+                <button
+                  className="coupon-modal-sign-in-link"
+                  onClick={() => {
+                    onClose();
+                    navigate("/login");
+                  }}
+                >
+                  Sign in to redeem.
+                </button>
+              </p>
+            </div>
+          )}
+
+          {/* Coupon list — shown for all users */}
           {loading ? (
             <div className="coupon-modal-loading">
               <div className="spinner-border" role="status">
@@ -100,25 +122,39 @@ const CouponModal = ({
             </div>
           ) : (
             <>
-              <CouponBanner
-                coupons={coupons}
-                productPrice={productPrice}
-                isEmailVerified={isEmailVerified}
-                currentVariantId={variantId}
-                currentProductId={productId}
-                onCouponSelect={handleCouponSelect}
-                selectedCoupon={selectedCoupon}
-              />
-
-              {/* Remove Coupon Option */}
-              <div className="coupon-modal-remove-option">
-                <button
-                  className={`coupon-remove-btn ${!selectedCoupon ? "selected" : ""}`}
-                  onClick={handleRemoveCoupon}
-                >
-                  {!selectedCoupon ? "✓ " : ""}No Coupon
-                </button>
+              {/*
+                For guests: pointer-events none disables dropdown toggle and all clicks.
+                Slight opacity gives a visual locked cue without hiding the offers.
+              */}
+              <div
+                style={
+                  !isEmailVerified
+                    ? { pointerEvents: "none", opacity: 0.75 }
+                    : undefined
+                }
+              >
+                <CouponBanner
+                  coupons={coupons}
+                  productPrice={productPrice}
+                  isEmailVerified={isEmailVerified}
+                  currentVariantId={variantId}
+                  currentProductId={productId}
+                  onCouponSelect={handleCouponSelect}
+                  selectedCoupon={selectedCoupon}
+                />
               </div>
+
+              {/* Only show the remove/no-coupon option for signed-in users */}
+              {isEmailVerified && (
+                <div className="coupon-modal-remove-option">
+                  <button
+                    className={`coupon-remove-btn ${!selectedCoupon ? "selected" : ""}`}
+                    onClick={handleRemoveCoupon}
+                  >
+                    {!selectedCoupon ? "✓ " : ""}No Coupon
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

@@ -246,6 +246,43 @@
 }
 
 /* ============================================================================
+   GUEST SIGN-IN NOTICE
+   ============================================================================ */
+
+.ccb-guest-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.65rem 1.25rem 0;
+  padding: 0.6rem 0.85rem;
+  background: #fef3ec;
+  border: 1px solid #e8a87a;
+  border-radius: 6px;
+  color: #a04520;
+  font-size: 0.78rem;
+  font-family: "Lato", sans-serif;
+  flex-shrink: 0;
+}
+
+.ccb-guest-login-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: "Lato", sans-serif;
+  font-size: inherit;
+  font-weight: 700;
+  color: #b5341e;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.ccb-guest-login-link:hover {
+  color: #8c2515;
+}
+
+/* ============================================================================
    MODAL CARDS CONTAINER
    ============================================================================ */
 
