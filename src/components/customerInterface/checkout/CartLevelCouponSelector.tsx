@@ -10,6 +10,8 @@ interface CartLevelCouponSelectorProps {
   onCouponSelect: (coupon: ProductCoupon | null) => void;
   subtotalAfterItemDiscounts: number;
   isEmailVerified: boolean;
+  isGuest: boolean;
+  userCouponUsage: Record<number, number>;
 }
 
 const CartLevelCouponSelector = ({
@@ -18,6 +20,8 @@ const CartLevelCouponSelector = ({
   onCouponSelect,
   subtotalAfterItemDiscounts,
   isEmailVerified,
+  isGuest,
+  userCouponUsage,
 }: CartLevelCouponSelectorProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
@@ -71,6 +75,11 @@ const CartLevelCouponSelector = ({
       coupon.usage_count_total >= coupon.usage_limit_total
     )
       return false;
+    // Per-user limit: use the dedicated usage map, not the stale coupon object field
+    if (!isGuest && coupon.usage_limit_per_user != null) {
+      const timesUsed = userCouponUsage[coupon.coupon_id] ?? 0;
+      if (timesUsed >= coupon.usage_limit_per_user) return false;
+    }
     return true;
   };
 
@@ -89,6 +98,11 @@ const CartLevelCouponSelector = ({
       coupon.usage_count_total >= coupon.usage_limit_total
     )
       return "Usage limit reached";
+    if (!isGuest && coupon.usage_limit_per_user != null) {
+      const timesUsed = userCouponUsage[coupon.coupon_id] ?? 0;
+      if (timesUsed >= coupon.usage_limit_per_user)
+        return `You've already used this coupon ${timesUsed}/${coupon.usage_limit_per_user} times`;
+    }
     return "";
   };
 
@@ -140,7 +154,7 @@ const CartLevelCouponSelector = ({
 
       {isExpanded && (
         <>
-          {/* Guest notice — always shown when not verified, sits above the list */}
+          {/* Guest notice — shown when not signed in, sits above the list */}
           {!isEmailVerified && (
             <div className="cart-level-guest-notice">
               <FaLock className="cart-level-guest-icon" />
@@ -208,14 +222,7 @@ const CartLevelCouponSelector = ({
 
                           {isEmailVerified && !eligible && (
                             <p className="cart-coupon-ineligible-reason">
-                              {coupon.requires_verified_email &&
-                              !isEmailVerified ? (
-                                <>
-                                  <FaLock size={12} /> {ineligibilityReason}
-                                </>
-                              ) : (
-                                ineligibilityReason
-                              )}
+                              {ineligibilityReason}
                             </p>
                           )}
                         </div>

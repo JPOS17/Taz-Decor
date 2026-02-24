@@ -21,6 +21,7 @@ import {
   shouldShowDiscountedPrice,
   checkCustomGroupCoupons,
   isItemLevelCoupon,
+  fetchUserCouponUsage,
 } from "../../api/couponCustomer";
 
 import CouponModal from "../../components/customerInterface/items/CouponModal";
@@ -44,7 +45,7 @@ const Cart = () => {
     cartLevelCouponId,
     setCartLevelCouponId,
   } = useCart();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const session = loadSession();
 
@@ -56,6 +57,11 @@ const Cart = () => {
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
   const [customGroupMap, setCustomGroupMap] = useState<
     Record<number, number[]>
+  >({});
+
+  // Per-user usage map: { coupon_id: times_used } — only populated when signed in
+  const [userCouponUsage, setUserCouponUsage] = useState<
+    Record<number, number>
   >({});
 
   // Cart-level coupon object (resolved from cartLevelCouponId stored in context)
@@ -76,15 +82,18 @@ const Cart = () => {
   // DATA LOADING
   // ============================================================================
 
-  // Fetch coupons on mount
+  // Step A: Fetch coupons — wait for auth to resolve first so userId is accurate
   useEffect(() => {
+    if (isLoading) return;
+    if (cartItems.length === 0) return;
+
     const loadCoupons = async () => {
       try {
+        // Always fetch coupons without userId — guest-safe, no usage counts here
         const couponsData = await fetchProductCouponsPreview();
         setCoupons(couponsData);
 
-        // Fetch custom group mappings if needed
-        if (couponsData.custom_group.length > 0 && cartItems.length > 0) {
+        if (couponsData.custom_group.length > 0) {
           const variantIds = cartItems.map((item) => item.variant_id);
           const mapping = await checkCustomGroupCoupons(variantIds);
           setCustomGroupMap(mapping);
@@ -94,26 +103,62 @@ const Cart = () => {
       }
     };
 
-    if (cartItems.length > 0) {
-      loadCoupons();
-    }
-  }, [cartItems.length]);
+    loadCoupons();
+  }, [cartItems.length, isLoading]);
 
-  // Once coupons are loaded, resolve the stored cart-level coupon ID into an object.
-  // This means if a user selected a coupon in checkout and comes back to cart,
-  // it will still be shown as selected here.
+  // Step B: Separately fetch per-user usage when signed in.
+  // This is the dedicated check — completely isolated from coupon listing.
+  // Runs whenever the user logs in/out or the component mounts with a user.
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!user) {
+      // User logged out — clear usage map so no stale data lingers
+      setUserCouponUsage({});
+      return;
+    }
+
+    const loadUserUsage = async () => {
+      try {
+        const usage = await fetchUserCouponUsage(user.userId);
+        setUserCouponUsage(usage);
+      } catch (error) {
+        console.error("Error loading user coupon usage:", error);
+      }
+    };
+
+    loadUserUsage();
+  }, [user?.userId, isLoading]);
+
+  // Step C: Once coupons + usage are loaded, auto-clear a restored coupon
+  // if the user has now exceeded their per-user limit.
   useEffect(() => {
     if (!coupons) return;
 
     if (cartLevelCouponId) {
       const found =
         coupons.all.find((c) => c.coupon_id === cartLevelCouponId) ?? null;
-      setSelectedCartLevelCoupon(found);
+
+      const userUsageCount = found
+        ? (userCouponUsage[found.coupon_id] ?? 0)
+        : 0;
+      const isOverUserLimit =
+        found &&
+        !!user &&
+        found.usage_limit_per_user != null &&
+        userUsageCount >= found.usage_limit_per_user;
+
+      if (isOverUserLimit) {
+        setSelectedCartLevelCoupon(null);
+        setCartLevelCouponId(null);
+        saveSession({ cartLevelCoupon: null, cartLevelCouponId: null });
+      } else {
+        setSelectedCartLevelCoupon(found);
+      }
     } else if (!session.cartLevelCoupon) {
-      // Only clear if session also has nothing — don't wipe a valid session restore
       setSelectedCartLevelCoupon(null);
     }
-  }, [coupons, cartLevelCouponId]);
+  }, [coupons, cartLevelCouponId, userCouponUsage]);
 
   // ============================================================================
   // CART-LEVEL COUPON HANDLER
@@ -885,6 +930,8 @@ const Cart = () => {
                   onCouponSelect={handleCartLevelCouponSelect}
                   subtotalAfterItemDiscounts={subtotalWithDiscounts}
                   isEmailVerified={isEmailVerified}
+                  isGuest={!user}
+                  userCouponUsage={userCouponUsage}
                 />
               )}
 

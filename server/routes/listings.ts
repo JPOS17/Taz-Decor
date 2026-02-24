@@ -12,7 +12,8 @@ import {
   getProductCouponsPreview, 
   getApplicableCouponsForVariant, 
   checkCustomGroupCoupons,
-  getCouponEligibleProducts
+  getCouponEligibleProducts,
+  getUserCouponUsage
 } from "../controllers/couponCustomerController";
 
 export const listingsRouter = express.Router();
@@ -39,6 +40,8 @@ listingsRouter.get("/coupons/check-custom-groups", checkCustomGroupCoupons);
 
 // GET /api/products/coupons/:couponId/eligible-products - Get eligible products for a coupon
 listingsRouter.get("/coupons/:couponId/eligible-products", getCouponEligibleProducts);
+
+listingsRouter.get('/coupons/user-usage', getUserCouponUsage);
 
 // ============================================================================
 // PRODUCT STATS

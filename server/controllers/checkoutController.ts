@@ -456,6 +456,97 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
       const { email: userEmail, first_name, last_name } = userResult.rows[0];
 
+      // ============================================================================
+      // COUPON VALIDATION — server-side safety net before anything is committed
+      // Checks 1-4 catch coupons that expired/ran out between page load and checkout.
+      // Check 5 enforces per-user limits that guests couldn't be checked for earlier.
+      // ============================================================================
+
+      // Helper query to validate a single coupon and return its per-user usage count
+      const validateCoupon = async (couponId: number): Promise<{
+        valid: boolean;
+        errorMessage?: string;
+      }> => {
+        const couponCheck = await client.query(
+          `SELECT
+            c.coupon_id,
+            c.is_active,
+            c.valid_until,
+            c.usage_limit_total,
+            c.usage_count_total,
+            c.usage_limit_per_user,
+            COALESCE((
+              SELECT COUNT(DISTINCT oc.order_id)
+              FROM order_coupons oc
+              JOIN orders o ON oc.order_id = o.order_id
+              WHERE oc.coupon_id = c.coupon_id
+                AND o.user_id = $2
+            ), 0) AS user_usage_count
+          FROM coupons c
+          WHERE c.coupon_id = $1`,
+          [couponId, user.userId]
+        );
+
+        // Check 1: coupon exists
+        if (couponCheck.rows.length === 0) {
+          return { valid: false, errorMessage: "One or more coupons no longer exist." };
+        }
+
+        const c = couponCheck.rows[0];
+
+        // Check 3: still active
+        if (!c.is_active) {
+          return { valid: false, errorMessage: "One or more coupons are no longer active." };
+        }
+
+        // Check 2: not expired
+        if (c.valid_until && new Date(c.valid_until) < new Date()) {
+          return { valid: false, errorMessage: "One or more coupons have expired." };
+        }
+
+        // Check 4: total usage limit not exceeded
+        if (c.usage_limit_total && c.usage_count_total >= c.usage_limit_total) {
+          return { valid: false, errorMessage: "One or more coupons have reached their usage limit." };
+        }
+
+        // Check 5: per-user limit not exceeded
+        if (c.usage_limit_per_user && parseInt(c.user_usage_count) >= c.usage_limit_per_user) {
+          return { valid: false, errorMessage: "You've already used one or more coupons the maximum number of times." };
+        }
+
+        return { valid: true };
+      };
+
+      // Validate cart-level coupon
+      if (cart_level_coupon_id) {
+        const result = await validateCoupon(cart_level_coupon_id);
+        if (!result.valid) {
+          await client.query('ROLLBACK');
+          res.status(400).json({ message: result.errorMessage });
+          return;
+        }
+      }
+
+      // Validate all item-level coupons (deduplicated — only check each coupon_id once)
+      if (applied_coupons && applied_coupons.length > 0) {
+        const seenCouponIds = new Set<number>();
+        for (const appliedCoupon of applied_coupons) {
+          if (seenCouponIds.has(appliedCoupon.coupon_id)) continue;
+          seenCouponIds.add(appliedCoupon.coupon_id);
+
+          const result = await validateCoupon(appliedCoupon.coupon_id);
+          if (!result.valid) {
+            await client.query('ROLLBACK');
+            res.status(400).json({ message: result.errorMessage });
+            return;
+          }
+        }
+      }
+
+      // ============================================================================
+      // END COUPON VALIDATION
+      // ============================================================================
+
       // Get the location_id from the first item
       const firstVariantResult = await client.query(
         'SELECT location_id FROM product_variants WHERE variant_id = $1',
@@ -470,7 +561,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
       const location_id = firstVariantResult.rows[0].location_id;
 
-      // BOX SELECTION 
+      // BOX SELECTION
       const variantIds = cart_items.map((item: any) => item.variant_id);
       const variantsResult = await client.query(
         `SELECT 
@@ -688,8 +779,8 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
             discount_amount: discount_amount || 0,
             shipping_cost,
             tax_amount: tax_amount || 0,
-            first_name: orderDetailsData.first_name,  
-            last_name: orderDetailsData.last_name,   
+            first_name: orderDetailsData.first_name,
+            last_name: orderDetailsData.last_name,
             address_line1: orderDetailsData.address_line1,
             address_line2: orderDetailsData.address_line2,
             city: orderDetailsData.city,
@@ -732,7 +823,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 /**
  * GET user's order history
@@ -1131,12 +1221,18 @@ const calculateBogoDiscount = (
 };
 
 // ============================================================================
-// COUPON VALIDATION - UPDATED WITH FREE SHIPPING SUPPORT
+// COUPON VALIDATION
 // ============================================================================
 
 /**
  * VALIDATE coupons before checkout
- * Handles both item-level and cart-level coupons
+ * Handles both item-level and cart-level coupons.
+ * All 5 checks enforced:
+ *   1. Coupon exists
+ *   2. Not expired
+ *   3. Still active (is_active = true)
+ *   4. Total usage limit not exceeded
+ *   5. Per-user limit not exceeded
  */
 export const validateCoupons = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -1155,7 +1251,22 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
 
     const client = await pool.connect();
     try {
-      await client.query('BEGIN');
+      await client.query("BEGIN");
+
+      // ========================================================================
+      // SHARED HELPER: get how many times this user has used a specific coupon
+      // ========================================================================
+
+      const getUserUsageCount = async (couponId: number): Promise<number> => {
+        const result = await client.query(
+          `SELECT COUNT(DISTINCT oc.order_id) AS user_usage_count
+           FROM order_coupons oc
+           JOIN orders o ON oc.order_id = o.order_id
+           WHERE oc.coupon_id = $1 AND o.user_id = $2`,
+          [couponId, user.userId]
+        );
+        return parseInt(result.rows[0].user_usage_count);
+      };
 
       // ========================================================================
       // STEP 1: VALIDATE ITEM-LEVEL COUPONS
@@ -1175,7 +1286,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
         error: string;
       }> = [];
 
-      // Get all unique coupon IDs from cart items
+      // Fetch all unique item-level coupons in one query
       const itemCouponIds = cart_items
         .map((item: any) => item.selected_coupon_id)
         .filter((id: any) => id != null);
@@ -1190,45 +1301,42 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
       }
 
       // ========================================================================
-      // STEP 1A: PRE-CALCULATE BOGO DISCOUNTS FOR COUPONS THAT NEED IT
+      // STEP 1A: PRE-CALCULATE BOGO DISCOUNTS
       // ========================================================================
-      
-      // Group items by their selected coupon to check for BOGO deals
+
       const bogoDiscountMaps = new Map<number, Map<number, number>>();
       const cartVariantIds = cart_items.map((item: any) => item.variant_id);
 
       for (const coupon of itemCoupons) {
-        if (coupon.discount_type === 'bogo') {
-          // Find all cart items using this BOGO coupon
+        if (coupon.discount_type === "bogo") {
           const itemsWithThisCoupon = cart_items.filter(
             (item: any) => item.selected_coupon_id === coupon.coupon_id
           );
 
           if (itemsWithThisCoupon.length === 0) continue;
 
-          // Get all eligible variants for this coupon
           const eligibleVariantIds = await getEligibleVariantsForCoupon(
             client,
             coupon,
             cartVariantIds
           );
 
-          // Filter cart items to only those that are eligible for this coupon
           const eligibleItems = itemsWithThisCoupon
             .filter((item: any) => eligibleVariantIds.includes(item.variant_id))
             .map((item: any) => ({
               variant_id: item.variant_id,
               quantity: item.quantity,
-              price: item.price
+              price: item.price,
             }));
 
-          // Calculate BOGO discount across all eligible items
           const discountMap = calculateBogoDiscount(
             eligibleItems,
             coupon.bogo_buy_quantity || 1,
             coupon.bogo_get_quantity || 1,
             parseFloat(coupon.bogo_discount_percentage) || 100,
-            coupon.max_discount_amount ? parseFloat(coupon.max_discount_amount) : undefined
+            coupon.max_discount_amount
+              ? parseFloat(coupon.max_discount_amount)
+              : undefined
           );
 
           bogoDiscountMaps.set(coupon.coupon_id, discountMap);
@@ -1236,116 +1344,106 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
       }
 
       // ========================================================================
-      // STEP 1B: PROCESS EACH CART ITEM WITH VALIDATION
+      // STEP 1B: PROCESS EACH CART ITEM
       // ========================================================================
-      
+
       for (const item of cart_items) {
         const { variant_id, quantity, price, selected_coupon_id } = item;
         let discount_amount = 0;
 
-        // If item has a coupon selected
         if (selected_coupon_id) {
-          const coupon = itemCoupons.find((c) => c.coupon_id === selected_coupon_id);
+          const coupon = itemCoupons.find(
+            (c) => c.coupon_id === selected_coupon_id
+          );
 
+          // Check 1: coupon exists
           if (!coupon) {
-            errors.push({
-              variant_id,
-              coupon_id: selected_coupon_id,
-              error: "Coupon not found"
-            });
+            errors.push({ variant_id, coupon_id: selected_coupon_id, error: "Coupon not found" });
             validated_discounts.push({
-              variant_id,
-              coupon_id: null,
-              original_price: price * quantity,
-              discount_amount: 0,
-              final_price: price * quantity
+              variant_id, coupon_id: null,
+              original_price: price * quantity, discount_amount: 0, final_price: price * quantity,
             });
             continue;
           }
 
-          // Check if coupon is expired
+          // Check 3: still active
+          if (!coupon.is_active) {
+            errors.push({ variant_id, coupon_id: selected_coupon_id, error: "Coupon is no longer active" });
+            validated_discounts.push({
+              variant_id, coupon_id: null,
+              original_price: price * quantity, discount_amount: 0, final_price: price * quantity,
+            });
+            continue;
+          }
+
+          // Check 2: not expired
           if (coupon.valid_until && new Date(coupon.valid_until) < new Date()) {
-            errors.push({
-              variant_id,
-              coupon_id: selected_coupon_id,
-              error: "Coupon has expired"
-            });
+            errors.push({ variant_id, coupon_id: selected_coupon_id, error: "Coupon has expired" });
             validated_discounts.push({
-              variant_id,
-              coupon_id: null,
-              original_price: price * quantity,
-              discount_amount: 0,
-              final_price: price * quantity
+              variant_id, coupon_id: null,
+              original_price: price * quantity, discount_amount: 0, final_price: price * quantity,
             });
             continue;
           }
 
-          // Check email verification requirement
+          // Email verification check
           if (coupon.requires_verified_email) {
             const userResult = await client.query(
-              'SELECT is_email_verified FROM users WHERE user_id = $1',
+              "SELECT is_email_verified FROM users WHERE user_id = $1",
               [user.userId]
             );
             if (!userResult.rows[0]?.is_email_verified) {
-              errors.push({
-                variant_id,
-                coupon_id: selected_coupon_id,
-                error: "Email verification required"
-              });
+              errors.push({ variant_id, coupon_id: selected_coupon_id, error: "Email verification required" });
               validated_discounts.push({
-                variant_id,
-                coupon_id: null,
-                original_price: price * quantity,
-                discount_amount: 0,
-                final_price: price * quantity
+                variant_id, coupon_id: null,
+                original_price: price * quantity, discount_amount: 0, final_price: price * quantity,
               });
               continue;
             }
           }
 
-          // Check usage limits
+          // Check 4: total usage limit not exceeded
           if (
             coupon.usage_limit_total &&
             coupon.usage_count_total >= coupon.usage_limit_total
           ) {
-            errors.push({
-              variant_id,
-              coupon_id: selected_coupon_id,
-              error: "Coupon usage limit reached"
-            });
+            errors.push({ variant_id, coupon_id: selected_coupon_id, error: "Coupon usage limit reached" });
             validated_discounts.push({
-              variant_id,
-              coupon_id: null,
-              original_price: price * quantity,
-              discount_amount: 0,
-              final_price: price * quantity
+              variant_id, coupon_id: null,
+              original_price: price * quantity, discount_amount: 0, final_price: price * quantity,
             });
             continue;
           }
 
-          // Calculate discount based on coupon type
-          if (coupon.discount_type === 'percentage') {
-            discount_amount = (price * quantity) * (parseFloat(coupon.discount_value) / 100);
-            
-            // Apply max discount cap if set
-            if (coupon.max_discount_amount) {
-              discount_amount = Math.min(
-                discount_amount,
-                parseFloat(coupon.max_discount_amount)
-              );
+          // Check 5: per-user limit not exceeded
+          if (coupon.usage_limit_per_user) {
+            const timesUsed = await getUserUsageCount(coupon.coupon_id);
+            if (timesUsed >= coupon.usage_limit_per_user) {
+              errors.push({
+                variant_id,
+                coupon_id: selected_coupon_id,
+                error: "You've already used this coupon the maximum number of times",
+              });
+              validated_discounts.push({
+                variant_id, coupon_id: null,
+                original_price: price * quantity, discount_amount: 0, final_price: price * quantity,
+              });
+              continue;
             }
-          } else if (coupon.discount_type === 'fixed') {
+          }
+
+          // All checks passed — calculate discount
+          if (coupon.discount_type === "percentage") {
+            discount_amount = price * quantity * (parseFloat(coupon.discount_value) / 100);
+            if (coupon.max_discount_amount) {
+              discount_amount = Math.min(discount_amount, parseFloat(coupon.max_discount_amount));
+            }
+          } else if (coupon.discount_type === "fixed") {
             discount_amount = Math.min(parseFloat(coupon.discount_value), price * quantity);
-            
-            // Apply max discount cap if set
             if (coupon.max_discount_amount) {
-              discount_amount = Math.min(
-                discount_amount,
-                parseFloat(coupon.max_discount_amount)
-              );
+              discount_amount = Math.min(discount_amount, parseFloat(coupon.max_discount_amount));
             }
-          } else if (coupon.discount_type === 'bogo') {
-            // Use pre-calculated BOGO discount from the map
+          } else if (coupon.discount_type === "bogo") {
             const discountMap = bogoDiscountMaps.get(selected_coupon_id);
             discount_amount = discountMap?.get(variant_id) || 0;
           }
@@ -1356,12 +1454,12 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
           coupon_id: selected_coupon_id || null,
           original_price: price * quantity,
           discount_amount,
-          final_price: (price * quantity) - discount_amount
+          final_price: price * quantity - discount_amount,
         });
       }
 
       // ========================================================================
-      // STEP 2: VALIDATE CART-LEVEL COUPON (INCLUDING FREE SHIPPING)
+      // STEP 2: VALIDATE CART-LEVEL COUPON
       // ========================================================================
 
       let cart_level_discount: {
@@ -1377,47 +1475,86 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
           [cart_level_coupon_id]
         );
 
-        if (cartCouponResult.rows.length > 0) {
+        // Check 1: coupon exists
+        if (cartCouponResult.rows.length === 0) {
+          cart_level_discount = {
+            coupon_id: cart_level_coupon_id,
+            discount_amount: 0,
+            free_shipping: false,
+            error: "Coupon not found",
+          };
+        } else {
           const cartCoupon = cartCouponResult.rows[0];
 
-          // Verify it's a cart-level coupon
-          if (cartCoupon.applies_to_type !== 'all') {
+          // Check 3: still active
+          if (!cartCoupon.is_active) {
             cart_level_discount = {
               coupon_id: cart_level_coupon_id,
               discount_amount: 0,
-              free_shipping: false,  
-              error: "This coupon is not a cart-level coupon"
+              free_shipping: false,
+              error: "Coupon is no longer active",
             };
-          } else if (cartCoupon.valid_until && new Date(cartCoupon.valid_until) < new Date()) {
+          }
+          // Verify it's actually a cart-level coupon
+          else if (cartCoupon.applies_to_type !== "all") {
             cart_level_discount = {
               coupon_id: cart_level_coupon_id,
               discount_amount: 0,
-              free_shipping: false,  
-              error: "Coupon has expired"
+              free_shipping: false,
+              error: "This coupon is not a cart-level coupon",
             };
-          } else if (
+          }
+          // Check 2: not expired
+          else if (
+            cartCoupon.valid_until &&
+            new Date(cartCoupon.valid_until) < new Date()
+          ) {
+            cart_level_discount = {
+              coupon_id: cart_level_coupon_id,
+              discount_amount: 0,
+              free_shipping: false,
+              error: "Coupon has expired",
+            };
+          }
+          // Check 4: total usage limit not exceeded
+          else if (
             cartCoupon.usage_limit_total &&
             cartCoupon.usage_count_total >= cartCoupon.usage_limit_total
           ) {
             cart_level_discount = {
               coupon_id: cart_level_coupon_id,
               discount_amount: 0,
-              free_shipping: false,  
-              error: "Coupon usage limit reached"
+              free_shipping: false,
+              error: "Coupon usage limit reached",
             };
-          } else {
-            // Check email verification
+          }
+          // Check 5: per-user limit not exceeded
+          else if (cartCoupon.usage_limit_per_user) {
+            const timesUsed = await getUserUsageCount(cartCoupon.coupon_id);
+            if (timesUsed >= cartCoupon.usage_limit_per_user) {
+              cart_level_discount = {
+                coupon_id: cart_level_coupon_id,
+                discount_amount: 0,
+                free_shipping: false,
+                error: "You've already used this coupon the maximum number of times",
+              };
+            }
+          }
+
+          // All checks passed — calculate cart-level discount
+          if (!cart_level_discount) {
+            // Email verification check
             if (cartCoupon.requires_verified_email) {
               const userResult = await client.query(
-                'SELECT is_email_verified FROM users WHERE user_id = $1',
+                "SELECT is_email_verified FROM users WHERE user_id = $1",
                 [user.userId]
               );
               if (!userResult.rows[0]?.is_email_verified) {
                 cart_level_discount = {
                   coupon_id: cart_level_coupon_id,
                   discount_amount: 0,
-                  free_shipping: false,  
-                  error: "Email verification required"
+                  free_shipping: false,
+                  error: "Email verification required",
                 };
               }
             }
@@ -1429,71 +1566,65 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
                 0
               );
 
-              // Check minimum purchase amount
+              // Minimum purchase amount check
               if (
                 cartCoupon.min_purchase_amount &&
-                cartSubtotalAfterItemDiscounts < parseFloat(cartCoupon.min_purchase_amount)
+                cartSubtotalAfterItemDiscounts <
+                  parseFloat(cartCoupon.min_purchase_amount)
               ) {
                 cart_level_discount = {
                   coupon_id: cart_level_coupon_id,
                   discount_amount: 0,
-                  free_shipping: false,  
-                  error: `Minimum purchase of $${parseFloat(cartCoupon.min_purchase_amount).toFixed(2)} required (current: $${cartSubtotalAfterItemDiscounts.toFixed(2)})`
+                  free_shipping: false,
+                  error: `Minimum purchase of $${parseFloat(cartCoupon.min_purchase_amount).toFixed(2)} required (current: $${cartSubtotalAfterItemDiscounts.toFixed(2)})`,
                 };
               } else {
-                // ============================================================
-                // HANDLE DIFFERENT CART-LEVEL COUPON TYPES
-                // ============================================================
-                
+                // Calculate discount amount by type
                 let cartDiscountAmount = 0;
                 let isFreeShipping = false;
 
-                if (cartCoupon.discount_type === 'percentage') {
-                  // Percentage discount: apply to subtotal after item discounts
-                  cartDiscountAmount = cartSubtotalAfterItemDiscounts * (parseFloat(cartCoupon.discount_value) / 100);
-                  
-                } else if (cartCoupon.discount_type === 'fixed') {
-                  // Fixed amount discount
+                if (cartCoupon.discount_type === "percentage") {
+                  cartDiscountAmount =
+                    cartSubtotalAfterItemDiscounts *
+                    (parseFloat(cartCoupon.discount_value) / 100);
+                } else if (cartCoupon.discount_type === "fixed") {
                   cartDiscountAmount = parseFloat(cartCoupon.discount_value);
-                  
-                } else if (cartCoupon.discount_type === 'free_shipping_only') {
-                  // FREE SHIPPING ONLY - no monetary discount
+                } else if (cartCoupon.discount_type === "free_shipping_only") {
                   cartDiscountAmount = 0;
                   isFreeShipping = true;
                 }
 
-                // Apply max discount cap if set (doesn't apply to free_shipping_only)
-                if (cartCoupon.max_discount_amount && cartCoupon.discount_type !== 'free_shipping_only') {
+                // Apply max discount cap (not for free_shipping_only)
+                if (
+                  cartCoupon.max_discount_amount &&
+                  cartCoupon.discount_type !== "free_shipping_only"
+                ) {
                   cartDiscountAmount = Math.min(
                     cartDiscountAmount,
                     parseFloat(cartCoupon.max_discount_amount)
                   );
                 }
 
-                // Don't discount more than the subtotal (after item-level discounts)
-                if (cartCoupon.discount_type !== 'free_shipping_only') {
-                  cartDiscountAmount = Math.min(cartDiscountAmount, cartSubtotalAfterItemDiscounts);
+                // Never discount more than the subtotal
+                if (cartCoupon.discount_type !== "free_shipping_only") {
+                  cartDiscountAmount = Math.min(
+                    cartDiscountAmount,
+                    cartSubtotalAfterItemDiscounts
+                  );
                 }
 
                 cart_level_discount = {
                   coupon_id: cart_level_coupon_id,
                   discount_amount: cartDiscountAmount,
-                  free_shipping: isFreeShipping
+                  free_shipping: isFreeShipping,
                 };
               }
             }
           }
-        } else {
-          cart_level_discount = {
-            coupon_id: cart_level_coupon_id,
-            discount_amount: 0,
-            free_shipping: false,  
-            error: "Coupon not found"
-          };
         }
       }
 
-      await client.query('COMMIT');
+      await client.query("COMMIT");
 
       // ========================================================================
       // STEP 3: RETURN VALIDATION RESULTS
@@ -1504,24 +1635,25 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
         0
       );
 
-      const total_discount = item_level_discount + (cart_level_discount?.discount_amount || 0);
+      const total_discount =
+        item_level_discount + (cart_level_discount?.discount_amount || 0);
 
       res.json({
-        valid: errors.length === 0 && (!cart_level_discount || !cart_level_discount.error),
+        valid:
+          errors.length === 0 &&
+          (!cart_level_discount || !cart_level_discount.error),
         errors,
         validated_discounts,
         item_level_discount,
         cart_level_discount,
         total_discount,
       });
-
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw error;
     } finally {
       client.release();
     }
-
   } catch (error) {
     console.error("Error validating coupons:", error);
     res.status(500).json({ message: "Server error" });

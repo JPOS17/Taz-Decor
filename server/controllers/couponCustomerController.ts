@@ -6,11 +6,15 @@ import { pool } from "../db";
 // ============================================================================
 
 /**
- * GET all active coupons for listings page
- * Returns all active coupons without location filtering (frontend will handle location matching)
+ * GET all active coupons for listings page.
+ * Checks 1-4 are enforced in SQL (invalid coupons are never returned).
+ * Check 5 (per-user limit) is returned as data so the frontend can show a
+ * friendly message. Pass ?userId=<id> when the user is logged in.
  */
 export const getProductCouponsPreview = async (req: Request, res: Response): Promise<void> => {
   try {
+    const { userId } = req.query; // optional — passed when user is logged in
+
     const result = await pool.query(`
       SELECT 
         c.coupon_id,
@@ -25,12 +29,21 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
         c.requires_verified_email,
         c.usage_limit_total,
         c.usage_count_total,
+        c.usage_limit_per_user,
         c.description,
         c.bogo_buy_quantity,
         c.bogo_get_quantity,
         c.bogo_discount_percentage,
         c.valid_until,
         c.location_ids,
+        -- Per-user usage count: 0 when no userId supplied (guest session)
+        COALESCE((
+          SELECT COUNT(DISTINCT oc.order_id)
+          FROM order_coupons oc
+          JOIN orders o ON oc.order_id = o.order_id
+          WHERE oc.coupon_id = c.coupon_id
+            AND o.user_id = $1::int
+        ), 0) AS user_usage_count,
         CASE 
           WHEN c.applies_to_type = 'all' THEN 'All Products'
           WHEN c.applies_to_type = 'category' THEN cat.category_name
@@ -44,10 +57,10 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
       LEFT JOIN categories cat ON c.applies_to_type = 'category' AND c.applies_to_id = cat.category_id
       LEFT JOIN products p ON c.applies_to_type = 'product' AND c.applies_to_id = p.product_id
       LEFT JOIN product_types pt ON c.applies_to_type = 'product_type' AND c.applies_to_id = pt.product_type_id
-      WHERE c.is_active = TRUE
+      WHERE c.is_active = TRUE                                                    -- check 3
         AND c.valid_from <= NOW()
-        AND (c.valid_until IS NULL OR c.valid_until >= NOW())
-        AND (c.usage_limit_total IS NULL OR c.usage_count_total < c.usage_limit_total)
+        AND (c.valid_until IS NULL OR c.valid_until >= NOW())                     -- check 2
+        AND (c.usage_limit_total IS NULL OR c.usage_count_total < c.usage_limit_total) -- check 4
       ORDER BY 
         c.applies_to_type,
         CASE c.discount_type 
@@ -55,7 +68,7 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
           WHEN 'fixed' THEN c.discount_value
           ELSE 0
         END DESC
-    `);
+    `, [userId ? parseInt(userId as string) : null]);
 
     const coupons = result.rows.map(row => ({
       ...row,
@@ -63,7 +76,9 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
       min_purchase_amount: row.min_purchase_amount ? parseFloat(row.min_purchase_amount) : null,
       max_discount_amount: row.max_discount_amount ? parseFloat(row.max_discount_amount) : null,
       bogo_discount_percentage: row.bogo_discount_percentage ? parseFloat(row.bogo_discount_percentage) : null,
-      location_ids: row.location_ids || []
+      location_ids: row.location_ids || [],
+      user_usage_count: parseInt(row.user_usage_count),
+      usage_limit_per_user: row.usage_limit_per_user ? parseInt(row.usage_limit_per_user) : null,
     }));
 
     // Group coupons by type
@@ -89,11 +104,14 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
 // ============================================================================
 
 /**
- * GET applicable coupons for a specific variant
+ * GET applicable coupons for a specific variant.
+ * Checks 1-4 enforced in SQL. Check 5 returned as data for frontend messaging.
+ * Pass ?userId=<id> when the user is logged in.
  */
 export const getApplicableCouponsForVariant = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { variantId, productId, categoryId, productTypeId } = req.query;
+    // ← userId extracted here alongside the other query params
+    const { variantId, productId, categoryId, productTypeId, userId } = req.query;
 
     // Validate required parameters
     if (!variantId || !productId || !categoryId) {
@@ -129,12 +147,21 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
         c.requires_verified_email,
         c.usage_limit_total,
         c.usage_count_total,
+        c.usage_limit_per_user,
         c.description,
         c.bogo_buy_quantity,
         c.bogo_get_quantity,
         c.bogo_discount_percentage,
         c.valid_until,
         c.location_ids,
+        -- Per-user usage count: 0 when no userId supplied (guest session)
+        COALESCE((
+          SELECT COUNT(DISTINCT oc.order_id)
+          FROM order_coupons oc
+          JOIN orders o ON oc.order_id = o.order_id
+          WHERE oc.coupon_id = c.coupon_id
+            AND o.user_id = $6::int
+        ), 0) AS user_usage_count,
         CASE 
           WHEN c.applies_to_type = 'all' THEN 'All Products'
           WHEN c.applies_to_type = 'category' THEN cat.category_name
@@ -161,8 +188,7 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
           OR (c.applies_to_type = 'variant' AND c.applies_to_id = $1::int)
           OR (c.applies_to_type = 'custom_group' AND EXISTS (
             SELECT 1 FROM coupon_variant_groups cvg
-            WHERE cvg.coupon_id = c.coupon_id
-              AND cvg.variant_id = $1::int
+            WHERE cvg.coupon_id = c.coupon_id AND cvg.variant_id = $1::int
           ))
         )
       ORDER BY 
@@ -172,11 +198,12 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
           ELSE 0
         END DESC
     `, [
-      parseInt(variantId as string),
-      parseInt(productId as string),
-      parseInt(categoryId as string),
-      productTypeId ? parseInt(productTypeId as string) : null,
-      variantLocationId
+      parseInt(variantId as string),        // $1
+      parseInt(productId as string),         // $2
+      parseInt(categoryId as string),        // $3
+      productTypeId ? parseInt(productTypeId as string) : null, // $4
+      variantLocationId,                     // $5
+      userId ? parseInt(userId as string) : null,               // $6 ← now defined
     ]);
 
     const coupons = result.rows.map(row => ({
@@ -185,13 +212,54 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
       min_purchase_amount: row.min_purchase_amount ? parseFloat(row.min_purchase_amount) : null,
       max_discount_amount: row.max_discount_amount ? parseFloat(row.max_discount_amount) : null,
       bogo_discount_percentage: row.bogo_discount_percentage ? parseFloat(row.bogo_discount_percentage) : null,
-      location_ids: row.location_ids || []
+      location_ids: row.location_ids || [],
+      user_usage_count: parseInt(row.user_usage_count),
+      usage_limit_per_user: row.usage_limit_per_user ? parseInt(row.usage_limit_per_user) : null,
     }));
 
     res.json(coupons);
 
   } catch (error) {
     console.error("Error fetching applicable coupons:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/**
+ * GET per-user coupon usage for a logged-in user.
+ * Returns a map of coupon_id -> user's usage count.
+ * Only called when user is authenticated.
+ * Frontend uses this to show "limit exceeded" messaging without hiding the coupon.
+ */
+export const getUserCouponUsage = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      res.status(400).json({ message: "userId is required" });
+      return;
+    }
+
+    const result = await pool.query(`
+      SELECT 
+        oc.coupon_id,
+        COUNT(DISTINCT oc.order_id) AS user_usage_count
+      FROM order_coupons oc
+      JOIN orders o ON oc.order_id = o.order_id
+      WHERE o.user_id = $1::int
+      GROUP BY oc.coupon_id
+    `, [parseInt(userId as string)]);
+
+    // Return as a plain map: { coupon_id: count, ... }
+    const usageMap: Record<number, number> = {};
+    result.rows.forEach(row => {
+      usageMap[row.coupon_id] = parseInt(row.user_usage_count);
+    });
+
+    res.json(usageMap);
+
+  } catch (error) {
+    console.error("Error fetching user coupon usage:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
