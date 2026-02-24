@@ -233,12 +233,6 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
                           Expires {formatDate(coupon.valid_until)}
                         </span>
                       )}
-                      {coupon.usage_limit_total && (
-                        <span className="ccb-meta-item ccb-meta-urgent">
-                          {coupon.usage_limit_total - coupon.usage_count_total}{" "}
-                          uses left
-                        </span>
-                      )}
                     </div>
 
                     {/* Copy code button */}

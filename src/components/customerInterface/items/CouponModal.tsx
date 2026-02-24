@@ -3,8 +3,10 @@ import { useNavigate } from "react-router";
 import { FaTimes, FaLock } from "react-icons/fa";
 import {
   fetchApplicableCouponsForVariant,
+  fetchUserCouponUsage,
   type ProductCoupon,
 } from "../../../api/couponCustomer";
+import { useAuth } from "../../../context/AuthContext";
 import CouponBanner from "./CouponBanner";
 import "../../../styles/components/customerInterface/items/CouponModal.css";
 
@@ -38,6 +40,39 @@ const CouponModal = ({
   const [coupons, setCoupons] = useState<ProductCoupon[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
+
+  // Per-user usage map — fetched internally so no parent needs to manage it
+  const [userCouponUsage, setUserCouponUsage] = useState<
+    Record<number, number>
+  >({});
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setUserCouponUsage({});
+      return;
+    }
+
+    const loadUserUsage = async () => {
+      try {
+        const usage = await fetchUserCouponUsage(user.userId);
+        setUserCouponUsage(usage);
+      } catch (error) {
+        console.error("Error loading user coupon usage:", error);
+      }
+    };
+
+    loadUserUsage();
+  }, [user?.userId, authLoading]);
+
+  const isEligible = (coupon: ProductCoupon) => {
+    if (coupon.usage_limit_per_user != null) {
+      const timesUsed = userCouponUsage[coupon.coupon_id] ?? 0;
+      if (timesUsed >= coupon.usage_limit_per_user) return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     const loadCoupons = async () => {
@@ -63,6 +98,7 @@ const CouponModal = ({
   }, [isOpen, variantId, productId, categoryId, productTypeId]);
 
   const handleCouponSelect = (coupon: ProductCoupon | null) => {
+    if (coupon && !isEligible(coupon)) return;
     onCouponSelect(coupon);
     onClose();
   };

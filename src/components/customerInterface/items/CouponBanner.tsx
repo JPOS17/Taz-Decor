@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaTag,
@@ -15,6 +15,7 @@ import {
   type ProductCoupon,
   calculateDiscount,
   fetchCouponEligibleProducts,
+  fetchUserCouponUsage,
 } from "../../../api/couponCustomer";
 import { useAuth } from "../../../context/AuthContext";
 import "../../../styles/components/customerInterface/items/CouponBanner.css";
@@ -45,7 +46,32 @@ const CouponBanner = ({
   selectedCoupon,
 }: CouponBannerProps) => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
+
+  // Per-user usage map — fetched internally so no parent needs to manage it
+  const [userCouponUsage, setUserCouponUsage] = useState<
+    Record<number, number>
+  >({});
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!user) {
+      setUserCouponUsage({});
+      return;
+    }
+
+    const loadUserUsage = async () => {
+      try {
+        const usage = await fetchUserCouponUsage(user.userId);
+        setUserCouponUsage(usage);
+      } catch (error) {
+        console.error("Error loading user coupon usage:", error);
+      }
+    };
+
+    loadUserUsage();
+  }, [user?.userId, isLoading]);
+
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [clickedCode, setClickedCode] = useState<string | null>(null);
   const [expandedCoupons, setExpandedCoupons] = useState<Set<number>>(
@@ -177,6 +203,25 @@ const CouponBanner = ({
     }
   };
 
+  const isEligible = (coupon: ProductCoupon) => {
+    if (!isAuthenticated) return false;
+    if (coupon.usage_limit_per_user != null) {
+      const timesUsed = userCouponUsage[coupon.coupon_id] ?? 0;
+      if (timesUsed >= coupon.usage_limit_per_user) return false;
+    }
+    return true;
+  };
+
+  const getIneligibilityReason = (coupon: ProductCoupon) => {
+    if (!isAuthenticated) return "Sign in to redeem";
+    if (coupon.usage_limit_per_user != null) {
+      const timesUsed = userCouponUsage[coupon.coupon_id] ?? 0;
+      if (timesUsed >= coupon.usage_limit_per_user)
+        return `You've already used this coupon ${timesUsed}/${coupon.usage_limit_per_user} times`;
+    }
+    return "";
+  };
+
   const handleCouponClick = (coupon: ProductCoupon) => {
     if (onCouponSelect) {
       onCouponSelect(coupon);
@@ -227,11 +272,15 @@ const CouponBanner = ({
           const products = eligibleProducts[coupon.coupon_id] || [];
           const isLoading = loadingProducts.has(coupon.coupon_id);
           const isSelected = selectedCoupon?.coupon_id === coupon.coupon_id;
+          const eligible = isEligible(coupon);
+          const ineligibilityReason = !eligible
+            ? getIneligibilityReason(coupon)
+            : "";
 
           return (
             <div
               key={coupon.coupon_id}
-              className={`compact-coupon-item ${isSelected ? "selected" : ""}`}
+              className={`compact-coupon-item ${isSelected ? "selected" : ""} ${!eligible && isAuthenticated ? "ineligible" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleCouponExpand(coupon.coupon_id);
@@ -245,21 +294,25 @@ const CouponBanner = ({
                 <div className="compact-coupon-content">
                   <div className="compact-coupon-first-line">
                     <button
-                      className={`compact-coupon-code ${isSelected ? "selected" : ""}`}
+                      className={`compact-coupon-code ${isSelected ? "selected" : ""} ${!eligible && isAuthenticated ? "ineligible" : ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (!isAuthenticated) {
                           toggleCouponExpand(coupon.coupon_id);
                           return;
                         }
+                        if (!eligible) return;
                         copyCode(coupon.coupon_code);
                         setClickedCode(coupon.coupon_code);
                         handleCouponClick(coupon);
                       }}
+                      disabled={!eligible && isAuthenticated}
                       title={
-                        isAuthenticated
-                          ? "Click to select this coupon"
-                          : "Sign in to use this coupon"
+                        !isAuthenticated
+                          ? "Sign in to use this coupon"
+                          : !eligible
+                            ? ineligibilityReason
+                            : "Click to select this coupon"
                       }
                     >
                       {copiedCode === coupon.coupon_code ? (
@@ -324,6 +377,12 @@ const CouponBanner = ({
                     </div>
                   ) : (
                     <>
+                      {!eligible && (
+                        <div className="compact-coupon-ineligible-reason">
+                          {ineligibilityReason}
+                        </div>
+                      )}
+
                       {coupon.description && (
                         <p className="compact-coupon-description">
                           {coupon.description}

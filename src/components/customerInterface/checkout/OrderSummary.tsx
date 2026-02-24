@@ -215,6 +215,7 @@ const OrderSummary = ({
                 onCouponSelect={onCartLevelCouponSelect}
                 subtotalAfterItemDiscounts={subtotal - itemLevelDiscount}
                 isEmailVerified={isEmailVerified}
+                isGuest={!isEmailVerified}
               />
             ) : selectedCartLevelCoupon ? (
               <div className="cart-level-coupon-section">

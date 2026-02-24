@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { FaTag, FaTimes, FaLock, FaShippingFast } from "react-icons/fa";
 import type { ProductCoupon } from "../../../api/couponCustomer";
+import { fetchUserCouponUsage } from "../../../api/couponCustomer";
+import { useAuth } from "../../../context/AuthContext";
 import "../../../styles/components/customerInterface/checkout/CartLevelCouponSelector.css";
 
 interface CartLevelCouponSelectorProps {
@@ -11,7 +13,6 @@ interface CartLevelCouponSelectorProps {
   subtotalAfterItemDiscounts: number;
   isEmailVerified: boolean;
   isGuest: boolean;
-  userCouponUsage: Record<number, number>;
 }
 
 const CartLevelCouponSelector = ({
@@ -21,10 +22,34 @@ const CartLevelCouponSelector = ({
   subtotalAfterItemDiscounts,
   isEmailVerified,
   isGuest,
-  userCouponUsage,
 }: CartLevelCouponSelectorProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
+
+  // Per-user usage map — fetched internally so no parent needs to manage it
+  const [userCouponUsage, setUserCouponUsage] = useState<
+    Record<number, number>
+  >({});
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!user) {
+      setUserCouponUsage({});
+      return;
+    }
+
+    const loadUserUsage = async () => {
+      try {
+        const usage = await fetchUserCouponUsage(user.userId);
+        setUserCouponUsage(usage);
+      } catch (error) {
+        console.error("Error loading user coupon usage:", error);
+      }
+    };
+
+    loadUserUsage();
+  }, [user?.userId, isLoading]);
 
   // Filter for cart-level coupons only
   const cartLevelCoupons = coupons.filter((c) => c.applies_to_type === "all");
@@ -44,20 +69,12 @@ const CartLevelCouponSelector = ({
   };
 
   const getDiscountDisplay = (coupon: ProductCoupon) => {
-    if (coupon.discount_type === "free_shipping_only") {
-      return "FREE SHIPPING";
-    }
-
+    if (coupon.discount_type === "free_shipping_only") return "FREE SHIPPING";
     if (!coupon.discount_value) return "Invalid coupon";
-
-    if (coupon.discount_type === "percentage") {
+    if (coupon.discount_type === "percentage")
       return `${coupon.discount_value}% OFF`;
-    }
-
-    if (coupon.discount_type === "fixed") {
+    if (coupon.discount_type === "fixed")
       return `$${coupon.discount_value.toFixed(2)} OFF`;
-    }
-
     return "Discount";
   };
 
@@ -75,7 +92,6 @@ const CartLevelCouponSelector = ({
       coupon.usage_count_total >= coupon.usage_limit_total
     )
       return false;
-    // Per-user limit: use the dedicated usage map, not the stale coupon object field
     if (!isGuest && coupon.usage_limit_per_user != null) {
       const timesUsed = userCouponUsage[coupon.coupon_id] ?? 0;
       if (timesUsed >= coupon.usage_limit_per_user) return false;
@@ -108,7 +124,6 @@ const CartLevelCouponSelector = ({
 
   const isFreeShippingCoupon = (coupon: ProductCoupon) =>
     coupon.discount_type === "free_shipping_only";
-
   return (
     <div className="cart-level-coupon-section">
       <div className="cart-level-coupon-header">
@@ -211,7 +226,7 @@ const CartLevelCouponSelector = ({
                             </span>
                           </div>
 
-                          {coupon.min_purchase_amount && (
+                          {coupon.min_purchase_amount && eligible && (
                             <p className="cart-coupon-requirement">
                               {isFreeShipping
                                 ? "Min. purchase for free shipping: "
