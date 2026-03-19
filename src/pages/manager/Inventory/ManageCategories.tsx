@@ -36,21 +36,41 @@ interface Message {
 
 type EditMode = "none" | "edit" | "create";
 
+// ============================================================================
+// MANAGE CATEGORIES COMPONENT
+// ============================================================================
+
 const ManageCategories = () => {
   const navigate = useNavigate();
 
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Category data
   const [categories, setCategories] = useState<Category[]>([]);
+
+  // UI state
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
   const [editMode, setEditMode] = useState<EditMode>("none");
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [categoryName, setCategoryName] = useState("");
-  const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [hasOrderChanged, setHasOrderChanged] = useState(false);
 
+  // Form state
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categoryName, setCategoryName] = useState("");
+
+  // Drag and drop state
+  const [draggedItem, setDraggedItem] = useState<number | null>(null);
+
+  // Confirmation modals
   const deleteConfirmation = useConfirmationModal();
   const saveOrderConfirmation = useConfirmationModal();
   const toggleActiveConfirmation = useConfirmationModal();
+
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
 
   useEffect(() => {
     loadCategories();
@@ -70,10 +90,18 @@ const ManageCategories = () => {
     }
   };
 
+  // ============================================================================
+  // UTILITY FUNCTIONS
+  // ============================================================================
+
   const showMessage = (text: string, type: "success" | "error" | "warning") => {
     setMessage({ text, type });
     setTimeout(() => setMessage(null), 4000);
   };
+
+  // ============================================================================
+  // EVENT HANDLERS — EDIT FORM
+  // ============================================================================
 
   const handleCreateNew = () => {
     setEditMode("create");
@@ -99,7 +127,6 @@ const ManageCategories = () => {
       return;
     }
 
-    // Format the category name with proper capitalization
     const formattedName = formatName(categoryName);
 
     setLoading(true);
@@ -133,6 +160,10 @@ const ManageCategories = () => {
       setLoading(false);
     }
   };
+
+  // ============================================================================
+  // EVENT HANDLERS — DELETE & TOGGLE
+  // ============================================================================
 
   const handleRequestDelete = (category: Category) => {
     deleteConfirmation.showConfirmation({
@@ -197,7 +228,10 @@ const ManageCategories = () => {
     }
   };
 
-  // Drag and Drop Handlers
+  // ============================================================================
+  // EVENT HANDLERS — DRAG AND DROP
+  // ============================================================================
+
   const handleDragStart = (categoryId: number) => {
     setDraggedItem(categoryId);
   };
@@ -233,6 +267,10 @@ const ManageCategories = () => {
   const handleDragEnd = () => {
     setDraggedItem(null);
   };
+
+  // ============================================================================
+  // EVENT HANDLERS — ORDER
+  // ============================================================================
 
   const handleSaveOrder = () => {
     saveOrderConfirmation.showConfirmation({
@@ -270,6 +308,10 @@ const ManageCategories = () => {
     setHasOrderChanged(false);
     showMessage("Category order changes discarded", "warning");
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="manager-dashboard">
@@ -756,10 +798,12 @@ const ManageCategories = () => {
         </div>
       </div>
 
+      {/* Toast Notifications */}
       {message && (
         <ToastNotification message={message.text} type={message.type} />
       )}
 
+      {/* Delete Confirmation */}
       {deleteConfirmation.isOpen && deleteConfirmation.config && (
         <ConfirmationModal
           title={deleteConfirmation.config.title}
@@ -771,6 +815,7 @@ const ManageCategories = () => {
         />
       )}
 
+      {/* Save Order Confirmation */}
       {saveOrderConfirmation.isOpen && saveOrderConfirmation.config && (
         <ConfirmationModal
           title={saveOrderConfirmation.config.title}
@@ -782,6 +827,7 @@ const ManageCategories = () => {
         />
       )}
 
+      {/* Toggle Active Confirmation */}
       {toggleActiveConfirmation.isOpen && toggleActiveConfirmation.config && (
         <ConfirmationModal
           title={toggleActiveConfirmation.config.title}

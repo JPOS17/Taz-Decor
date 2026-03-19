@@ -225,7 +225,6 @@ export const createNewProduct = async (
 export const createNewVariant = async (
   payload: CreateVariantPayload
 ): Promise<ProductVariantForManagement> => {
-  // Extract product_id to use in URL, and rename images to image_urls for backend
   const { product_id, images, ...rest } = payload;
   
   const response = await fetch(`${API_URL}/api/management/products/by-product/${product_id}/variants`, {

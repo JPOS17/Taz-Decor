@@ -13,17 +13,33 @@ import ProfileSidebar from "../../components/universalComponents/ProfileSideBar"
 
 import "../../styles/pages/customer/Orders.css";
 
+// ============================================================================
+// ORDERS COMPONENT
+// ============================================================================
+
 const Orders = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Order data
   const [orders, setOrders] = useState<Order[]>([]);
   const [userProfile, setUserProfile] = useState<{
     first_name: string;
     last_name: string;
     role: string;
   } | null>(null);
+
+  // UI state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
 
   useEffect(() => {
     loadData();
@@ -48,6 +64,10 @@ const Orders = () => {
       setLoading(false);
     }
   };
+
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
 
   const formatStatus = (status: string) => {
     return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -89,6 +109,10 @@ const Orders = () => {
       day: "numeric",
     });
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (loading) {
     return (

@@ -17,8 +17,8 @@ export interface ProductCoupon {
   requires_verified_email: boolean;
   usage_limit_total?: number | null;
   usage_count_total: number;
-  usage_limit_per_user: number | null;  // null = no per-user limit
-  user_usage_count: number;             // 0 for guests (backend returns 0 when no userId)
+  usage_limit_per_user: number | null;  
+  user_usage_count: number;             
   applies_to_name: string;
   description?: string | null;
   bogo_buy_quantity?: number | null;
@@ -41,11 +41,7 @@ export interface GroupedCoupons {
 // API FUNCTIONS
 // ============================================================================
 
-/**
- * GET all active coupons for product listings.
- * Pass userId when the user is logged in so the backend can calculate
- * user_usage_count for check 5 (per-user limit). Omit for guest sessions.
- */
+// GET all active coupons for product listings
 export const fetchProductCouponsPreview = async (
   userId?: number | null
 ): Promise<GroupedCoupons> => {
@@ -66,11 +62,7 @@ export const fetchProductCouponsPreview = async (
   return response.json();
 };
 
-/**
- * GET applicable coupons for a specific variant.
- * Pass userId when the user is logged in so the backend can calculate
- * user_usage_count for check 5 (per-user limit). Omit for guest sessions.
- */
+// GET applicable coupons for a specific variant
 export const fetchApplicableCouponsForVariant = async (
   variantId: number,
   productId: number,
@@ -96,11 +88,7 @@ export const fetchApplicableCouponsForVariant = async (
   return response.json();
 };
 
-/**
- * GET per-user coupon usage counts for a logged-in user.
- * Returns a map of { coupon_id: usage_count }.
- * Only call this when the user is authenticated.
- */
+// GET per-user coupon usage counts for a logged-in user
 export const fetchUserCouponUsage = async (
   userId: number
 ): Promise<Record<number, number>> => {
@@ -116,10 +104,7 @@ export const fetchUserCouponUsage = async (
   return response.json();
 };
 
-/**
- * GET eligible products for a coupon (used by coupon banner previews).
- * No userId needed — this is purely product data, not user-specific.
- */
+// GET eligible products for a coupon (used by coupon banner previews)
 export const fetchCouponEligibleProducts = async (
   couponId: number
 ): Promise<{ products: { variant_id: number; product_id: number; name: string; price: number; primary_image: string }[] }> => {
@@ -133,10 +118,7 @@ export const fetchCouponEligibleProducts = async (
   return response.json();
 };
 
-/**
- * Check which custom group coupons apply to a set of variant IDs.
- * No userId needed — just returns which coupons exist for those variants.
- */
+// Check which custom group coupons apply to a set of variant IDs
 export const checkCustomGroupCoupons = async (
   variantIds: number[]
 ): Promise<Record<number, number[]>> => {
@@ -158,41 +140,31 @@ export const checkCustomGroupCoupons = async (
 // COUPON TYPE HELPERS
 // ============================================================================
 
-/**
- * Cart-level coupons (applies_to_type = 'all') apply to the entire cart at checkout.
- */
+// Cart-level coupons (applies_to_type = 'all') apply to the entire cart at checkout
 export const isCartLevelCoupon = (coupon: ProductCoupon): boolean => {
   return coupon.applies_to_type === 'all';
 };
 
-/**
- * Item-level coupons apply to specific products/categories/variants.
- */
+// Item-level coupons apply to specific products/categories/variants
 export const isItemLevelCoupon = (coupon: ProductCoupon): boolean => {
   return !isCartLevelCoupon(coupon);
 };
 
-/**
- * Returns true if the discount type is valid for a cart-level coupon.
- */
+// Returns true if the discount type is valid for a cart-level coupon
 export const isValidCartLevelDiscountType = (
   discountType: ProductCoupon['discount_type']
 ): boolean => {
   return ['percentage', 'fixed', 'bogo', 'free_shipping_only'].includes(discountType);
 };
 
-/**
- * Returns true if the discount type is valid for an item-level coupon.
- */
+// Returns true if the discount type is valid for an item-level coupon
 export const isValidItemLevelDiscountType = (
   discountType: ProductCoupon['discount_type']
 ): boolean => {
   return ['percentage', 'bogo'].includes(discountType);
 };
 
-/**
- * Determines whether a coupon should display a discounted price on the product listing.
- */
+// Determines whether a coupon should display a discounted price on the product listing
 export const shouldShowDiscountedPrice = (coupon: ProductCoupon): boolean => {
   if (isCartLevelCoupon(coupon)) return false;
   return coupon.discount_type === 'percentage' || coupon.discount_type === 'bogo';
@@ -202,9 +174,7 @@ export const shouldShowDiscountedPrice = (coupon: ProductCoupon): boolean => {
 // DISCOUNT CALCULATION FUNCTIONS
 // ============================================================================
 
-/**
- * Calculate BOGO discount for a specific quantity.
- */
+// Calculate BOGO discount for a specific quantity
 export const calculateBogoDiscount = (
   price: number,
   quantity: number,
@@ -270,9 +240,7 @@ export const calculateBogoDiscount = (
   };
 };
 
-/**
- * Calculate the discount amount/price for a coupon against a given price + quantity.
- */
+// Calculate the discount amount/price for a coupon against a given price + quantity
 export const calculateDiscount = (
   price: number,
   coupon: ProductCoupon,
@@ -327,10 +295,7 @@ export const calculateDiscount = (
 
 /**
  * Calculate the discount a cart-level coupon gives against the subtotal
- * (after item-level discounts have already been applied).
- *
- * Mirrors the server-side logic in couponCustomerController so the Cart page
- * preview matches what CheckoutPage/validateCoupons will produce.
+ * (after item-level discounts have already been applied)
  *
  * Returns:
  *   discountAmount  – monetary savings (0 for free_shipping_only)
@@ -345,7 +310,6 @@ export const calculateCartLevelDiscount = (
   isFreeShipping: boolean;
   isEligible: boolean;
 } => {
-  // Minimum purchase check
   if (
     coupon.min_purchase_amount &&
     subtotalAfterItemDiscounts < coupon.min_purchase_amount
@@ -384,10 +348,7 @@ export const calculateCartLevelDiscount = (
 // COUPON SELECTION HELPERS
 // ============================================================================
 
-/**
- * Find the best item-level coupon for a product based on maximum savings.
- * Only considers item-level coupons (category, product, product_type, variant, custom_group).
- */
+// Find the best item-level coupon for a product based on maximum savings
 export const findBestCoupon = (
   coupons: ProductCoupon[],
   price: number,
@@ -409,12 +370,12 @@ export const findBestCoupon = (
     const discountInfo = calculateDiscount(price, coupon, quantity);
     const discountAmount = discountInfo.discountAmount;
     
-    // If this coupon saves more money, use it
+    // If this coupon saves more money
     if (discountAmount > maxSavings) {
       maxSavings = discountAmount;
       bestCoupon = coupon;
     } 
-    // If savings are very close (within $2), prefer BOGO for psychological appeal
+    // If savings are very close (within $2), prefer BOGO
     else if (Math.abs(discountAmount - maxSavings) <= 2 && coupon.discount_type === 'bogo') {
       bestCoupon = coupon;
     }
@@ -427,9 +388,7 @@ export const findBestCoupon = (
 // DISPLAY FORMATTING HELPERS
 // ============================================================================
 
-/**
- * Format BOGO badge text adaptively based on coupon configuration.
- */
+// Format BOGO badge text adaptively based on coupon configuration
 export const formatBogoBadge = (coupon: ProductCoupon): string => {
   const buyQty = coupon.bogo_buy_quantity || 1;
   const getQty = coupon.bogo_get_quantity || 1;

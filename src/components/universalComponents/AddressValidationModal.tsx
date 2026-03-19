@@ -18,7 +18,6 @@ const AddressValidationModal = ({
   const { is_valid, validation_results, original_address, validated_address } =
     validationResult;
 
-  // The backend returns original_address with street1/street2 format
   const originalStreet1 =
     original_address.street1 || (original_address as any).address_line1 || "";
   const originalStreet2 =

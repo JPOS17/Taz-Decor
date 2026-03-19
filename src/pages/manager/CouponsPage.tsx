@@ -29,7 +29,18 @@ import { CouponPreview } from "../../components/managerInterface/coupons/CouponP
 
 import "../../styles/pages/manager/CouponsPage.css";
 
+// ============================================================================
+// COUPONS PAGE COMPONENT
+// ============================================================================
+
 const CouponsPage = () => {
+  const navigate = useNavigate();
+
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Coupon data
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,42 +49,32 @@ const CouponsPage = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [appliesToFilter, setAppliesToFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [locationFilter, setLocationFilter] = useState<string>("all");
 
-  // Modal states
+  // Modal state
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewCoupon, setPreviewCoupon] = useState<Coupon | null>(null);
 
   // Dropdown data
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [productTypes, setProductTypes] = useState<ProductTypeOption[]>([]);
   const [products, setProducts] = useState<ProductOption[]>([]);
   const [variants, setVariants] = useState<any[]>([]);
+  const [locations, setLocations] = useState<LocationOption[]>([]);
 
-  // Track selected product for variant loading
+  // Variant / custom group state
   const [selectedProductForVariant, setSelectedProductForVariant] = useState<
     number | null
   >(null);
-
-  // Track custom group selections
   const [customGroupProducts, setCustomGroupProducts] = useState<number[]>([]);
   const [customGroupVariants, setCustomGroupVariants] = useState<{
     [productId: number]: number[];
   }>({});
-
-  // Add this state for pre-loaded variant maps when editing
   const [initialProductVariantsMap, setInitialProductVariantsMap] = useState<{
     [productId: number]: any[];
   }>({});
-
-  // Preview modal state
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [previewCoupon, setPreviewCoupon] = useState<Coupon | null>(null);
-
-  // ADD new state variables after line 35 (after appliesToFilter):
-  const [locationFilter, setLocationFilter] = useState<string>("all");
-
-  // 3. ADD new state for locations data after line 46 (after products state):
-  const [locations, setLocations] = useState<LocationOption[]>([]);
 
   // Form state
   const [formData, setFormData] = useState<CreateCouponPayload>({
@@ -98,17 +99,14 @@ const CouponsPage = () => {
     location_ids: [],
   });
 
-  const navigate = useNavigate();
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
 
   useEffect(() => {
     loadCoupons();
     loadDropdownData();
   }, [statusFilter, appliesToFilter, searchQuery, locationFilter]);
-
-  const handlePreviewCoupon = (coupon: Coupon) => {
-    setPreviewCoupon(coupon);
-    setShowPreviewModal(true);
-  };
 
   const loadCoupons = async () => {
     try {
@@ -117,7 +115,7 @@ const CouponsPage = () => {
         statusFilter === "all" ? null : statusFilter,
         appliesToFilter === "all" ? null : appliesToFilter,
         searchQuery || null,
-        locationFilter === "all" ? null : locationFilter, // NEW
+        locationFilter === "all" ? null : locationFilter,
       );
       setCoupons(data);
       setError(null);
@@ -135,12 +133,12 @@ const CouponsPage = () => {
           fetchCategoriesForCoupons(),
           fetchProductTypesForCoupons(),
           fetchProductsForCoupons(),
-          fetchLocationsForCoupons(), // NEW
+          fetchLocationsForCoupons(),
         ]);
       setCategories(categoriesData);
       setProductTypes(productTypesData);
       setProducts(productsData);
-      setLocations(locationsData); // NEW
+      setLocations(locationsData);
     } catch (err) {
       console.error("Failed to load dropdown data:", err);
     }
@@ -165,11 +163,50 @@ const CouponsPage = () => {
     }
   };
 
+  // ============================================================================
+  // FORM HELPERS
+  // ============================================================================
+
+  const resetForm = () => {
+    setFormData({
+      coupon_code: "",
+      description: "",
+      discount_type: "" as any,
+      discount_value: undefined,
+      min_purchase_amount: undefined,
+      max_discount_amount: undefined,
+      free_shipping: false,
+      applies_to_type: "" as any,
+      applies_to_id: undefined,
+      usage_limit_total: undefined,
+      usage_limit_per_user: undefined,
+      requires_verified_email: true,
+      valid_from: new Date().toISOString().split("T")[0],
+      valid_until: undefined,
+      is_active: true,
+      bogo_buy_quantity: undefined,
+      bogo_get_quantity: undefined,
+      bogo_discount_percentage: undefined,
+      location_ids: [],
+    });
+    setCustomGroupProducts([]);
+    setCustomGroupVariants({});
+    setInitialProductVariantsMap({});
+    setSelectedProductForVariant(null);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
   const handleCreateCoupon = async () => {
     try {
       setError(null);
 
-      // For custom_group, flatten all selected variant IDs from customGroupVariants
       const customGroupVariantIds =
         formData.applies_to_type === "custom_group"
           ? Object.values(customGroupVariants).flat()
@@ -179,7 +216,7 @@ const CouponsPage = () => {
         ...formData,
         applies_to_id:
           formData.applies_to_type === "custom_group"
-            ? customGroupVariantIds // Send variant IDs, not product IDs
+            ? customGroupVariantIds
             : formData.applies_to_id,
       };
 
@@ -196,7 +233,6 @@ const CouponsPage = () => {
     try {
       setError(null);
 
-      // For custom_group, flatten all selected variant IDs from customGroupVariants
       const customGroupVariantIds =
         formData.applies_to_type === "custom_group"
           ? Object.values(customGroupVariants).flat()
@@ -206,7 +242,7 @@ const CouponsPage = () => {
         ...formData,
         applies_to_id:
           formData.applies_to_type === "custom_group"
-            ? customGroupVariantIds // Send variant IDs, not product IDs
+            ? customGroupVariantIds
             : formData.applies_to_id,
       };
 
@@ -244,6 +280,11 @@ const CouponsPage = () => {
     }
   };
 
+  const handlePreviewCoupon = (coupon: Coupon) => {
+    setPreviewCoupon(coupon);
+    setShowPreviewModal(true);
+  };
+
   const openEditModal = async (coupon: Coupon) => {
     try {
       // STEP 1: Fetch full coupon data first
@@ -276,7 +317,6 @@ const CouponsPage = () => {
         const productIds: Set<number> = new Set();
         const groupedVariants: { [productId: number]: number[] } = {};
 
-        // Use variant_details if available (more efficient)
         if (
           fullCoupon.variant_details &&
           fullCoupon.variant_details.length > 0
@@ -293,7 +333,6 @@ const CouponsPage = () => {
             groupedVariants[productId].push(variantId);
           }
         } else {
-          // Fallback: Load each variant individually
           for (const variantId of variantIds) {
             try {
               const variant = await fetchVariantById(variantId);
@@ -310,7 +349,6 @@ const CouponsPage = () => {
           }
         }
 
-        // Load all variants for each product
         for (const productId of Array.from(productIds)) {
           try {
             const variants = await loadVariantsForCustomGroup(productId);
@@ -328,14 +366,12 @@ const CouponsPage = () => {
       }
 
       // STEP 4: Set ALL state at once in the correct order
-      // Set variant/custom_group state first
       setSelectedProductForVariant(selectedProduct);
       setVariants(loadedVariants);
       setCustomGroupProducts(customProducts);
       setCustomGroupVariants(customVariants);
       setInitialProductVariantsMap(variantsMap);
 
-      // Set formData with complete coupon information
       setFormData({
         coupon_code: fullCoupon.coupon_code,
         description: fullCoupon.description || "",
@@ -375,38 +411,6 @@ const CouponsPage = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      coupon_code: "",
-      description: "",
-      discount_type: "" as any,
-      discount_value: undefined,
-      min_purchase_amount: undefined,
-      max_discount_amount: undefined,
-      free_shipping: false,
-      applies_to_type: "" as any,
-      applies_to_id: undefined,
-      usage_limit_total: undefined,
-      usage_limit_per_user: undefined,
-      requires_verified_email: true,
-      valid_from: new Date().toISOString().split("T")[0],
-      valid_until: undefined,
-      is_active: true,
-      bogo_buy_quantity: undefined,
-      bogo_get_quantity: undefined,
-      bogo_discount_percentage: undefined,
-      location_ids: [],
-    });
-    setCustomGroupProducts([]);
-    setCustomGroupVariants({});
-    setInitialProductVariantsMap({});
-    setSelectedProductForVariant(null);
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
   const handleWizardSubmit = () => {
     if (editingCoupon) {
       handleUpdateCoupon(editingCoupon.coupon_id);
@@ -420,6 +424,10 @@ const CouponsPage = () => {
     setEditingCoupon(null);
     resetForm();
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="manager-dashboard">
@@ -474,9 +482,9 @@ const CouponsPage = () => {
           setStatusFilter={setStatusFilter}
           appliesToFilter={appliesToFilter}
           setAppliesToFilter={setAppliesToFilter}
-          locationFilter={locationFilter} // ADD THIS
-          setLocationFilter={setLocationFilter} // ADD THIS
-          locations={locations} // ADD THIS
+          locationFilter={locationFilter}
+          setLocationFilter={setLocationFilter}
+          locations={locations}
         />
 
         <CouponsTable
@@ -507,7 +515,7 @@ const CouponsPage = () => {
           customGroupVariants={customGroupVariants}
           setCustomGroupVariants={setCustomGroupVariants}
           initialProductVariantsMap={initialProductVariantsMap}
-          locations={locations} // ADD THIS
+          locations={locations}
           onClose={handleCloseWizard}
           onSubmit={handleWizardSubmit}
           loadVariantsForProduct={loadVariantsForProduct}

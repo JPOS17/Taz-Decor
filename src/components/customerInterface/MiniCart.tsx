@@ -223,7 +223,7 @@ const MiniCart = ({
   };
 
   const subtotalWithDiscounts = calculateSubtotalWithDiscounts();
-  const bogoDiscounts = calculateBogoDiscounts(); // Calculate once for item display
+  const bogoDiscounts = calculateBogoDiscounts();
 
   return (
     <div className="mini-cart-overlay" onClick={onClose}>

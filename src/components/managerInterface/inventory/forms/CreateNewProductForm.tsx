@@ -73,6 +73,10 @@ interface FormData {
   productCategories: ProductCategory[];
 }
 
+// ============================================================================
+// CREATE PRODUCT FORM COMPONENT
+// ============================================================================
+
 const CreateProductForm = ({
   categoryId,
   categories,
@@ -83,6 +87,10 @@ const CreateProductForm = ({
   onRequestSubmit,
   onValidationError,
 }: CreateProductFormProps) => {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
   const [formData, setFormData] = useState<FormData>({
     name: "",
     category_id: categoryId > 0 ? categoryId.toString() : "",
@@ -102,7 +110,9 @@ const CreateProductForm = ({
 
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
-  // Hooks
+  // ============================================================================
+  // HOOKS
+  // ============================================================================
 
   const {
     images,
@@ -115,6 +125,14 @@ const CreateProductForm = ({
 
   const { openWidget } = useCloudinaryWidget();
 
+  const { locations } = useWarehouseLocations();
+
+  const { errors, setErrors, clearFieldError } = useFormValidation(
+    formData,
+    validateProductForm,
+    hasAttemptedSubmit,
+  );
+
   const parsedProductTypeId = formData.product_type_id
     ? parseInt(formData.product_type_id)
     : 0;
@@ -124,15 +142,9 @@ const CreateProductForm = ({
     previewProductSKUByType,
   );
 
-  const { locations } = useWarehouseLocations();
-
-  const { errors, setErrors, clearFieldError } = useFormValidation(
-    formData,
-    validateProductForm,
-    hasAttemptedSubmit,
-  );
-
-  //Effects
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
 
   // Track dirty state
   useEffect(() => {
@@ -181,7 +193,6 @@ const CreateProductForm = ({
         }));
       }
     } else {
-      // When categoryId is 0, start with empty array
       setFormData((prev) => ({
         ...prev,
         productCategories: [],
@@ -189,7 +200,18 @@ const CreateProductForm = ({
     }
   }, [categoryId, categories]);
 
-  // Event Handlers - Form Fields
+  // ============================================================================
+  // COMPUTED VALUES
+  // ============================================================================
+
+  const productTypeOptions = productTypes.map((pt) => ({
+    value: pt.product_type_id,
+    label: `${pt.type_name} (${pt.sku_prefix})`,
+  }));
+
+  // ============================================================================
+  // EVENT HANDLERS — FORM FIELDS
+  // ============================================================================
 
   const handleTextChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -218,7 +240,9 @@ const CreateProductForm = ({
     }
   };
 
-  // Event Handlers - Category Management
+  // ============================================================================
+  // EVENT HANDLERS — CATEGORY MANAGEMENT
+  // ============================================================================
 
   const handleAddCategory = async (categoryId: number) => {
     const category = categories.find((c) => c.category_id === categoryId);
@@ -241,7 +265,6 @@ const CreateProductForm = ({
         ],
       };
     });
-    // Error clearing happens automatically via useFormValidation
   };
 
   const handleRemoveCategory = async (categoryId: number) => {
@@ -250,8 +273,6 @@ const CreateProductForm = ({
         (pc) => pc.category_id !== categoryId,
       );
 
-      // If we removed the primary and there are still categories left,
-      // make the first remaining one primary
       if (remaining.length > 0) {
         const hadPrimary = prev.productCategories.some(
           (pc) => pc.category_id === categoryId && pc.is_primary,
@@ -272,7 +293,6 @@ const CreateProductForm = ({
         productCategories: remaining,
       };
     });
-    // Error handling happens automatically via useFormValidation
   };
 
   const handleSetPrimaryCategory = async (categoryId: number) => {
@@ -285,7 +305,9 @@ const CreateProductForm = ({
     }));
   };
 
-  // Event Handlers - Image Management
+  // ============================================================================
+  // EVENT HANDLERS — IMAGE MANAGEMENT
+  // ============================================================================
 
   const handleOpenWidget = () => {
     if (!formData.product_type_id) {
@@ -317,14 +339,15 @@ const CreateProductForm = ({
     });
   };
 
-  // Event Handlers - Form Submissions
+  // ============================================================================
+  // EVENT HANDLERS — FORM SUBMISSION
+  // ============================================================================
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setHasAttemptedSubmit(true);
 
     // Validation happens automatically via useFormValidation hook
-    // Just need to get the current validation errors
     const validationErrors = validateProductForm(formData);
     setErrors(validationErrors);
 
@@ -350,7 +373,6 @@ const CreateProductForm = ({
       (pc) => pc.is_primary,
     );
 
-    // Get all non-primary category IDs
     const additionalCategoryIds = formData.productCategories
       .filter((pc) => !pc.is_primary)
       .map((pc) => pc.category_id);
@@ -389,16 +411,13 @@ const CreateProductForm = ({
     functionName: "__executeProductFormSubmit",
   });
 
-  // Computed Values
-
-  const productTypeOptions = productTypes.map((pt) => ({
-    value: pt.product_type_id,
-    label: `${pt.type_name} (${pt.sku_prefix})`,
-  }));
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <form onSubmit={handleSubmit} className="product-form">
-      {/* Product Type - ALWAYS FIRST */}
+      {/* Product Type */}
       <FormField
         label="Product Type"
         required

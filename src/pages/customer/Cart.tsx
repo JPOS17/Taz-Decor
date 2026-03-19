@@ -76,14 +76,13 @@ const Cart = () => {
   // DATA LOADING
   // ============================================================================
 
-  // Step A: Fetch coupons — wait for auth to resolve first so userId is accurate
+  // Fetch coupons — wait for auth to resolve first so userId is accurate
   useEffect(() => {
     if (isLoading) return;
     if (cartItems.length === 0) return;
 
     const loadCoupons = async () => {
       try {
-        // Always fetch coupons without userId — guest-safe, no usage counts here
         const couponsData = await fetchProductCouponsPreview();
         setCoupons(couponsData);
 
@@ -100,9 +99,7 @@ const Cart = () => {
     loadCoupons();
   }, [cartItems.length, isLoading]);
 
-  // Step C: Once coupons are loaded, restore or clear the selected cart-level coupon.
-  // The component itself handles per-user eligibility display — here we just
-  // resolve the coupon object from the stored ID.
+  // Once coupons are loaded, restore or clear the selected cart-level coupon
   useEffect(() => {
     if (!coupons) return;
 
@@ -119,8 +116,7 @@ const Cart = () => {
   // CART-LEVEL COUPON HANDLER
   // ============================================================================
 
-  // When user selects/removes a cart-level coupon in the Cart page, update both
-  // the local display state AND the shared context
+  // When user selects/removes a cart-level coupon in the Cart page, update both the local display state AND the shared context
   const handleCartLevelCouponSelect = (coupon: ProductCoupon | null) => {
     setSelectedCartLevelCoupon(coupon);
     setCartLevelCouponId(coupon ? coupon.coupon_id : null);
@@ -245,7 +241,7 @@ const Cart = () => {
       }
     }
 
-    // No selected coupon - don't apply any coupon
+    // If no coupon was selected
     return { itemCoupon: null, isExpired: false, fallbackToBest: false };
   };
 
@@ -439,9 +435,7 @@ const Cart = () => {
   const totalDiscount = calculateTotalDiscount();
   const subtotalWithDiscounts = calculateSubtotalWithDiscounts();
 
-  // Cart-level coupon preview — computed client-side so the summary updates
-  // immediately when the user selects/removes a coupon, matching what
-  // validateCoupons will return in CheckoutPage.
+  // Cart-level coupon preview — computed so the summary updates immediately when the user selects/removes a coupon, matching what validateCoupons will return in CheckoutPage.
   const cartLevelDiscountInfo = selectedCartLevelCoupon
     ? calculateCartLevelDiscount(selectedCartLevelCoupon, subtotalWithDiscounts)
     : null;

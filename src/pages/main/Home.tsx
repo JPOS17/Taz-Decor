@@ -2,6 +2,10 @@ import React from "react";
 import "../../styles/pages/main/Home.css";
 import PrimaryImage from "../../../public/PrimaryImage.jpeg";
 
+// ============================================================================
+// HOME COMPONENT
+// ============================================================================
+
 const Home = () => {
   return (
     <div className="home-page">

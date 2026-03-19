@@ -65,7 +65,7 @@ export const useCloudinaryWidget = () => {
           croppingCoordinatesMode: "custom",
           clientAllowedFormats: ["jpg", "jpeg", "png", "gif", "webp"],
           maxImageFileSize: 10000000,
-          showCompletedButton: true, // ADD THIS: Shows "Done" button instead of auto-uploading
+          showCompletedButton: true, 
         },
         (error: any, result: any) => {
           if (error) {

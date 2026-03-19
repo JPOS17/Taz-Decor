@@ -75,7 +75,6 @@ export const getUserProfile = async (req: Request, res: Response) => {
 
 /**
  * UPDATE user profile (first name, last name, phone)
- * Email cannot be changed
  */
 export const updateUserProfile = async (req: Request, res: Response) => {
   try {

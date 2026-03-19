@@ -12,7 +12,6 @@ import type { BoxDimensions } from "../utils/shippoService";
 
 /**
  * Helper function to log order status changes
- * This creates an audit trail of all status changes for an order
  */
 const logOrderStatus = async (
   client: any,
@@ -32,7 +31,7 @@ const logOrderStatus = async (
 // ============================================================================
 
 /**
- * VALIDATE address using Shippo (FREE for U.S. addresses)
+ * VALIDATE address using Shippo 
  */
 export const validateAddressEndpoint = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -52,7 +51,7 @@ export const validateAddressEndpoint = async (req: Request, res: Response): Prom
       country
     } = req.body;
 
-    // Only validate U.S. addresses (free with Shippo)
+    // Only validate U.S. addresses 
     if (country && country !== "US" && country !== "USA") {
        res.status(400).json({ 
         message: "Address validation is only available for U.S. addresses" 
@@ -455,13 +454,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       }
 
       const { email: userEmail, first_name, last_name } = userResult.rows[0];
-
-      // ============================================================================
-      // COUPON VALIDATION — server-side safety net before anything is committed
-      // Checks 1-4 catch coupons that expired/ran out between page load and checkout.
-      // Check 5 enforces per-user limits that guests couldn't be checked for earlier.
-      // ============================================================================
-
+      
       // Helper query to validate a single coupon and return its per-user usage count
       const validateCoupon = async (couponId: number): Promise<{
         valid: boolean;
@@ -1065,7 +1058,6 @@ export const getOrderByNumber = async (req: Request, res: Response): Promise<voi
 
 /**
  * Get all variant IDs that are eligible for a specific coupon
- * based on the coupon's applies_to_type and applies_to_id
  */
 const getEligibleVariantsForCoupon = async (
   client: any,
@@ -1154,7 +1146,6 @@ const getEligibleVariantsForCoupon = async (
 
 /**
  * Calculate BOGO discount across multiple eligible items
- * Returns a map of variant_id -> discount_amount
  */
 const calculateBogoDiscount = (
   eligibleItems: Array<{ variant_id: number; quantity: number; price: number }>,
@@ -1226,13 +1217,7 @@ const calculateBogoDiscount = (
 
 /**
  * VALIDATE coupons before checkout
- * Handles both item-level and cart-level coupons.
- * All 5 checks enforced:
- *   1. Coupon exists
- *   2. Not expired
- *   3. Still active (is_active = true)
- *   4. Total usage limit not exceeded
- *   5. Per-user limit not exceeded
+ * Handles both item-level and cart-level coupons
  */
 export const validateCoupons = async (req: Request, res: Response): Promise<void> => {
   try {

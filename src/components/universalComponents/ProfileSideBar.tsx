@@ -19,10 +19,6 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
   const { logout } = useAuth();
   const { resetSession } = useCart();
 
-  // ============================================================================
-  // STATE - DELETE ACCOUNT (two-step)
-  // ============================================================================
-
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] =
     useState(false);
   const [showDeletePasswordModal, setShowDeletePasswordModal] = useState(false);
@@ -31,10 +27,6 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
     null,
   );
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
-
-  // ============================================================================
-  // HANDLERS
-  // ============================================================================
 
   const handleLogout = () => {
     resetSession();
@@ -80,10 +72,6 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
       setIsDeletingAccount(false);
     }
   };
-
-  // ============================================================================
-  // RENDER
-  // ============================================================================
 
   return (
     <>

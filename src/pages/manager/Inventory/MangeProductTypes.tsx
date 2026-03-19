@@ -31,13 +31,26 @@ interface EditingType {
   description: string;
 }
 
+// ============================================================================
+// MANAGE PRODUCT TYPES COMPONENT
+// ============================================================================
+
 const ManageProductTypes = () => {
   const navigate = useNavigate();
 
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Product type data
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+
+  // UI state
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
   const [editMode, setEditMode] = useState<EditMode>("none");
+
+  // Form state
   const [editingType, setEditingType] = useState<EditingType | null>(null);
   const [formData, setFormData] = useState({
     type_name: "",
@@ -45,7 +58,12 @@ const ManageProductTypes = () => {
     description: "",
   });
 
+  // Confirmation modals
   const saveConfirmation = useConfirmationModal();
+
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
 
   useEffect(() => {
     loadProductTypes();
@@ -64,10 +82,18 @@ const ManageProductTypes = () => {
     }
   };
 
+  // ============================================================================
+  // UTILITY FUNCTIONS
+  // ============================================================================
+
   const showMessage = (text: string, type: "success" | "error" | "warning") => {
     setMessage({ text, type });
     setTimeout(() => setMessage(null), 4000);
   };
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
 
   const handleCreateNew = () => {
     setEditMode("create");
@@ -135,7 +161,6 @@ const ManageProductTypes = () => {
   };
 
   const handleSave = async () => {
-    // Format the data
     const formattedTypeName = formatName(formData.type_name);
     const formattedDescription = formatName(formData.description);
     const formattedSkuPrefix = formData.sku_prefix.toUpperCase();
@@ -143,7 +168,6 @@ const ManageProductTypes = () => {
     setLoading(true);
     try {
       if (editMode === "create") {
-        // Use createProductType for NEW product types
         await createProductType({
           type_name: formattedTypeName,
           sku_prefix: formattedSkuPrefix,
@@ -155,7 +179,6 @@ const ManageProductTypes = () => {
           "success",
         );
       } else if (editMode === "edit" && editingType?.product_type_id) {
-        // Use updateProductType for EXISTING product types
         await updateProductType(editingType.product_type_id, {
           description: formattedDescription,
         });
@@ -172,6 +195,10 @@ const ManageProductTypes = () => {
       setLoading(false);
     }
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="manage-product-types">
@@ -382,10 +409,12 @@ const ManageProductTypes = () => {
         </div>
       </div>
 
+      {/* Toast Notifications */}
       {message && (
         <ToastNotification message={message.text} type={message.type} />
       )}
 
+      {/* Save Confirmation */}
       {saveConfirmation.isOpen && saveConfirmation.config && (
         <ConfirmationModal
           title={saveConfirmation.config.title}

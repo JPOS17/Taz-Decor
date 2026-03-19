@@ -118,7 +118,6 @@ export const validateStep3 = (
   const errors: CouponValidationErrors = {};
 
   // For fixed and free_shipping_only types, applies_to_type should be auto-set to "all"
-  // so we don't validate it the same way
   const isFixedOrFreeShipping = 
     formData.discount_type === "fixed" || 
     formData.discount_type === "free_shipping_only";

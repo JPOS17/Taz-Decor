@@ -1,5 +1,9 @@
 import "../../styles/pages/main/Reviews.css";
 
+// ============================================================================
+// REVIEWS COMPONENT
+// ============================================================================
+
 const Reviews = () => {
   return (
     <div className="reviews-page">

@@ -8,7 +8,7 @@ interface TextInputProps {
   type?: "text" | "number";
   rows?: number;
   disabled?: boolean;
-  autoFormat?: boolean; // NEW
+  autoFormat?: boolean;
 }
 
 export function TextInput({
@@ -19,7 +19,7 @@ export function TextInput({
   type = "text",
   rows,
   disabled = false,
-  autoFormat = false, // NEW
+  autoFormat = false,
 }: TextInputProps) {
   const handleBlur = () => {
     if (autoFormat && type === "text" && typeof value === "string") {
@@ -36,7 +36,7 @@ export function TextInput({
         className={`form-control ${error ? "invalid" : ""}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        onBlur={handleBlur} // ADD THIS
+        onBlur={handleBlur}
         placeholder={placeholder}
         rows={rows}
         disabled={disabled}
@@ -50,7 +50,7 @@ export function TextInput({
       className={`form-control ${error ? "invalid" : ""}`}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      onBlur={handleBlur} // ADD THIS
+      onBlur={handleBlur}
       placeholder={placeholder}
       step={type === "number" ? "0.01" : undefined}
       disabled={disabled}

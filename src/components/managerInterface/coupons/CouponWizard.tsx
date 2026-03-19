@@ -119,18 +119,16 @@ export const CouponWizard = ({
     }
   }, [editingCoupon, originalAppliesTo]);
 
-  // Combined discount type change handling - handles both applies_to and discount_value changes
+  // Combined discount type change handling
   useEffect(() => {
     const currentType = formData.discount_type;
 
-    // If previousDiscountType is null, this is the first render
-    // Set it but don't do anything else
     if (previousDiscountType === null) {
       setPreviousDiscountType(currentType);
       return;
     }
 
-    // Skip if discount type hasn't actually changed OR if discount type is empty (still loading)
+    // Skip if discount type hasn't actually changed OR if discount type is empty
     if (previousDiscountType === currentType || !currentType) {
       return;
     }
@@ -143,14 +141,13 @@ export const CouponWizard = ({
     // Build updates object to apply all changes at once
     let updates: Partial<CreateCouponPayload> = {};
 
-    // Handle applies_to reset when switching TO fixed OR free_shipping_only from any other type
     if (
       (!wasFixed && isFixed) ||
       (!wasFreeShippingOnly && isFreeShippingOnly)
     ) {
       updates.applies_to_type = "all" as any;
       updates.applies_to_id = undefined;
-      // Clear custom group data
+
       setCustomGroupProducts([]);
       setCustomGroupVariants({});
     }
@@ -182,7 +179,7 @@ export const CouponWizard = ({
     if (!wasFreeShippingOnly && isFreeShippingOnly) {
       updates.free_shipping = true;
     }
-    // Reset free_shipping to false when switching FROM free_shipping_only (unless it was already enabled)
+    // Reset free_shipping to false when switching FROM free_shipping_only
     else if (wasFreeShippingOnly && !isFreeShippingOnly) {
       updates.free_shipping = false;
     }
@@ -372,7 +369,7 @@ export const CouponWizard = ({
               </div>
             </div>
           )}
-          {/* Step 2: Discount Details - MODIFIED */}
+          {/* Step 2: Discount Details */}
           {modalStep === 2 && (
             <div className="coupon-wizard-step">
               <div className="coupon-form-group">
@@ -782,7 +779,7 @@ export const CouponWizard = ({
               )}
             </div>
           )}
-          {/* Step 3: Apply To - MODIFIED */}
+          {/* Step 3: Apply To */}
           {modalStep === 3 && (
             <div className="coupon-wizard-step">
               <div className="coupon-form-group">
@@ -1377,7 +1374,7 @@ export const CouponWizard = ({
                     formData.applies_to_type === "custom_group"
                       ? JSON.stringify(
                           Object.values(customGroupVariants).flat(),
-                        ) // Flatten variant IDs
+                        )
                       : formData.applies_to_id || null,
                   applies_to_name:
                     formData.applies_to_type === "all"

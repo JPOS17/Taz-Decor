@@ -23,9 +23,7 @@ const TermsAndConditions: React.FC = () => {
         You can contact us by email at{" "}
         <a href="mailto:tazdecorcatholiccompany@gmail.com">
           tazdecorcatholiccompany@gmail.com
-        </a>{" "}
-        or by mail to: 107 Resilient Gale Ct, Magnolia, Texas 77354, United
-        States.
+        </a>
       </p>
       <p>
         These Legal Terms constitute a legally binding agreement made between

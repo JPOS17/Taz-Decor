@@ -1,9 +1,7 @@
 import type { OrderDetails } from '../api/checkout';
 import type { Location } from '../api/sellerLocation';
 
-/**
- * Pirate Ship CSV row interface - customer shipping info and package details
- */
+// Pirate Ship CSV row interface - customer shipping info and package details
 interface PirateShipRow {
   'Name': string;
   'Address': string;
@@ -17,15 +15,12 @@ interface PirateShipRow {
   'Order Number': string;
 }
 
-/**
- * Convert a single order to a Pirate Ship CSV row
- */
+// Convert a single order to a Pirate Ship CSV row
 const orderToPirateShipRow = (order: OrderDetails): PirateShipRow => {
   const weightLbs = order.total_weight_oz
     ? (order.total_weight_oz / 16).toFixed(2)
     : '0.00';
 
-  // Full name built from snapshotted first/last name on the order
   const fullName = [order.first_name, order.last_name]
     .filter(Boolean)
     .join(' ') || '';
@@ -44,10 +39,7 @@ const orderToPirateShipRow = (order: OrderDetails): PirateShipRow => {
   };
 };
 
-/**
- * Escape a field for CSV format
- * Wraps in quotes if the value contains a comma, quote, or newline
- */
+// Escape a field for CSV format Wraps in quotes if the value contains a comma, quote, or newline
 const escapeCSVField = (value: string): string => {
   if (value === null || value === undefined) {
     return '';
@@ -62,9 +54,7 @@ const escapeCSVField = (value: string): string => {
   return stringValue;
 };
 
-/**
- * Convert array of orders to a Pirate Ship CSV string
- */
+// Convert array of orders to a Pirate Ship CSV string
 export const generatePirateShipCSV = (orders: OrderDetails[], sellerLocation: Location): string => {
   if (orders.length === 0) {
     throw new Error('No orders provided for CSV generation');
@@ -86,9 +76,7 @@ export const generatePirateShipCSV = (orders: OrderDetails[], sellerLocation: Lo
   return csvLines.join('\n');
 };
 
-/**
- * Trigger a CSV file download in the browser
- */
+// Trigger a CSV file download in the browser
 export const downloadCSV = (csvContent: string, filename: string): void => {
   const BOM = '\uFEFF'; // UTF-8 BOM for Excel compatibility
   const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -107,9 +95,7 @@ export const downloadCSV = (csvContent: string, filename: string): void => {
   URL.revokeObjectURL(url);
 };
 
-/**
- * Generate a timestamped filename for the export
- */
+// Generate a timestamped filename for the export
 export const generatePirateShipFilename = (): string => {
   const now = new Date();
   const dateStr = now.toISOString().split('T')[0];

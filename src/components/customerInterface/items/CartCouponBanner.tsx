@@ -102,7 +102,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
 
   return (
     <>
-      {/* ── Top header bar — always visible, opens modal on click ── */}
+      {/* Top header bar — always visible, opens modal on click */}
       <div
         className="ccb-header-bar"
         onClick={() => setIsModalOpen(true)}
@@ -125,7 +125,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
         </div>
       </div>
 
-      {/* ── Floating pill — always visible, bottom-left ── */}
+      {/* Floating pill — always visible, bottom-left */}
       <button
         className="ccb-floating-pill"
         onClick={() => setIsModalOpen(true)}
@@ -138,7 +138,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
         <span className="ccb-pill-badge">{cartCoupons.length}</span>
       </button>
 
-      {/* ── Modal overlay ── */}
+      {/* Modal overlay */}
       {isModalOpen && (
         <div
           className="ccb-overlay"

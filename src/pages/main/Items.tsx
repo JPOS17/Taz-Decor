@@ -28,10 +28,18 @@ import "../../styles/pages/main/Listing.css";
 
 const ITEMS_PER_PAGE = 20;
 
+// ============================================================================
+// ITEMS COMPONENT
+// ============================================================================
+
 const Items = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const { user } = useAuth();
+
+  // ============================================================================
+  // DERIVED URL PARAMS
+  // ============================================================================
 
   const activeCategoryId = searchParams.get("categoryId")
     ? Number(searchParams.get("categoryId"))
@@ -49,8 +57,15 @@ const Items = () => {
     ? Number(searchParams.get("page"))
     : 1;
 
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Product & category data
   const [products, setProducts] = useState<ProductPreview[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+
+  // Coupon data
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
   const [customGroupMap, setCustomGroupMap] = useState<
     Record<number, number[]>
@@ -59,8 +74,13 @@ const Items = () => {
     null,
   );
 
+  // UI state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
 
   // Fetch products and coupons
   useEffect(() => {
@@ -110,6 +130,143 @@ const Items = () => {
 
     loadData();
   }, [activeCategoryId, minPrice, maxPrice, sortBy, onSaleOnly]);
+
+  // Scroll to top after React re-renders with the new page
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
+  // ============================================================================
+  // COUPON LOGIC
+  // ============================================================================
+
+  // Get the get best coupon for a product
+  const getBestCouponForProduct = (
+    product: ProductPreview,
+  ): ProductCoupon | null => {
+    if (!coupons) return null;
+
+    const applicableCoupons: ProductCoupon[] = [];
+
+    // Helper function to check if coupon applies to this product's location
+    const couponMatchesLocation = (coupon: ProductCoupon): boolean => {
+      if (
+        !coupon.location_ids ||
+        coupon.location_ids.length === 0 ||
+        !product.location_id
+      ) {
+        return true;
+      }
+      return coupon.location_ids.includes(product.location_id);
+    };
+
+    // Add 'all' coupons (filtered by location)
+    const allCoupons = coupons.all.filter((c) => couponMatchesLocation(c));
+    applicableCoupons.push(...allCoupons);
+
+    // Add category coupons (filtered by location)
+    if (product.category_id) {
+      const categoryCoupons = coupons.category.filter(
+        (c) =>
+          c.applies_to_id === product.category_id && couponMatchesLocation(c),
+      );
+      applicableCoupons.push(...categoryCoupons);
+    }
+
+    // Add product_type coupons (filtered by location)
+    if (product.product_type_id) {
+      const productTypeCoupons = coupons.product_type.filter(
+        (c) =>
+          c.applies_to_id === product.product_type_id &&
+          couponMatchesLocation(c),
+      );
+      applicableCoupons.push(...productTypeCoupons);
+    }
+
+    // Add product-specific coupons (filtered by location)
+    if (product.product_id) {
+      const productCoupons = coupons.product.filter(
+        (c) =>
+          c.applies_to_id === product.product_id && couponMatchesLocation(c),
+      );
+      applicableCoupons.push(...productCoupons);
+    }
+
+    // Add variant-specific coupons (filtered by location)
+    const variantCoupons = coupons.variant.filter(
+      (c) => c.applies_to_id === product.variant_id && couponMatchesLocation(c),
+    );
+    applicableCoupons.push(...variantCoupons);
+
+    // Add custom_group coupons using the map (filtered by location)
+    if (customGroupMap[product.variant_id]) {
+      const applicableCouponIds = customGroupMap[product.variant_id];
+      const customGroupCoupons = coupons.custom_group.filter(
+        (c) =>
+          applicableCouponIds.includes(c.coupon_id) && couponMatchesLocation(c),
+      );
+      applicableCoupons.push(...customGroupCoupons);
+    }
+
+    return findBestCoupon(applicableCoupons, product.price);
+  };
+
+  // Format the category badge text
+  const getCategoryBadgeText = (coupon: ProductCoupon): string | null => {
+    if (coupon.discount_type === "percentage" && coupon.discount_value) {
+      return `${coupon.discount_value}% OFF`;
+    } else if (coupon.discount_type === "fixed" && coupon.discount_value) {
+      return `$${coupon.discount_value} OFF`;
+    } else if (coupon.discount_type === "bogo") {
+      return formatBogoBadge(coupon);
+    }
+    return null;
+  };
+
+  // ============================================================================
+  // PRICE CALCULATIONS
+  // ============================================================================
+
+  // Sort products by effective (post-discount) price when price sort is active.
+  const sortedProducts = useMemo(() => {
+    if (sortBy !== "price-asc" && sortBy !== "price-desc") {
+      return products;
+    }
+
+    return [...products].sort((a, b) => {
+      const couponA = getBestCouponForProduct(a);
+      const couponB = getBestCouponForProduct(b);
+
+      const effectivePriceOf = (
+        product: ProductPreview,
+        coupon: ProductCoupon | null,
+      ): number => {
+        if (coupon && shouldShowDiscountedPrice(coupon)) {
+          const { discountedPrice } = calculateDiscount(product.price, coupon);
+          return discountedPrice;
+        }
+        return product.price;
+      };
+
+      const priceA = effectivePriceOf(a, couponA);
+      const priceB = effectivePriceOf(b, couponB);
+
+      return sortBy === "price-asc" ? priceA - priceB : priceB - priceA;
+    });
+  }, [products, coupons, customGroupMap, sortBy]);
+
+  // Pagination derived values
+  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
+  // Clamp currentPage in case filters reduce total pages
+  const safePage = Math.min(Math.max(1, currentPage), totalPages || 1);
+  const paginatedProducts = sortedProducts.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE,
+  );
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
 
   const handleSelectCategory = (
     categoryId: number | null,
@@ -188,130 +345,9 @@ const Items = () => {
     setSearchParams(newParams);
   };
 
-  // Scroll to top after React re-renders with the new page
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
-
-  // Helper to get best coupon for a product
-  const getBestCouponForProduct = (
-    product: ProductPreview,
-  ): ProductCoupon | null => {
-    if (!coupons) return null;
-
-    const applicableCoupons: ProductCoupon[] = [];
-
-    // Helper function to check if coupon applies to this product's location
-    const couponMatchesLocation = (coupon: ProductCoupon): boolean => {
-      if (
-        !coupon.location_ids ||
-        coupon.location_ids.length === 0 ||
-        !product.location_id
-      ) {
-        return true;
-      }
-      return coupon.location_ids.includes(product.location_id);
-    };
-
-    // Add 'all' coupons (filtered by location)
-    const allCoupons = coupons.all.filter((c) => couponMatchesLocation(c));
-    applicableCoupons.push(...allCoupons);
-
-    // Add category coupons (filtered by location)
-    if (product.category_id) {
-      const categoryCoupons = coupons.category.filter(
-        (c) =>
-          c.applies_to_id === product.category_id && couponMatchesLocation(c),
-      );
-      applicableCoupons.push(...categoryCoupons);
-    }
-
-    // Add product_type coupons (filtered by location)
-    if (product.product_type_id) {
-      const productTypeCoupons = coupons.product_type.filter(
-        (c) =>
-          c.applies_to_id === product.product_type_id &&
-          couponMatchesLocation(c),
-      );
-      applicableCoupons.push(...productTypeCoupons);
-    }
-
-    // Add product-specific coupons (filtered by location)
-    if (product.product_id) {
-      const productCoupons = coupons.product.filter(
-        (c) =>
-          c.applies_to_id === product.product_id && couponMatchesLocation(c),
-      );
-      applicableCoupons.push(...productCoupons);
-    }
-
-    // Add variant-specific coupons (filtered by location)
-    const variantCoupons = coupons.variant.filter(
-      (c) => c.applies_to_id === product.variant_id && couponMatchesLocation(c),
-    );
-    applicableCoupons.push(...variantCoupons);
-
-    // Add custom_group coupons using the map (filtered by location)
-    if (customGroupMap[product.variant_id]) {
-      const applicableCouponIds = customGroupMap[product.variant_id];
-      const customGroupCoupons = coupons.custom_group.filter(
-        (c) =>
-          applicableCouponIds.includes(c.coupon_id) && couponMatchesLocation(c),
-      );
-      applicableCoupons.push(...customGroupCoupons);
-    }
-
-    return findBestCoupon(applicableCoupons, product.price);
-  };
-
-  // Helper to format category badge text
-  const getCategoryBadgeText = (coupon: ProductCoupon): string | null => {
-    if (coupon.discount_type === "percentage" && coupon.discount_value) {
-      return `${coupon.discount_value}% OFF`;
-    } else if (coupon.discount_type === "fixed" && coupon.discount_value) {
-      return `$${coupon.discount_value} OFF`;
-    } else if (coupon.discount_type === "bogo") {
-      return formatBogoBadge(coupon);
-    }
-    return null;
-  };
-
-  // Sort products by effective (post-discount) price when price sort is active.
-  const sortedProducts = useMemo(() => {
-    if (sortBy !== "price-asc" && sortBy !== "price-desc") {
-      return products;
-    }
-
-    return [...products].sort((a, b) => {
-      const couponA = getBestCouponForProduct(a);
-      const couponB = getBestCouponForProduct(b);
-
-      const effectivePriceOf = (
-        product: ProductPreview,
-        coupon: ProductCoupon | null,
-      ): number => {
-        if (coupon && shouldShowDiscountedPrice(coupon)) {
-          const { discountedPrice } = calculateDiscount(product.price, coupon);
-          return discountedPrice;
-        }
-        return product.price;
-      };
-
-      const priceA = effectivePriceOf(a, couponA);
-      const priceB = effectivePriceOf(b, couponB);
-
-      return sortBy === "price-asc" ? priceA - priceB : priceB - priceA;
-    });
-  }, [products, coupons, customGroupMap, sortBy]);
-
-  // Pagination derived values
-  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
-  // Clamp currentPage in case filters reduce total pages
-  const safePage = Math.min(Math.max(1, currentPage), totalPages || 1);
-  const paginatedProducts = sortedProducts.slice(
-    (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE,
-  );
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (loading) {
     return (

@@ -228,7 +228,7 @@ const Settings = () => {
         is_active: locationFormData.is_active,
       };
 
-      // Validate the address with Shippo (using CreateAddressPayload format)
+      // Validate the address with Shippo
       const validation = await validateAddress({
         address_name: payload.location_name,
         address_line1: payload.address_line1,
@@ -333,7 +333,7 @@ const Settings = () => {
         width_in: "",
         height_in: "",
         box_type: "box",
-        location_id: boxLocationFilter !== "all" ? boxLocationFilter : "", // Pre-fill with selected location
+        location_id: boxLocationFilter !== "all" ? boxLocationFilter : "",
         is_active: true,
       });
     }
@@ -463,7 +463,7 @@ const Settings = () => {
       showMessage("Box order updated successfully", "success");
     } catch (error) {
       showMessage("Failed to update box order", "error");
-      // Reload boxes on error
+
       loadShippingBoxes();
     }
   };
@@ -584,7 +584,6 @@ const Settings = () => {
   };
 
   const renderShippingTab = () => {
-    // Check if a location is selected
     const isLocationSelected = boxLocationFilter !== "all";
 
     return (

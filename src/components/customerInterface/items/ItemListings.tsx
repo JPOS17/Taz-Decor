@@ -33,9 +33,9 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
 
     const wishlistItem = {
       variant_id: product.variant_id,
-      product_id: product.product_id, // ADD THIS
-      category_id: product.category_id, // ADD THIS
-      product_type_id: product.product_type_id, // ADD THIS
+      product_id: product.product_id,
+      category_id: product.category_id,
+      product_type_id: product.product_type_id,
       name: product.name,
       price: product.price,
       image: product.primary_image,

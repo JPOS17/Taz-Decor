@@ -17,7 +17,9 @@ import DeliveryEstimate from "../../components/customerInterface/checkout/Delive
 import "../../styles/pages/customer/GuestOrderLookup.css";
 import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 
-// Status helpers
+// ============================================================================
+// CONSTANTS
+// ============================================================================
 
 const STATUS_LABELS: Record<string, string> = {
   pending: "Order Received",
@@ -39,6 +41,10 @@ const STATUS_ICONS: Record<string, JSX.Element> = {
   refunded: <FaTimesCircle />,
 };
 
+// ============================================================================
+// HELPERS
+// ============================================================================
+
 const getStatusClass = (status: string) => {
   if (status === "delivered") return "delivered";
   if (status === "shipped" || status === "ready_to_ship") return "shipped";
@@ -53,18 +59,32 @@ const formatDate = (iso: string) =>
     day: "numeric",
   });
 
-// Lookup Form
+// ============================================================================
+// LOOKUPFORM COMPONENT
+// ============================================================================
 
 const LookupForm = () => {
   const navigate = useNavigate();
+
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Form fields
   const [orderNumber, setOrderNumber] = useState("");
   const [email, setEmail] = useState("");
+
+  // UI state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{
     orderNumber?: string;
     email?: string;
   }>({});
+
+  // ============================================================================
+  // VALIDATION
+  // ============================================================================
 
   const validate = (): boolean => {
     const errs: { orderNumber?: string; email?: string } = {};
@@ -77,6 +97,10 @@ const LookupForm = () => {
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   };
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
 
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,6 +125,10 @@ const LookupForm = () => {
       setLoading(false);
     }
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="guest-lookup-page">
@@ -174,7 +202,9 @@ const LookupForm = () => {
   );
 };
 
-// Order Result
+// ============================================================================
+// ORDERRESULT COMPONENT
+// ============================================================================
 
 const OrderResult = () => {
   const { orderNumber } = useParams<{ orderNumber: string }>();
@@ -182,9 +212,20 @@ const OrderResult = () => {
   const navigate = useNavigate();
   const email = searchParams.get("email") || "";
 
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Order data
   const [order, setOrder] = useState<GuestOrderDetails | null>(null);
+
+  // UI state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
 
   useEffect(() => {
     if (!orderNumber || !email) {
@@ -212,6 +253,10 @@ const OrderResult = () => {
       setLoading(false);
     }
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (loading) {
     return (
@@ -405,6 +450,10 @@ const OrderResult = () => {
     </div>
   );
 };
+
+// ============================================================================
+// GUESTORDERLOOKUP COMPONENT
+// ============================================================================
 
 export { OrderResult as GuestOrderResult };
 export default GuestOrderLookup;

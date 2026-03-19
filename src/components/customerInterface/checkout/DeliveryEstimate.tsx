@@ -2,7 +2,10 @@ import { FaTruck } from "react-icons/fa";
 import "../../../styles/components/customerInterface/checkout/DeliveryEstimate.css";
 
 // ============================================================================
-// TYPES
+// What the customer experiences = processing + transit combined.
+//   Ground Advantage : 1–2 + 2–5 = 3–7 business days total
+//   Priority Mail    : 1–2 + 1–3 = 2–5 business days total
+//   Priority Express : 1   + 1–2 = 2–3 business days total
 // ============================================================================
 
 interface DeliveryEstimateProps {
@@ -10,13 +13,6 @@ interface DeliveryEstimateProps {
   orderDate?: Date;
   className?: string;
 }
-
-// ============================================================================
-// What the customer experiences = processing + transit combined.
-//   Ground Advantage : 1–2 + 2–5 = 3–7 business days total
-//   Priority Mail    : 1–2 + 1–3 = 2–5 business days total
-//   Priority Express : 1   + 1–2 = 2–3 business days total
-// ============================================================================
 
 interface ShippingConfig {
   processingDaysMin: number;
@@ -70,7 +66,7 @@ const isWeekend = (date: Date): boolean => {
   return day === 0 || day === 6;
 };
 
-/** Adds n BUSINESS days (Mon–Fri) — weekends are skipped entirely */
+// Adds n BUSINESS days (Mon–Fri) — weekends are skipped entirely
 const addBusinessDays = (startDate: Date, n: number): Date => {
   const result = new Date(startDate);
   let added = 0;
@@ -81,7 +77,7 @@ const addBusinessDays = (startDate: Date, n: number): Date => {
   return result;
 };
 
-/** Adds n CALENDAR days — used for Express transit since USPS delivers weekends */
+// Adds n CALENDAR days — used for Express transit since USPS delivers weekends
 const addCalendarDays = (startDate: Date, n: number): Date => {
   const result = new Date(startDate);
   result.setDate(result.getDate() + n);
@@ -100,7 +96,7 @@ const formatDate = (date: Date): string =>
 const resolveConfig = (methodName: string): ShippingConfig | null => {
   const normalized = methodName.toLowerCase().trim();
 
-  // 1. DB key match (e.g. "usps_priority_express")
+  // 1. DB key match
   const mappedKey =
     DB_KEY_MAP[normalized.replace(/ /g, "_")] ?? DB_KEY_MAP[normalized];
   if (mappedKey && SHIPPING_CONFIGS[mappedKey])

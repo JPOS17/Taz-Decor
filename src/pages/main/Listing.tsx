@@ -34,31 +34,14 @@ import Lightbox from "../../components/customerInterface/items/ImageLightbox";
 import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import "../../styles/pages/main/Listing.css";
 
+// ============================================================================
+// INDIVIDUALLISTING COMPONENT
+// ============================================================================
+
 const IndividualListing = () => {
   const { variantId } = useParams<{ variantId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Force scroll to top when variant changes
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [variantId]);
-
-  // FIX: Normalize the from path - ensure it's always a valid route
-  const getFromPath = () => {
-    const fromState = location.state?.from;
-
-    // If from is a string that starts with /items/ (a product page), default to /items
-    if (typeof fromState === "string" && fromState.startsWith("/items/")) {
-      return "/items";
-    }
-
-    // Otherwise use the from state or default to /items
-    return fromState || "/items";
-  };
-
-  const from = getFromPath();
-
   const {
     addToCart,
     addToWishlist,
@@ -71,24 +54,93 @@ const IndividualListing = () => {
   } = useCart();
   const { user } = useAuth();
 
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Product & stats data
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [stats, setStats] = useState<ProductStats | null>(null);
 
+  // Coupon data
   const [coupons, setCoupons] = useState<ProductCoupon[]>([]);
   const [selectedCoupon, setSelectedCoupon] = useState<ProductCoupon | null>(
     null,
   );
+
+  // Image gallery state
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Mini cart state
   const [isMiniCartOpen, setIsMiniCartOpen] = useState(false);
   const [justAddedItem, setJustAddedItem] = useState<any>(null);
   const [isNewItem, setIsNewItem] = useState(false);
 
+  // UI state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const isEmailVerified = user?.isEmailVerified ?? false;
+
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Normalize the from path — if coming from another product page, default to /items
+  const getFromPath = () => {
+    const fromState = location.state?.from;
+    if (typeof fromState === "string" && fromState.startsWith("/items/")) {
+      return "/items";
+    }
+    return fromState || "/items";
+  };
+
+  const from = getFromPath();
+
+  // Derived product state flags
+  const isProductInWishlist = product ? isInWishlist(Number(variantId)) : false;
+  const isLowStock = !!(
+    product &&
+    product.quantity > 0 &&
+    product.quantity <= 3
+  );
+  const isOutOfStock = !!(product && product.quantity === 0);
+
+  // ============================================================================
+  // PRICE CALCULATIONS
+  // ============================================================================
+
+  const getDisplayedPrice = () => {
+    if (!product || !selectedCoupon) return product?.price || 0;
+
+    if (shouldShowDiscountedPrice(selectedCoupon) && isEmailVerified) {
+      const { discountedPrice } = calculateDiscount(
+        product.price,
+        selectedCoupon,
+      );
+      return discountedPrice;
+    }
+
+    return product.price;
+  };
+
+  const displayedPrice = getDisplayedPrice();
+  const hasDiscount =
+    selectedCoupon &&
+    shouldShowDiscountedPrice(selectedCoupon) &&
+    selectedCoupon.discount_type !== "bogo" &&
+    isEmailVerified;
+
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Force scroll to top when variant changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [variantId]);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -114,41 +166,32 @@ const IndividualListing = () => {
         setStats(statsData);
         setCoupons(couponsData);
 
-        // Check if item is in cart and has a saved coupon (prioritize cart over wishlist)
+        // Restore saved coupon — prioritize cart over wishlist
         if (isInCart(Number(variantId))) {
           const cartItem = cartItems.find(
             (item) => item.variant_id === Number(variantId),
           );
-
           if (cartItem?.selected_coupon_id) {
-            // Find the saved coupon from the available coupons
             const savedCoupon = couponsData.find(
               (c) => c.coupon_id === cartItem.selected_coupon_id,
             );
             setSelectedCoupon(savedCoupon || null);
           } else {
-            // Item is in cart but no coupon saved, don't auto-select
             setSelectedCoupon(null);
           }
-        }
-        // Check if item is in wishlist and has a saved coupon
-        else if (isInWishlist(Number(variantId))) {
+        } else if (isInWishlist(Number(variantId))) {
           const wishlistItem = wishlistItems.find(
             (item) => item.variant_id === Number(variantId),
           );
-
           if (wishlistItem?.selected_coupon_id) {
-            // Find the saved coupon from the available coupons
             const savedCoupon = couponsData.find(
               (c) => c.coupon_id === wishlistItem.selected_coupon_id,
             );
             setSelectedCoupon(savedCoupon || null);
           } else {
-            // Item is in wishlist but no coupon saved, don't auto-select
             setSelectedCoupon(null);
           }
         } else {
-          // Item not in cart or wishlist, don't auto-select any coupon
           setSelectedCoupon(null);
         }
       } catch (err) {
@@ -160,6 +203,10 @@ const IndividualListing = () => {
 
     loadProduct();
   }, [variantId, wishlistItems, cartItems]);
+
+  // ============================================================================
+  // EVENT HANDLERS — IMAGE GALLERY
+  // ============================================================================
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
@@ -201,6 +248,10 @@ const IndividualListing = () => {
     }
   };
 
+  // ============================================================================
+  // EVENT HANDLERS — PRODUCT ACTIONS
+  // ============================================================================
+
   const handleVariantChange = (newVariantId: number) => {
     navigate(`/items/${newVariantId}`, { state: { from: "/items" } });
   };
@@ -221,7 +272,6 @@ const IndividualListing = () => {
       category: product.category,
     };
 
-    // Pass the selected coupon ID when adding to cart
     const wasNewlyAdded = addToCart(cartItem, selectedCoupon?.coupon_id);
 
     setJustAddedItem(cartItem);
@@ -248,19 +298,6 @@ const IndividualListing = () => {
     addToWishlist(wishlistItem, selectedCoupon?.coupon_id);
   };
 
-  const handleVerifyEmailClick = () => {
-    navigate("/profile");
-  };
-
-  const isProductInWishlist = product ? isInWishlist(Number(variantId)) : false;
-
-  const isLowStock = !!(
-    product &&
-    product.quantity > 0 &&
-    product.quantity <= 3
-  );
-  const isOutOfStock = !!(product && product.quantity === 0);
-
   const handleCouponSelect = (coupon: ProductCoupon | null) => {
     setSelectedCoupon(coupon);
 
@@ -275,27 +312,13 @@ const IndividualListing = () => {
     }
   };
 
-  // Calculate displayed price based on selected coupon
-  const getDisplayedPrice = () => {
-    if (!product || !selectedCoupon) return product?.price || 0;
-
-    if (shouldShowDiscountedPrice(selectedCoupon) && isEmailVerified) {
-      const { discountedPrice } = calculateDiscount(
-        product.price,
-        selectedCoupon,
-      );
-      return discountedPrice;
-    }
-
-    return product.price;
+  const handleVerifyEmailClick = () => {
+    navigate("/profile");
   };
 
-  const displayedPrice = getDisplayedPrice();
-  const hasDiscount =
-    selectedCoupon &&
-    shouldShowDiscountedPrice(selectedCoupon) &&
-    selectedCoupon.discount_type !== "bogo" &&
-    isEmailVerified;
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (loading) {
     return (
@@ -505,7 +528,7 @@ const IndividualListing = () => {
                     )}
                 </div>
 
-                {/* Coupons Section - Compact, alongside header */}
+                {/* Coupons Section */}
                 {coupons.length > 0 && (
                   <div className="product-header-coupons">
                     <CouponBanner

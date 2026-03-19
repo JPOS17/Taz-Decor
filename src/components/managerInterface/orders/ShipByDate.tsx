@@ -1,10 +1,6 @@
 import { Clock, AlertTriangle } from "lucide-react";
 import "../../../styles/components/managerInterface/ShipByDate.css";
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 interface ShipByDateProps {
   orderCreatedAt: string;
   orderStatus: string;
@@ -26,10 +22,6 @@ const resolveProcessingMax = (shippingService?: string | null): number => {
     PROCESSING_CAP[shippingService.toLowerCase()] ?? DEFAULT_PROCESSING_MAX
   );
 };
-
-// ============================================================================
-// HELPERS
-// ============================================================================
 
 const isWeekend = (date: Date): boolean => {
   const day = date.getDay();
@@ -101,10 +93,6 @@ const businessDaysUntil = (shipByDate: Date): number => {
   }
   return count;
 };
-
-// ============================================================================
-// COMPONENT
-// ============================================================================
 
 const ShipByDate = ({
   orderCreatedAt,

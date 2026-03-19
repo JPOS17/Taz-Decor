@@ -9,6 +9,10 @@ import {
 } from "../../api/admin";
 import "../../styles/pages/admin/AdminDashboard.css";
 
+// ============================================================================
+// TYPES
+// ============================================================================
+
 interface ConfirmationModal {
   show: boolean;
   type: "role" | "status" | null;
@@ -25,18 +29,34 @@ interface EmailModal {
   userEmail: string;
 }
 
+// ============================================================================
+// ADMINDASHBOARD COMPONENT
+// ============================================================================
+
 const AdminDashboard = () => {
   const { user: currentUser } = useAuth();
+
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // User data
   const [users, setUsers] = useState<User[]>([]);
+
+  // UI state
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterRole, setFilterRole] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
   } | null>(null);
+
+  // Filter state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+
+  // Modal state
   const [confirmModal, setConfirmModal] = useState<ConfirmationModal>({
     show: false,
     type: null,
@@ -55,10 +75,15 @@ const AdminDashboard = () => {
   const [emailMessage, setEmailMessage] = useState("");
   const [isSendingEmail, setIsSendingEmail] = useState(false);
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // Auto-dismiss toast after 3 seconds
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 3000);
@@ -78,6 +103,54 @@ const AdminDashboard = () => {
       setIsLoading(false);
     }
   };
+
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  const getRoleBadgeClass = (role: string) => {
+    switch (role) {
+      case "admin":
+        return "role-badge role-admin";
+      case "manager":
+        return "role-badge role-manager";
+      default:
+        return "role-badge role-customer";
+    }
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Never";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Derived filtered user list
+  const filteredUsers = users.filter((user) => {
+    const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+    const matchesSearch =
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      fullName.includes(searchTerm.toLowerCase()) ||
+      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesRole = filterRole === "all" || user.role === filterRole;
+    const matchesStatus =
+      filterStatus === "all" ||
+      (filterStatus === "active" && user.isActive) ||
+      (filterStatus === "inactive" && !user.isActive);
+
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
+  // ============================================================================
+  // EVENT HANDLERS — CONFIRMATION MODAL
+  // ============================================================================
 
   const showRoleConfirmation = (
     userId: number,
@@ -168,28 +241,22 @@ const AdminDashboard = () => {
     });
   };
 
+  // ============================================================================
+  // EVENT HANDLERS — EMAIL MODAL
+  // ============================================================================
+
   const showEmailModal = (
     userId: number,
     userName: string,
     userEmail: string,
   ) => {
-    setEmailModal({
-      show: true,
-      userId,
-      userName,
-      userEmail,
-    });
+    setEmailModal({ show: true, userId, userName, userEmail });
     setEmailSubject("");
     setEmailMessage("");
   };
 
   const handleCloseEmailModal = () => {
-    setEmailModal({
-      show: false,
-      userId: null,
-      userName: "",
-      userEmail: "",
-    });
+    setEmailModal({ show: false, userId: null, userName: "", userEmail: "" });
     setEmailSubject("");
     setEmailMessage("");
   };
@@ -218,44 +285,9 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredUsers = users.filter((user) => {
-    const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
-    const matchesSearch =
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fullName.includes(searchTerm.toLowerCase()) ||
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesRole = filterRole === "all" || user.role === filterRole;
-    const matchesStatus =
-      filterStatus === "all" ||
-      (filterStatus === "active" && user.isActive) ||
-      (filterStatus === "inactive" && !user.isActive);
-
-    return matchesSearch && matchesRole && matchesStatus;
-  });
-
-  const getRoleBadgeClass = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "role-badge role-admin";
-      case "manager":
-        return "role-badge role-manager";
-      default:
-        return "role-badge role-customer";
-    }
-  };
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Never";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (isLoading) {
     return (
@@ -282,6 +314,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
+      {/* Toast notification */}
       {toast && (
         <div className={`toast-notification ${toast.type}`}>
           <span className={`toast-icon ${toast.type}`}>
@@ -293,6 +326,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* Confirmation modal */}
       {confirmModal.show && (
         <div
           className="confirmation-modal-overlay"
@@ -346,6 +380,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* Email modal */}
       {emailModal.show && (
         <div
           className="confirmation-modal-overlay"

@@ -41,19 +41,36 @@ interface ExpandedOrderRowProps {
   onCollapse: () => void;
 }
 
+// ============================================================================
+// EXPANDED ORDER ROW COMPONENT
+// ============================================================================
+
 const ExpandedOrderRow = ({
   order,
   onStatusUpdated,
 }: ExpandedOrderRowProps) => {
-  const [notes, setNotes] = useState("");
-  const [trackingNumber, setTrackingNumber] = useState("");
-  const [shippingCarrier, setShippingCarrier] = useState("");
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Order details data
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+  const [statusHistory, setStatusHistory] = useState<StatusHistoryItem[]>([]);
+
+  // Loading / error state
   const [loading, setLoading] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // UI state
   const [showHistory, setShowHistory] = useState(false);
-  const [statusHistory, setStatusHistory] = useState<StatusHistoryItem[]>([]);
-  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+
+  // Form state
+  const [notes, setNotes] = useState("");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [shippingCarrier, setShippingCarrier] = useState("");
+
+  // Confirmation modal
   const {
     isOpen: confirmOpen,
     config: confirmConfig,
@@ -62,10 +79,9 @@ const ExpandedOrderRow = ({
     handleCancel,
   } = useConfirmationModal();
 
-  useEffect(() => {
-    loadOrderDetails();
-    setShippingCarrier("USPS");
-  }, [order.order_id]);
+  // ============================================================================
+  // CONSTANTS
+  // ============================================================================
 
   const statusFlow = [
     { value: "pending", label: "Pending", color: "gray", next: "processing" },
@@ -85,6 +101,15 @@ const ExpandedOrderRow = ({
     { value: "delivered", label: "Delivered", color: "green", next: null },
   ];
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  useEffect(() => {
+    loadOrderDetails();
+    setShippingCarrier("USPS");
+  }, [order.order_id]);
+
   const loadOrderDetails = async () => {
     try {
       setLoadingDetails(true);
@@ -101,6 +126,20 @@ const ExpandedOrderRow = ({
     }
   };
 
+  const loadStatusHistory = async () => {
+    try {
+      const data = await fetchOrderStatusHistory(order.order_id);
+      setStatusHistory(data.status_history);
+      setShowHistory(true);
+    } catch (err) {
+      console.error("Failed to load status history:", err);
+    }
+  };
+
+  // ============================================================================
+  // STATUS HELPERS
+  // ============================================================================
+
   const getCurrentStatusIndex = () =>
     statusFlow.findIndex((s) => s.value === order.status);
 
@@ -116,6 +155,25 @@ const ExpandedOrderRow = ({
     if (currentIndex <= 0) return null;
     return statusFlow[currentIndex - 1];
   };
+
+  // ============================================================================
+  // FORMAT HELPERS
+  // ============================================================================
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
 
   const handleStatusUpdate = async (newStatus: string) => {
     setLoading(true);
@@ -229,26 +287,9 @@ const ExpandedOrderRow = ({
     }
   };
 
-  const loadStatusHistory = async () => {
-    try {
-      const data = await fetchOrderStatusHistory(order.order_id);
-      setStatusHistory(data.status_history);
-      setShowHistory(true);
-    } catch (err) {
-      console.error("Failed to load status history:", err);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   const nextStatus = getNextStatus();
   const previousStatus = getPreviousStatus();
@@ -310,7 +351,7 @@ const ExpandedOrderRow = ({
                     />
                   </div>
 
-                  {/* Weight & Box — from orderDetails since base Order type doesn't include these */}
+                  {/* Weight & Box */}
                   {orderDetails?.total_weight_oz != null && (
                     <div className="order-detail-item">
                       <strong>Total Weight:</strong>{" "}
@@ -582,18 +623,31 @@ const ExpandedOrderRow = ({
 // ============================================================================
 
 const OrderStatusPage = () => {
+  const navigate = useNavigate();
+
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Order data
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // UI state
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // Export state
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<number>>(
     new Set(),
   );
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
-  const navigate = useNavigate();
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
 
   useEffect(() => {
     loadOrders();
@@ -612,8 +666,17 @@ const OrderStatusPage = () => {
     }
   };
 
-  const handleRowClick = (orderId: number) => {
-    setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
+  // ============================================================================
+  // FORMAT HELPERS
+  // ============================================================================
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -629,18 +692,26 @@ const OrderStatusPage = () => {
     return statusMap[status] || "gray";
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  // ============================================================================
+  // DERIVED VALUES
+  // ============================================================================
+
+  const filteredOrders =
+    statusFilter === "all"
+      ? orders
+      : orders.filter((order) => order.status === statusFilter);
+
+  const readyToShipCount = orders.filter(
+    (order) => order.status === "ready_to_ship",
+  ).length;
 
   // ============================================================================
-  // EXPORT FUNCTIONALITY
+  // EVENT HANDLERS
   // ============================================================================
+
+  const handleRowClick = (orderId: number) => {
+    setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
+  };
 
   const toggleOrderSelection = (orderId: number) => {
     setSelectedOrderIds((prev) => {
@@ -713,14 +784,9 @@ const OrderStatusPage = () => {
     }
   };
 
-  const filteredOrders =
-    statusFilter === "all"
-      ? orders
-      : orders.filter((order) => order.status === statusFilter);
-
-  const readyToShipCount = orders.filter(
-    (order) => order.status === "ready_to_ship",
-  ).length;
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (loading) {
     return (

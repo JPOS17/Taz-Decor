@@ -6,10 +6,7 @@ import { pool } from "../db";
 // ============================================================================
 
 /**
- * GET all active coupons for listings page.
- * Checks 1-4 are enforced in SQL (invalid coupons are never returned).
- * Check 5 (per-user limit) is returned as data so the frontend can show a
- * friendly message. Pass ?userId=<id> when the user is logged in.
+ * GET all active coupons for listings page
  */
 export const getProductCouponsPreview = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -104,13 +101,11 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
 // ============================================================================
 
 /**
- * GET applicable coupons for a specific variant.
- * Checks 1-4 enforced in SQL. Check 5 returned as data for frontend messaging.
- * Pass ?userId=<id> when the user is logged in.
+ * GET applicable coupons for a specific variant
  */
 export const getApplicableCouponsForVariant = async (req: Request, res: Response): Promise<void> => {
   try {
-    // ← userId extracted here alongside the other query params
+    // userId extracted here alongside the other query params
     const { variantId, productId, categoryId, productTypeId, userId } = req.query;
 
     // Validate required parameters
@@ -203,7 +198,7 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
       parseInt(categoryId as string),        // $3
       productTypeId ? parseInt(productTypeId as string) : null, // $4
       variantLocationId,                     // $5
-      userId ? parseInt(userId as string) : null,               // $6 ← now defined
+      userId ? parseInt(userId as string) : null,               // $6
     ]);
 
     const coupons = result.rows.map(row => ({
@@ -226,10 +221,7 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
 };
 
 /**
- * GET per-user coupon usage for a logged-in user.
- * Returns a map of coupon_id -> user's usage count.
- * Only called when user is authenticated.
- * Frontend uses this to show "limit exceeded" messaging without hiding the coupon.
+ * GET per-user coupon usage for a logged-in user
  */
 export const getUserCouponUsage = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -250,7 +242,7 @@ export const getUserCouponUsage = async (req: Request, res: Response): Promise<v
       GROUP BY oc.coupon_id
     `, [parseInt(userId as string)]);
 
-    // Return as a plain map: { coupon_id: count, ... }
+  
     const usageMap: Record<number, number> = {};
     result.rows.forEach(row => {
       usageMap[row.coupon_id] = parseInt(row.user_usage_count);
@@ -440,8 +432,6 @@ export const checkCustomGroupCoupons = async (req: Request, res: Response): Prom
     // Parse comma-separated variant IDs
     const ids = variantIds.toString().split(',').map(id => parseInt(id));
 
-    // Find all custom_group coupons that include these specific variants
-    // AND match the variant's location
     const result = await pool.query(`
       SELECT DISTINCT
         c.coupon_id,

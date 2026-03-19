@@ -3,8 +3,6 @@ import { Routes, Route, Navigate, useLocation } from "react-router";
 import Home from "../pages/main/Home";
 import About from "../pages/main/About";
 import Reviews from "../pages/main/Reviews";
-import Cart from "../pages/customer/Cart";
-import WishList from "../pages/customer/Saved";
 import Items from "../pages/main/Items";
 import Listing from "../pages/main/Listing";
 import Profile from "../pages/main/Profile";
@@ -15,6 +13,8 @@ import VerifyEmail from "../pages/signin/VerifyEmail";
 import ForgotPassword from "../pages/signin/ForgotPassword";
 import ResetPassword from "../pages/signin/ResetPassword";
 
+import Cart from "../pages/customer/Cart";
+import WishList from "../pages/customer/Saved";
 import CheckoutPage from "../pages/customer/CheckoutPage";
 import GuestOrderLookup, {
   GuestOrderResult,
@@ -46,41 +46,43 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      {/* Footer / Legal */}
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       <Route path="/return-policy" element={<ReturnPolicy />} />
       <Route path="/shipping-policy" element={<ShippingPolicy />} />
 
+      {/* Public — Main */}
       <Route path="/" element={<Navigate to="/home" replace />} />
       <Route path="/home" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/reviews" element={<Reviews />} />
-
       <Route path="/items" element={<Items />} />
       <Route
         path="/items/:variantId"
         element={<Listing key={location.pathname} />}
       />
+
+      {/* Public — Auth */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-email/:token" element={<VerifyEmail />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-      {/* Public routes - no login required */}
+      {/* Public — Shopping */}
       <Route path="/cart" element={<Cart />} />
       <Route path="/saved" element={<WishList />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/checkout/:step" element={<CheckoutPage />} />
       <Route path="/order-lookup" element={<GuestOrderLookup />} />
       <Route path="/order-lookup/:orderNumber" element={<GuestOrderResult />} />
-
-      {/* Order routes - with parameter for order number */}
       <Route
         path="/order-confirmation/:orderNumber"
         element={<OrderConfirmation />}
       />
 
+      {/* Protected — Customer */}
       <Route
         path="/orders"
         element={
@@ -89,8 +91,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-
-      {/* Protected Routes - Login Required */}
       <Route
         path="/profile"
         element={
@@ -100,7 +100,7 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Manager/Admin Only Routes */}
+      {/* Protected — Manager */}
       <Route
         path="/manager"
         element={
@@ -109,8 +109,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-
-      {/* Manager Dashboard Sub-routes */}
       <Route
         path="/manager/inventory"
         element={
@@ -151,7 +149,30 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      {/* Placeholder routes for future implementation */}
+      <Route
+        path="/manager/orders"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <OrderStatusPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/manager/coupons"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <CouponsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/manager/settings"
+        element={
+          <ProtectedRoute requiredRoles={["manager", "admin"]}>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/manager/analytics"
         element={
@@ -164,35 +185,7 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Order Status Management */}
-      <Route
-        path="/manager/orders"
-        element={
-          <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <OrderStatusPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/manager/coupons"
-        element={
-          <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <CouponsPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/manager/settings"
-        element={
-          <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <Settings />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Admin Only Routes */}
+      {/* Protected — Admin */}
       <Route
         path="/admin"
         element={

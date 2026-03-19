@@ -52,6 +52,10 @@ interface FormData {
   productCategories: ProductCategory[];
 }
 
+// ============================================================================
+// PRODUCT OVERLAY FORM COMPONENT
+// ============================================================================
+
 const ProductForm = ({
   variant,
   categories,
@@ -62,11 +66,22 @@ const ProductForm = ({
   onRemoveCategory,
   onSetPrimaryCategory,
 }: ProductFormProps) => {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
   const [hasAttemptedSave, setHasAttemptedSave] = useState(false);
+
+  // ============================================================================
+  // HOOKS
+  // ============================================================================
 
   const { locations } = useWarehouseLocations();
 
-  // Convert variant to formData format for validation
+  // ============================================================================
+  // COMPUTED VALUES
+  // ============================================================================
+
   const formData: FormData = {
     name: variant.name || "",
     sku: variant.sku || "",
@@ -84,12 +99,20 @@ const ProductForm = ({
     productCategories: productCategories,
   };
 
-  // Use the validation hook
   const { errors, setErrors, clearFieldError } = useFormValidation(
     formData,
     validateManagerForm,
     hasAttemptedSave,
   );
+
+  const categoryOptions = categories.map((cat) => ({
+    value: cat.category_id,
+    label: cat.category_name,
+  }));
+
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
 
   // Reset validation state when variant changes (new product loaded)
   useEffect(() => {
@@ -132,12 +155,15 @@ const ProductForm = ({
     };
   }, [formData, setErrors]);
 
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
   const handleInputChange = (field: keyof VariantDetails, value: string) => {
     if (hasAttemptedSave) {
       clearFieldError(field as string);
     }
 
-    // For numeric fields
     if (
       field === "price" ||
       field === "stock_quantity" ||
@@ -147,7 +173,6 @@ const ProductForm = ({
       const numValue = field === "price" ? parseFloat(value) : parseInt(value);
       onChange(field, !isNaN(numValue) ? numValue : null);
     } else {
-      // For text fields
       onChange(field, value.trim() === "" ? null : value);
     }
   };
@@ -162,10 +187,9 @@ const ProductForm = ({
     onChange(field as keyof VariantDetails, value);
   };
 
-  const categoryOptions = categories.map((cat) => ({
-    value: cat.category_id,
-    label: cat.category_name,
-  }));
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="product-form">

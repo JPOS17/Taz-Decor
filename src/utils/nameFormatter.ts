@@ -45,18 +45,13 @@ export function formatName(input: string): string {
   return formattedWords.join(' ');
 }
 
-/**
- * Capitalizes the first letter of a word and lowercases the rest
- */
+// Capitalizes the first letter of a word and lowercases the rest
 function capitalizeWord(word: string): string {
   if (!word) return '';
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
-/**
- * Validates if a name is properly formatted
- * Returns true if the name matches the expected format
- */
+// Validates if a name is properly formatted Returns true if the name matches the expected format
 export function isNameFormatted(name: string): boolean {
   return name === formatName(name);
 }

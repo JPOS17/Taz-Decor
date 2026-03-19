@@ -37,17 +37,14 @@ interface EditingProfile {
 // ============================================================================
 
 const Profile = () => {
-  // ============================================================================
-  // HOOKS & CONTEXT
-  // ============================================================================
-
   const { user: authUser, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
 
   // ============================================================================
-  // STATE - PROFILE
+  // STATE
   // ============================================================================
 
+  // Profile
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [allAddresses, setAllAddresses] = useState<Address[]>([]);
 
@@ -58,10 +55,7 @@ const Profile = () => {
     phone: "",
   });
 
-  // ============================================================================
-  // STATE - ADDRESS
-  // ============================================================================
-
+  // Address
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
   const [addressForm, setAddressForm] = useState<CreateAddressPayload>({
@@ -75,29 +69,24 @@ const Profile = () => {
     is_default: false,
   });
 
-  // ============================================================================
-  // STATE - VALIDATION
-  // ============================================================================
-
+  // Validation
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [validationResult, setValidationResult] =
     useState<AddressValidationResult | null>(null);
   const [pendingAddressData, setPendingAddressData] =
     useState<CreateAddressPayload | null>(null);
 
-  // ============================================================================
-  // STATE - UI
-  // ============================================================================
-
+  // UI
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Email Verification
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
 
-  // Delete address confirmation state
+  // Delete Confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<number | null>(null);
 
@@ -321,15 +310,6 @@ const Profile = () => {
     } finally {
       setIsResending(false);
     }
-  };
-
-  // ============================================================================
-  // UI HANDLERS
-  // ============================================================================
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
   };
 
   // ============================================================================

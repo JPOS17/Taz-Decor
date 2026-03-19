@@ -63,48 +63,62 @@ interface Message {
 
 type ViewMode = "edit" | "create-product" | "create-variant";
 
+// ============================================================================
+// MANAGE PRODUCTS COMPONENT
+// ============================================================================
+
 const ManageProducts = () => {
   const navigate = useNavigate();
 
-  // Category & Product State
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Dropdown / filter data
   const [categories, setCategories] = useState<Category[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+
+  // Filter & sort state
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
-  const [locations, setLocations] = useState<Location[]>([]);
+  const [productStatus, setProductStatus] = useState<string | null>(null);
+  const [stockStatus, setStockStatus] = useState<string | null>(null);
+  const [categoryStatus, setCategoryStatus] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
+
+  // Product & variant data
   const [products, setProducts] = useState<ProductVariantForManagement[]>([]);
   const [selectedVariant, setSelectedVariant] =
     useState<ProductVariantForManagement | null>(null);
+  const [variantDetails, setVariantDetails] = useState<VariantDetails | null>(
+    null,
+  );
+  const [originalVariantDetails, setOriginalVariantDetails] =
+    useState<VariantDetails | null>(null);
+  const [availableVariants, setAvailableVariants] = useState<VariantOption[]>(
+    [],
+  );
   const [productCategories, setProductCategories] = useState<ProductCategory[]>(
     [],
   );
 
-  // Variant Details State
-  const [variantDetails, setVariantDetails] = useState<VariantDetails | null>(
-    null,
-  );
-  const [availableVariants, setAvailableVariants] = useState<VariantOption[]>(
-    [],
-  );
-  const [originalVariantDetails, setOriginalVariantDetails] =
-    useState<VariantDetails | null>(null);
-
-  // Form State
+  // Form state
+  const [viewMode, setViewMode] = useState<ViewMode>("edit");
   const [isCreateFormDirty, setIsCreateFormDirty] = useState(false);
   const [isFormValid, setIsFormValid] = useState(true);
-  const [viewMode, setViewMode] = useState<ViewMode>("edit");
   const [parentVariantForNewVariant, setParentVariantForNewVariant] =
     useState<ProductVariantForManagement | null>(null);
 
-  // UI State
+  // UI state
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
 
-  // Hooks
-  const { openWidget } = useCloudinaryWidget();
+  // Refs & hooks
   const detailsColumnRef = useRef<HTMLDivElement>(null);
+  const { openWidget } = useCloudinaryWidget();
 
-  // Confirmation Modals
+  // Confirmation modals
   const saveConfirmation = useConfirmationModal();
   const deleteConfirmation = useConfirmationModal();
   const toggleConfirmation = useConfirmationModal();
@@ -112,13 +126,10 @@ const ManageProducts = () => {
   const cancelCreateConfirmation = useConfirmationModal();
   const unsavedChanges = useUnsavedChanges();
 
-  // Filter & Sort State
-  const [productStatus, setProductStatus] = useState<string | null>(null);
-  const [stockStatus, setStockStatus] = useState<string | null>(null);
-  const [categoryStatus, setCategoryStatus] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<string | null>(null);
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
 
-  // Load initial data
   useEffect(() => {
     loadCategories();
     loadProductTypes();
@@ -146,16 +157,6 @@ const ManageProducts = () => {
     }
   };
 
-  const loadLocations = async () => {
-    try {
-      const data = await fetchWarehouseLocations();
-      setLocations(data);
-    } catch (error) {
-      console.error("Error fetching locations:", error);
-      showMessage("Failed to fetch locations", "error");
-    }
-  };
-
   const loadProductTypes = async () => {
     try {
       const data = await fetchProductTypes();
@@ -163,6 +164,16 @@ const ManageProducts = () => {
     } catch (error) {
       console.error("Error fetching product types:", error);
       showMessage("Failed to fetch product types", "error");
+    }
+  };
+
+  const loadLocations = async () => {
+    try {
+      const data = await fetchWarehouseLocations();
+      setLocations(data);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+      showMessage("Failed to fetch locations", "error");
     }
   };
 
@@ -174,7 +185,7 @@ const ManageProducts = () => {
     try {
       const data = await fetchProductsForManagement(
         categoryId,
-        locationId, // ADD THIS
+        locationId,
         productStatus,
         stockStatus,
         categoryStatus,
@@ -220,7 +231,71 @@ const ManageProducts = () => {
     }
   };
 
-  // UNSAVED CHANGES DETECTION //
+  // ============================================================================
+  // UTILITY FUNCTIONS
+  // ============================================================================
+
+  const showMessage = (text: string, type: "success" | "error" | "warning") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 4000);
+  };
+
+  const getUpdatedFields = (
+    current: VariantDetails,
+    original: VariantDetails,
+  ): string[] => {
+    const updated: string[] = [];
+
+    if (current.name !== original.name) updated.push("name");
+    if (current.price !== original.price) updated.push("price");
+    if (current.stock_quantity !== original.stock_quantity)
+      updated.push("stock quantity");
+    if (current.color !== original.color) updated.push("color");
+    if (current.size !== original.size) updated.push("size");
+    if (current.sku !== original.sku) updated.push("SKU");
+    if (current.category_id !== original.category_id) updated.push("category");
+    if (current.weight_oz !== original.weight_oz) updated.push("weight");
+    if (current.length_in !== original.length_in) updated.push("length");
+    if (current.width_in !== original.width_in) updated.push("width");
+    if (current.height_in !== original.height_in) updated.push("height");
+    if (current.description !== original.description)
+      updated.push("description");
+    if (current.location_id !== original.location_id) updated.push("location");
+
+    return updated;
+  };
+
+  const getActiveItemId = () => {
+    if (viewMode === "create-product") return "create-new-product";
+    if (viewMode === "create-variant" && parentVariantForNewVariant) {
+      return parentVariantForNewVariant.variant_id;
+    }
+    return selectedVariant?.variant_id;
+  };
+
+  const handleSubmitForm = () => {
+    const form = document.querySelector(".product-form") as HTMLFormElement;
+    if (form) {
+      form.dispatchEvent(
+        new Event("submit", { cancelable: true, bubbles: true }),
+      );
+    }
+  };
+
+  const scrollToDetails = () => {
+    setTimeout(() => {
+      if (window.innerWidth < 992 && detailsColumnRef.current) {
+        detailsColumnRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 100);
+  };
+
+  // ============================================================================
+  // UNSAVED CHANGES DETECTION
+  // ============================================================================
 
   const hasUnsavedChanges = (): boolean => {
     if (viewMode === "create-product" || viewMode === "create-variant")
@@ -255,7 +330,9 @@ const ManageProducts = () => {
     unsavedChanges.checkUnsavedChanges(hasChanges, navigationFn);
   };
 
-  // NAVIGATION HANDLERS //
+  // ============================================================================
+  // EVENT HANDLERS — NAVIGATION
+  // ============================================================================
 
   const handleVariantSelect = (variant: ProductVariantForManagement) => {
     handleNavigationWithUnsavedCheck(() => {
@@ -322,26 +399,17 @@ const ManageProducts = () => {
     });
   };
 
-  const scrollToDetails = () => {
-    setTimeout(() => {
-      if (window.innerWidth < 992 && detailsColumnRef.current) {
-        detailsColumnRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    }, 100);
-  };
-
   const handleClearFilters = () => {
     setProductStatus(null);
     setStockStatus(null);
     setCategoryStatus(null);
     setSortBy(null);
-    setSelectedLocation(null); // ADD THIS
+    setSelectedLocation(null);
   };
 
-  // CREATE/CANCEL HANDLERS //
+  // ============================================================================
+  // EVENT HANDLERS — CREATE & CANCEL
+  // ============================================================================
 
   const handleCancelCreate = () => {
     if (isCreateFormDirty) {
@@ -389,6 +457,12 @@ const ManageProducts = () => {
     });
   };
 
+  const confirmCreateProduct = async () => {
+    if ((window as any).__executeProductFormSubmit) {
+      (window as any).__executeProductFormSubmit();
+    }
+  };
+
   const handleCreateProduct = async (productData: any) => {
     setLoading(true);
     try {
@@ -413,12 +487,6 @@ const ManageProducts = () => {
     }
   };
 
-  const confirmCreateProduct = async () => {
-    if ((window as any).__executeProductFormSubmit) {
-      (window as any).__executeProductFormSubmit();
-    }
-  };
-
   const handleRequestCreateVariant = () => {
     createConfirmation.showConfirmation({
       title: "Confirm Create Variant",
@@ -428,6 +496,12 @@ const ManageProducts = () => {
       cancelText: "Cancel",
       onConfirm: confirmCreateVariant,
     });
+  };
+
+  const confirmCreateVariant = async () => {
+    if ((window as any).__executeVariantFormSubmit) {
+      (window as any).__executeVariantFormSubmit();
+    }
   };
 
   const handleCreateVariant = async (variantData: any) => {
@@ -455,11 +529,9 @@ const ManageProducts = () => {
     }
   };
 
-  const confirmCreateVariant = async () => {
-    if ((window as any).__executeVariantFormSubmit) {
-      (window as any).__executeVariantFormSubmit();
-    }
-  };
+  // ============================================================================
+  // EVENT HANDLERS — CATEGORY ASSIGNMENTS
+  // ============================================================================
 
   const handleSetPrimaryCategory = async (categoryId: number) => {
     if (!variantDetails) return;
@@ -520,7 +592,9 @@ const ManageProducts = () => {
     }
   };
 
-  // EDIT HANDLERS //
+  // ============================================================================
+  // EVENT HANDLERS — EDIT, SAVE & DELETE
+  // ============================================================================
 
   const handleToggleStatus = () => {
     if (!variantDetails) return;
@@ -741,7 +815,9 @@ const ManageProducts = () => {
     }
   };
 
-  // IMAGE HANDLERS //
+  // ============================================================================
+  // EVENT HANDLERS — IMAGES
+  // ============================================================================
 
   const handleInputChange = (
     field: keyof VariantDetails,
@@ -836,54 +912,9 @@ const ManageProducts = () => {
     }
   };
 
-  // UTILITY //
-
-  const showMessage = (text: string, type: "success" | "error" | "warning") => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
-
-  const getUpdatedFields = (
-    current: VariantDetails,
-    original: VariantDetails,
-  ): string[] => {
-    const updated: string[] = [];
-
-    if (current.name !== original.name) updated.push("name");
-    if (current.price !== original.price) updated.push("price");
-    if (current.stock_quantity !== original.stock_quantity)
-      updated.push("stock quantity");
-    if (current.color !== original.color) updated.push("color");
-    if (current.size !== original.size) updated.push("size");
-    if (current.sku !== original.sku) updated.push("SKU");
-    if (current.category_id !== original.category_id) updated.push("category");
-    if (current.weight_oz !== original.weight_oz) updated.push("weight");
-    if (current.length_in !== original.length_in) updated.push("length");
-    if (current.width_in !== original.width_in) updated.push("width");
-    if (current.height_in !== original.height_in) updated.push("height");
-    if (current.description !== original.description)
-      updated.push("description");
-    if (current.location_id !== original.location_id) updated.push("location");
-
-    return updated;
-  };
-
-  const getActiveItemId = () => {
-    if (viewMode === "create-product") return "create-new-product";
-    if (viewMode === "create-variant" && parentVariantForNewVariant) {
-      return parentVariantForNewVariant.variant_id;
-    }
-    return selectedVariant?.variant_id;
-  };
-
-  const handleSubmitForm = () => {
-    const form = document.querySelector(".product-form") as HTMLFormElement;
-    if (form) {
-      form.dispatchEvent(
-        new Event("submit", { cancelable: true, bubbles: true }),
-      );
-    }
-  };
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="manager-dashboard">
@@ -933,7 +964,7 @@ const ManageProducts = () => {
           </select>
         </div>
 
-        {/* Category Sector */}
+        {/* Category Selector */}
         <div className="category-section">
           <label className="category-label">Select Category</label>
           <select
@@ -952,8 +983,8 @@ const ManageProducts = () => {
             ))}
           </select>
         </div>
-        {/* Filter Bar */}
 
+        {/* Filter Bar */}
         <InventoryFilters
           onStatusChange={setProductStatus}
           onStockChange={setStockStatus}
@@ -966,7 +997,7 @@ const ManageProducts = () => {
           onClearFilters={handleClearFilters}
         />
 
-        {/* Main Content  */}
+        {/* Main Content */}
         <div className="dashboard-content">
           {/* Left Column - Product List */}
           <div className="products-column">
@@ -1026,6 +1057,7 @@ const ManageProducts = () => {
                 />
               </>
             )}
+
             {/* Create Variant View */}
             {viewMode === "create-variant" &&
               parentVariantForNewVariant &&
@@ -1056,6 +1088,7 @@ const ManageProducts = () => {
                   />
                 </>
               )}
+
             {/* Edit View */}
             {viewMode === "edit" && variantDetails && (
               <>
@@ -1117,8 +1150,6 @@ const ManageProducts = () => {
         <ToastNotification message={message.text} type={message.type} />
       )}
 
-      {/* Confirmation Modal */}
-
       {/* Unsaved Changes Modal */}
       {unsavedChanges.showModal && (
         <ConfirmationModal
@@ -1143,7 +1174,7 @@ const ManageProducts = () => {
         />
       )}
 
-      {/* Save Changes Modal */}
+      {/* Save Changes Confirmation */}
       {saveConfirmation.isOpen && saveConfirmation.config && (
         <ConfirmationModal
           title={saveConfirmation.config.title}
@@ -1174,7 +1205,7 @@ const ManageProducts = () => {
         />
       )}
 
-      {/* Create Product/Variant Modal */}
+      {/* Create Product/Variant Confirmation */}
       {createConfirmation.isOpen && createConfirmation.config && (
         <ConfirmationModal
           title={createConfirmation.config.title}

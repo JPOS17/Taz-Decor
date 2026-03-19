@@ -24,19 +24,35 @@ import MiniCart from "../../components/customerInterface/MiniCart";
 
 import "../../styles/pages/customer/Saved.css";
 
+// ============================================================================
+// SAVED COMPONENT
+// ============================================================================
+
 const Saved = () => {
   const { wishlistItems, removeFromWishlist, addToCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [isMiniCartOpen, setIsMiniCartOpen] = useState(false);
-  const [justAddedItem, setJustAddedItem] = useState<any>(null);
-  const [isNewItem, setIsNewItem] = useState(false);
+
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Coupon data
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
   const [customGroupMap, setCustomGroupMap] = useState<
     Record<number, number[]>
   >({});
 
+  // Mini cart state
+  const [isMiniCartOpen, setIsMiniCartOpen] = useState(false);
+  const [justAddedItem, setJustAddedItem] = useState<any>(null);
+  const [isNewItem, setIsNewItem] = useState(false);
+
   const isEmailVerified = user?.isEmailVerified ?? false;
+
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
 
   // Fetch coupons on mount
   useEffect(() => {
@@ -59,6 +75,10 @@ const Saved = () => {
     loadCoupons();
   }, [wishlistItems]);
 
+  // ============================================================================
+  // COUPON LOGIC
+  // ============================================================================
+
   // Helper to get applicable coupons for a wishlist item
   const getApplicableCouponsForItem = (
     item: (typeof wishlistItems)[0],
@@ -70,7 +90,6 @@ const Saved = () => {
     // Helper function to check if coupon applies to this product's location
     const couponMatchesLocation = (coupon: ProductCoupon): boolean => {
       // For wishlist items, we don't have location_id, so we allow all coupons
-      // You may want to fetch location_id separately if needed
       return true;
     };
 
@@ -122,7 +141,7 @@ const Saved = () => {
     return applicableCoupons;
   };
 
-  // Helper to get the coupon to display for an item
+  // Get the coupon to display for a wishlist item
   const getCouponForItem = (
     item: (typeof wishlistItems)[0],
   ): {
@@ -138,7 +157,6 @@ const Saved = () => {
         (c) => c.coupon_id === item.selected_coupon_id,
       );
 
-      // Check if selected coupon is still valid
       if (selectedCoupon) {
         const isExpired = selectedCoupon.valid_until
           ? new Date(selectedCoupon.valid_until) < new Date()
@@ -174,6 +192,10 @@ const Saved = () => {
     return { itemCoupon: null, isExpired: false, fallbackToBest: false };
   };
 
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
   const handleAddToCart = (item: (typeof wishlistItems)[0]) => {
     const cartItem = {
       variant_id: item.variant_id,
@@ -199,6 +221,10 @@ const Saved = () => {
     setIsNewItem(wasNewlyAdded);
     setIsMiniCartOpen(true);
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (wishlistItems.length === 0) {
     return (

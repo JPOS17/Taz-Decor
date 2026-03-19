@@ -1,8 +1,20 @@
 import React, { useState } from "react";
 import "../../styles/pages/main/About.css";
 
+// ============================================================================
+// ABOUT COMPONENT
+// ============================================================================
+
 const About = () => {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
   const [copied, setCopied] = useState(false);
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
 
   const handleEmailCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -23,6 +35,11 @@ const About = () => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div className="about-page">
       {/* Page Header */}
@@ -62,9 +79,9 @@ const About = () => {
                 others are searching for the same thing.
               </p>
               <p>
-                That's how Taz Decor's Catholic Company was born. A family
-                wanting to help other families and individuals showcase their
-                love for the faith.
+                That's how Taz Decor's Catholic Shop was born. A family wanting
+                to help other families and individuals showcase their love for
+                the faith.
               </p>
             </div>
             <div className="story-aside">
@@ -165,9 +182,7 @@ const About = () => {
             <a href="/items" className="contact-card">
               <div className="contact-icon">🛍️</div>
               <div className="contact-card-title">Visit Our Shop</div>
-              <div className="contact-card-sub">
-                Browse our full Catholic collection
-              </div>
+              <div className="contact-card-sub">Browse our full collection</div>
             </a>
           </div>
         </section>

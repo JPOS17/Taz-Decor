@@ -6,10 +6,8 @@ import { fetchProductTypes, type ProductType } from "../../../api/productTypes";
 import { createNewProduct } from "../../../api/inventory";
 
 import CreateNewProductForm from "../../../components/managerInterface/inventory/forms/CreateNewProductForm";
-
 import { ToastNotification } from "../../../components/managerInterface/universal/ToastNotifications";
 import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
-
 import { HeaderFormatter } from "../../../components/managerInterface/inventory/productComponents/HeaderFormatter";
 
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
@@ -21,31 +19,39 @@ interface Message {
   type: "success" | "error" | "warning";
 }
 
-const CreateProduct = () => {
-  // Hooks
+// ============================================================================
+// CREATE PRODUCT COMPONENT
+// ============================================================================
 
+const CreateProduct = () => {
   const navigate = useNavigate();
 
-  // Data States
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Dropdown data
   const [categories, setCategories] = useState<Category[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
 
-  // UI States
+  // UI state
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
   const [isFormDirty, setIsFormDirty] = useState(false);
 
-  // Confirmation Modals
+  // Confirmation modals
   const createConfirmation = useConfirmationModal();
   const cancelConfirmation = useConfirmationModal();
 
-  // Effects
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
   useEffect(() => {
     loadCategories();
     loadProductTypes();
   }, []);
 
-  // Data Loading
   const loadCategories = async () => {
     try {
       const data = await fetchCategories(true);
@@ -66,7 +72,19 @@ const CreateProduct = () => {
     }
   };
 
-  // Event Handlers - Create Product
+  // ============================================================================
+  // UTILITY FUNCTIONS
+  // ============================================================================
+
+  const showMessage = (text: string, type: "success" | "error" | "warning") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 4000);
+  };
+
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
   const handleRequestCreateProduct = () => {
     createConfirmation.showConfirmation({
       title: "Confirm Create Product",
@@ -92,8 +110,6 @@ const CreateProduct = () => {
         `Product "${productData.name}" created successfully! Generated SKU: ${newVariant.sku}`,
         "success",
       );
-
-      // Navigate to edit page after successful creation
       setTimeout(() => {
         navigate("/manager/inventory/edit");
       }, 2000);
@@ -105,7 +121,6 @@ const CreateProduct = () => {
     }
   };
 
-  // Event Handlers - Navigation
   const handleCancel = () => {
     if (isFormDirty) {
       cancelConfirmation.showConfirmation({
@@ -121,7 +136,6 @@ const CreateProduct = () => {
     }
   };
 
-  // Event Handlers - Form Submission
   const handleSubmitForm = () => {
     const form = document.querySelector(".product-form") as HTMLFormElement;
     if (form) {
@@ -135,12 +149,9 @@ const CreateProduct = () => {
     showMessage(errorMessage, "warning");
   };
 
-  // Utility Functions
-
-  const showMessage = (text: string, type: "success" | "error" | "warning") => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="manager-dashboard">
@@ -176,14 +187,12 @@ const CreateProduct = () => {
       <div className="container">
         <div className="dashboard-content single-column">
           <div className="details-column">
-            {/* Header with Action Buttons */}
             <HeaderFormatter
               viewMode="create-product"
               loading={loading}
               onCancel={handleCancel}
               onSubmitForm={handleSubmitForm}
             />
-            {/* Create Product Form */}
             <CreateNewProductForm
               categoryId={0}
               categories={categories}
@@ -202,8 +211,6 @@ const CreateProduct = () => {
       {message && (
         <ToastNotification message={message.text} type={message.type} />
       )}
-
-      {/* Confirmation Modal */}
 
       {/* Create Product Confirmation */}
       {createConfirmation.isOpen && createConfirmation.config && (

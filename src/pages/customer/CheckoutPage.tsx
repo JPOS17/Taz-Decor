@@ -61,6 +61,10 @@ import LoadingSpinner from "../../components/universalComponents/LoadingSpinner"
 
 import "../../styles/pages/customer/CheckoutPage.css";
 
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
 type CheckoutStep = "cart" | "shipping" | "payment" | "review" | "success";
 
 interface OrderResult {
@@ -88,6 +92,10 @@ const EMPTY_GUEST_ADDRESS: GuestShippingAddress = {
   country: "USA",
 };
 
+// ============================================================================
+// CHECKOUT COMPONENT
+// ============================================================================
+
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { step: urlStep } = useParams<{ step?: string }>();
@@ -100,6 +108,10 @@ const CheckoutPage = () => {
     cartLevelCouponId,
     setCartLevelCouponId,
   } = useCart();
+
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
 
   // Rehydrate from sessionStorage once on mount
   const session = loadSession();
@@ -119,7 +131,6 @@ const CheckoutPage = () => {
   const [guestAddress, setGuestAddress] = useState<GuestShippingAddress>(
     session.guestAddress ?? EMPTY_GUEST_ADDRESS,
   );
-
   const [guestInfoErrors, setGuestInfoErrors] = useState<
     Record<string, string>
   >({});
@@ -184,7 +195,8 @@ const CheckoutPage = () => {
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [validationResult, setValidationResult] =
     useState<AddressValidationResult | null>(null);
-  // For auth users, pending save; for guests, pending address apply
+  // For auth users, pending save
+  // For guests, pending address apply
   const [pendingAddressData, setPendingAddressData] =
     useState<CreateAddressPayload | null>(null);
   const [pendingGuestAddressData, setPendingGuestAddressData] =
@@ -235,7 +247,7 @@ const CheckoutPage = () => {
     }
   }, [isLoading, user]);
 
-  // Redirect if cart is empty (but not on success step)
+  // Redirect if cart is empty
   useEffect(() => {
     if (isInitialLoad) return;
     if (cartItems.length === 0 && currentStep !== "success") {
@@ -286,7 +298,6 @@ const CheckoutPage = () => {
 
   // Load shipping options for auth users whenever:
   // - An address is selected AND addresses have finished loading from the API
-  // - This covers both: user clicks a new address, and page refresh
   useEffect(() => {
     if (
       !isGuest &&
@@ -341,10 +352,9 @@ const CheckoutPage = () => {
     }
   }, [currentStep]);
 
+  // When the user navigates away from checkout entirely, wipe the session
   useEffect(() => {
     return () => {
-      // When the user navigates away from checkout entirely, wipe the session
-      // so they start fresh next time (mode selection will show again)
       clearSession();
     };
   }, []);
@@ -936,8 +946,7 @@ const CheckoutPage = () => {
       setShowValidationModal(false);
       setPendingAddressData(null);
       setValidationResult(null);
-      // If the currently-selected address was edited, selectedAddressId won't
-      // change so the shipping useEffect won't fire — trigger it manually.
+      // If the currently-selected address was edited, trigger it manually.
       if (wasEditingSelected && selectedAddressId) {
         handleCalculateShipping();
       }
@@ -968,8 +977,6 @@ const CheckoutPage = () => {
 
   const handleCancelValidation = () => {
     setShowValidationModal(false);
-    // If this was an auth-user address save (pendingAddressData set), reopen
-    // the address form so the user can correct their input.
     if (pendingAddressData) {
       setShowAddressModal(true);
     }
@@ -1049,7 +1056,6 @@ const CheckoutPage = () => {
     }
   };
 
-  // Guest address validation via Shippo
   const handleGuestAddressValidate = async () => {
     setLoading(true);
     setError(null);
@@ -1075,7 +1081,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // Fetch shipping rates immediately after validation (mirrors auth flow)
+  // Fetch shipping rates immediately after validation
   const handleAcceptCorrectedGuestAddress = () => {
     let finalAddress = pendingGuestAddressData
       ? { ...pendingGuestAddressData }
@@ -1099,7 +1105,7 @@ const CheckoutPage = () => {
     handleCalculateShippingGuestWithAddress(finalAddress);
   };
 
-  // Fetch shipping rates immediately after validation (mirrors auth flow)
+  // Fetch shipping rates immediately after validation
   const handleAcceptOriginalGuestAddress = () => {
     setGuestAddressValidated(true);
     setShowValidationModal(false);
@@ -1184,6 +1190,10 @@ const CheckoutPage = () => {
             orderResult={orderResult}
             userEmail={isGuest ? guestInfo.email : user?.email}
             isGuest={isGuest}
+            shippingMethodName={
+              selectedShipping?.service_level_name ??
+              (isFreeShipping ? "usps ground advantage" : undefined)
+            }
           />
         </div>
       </div>
@@ -1232,10 +1242,7 @@ const CheckoutPage = () => {
               resetAddressForm();
             }}
           >
-            <div
-              className="cp-modal-content"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div onClick={(e) => e.stopPropagation()}>
               <AddressForm
                 addressForm={addressForm}
                 onFormChange={handleAddressFormChange}

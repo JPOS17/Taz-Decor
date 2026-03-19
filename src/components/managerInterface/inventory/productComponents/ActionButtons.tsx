@@ -81,7 +81,6 @@ export const ActionButtons = ({
     );
   }
 
-  // Edit mode
   return (
     <div className="action-buttons">
       <button

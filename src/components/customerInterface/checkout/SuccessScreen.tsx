@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaFileAlt, FaHome } from "react-icons/fa";
+import DeliveryEstimate from "./DeliveryEstimate";
 
 interface OrderResult {
   order_id: number;
@@ -13,12 +14,14 @@ interface SuccessScreenProps {
   orderResult: OrderResult | null;
   userEmail?: string;
   isGuest?: boolean;
+  shippingMethodName?: string;
 }
 
 const SuccessScreen = ({
   orderResult,
   userEmail,
   isGuest,
+  shippingMethodName,
 }: SuccessScreenProps) => {
   const navigate = useNavigate();
 
@@ -103,8 +106,12 @@ const SuccessScreen = ({
           </p>
           <ul>
             <li>We'll send you shipping updates via email</li>
-            <li>Your order will be processed within 1-2 business days</li>
-            <li>Estimated delivery: 5-7 business days</li>
+            {shippingMethodName && (
+              <DeliveryEstimate
+                shippingMethodName={shippingMethodName}
+                className="cp-review-delivery-estimate"
+              />
+            )}
           </ul>
         </div>
       </div>

@@ -160,7 +160,6 @@ const CouponModal = ({
             <>
               {/*
                 For guests: pointer-events none disables dropdown toggle and all clicks.
-                Slight opacity gives a visual locked cue without hiding the offers.
               */}
               <div
                 style={

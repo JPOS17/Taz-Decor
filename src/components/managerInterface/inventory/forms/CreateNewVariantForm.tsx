@@ -67,6 +67,10 @@ interface FormData {
   height_in: string;
 }
 
+// ============================================================================
+// CREATE VARIANT FORM COMPONENT
+// ============================================================================
+
 const CreateVariantForm = ({
   productId,
   productName,
@@ -84,14 +88,16 @@ const CreateVariantForm = ({
   onRequestSubmit,
   onValidationError,
 }: CreateVariantFormProps) => {
-  // States
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
 
   const [formData, setFormData] = useState<FormData>({
     price: parentPrice ? parentPrice.toString() : "", // PRE-FILLED from parent
-    stock_quantity: "", // User must enter
-    color: "", // User must enter (variant-specific)
-    size: "", // User must enter (variant-specific)
-    location_id: "", // User must select
+    stock_quantity: "",
+    color: "",
+    size: "",
+    location_id: "",
     weight_oz: parentWeightOz ? parentWeightOz.toString() : "", // PRE-FILLED from parent
     length_in: parentLengthIn ? parentLengthIn.toString() : "", // PRE-FILLED from parent
     width_in: parentWidthIn ? parentWidthIn.toString() : "", // PRE-FILLED from parent
@@ -100,7 +106,9 @@ const CreateVariantForm = ({
 
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
-  // Hooks
+  // ============================================================================
+  // HOOKS
+  // ============================================================================
 
   const {
     images,
@@ -113,11 +121,6 @@ const CreateVariantForm = ({
 
   const { openWidget } = useCloudinaryWidget();
 
-  const { previewSKU, loading: loadingSKU } = useSKUPreview(
-    productId,
-    previewVariantSKU,
-  );
-
   const { locations } = useWarehouseLocations();
 
   const { errors, clearFieldError } = useFormValidation(
@@ -126,23 +129,31 @@ const CreateVariantForm = ({
     hasAttemptedSubmit,
   );
 
+  const { previewSKU, loading: loadingSKU } = useSKUPreview(
+    productId,
+    previewVariantSKU,
+  );
+
+  // ============================================================================
+  // COMPUTED VALUES
+  // ============================================================================
+
   const categoryName =
     categories.find((c) => c.category_id === categoryId)?.category_name ||
     "Unknown";
 
-  // Effects
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
 
+  // Track dirty state — only user-entered fields, plus changes to pre-filled values
   useEffect(() => {
-    // Only track changes to fields that AREN'T pre-filled
-    // Pre-filled: price, weight_oz, length_in, width_in, height_in
-    // User fields: stock_quantity, location_id, color, size, images
     const isDirty =
       formData.stock_quantity !== "" ||
       formData.location_id !== "" ||
       formData.color.trim() !== "" ||
       formData.size.trim() !== "" ||
       images.length > 0 ||
-      // Also track if user changed pre-filled values
       formData.price !== (parentPrice ? parentPrice.toString() : "") ||
       formData.weight_oz !==
         (parentWeightOz ? parentWeightOz.toString() : "") ||
@@ -168,7 +179,9 @@ const CreateVariantForm = ({
     onFormValidChange?.(isValid);
   }, [errors, hasAttemptedSubmit, onFormValidChange]);
 
-  // Event Handlers - Form Fields
+  // ============================================================================
+  // EVENT HANDLERS — FORM FIELDS
+  // ============================================================================
 
   const handleTextChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -197,7 +210,9 @@ const CreateVariantForm = ({
     }
   };
 
-  // Event Handlers - Image Management
+  // ============================================================================
+  // EVENT HANDLERS — IMAGE MANAGEMENT
+  // ============================================================================
 
   const handleOpenWidget = () => {
     if (!previewSKU || loadingSKU) {
@@ -217,7 +232,9 @@ const CreateVariantForm = ({
     });
   };
 
-  // Event Handlers - Form Submission
+  // ============================================================================
+  // EVENT HANDLERS — FORM SUBMISSION
+  // ============================================================================
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -270,6 +287,10 @@ const CreateVariantForm = ({
     executeSubmit,
     functionName: "__executeVariantFormSubmit",
   });
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <form onSubmit={handleSubmit} className="product-form">

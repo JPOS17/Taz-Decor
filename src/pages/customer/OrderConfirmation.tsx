@@ -85,7 +85,6 @@ const OrderConfirmation = () => {
       });
       setLoading(false);
     } catch (err) {
-      // Handle 401 errors specifically
       if (err instanceof Error && err.message.includes("401")) {
         localStorage.removeItem("token");
         const returnUrl = location.pathname;
