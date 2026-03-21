@@ -344,7 +344,7 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
         city: address.city,
         state: address.state,
         zip: address.zip,
-        country: address.country || "US",
+        country: address.country === "USA" ? "US" : (address.country || "US"),
       },
       selectedBox 
     );
