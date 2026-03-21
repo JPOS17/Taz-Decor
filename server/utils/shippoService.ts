@@ -256,6 +256,12 @@ export const getRealTimeShippingRates = async (
     console.log("✅ Shippo API response received");
     console.log("📊 Number of rates returned:", shipment.rates?.length || 0);
 
+    console.log("🔍 Raw rates:", JSON.stringify(shipment.rates?.map((r: any) => ({
+      provider: r.provider,
+      token: r.servicelevel?.token,
+      amount: r.amount
+    })), null, 2));
+
     // Filter and format rates
     const rates: ShippingRate[] = (shipment.rates || [])
       .filter((rate: any) => {
@@ -299,53 +305,6 @@ export const getRealTimeShippingRates = async (
     console.error("Error details:", JSON.stringify(error, null, 2));
     throw new Error(
       `Failed to get shipping rates: ${error.message || "Unknown error"}`
-    );
-  }
-};
-
-// ============================================================================
-// LABEL PURCHASE
-// ============================================================================
-
-/**
- * Purchase a shipping label
- */
-export const purchaseShippingLabel = async (
-  rateId: string
-): Promise<{
-  tracking_number: string;
-  label_url: string;
-  carrier: string;
-  service: string;
-}> => {
-  try {
-    const transaction = await shippoClient.transactions.create({
-      rate: rateId,
-      labelFileType: "PDF",
-      async: false,
-    });
-
-    if (transaction.status !== "SUCCESS") {
-      throw new Error(
-        `Label purchase failed: ${transaction.messages?.[0]?.text || "Unknown error"}`
-      );
-    }
-
-    // Extract rate info - transaction.rate can be a string (rate ID) or an object
-    const rateInfo = typeof transaction.rate === 'string' 
-      ? { provider: '', servicelevel: { name: '' } }
-      : transaction.rate;
-
-    return {
-      tracking_number: transaction.trackingNumber || "",
-      label_url: transaction.labelUrl || "",
-      carrier: (rateInfo as any)?.provider || "",
-      service: (rateInfo as any)?.servicelevel?.name || "",
-    };
-  } catch (error: any) {
-    console.error("Error purchasing shipping label:", error);
-    throw new Error(
-      `Failed to purchase shipping label: ${error.message || "Unknown error"}`
     );
   }
 };
