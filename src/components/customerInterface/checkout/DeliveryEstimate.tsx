@@ -55,6 +55,8 @@ const DB_KEY_MAP: Record<string, string> = {
   usps_ground_advantage: "usps ground advantage",
   usps_priority: "usps priority mail",
   usps_priority_express: "usps priority mail express",
+  ups_ground_saver: "usps ground advantage",
+  ups_ground: "usps priority mail",
 };
 
 // ============================================================================

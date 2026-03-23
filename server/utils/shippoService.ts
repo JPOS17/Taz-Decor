@@ -117,7 +117,7 @@ export const validateAddress = async (
   try {
     console.log("🔍 Validating address:", JSON.stringify(address, null, 2));
 
-    // Only validate U.S. addresses (free)
+    // Only validate U.S. addresses
     if (address.country !== "US" && address.country !== "USA") {
       throw new Error("Address validation is only available for U.S. addresses");
     }
@@ -211,7 +211,7 @@ export const getRealTimeShippingRates = async (
       massUnit: "lb",
     };
 
-    // Use the selected box dimensions if provided (from packing algorithm)
+    // Use the selected box dimensions (from packing algorithm)
     if (selectedBox) {
       parcel = {
         ...parcel,
@@ -270,16 +270,18 @@ export const getRealTimeShippingRates = async (
           return false;
         }
         
-        // Only show USPS carriers
-        if (rate.provider !== "USPS") {
+        // Only show USPS & UPS carriers
+        if (rate.provider !== "USPS" && rate.provider !== "UPS") {
           return false;
         }
         
-        // Show only affordable USPS options
+        // Show only affordable USPS & UPS options
         const allowedServices = [
           "usps_ground_advantage",
           "usps_priority",
-          "usps_priority_express"
+          "usps_priority_express",
+          "ups_ground_saver",
+          "ups_ground"
         ];
         
         return allowedServices.includes(rate.servicelevel?.token);
@@ -305,32 +307,6 @@ export const getRealTimeShippingRates = async (
     console.error("Error details:", JSON.stringify(error, null, 2));
     throw new Error(
       `Failed to get shipping rates: ${error.message || "Unknown error"}`
-    );
-  }
-};
-
-// ============================================================================
-// TRACKING
-// ============================================================================
-
-/**
- * Track a shipment using tracking number and carrier
- */
-export const trackShipment = async (
-  carrier: string,
-  trackingNumber: string
-): Promise<any> => {
-  try {
-    const tracking = await shippoClient.trackingStatus.create({
-      carrier: carrier.toLowerCase(),
-      trackingNumber: trackingNumber,
-    });
-
-    return tracking;
-  } catch (error: any) {
-    console.error("Error tracking shipment:", error);
-    throw new Error(
-      `Failed to track shipment: ${error.message || "Unknown error"}`
     );
   }
 };

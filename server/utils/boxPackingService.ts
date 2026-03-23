@@ -79,16 +79,13 @@ const canFitIn = (
 // ============================================================================
 
 /**
- * Check if order contains only flat items (cards, stickers, accessories)
- * These can be shipped in envelopes
+ * Check if order contains only flat items
  */
 const isEnvelopeEligible = (items: PackingItem[]): boolean => {
-  // If any item has non-zero dimensions, it's not envelope eligible
-  // Envelope items should have height close to 0 or explicitly marked
-  const ENVELOPE_MAX_HEIGHT = 0.5; // inches
+  // Envelope items should have a height 0.5 or smaller
+  const ENVELOPE_MAX_HEIGHT = 0.5;
   
   return items.every(item => {
-    // All dimensions are 0 or very small (flat items)
     return (
       item.length_in === 0 ||
       item.width_in === 0 ||
@@ -191,7 +188,6 @@ const calculateStackingOrientation = (
 /**
  * Try multiple stacking orientations to find the most efficient packing
  * 
- * This function tests 3 different stacking strategies:
  * 1. Stack by height (tallest dimension)
  * 2. Stack by width (middle dimension)
  * 3. Stack by length (longest dimension)
@@ -260,7 +256,7 @@ const calculateBoundingBox = (items: PackingItem[]): Dimensions => {
  * Algorithm:
  * 1. If all items are flat (cards/stickers), use envelope
  * 2. If mixed items, use smallest box that fits
- * 3. Otherwise, calculate bounding box (trying 3 orientations) and find smallest fitting box
+ * 3. Otherwise, calculate bounding box and find smallest fitting box
  * 4. If no box fits, use default large box
  * 
  * @param items - Array of items with dimensions and quantities
@@ -303,7 +299,7 @@ export const selectShippingBox = async (
       return null;
     }
 
-    // Check if all items are envelope-eligible (flat items only)
+    // Check if all items are envelope-eligible
     if (isEnvelopeEligible(items)) {
       console.log("✉️ All items are flat - envelope eligible");
       const envelope = availableBoxes.find(box => box.box_type === "envelope");
@@ -313,12 +309,12 @@ export const selectShippingBox = async (
       }
     }
 
-    // If mixed items (flat + non-flat), must use a box
+    // If mixed items, must use a box
     if (hasMixedItems(items)) {
       console.log("📦 Mixed items detected - must use box (not envelope)");
     }
 
-    // Filter to only boxes (not envelopes) for 3D items
+    // Filter to only boxes for 3D items
     const boxes = availableBoxes.filter(box => box.box_type === "box");
     
     if (boxes.length === 0) {
@@ -327,7 +323,6 @@ export const selectShippingBox = async (
     }
 
     // Calculate the bounding box needed for all items
-    // IMPROVED: Now tries 3 different stacking orientations
     const boundingBox = calculateBoundingBox(items);
     console.log(`📐 Calculated bounding box: ${JSON.stringify(boundingBox, null, 2)}`);
 
@@ -344,7 +339,7 @@ export const selectShippingBox = async (
     }
 
     // If nothing fits, use the largest box as default
-    const largestBox = boxes[boxes.length - 1]; // Last one should be largest due to ordering
+    const largestBox = boxes[boxes.length - 1]; 
     console.log(`⚠️ No box fits perfectly, using largest box: ${largestBox.box_name}`);
     return largestBox;
 
