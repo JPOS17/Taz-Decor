@@ -43,7 +43,6 @@ export interface ShippingBox {
 
 /**
  * Sort dimensions in descending order (largest to smallest)
- * This helps with consistent orientation when packing
  */
 const sortDimensions = (dims: Dimensions): [number, number, number] => {
   return [dims.length_in, dims.width_in, dims.height_in].sort((a, b) => b - a) as [number, number, number];
@@ -82,6 +81,7 @@ const canFitIn = (
  * Check if order contains only flat items
  */
 const isEnvelopeEligible = (items: PackingItem[]): boolean => {
+  
   // Envelope items should have a height 0.5 or smaller
   const ENVELOPE_MAX_HEIGHT = 0.5;
   
@@ -195,6 +195,7 @@ const calculateStackingOrientation = (
  * Returns the orientation that produces the smallest bounding box
  */
 const calculateBoundingBox = (items: PackingItem[]): Dimensions => {
+ 
   if (items.length === 0) {
     return { length_in: 0, width_in: 0, height_in: 0 };
   }

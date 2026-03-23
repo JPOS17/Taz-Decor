@@ -3,6 +3,12 @@ import type { ShippingOption } from "../../../api/checkout";
 import DeliveryEstimate from "./DeliveryEstimate";
 import LoadingSpinner from "../../universalComponents/LoadingSpinner";
 
+const SERVICE_DISPLAY_MAP: Record<string, { carrier: string; name: string }> = {
+  usps_ground_advantage: { carrier: "USPS", name: "Ground Advantage" },
+  usps_priority: { carrier: "USPS", name: "Priority Mail" },
+  usps_priority_express: { carrier: "USPS", name: "Priority Mail Express" },
+};
+
 interface ShippingOptionsSelectorProps {
   loadingShipping: boolean;
   shippingError: string | null;
@@ -74,7 +80,7 @@ const ShippingOptionsSelector = ({
       <div className="cp-shipping-options-container">
         <h3 className="cp-shipping-title">Shipping Method</h3>
         <div className="cp-shipping-placeholder">
-          <p>Select a shipping address to see available rates</p>
+          <p>No Current Carriers Available</p>
         </div>
       </div>
     );
@@ -106,7 +112,11 @@ const ShippingOptionsSelector = ({
             <div className="cp-shipping-option-details">
               <div className="cp-shipping-option-header">
                 <p className="cp-shipping-carrier-name">
-                  {option.carrier} - {option.service_level_name}
+                  {SERVICE_DISPLAY_MAP[option.service]?.carrier ??
+                    option.carrier}{" "}
+                  -{" "}
+                  {SERVICE_DISPLAY_MAP[option.service]?.name ??
+                    option.service_level_name}
                 </p>
                 <p className="cp-shipping-price">
                   ${parseFloat(option.amount).toFixed(2)}

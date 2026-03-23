@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   saveSession,
@@ -272,17 +272,26 @@ const CheckoutPage = () => {
     }
   }, [cartItems, user, coupons, selectedCartLevelCoupon]);
 
-  // Re-fetch shipping options when free shipping status changes
+  // Load shipping options whenever one of these change
   useEffect(() => {
     if (
       !isGuest &&
       selectedAddressId &&
+      addresses.length > 0 &&
       cartItems.length > 0 &&
-      currentStep === "shipping"
+      currentStep === "shipping" &&
+      coupons !== null
     ) {
       handleCalculateShipping();
     }
-  }, [isFreeShipping]);
+  }, [
+    selectedAddressId,
+    addresses.length,
+    currentStep,
+    isGuest,
+    isFreeShipping,
+    coupons,
+  ]);
 
   // Recalculate totals whenever relevant state changes
   useEffect(() => {
@@ -295,20 +304,6 @@ const CheckoutPage = () => {
     isEmailVerified,
     currentStep,
   ]);
-
-  // Load shipping options for auth users whenever:
-  // - An address is selected AND addresses have finished loading from the API
-  useEffect(() => {
-    if (
-      !isGuest &&
-      selectedAddressId &&
-      addresses.length > 0 &&
-      cartItems.length > 0 &&
-      currentStep === "shipping"
-    ) {
-      handleCalculateShipping();
-    }
-  }, [selectedAddressId, addresses.length, currentStep, isGuest]);
 
   // Load shipping options for guests on refresh
   useEffect(() => {
@@ -594,7 +589,7 @@ const CheckoutPage = () => {
 
       if (selectedShipping) {
         const refreshed = result.shipping_options.find(
-          (o) => o.service_level_name === selectedShipping.service_level_name,
+          (o) => o.service === selectedShipping.service,
         );
         if (refreshed) {
           setSelectedShipping(refreshed);
@@ -946,10 +941,6 @@ const CheckoutPage = () => {
       setShowValidationModal(false);
       setPendingAddressData(null);
       setValidationResult(null);
-      // If the currently-selected address was edited, trigger it manually.
-      if (wasEditingSelected && selectedAddressId) {
-        handleCalculateShipping();
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save address");
     } finally {
@@ -1113,6 +1104,10 @@ const CheckoutPage = () => {
     setValidationResult(null);
     handleCalculateShippingGuest();
   };
+
+  // ============================================================================
+  // RENDER: Loading Screen
+  // ============================================================================
 
   if (isInitialLoad) {
     return (
@@ -1774,7 +1769,7 @@ const CheckoutPage = () => {
                   </>
                 )}
 
-                {/* Shipping options (shown once we have rates) */}
+                {/* Shipping options */}
                 {((isGuest && guestAddressValidated) ||
                   (!isGuest && selectedAddressId)) && (
                   <ShippingOptionsSelector
@@ -1794,7 +1789,7 @@ const CheckoutPage = () => {
 
                 {selectedShipping && !loadingShipping && !isFreeShipping && (
                   <DeliveryEstimate
-                    shippingMethodName={selectedShipping.service_level_name}
+                    shippingMethodName={selectedShipping.service}
                     className="cp-review-delivery-estimate"
                   />
                 )}
@@ -1908,7 +1903,7 @@ const CheckoutPage = () => {
 
                   {selectedShipping && !loadingShipping && (
                     <DeliveryEstimate
-                      shippingMethodName={selectedShipping.service_level_name}
+                      shippingMethodName={selectedShipping.service}
                       className="cp-review-delivery-estimate"
                     />
                   )}

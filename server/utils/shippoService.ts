@@ -270,18 +270,16 @@ export const getRealTimeShippingRates = async (
           return false;
         }
         
-        // Only show USPS & UPS carriers
-        if (rate.provider !== "USPS" && rate.provider !== "UPS") {
+        // Only show USPS carriers
+        if (rate.provider !== "USPS") {
           return false;
         }
         
-        // Show only affordable USPS & UPS options
+        // Show only affordable USPS options
         const allowedServices = [
           "usps_ground_advantage",
           "usps_priority",
-          "usps_priority_express",
-          "ups_ground_saver",
-          "ups_ground"
+          "usps_priority_express"
         ];
         
         return allowedServices.includes(rate.servicelevel?.token);

@@ -13,6 +13,7 @@ export async function generateProductSKU(
   client: Pool | PoolClient, 
   productTypeId: number
 ): Promise<string> {
+
   // Get the SKU prefix from product_types table
   const typeResult = await client.query(`
     SELECT sku_prefix
@@ -41,8 +42,10 @@ export async function generateProductSKU(
   
   if (result.rows.length > 0) {
     const lastSKU = result.rows[0].sku;
+
     // Extract product number from SKU (e.g., "JRN-007-002" -> "007")
     const match = lastSKU.match(/^[A-Z]+-(\d{3})-\d{3}$/);
+
     if (match) {
       const lastProductNum = parseInt(match[1], 10);
       nextProductNum = lastProductNum + 1;
@@ -94,6 +97,7 @@ export async function generateVariantSKU(
   }
 
   const existingSKU = result.rows[0].sku;
+  
   // Extract product number and variant number
   const match = existingSKU.match(/^[A-Z]+-(\d{3})-(\d{3})$/);
   
