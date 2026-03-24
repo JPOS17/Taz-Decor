@@ -52,7 +52,7 @@ export interface ProductDetail extends BaseProduct {
   length_in: number | null;
   width_in: number | null;
   height_in: number | null;
-  location_name: string;
+  location_city: string;
   location_state: string;
   variants: ProductVariant[];
 }

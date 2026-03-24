@@ -109,7 +109,7 @@ export interface ShippingCalculationWithRates {
 export interface GuestInfo {
   email: string;
   first_name: string;
-  last_name?: string;
+  last_name: string;
   phone?: string;
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useCart, type CartItem } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
@@ -39,9 +39,43 @@ const MiniCart = ({
   const { user } = useAuth();
   const { cartItems, getCartCount, removeFromCart } = useCart();
 
+  const [justRemovedItem, setJustRemovedItem] = useState(false);
+  const [showAddedMessage, setShowAddedMessage] = useState(false);
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
 
+  const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const removedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const isEmailVerified = user?.isEmailVerified ?? false;
+
+  // Show added message for 3 seconds when justAddedItem changes
+  useEffect(() => {
+    if (justAddedItem) {
+      // Hide removed message if showing
+      setJustRemovedItem(false);
+      if (removedTimerRef.current) clearTimeout(removedTimerRef.current);
+
+      setShowAddedMessage(true);
+      if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+
+      addedTimerRef.current = setTimeout(() => {
+        const el = document.querySelector(".mini-cart-notification--added");
+        if (el) el.classList.add("mini-cart-notification--hiding");
+        setTimeout(() => setShowAddedMessage(false), 300);
+      }, 2700);
+    }
+
+    return () => {
+      if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+    };
+  }, [justAddedItem]);
+
+  // Cleanup removed timer on unmount
+  useEffect(() => {
+    return () => {
+      if (removedTimerRef.current) clearTimeout(removedTimerRef.current);
+    };
+  }, []);
 
   // Load coupons when mini cart opens or cart items change
   useEffect(() => {
@@ -63,7 +97,6 @@ const MiniCart = ({
   const getCouponForItem = (item: CartItem): ProductCoupon | null => {
     if (!coupons || !item.selected_coupon_id) return null;
 
-    // Find the coupon in all categories
     const allCoupons = [
       ...coupons.all,
       ...coupons.category,
@@ -77,7 +110,6 @@ const MiniCart = ({
       (c) => c.coupon_id === item.selected_coupon_id,
     );
 
-    // Only return if it's an item-level coupon
     if (coupon && isItemLevelCoupon(coupon)) {
       return coupon;
     }
@@ -91,7 +123,6 @@ const MiniCart = ({
 
     if (!isEmailVerified) return bogoDiscounts;
 
-    // Group items by their BOGO coupon
     const bogoCouponGroups = new Map<number, CartItem[]>();
 
     cartItems.forEach((item) => {
@@ -105,8 +136,7 @@ const MiniCart = ({
       }
     });
 
-    // Calculate discount for each BOGO group
-    bogoCouponGroups.forEach((items, couponId) => {
+    bogoCouponGroups.forEach((items) => {
       const coupon = getCouponForItem(items[0]);
       if (!coupon) return;
 
@@ -115,16 +145,12 @@ const MiniCart = ({
       const discountPercentage = coupon.bogo_discount_percentage || 100;
       const maxDiscountAmount = coupon.max_discount_amount || undefined;
 
-      // Calculate total quantity across all items in this BOGO group
       const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-
-      // Calculate how many complete BOGO sets we have
       const completeSets = Math.floor(totalQuantity / (buyQty + getQty));
       const itemsToDiscount = completeSets * getQty;
 
       if (itemsToDiscount === 0) return;
 
-      // Create array of individual items for sorting
       const individualItems: Array<{ variant_id: number; price: number }> = [];
       for (const item of items) {
         for (let i = 0; i < item.quantity; i++) {
@@ -135,22 +161,17 @@ const MiniCart = ({
         }
       }
 
-      // Sort by price ascending (cheapest items get discounted)
       individualItems.sort((a, b) => a.price - b.price);
 
-      // Apply discount to the cheapest items
       let totalDiscount = 0;
       for (let i = 0; i < itemsToDiscount; i++) {
         const item = individualItems[i];
         const itemDiscount = item.price * (discountPercentage / 100);
-
         const currentDiscount = bogoDiscounts.get(item.variant_id) || 0;
         bogoDiscounts.set(item.variant_id, currentDiscount + itemDiscount);
-
         totalDiscount += itemDiscount;
       }
 
-      // Apply max discount cap if set
       if (maxDiscountAmount && totalDiscount > maxDiscountAmount) {
         const ratio = maxDiscountAmount / totalDiscount;
         for (const [variantId, discount] of bogoDiscounts.entries()) {
@@ -169,24 +190,20 @@ const MiniCart = ({
     return cartItems.reduce((total, item) => {
       const itemCoupon = getCouponForItem(item);
 
-      // If no coupon or email not verified, use original price
       if (!itemCoupon || !isEmailVerified) {
         return total + item.price * item.quantity;
       }
 
-      // For BOGO, use pre-calculated discount
       if (itemCoupon.discount_type === "bogo") {
         const bogoDiscount = bogoDiscounts.get(item.variant_id) || 0;
         const itemTotal = item.price * item.quantity - bogoDiscount;
         return total + itemTotal;
       }
 
-      // For non-BOGO coupons, check if should show discount
       if (!shouldShowDiscountedPrice(itemCoupon)) {
         return total + item.price * item.quantity;
       }
 
-      // Calculate discount for non-BOGO coupons
       const discountInfo = calculateDiscount(
         item.price,
         itemCoupon,
@@ -195,8 +212,6 @@ const MiniCart = ({
       return total + (discountInfo.totalPrice ?? item.price * item.quantity);
     }, 0);
   };
-
-  if (!isOpen) return null;
 
   const handleViewCart = () => {
     onClose();
@@ -220,10 +235,25 @@ const MiniCart = ({
   const handleRemoveItem = (variantId: number, e: React.MouseEvent) => {
     e.stopPropagation();
     removeFromCart(variantId);
+
+    // Hide added message if showing
+    setShowAddedMessage(false);
+    if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
+
+    // Show removed message for 3 seconds with slide-out animation
+    setJustRemovedItem(true);
+    if (removedTimerRef.current) clearTimeout(removedTimerRef.current);
+    removedTimerRef.current = setTimeout(() => {
+      const el = document.querySelector(".mini-cart-notification--removed");
+      if (el) el.classList.add("mini-cart-notification--hiding");
+      setTimeout(() => setJustRemovedItem(false), 300);
+    }, 2700);
   };
 
   const subtotalWithDiscounts = calculateSubtotalWithDiscounts();
   const bogoDiscounts = calculateBogoDiscounts();
+
+  if (!isOpen) return null;
 
   return (
     <div className="mini-cart-overlay" onClick={onClose}>
@@ -242,17 +272,24 @@ const MiniCart = ({
           </button>
         </div>
 
-        {/* Success Message */}
-        {justAddedItem && (
-          <div className="mini-cart-success">
-            <FaCheckCircle className="mini-cart-success-icon" />
-            <span className="mini-cart-success-text">
+        {/* Notification Messages */}
+        {justRemovedItem ? (
+          <div className="mini-cart-notification mini-cart-notification--removed">
+            <FaCheckCircle className="mini-cart-notification-icon" />
+            <span className="mini-cart-notification-text">
+              Item removed from your cart!
+            </span>
+          </div>
+        ) : showAddedMessage && justAddedItem ? (
+          <div className="mini-cart-notification mini-cart-notification--added">
+            <FaCheckCircle className="mini-cart-notification-icon" />
+            <span className="mini-cart-notification-text">
               {isNewItem
                 ? "Item added to your cart!"
                 : "Item already in your cart!"}
             </span>
           </div>
-        )}
+        ) : null}
 
         {/* Cart Items */}
         <div className="mini-cart-body">
@@ -268,13 +305,11 @@ const MiniCart = ({
 
               if (itemCoupon && isEmailVerified) {
                 if (isBogo) {
-                  // For BOGO, use pre-calculated discount
                   const bogoDiscount = bogoDiscounts.get(item.variant_id) || 0;
                   hasDiscount =
                     bogoDiscount > 0 && shouldShowDiscountedPrice(itemCoupon);
                   displayPrice = item.price * item.quantity - bogoDiscount;
                 } else {
-                  // For non-BOGO, calculate normally
                   hasDiscount = shouldShowDiscountedPrice(itemCoupon);
                   if (hasDiscount) {
                     const discountInfo = calculateDiscount(

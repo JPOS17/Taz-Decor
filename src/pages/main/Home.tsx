@@ -2,6 +2,8 @@ import React from "react";
 import "../../styles/pages/main/Home.css";
 import PrimaryImage from "../../../public/PrimaryImage.jpeg";
 
+import { FaCross } from "react-icons/fa";
+
 // ============================================================================
 // HOME COMPONENT
 // ============================================================================
@@ -23,7 +25,9 @@ const Home = () => {
       <div className="home-content">
         <div className="home-content-inner">
           <div className="home-cross-divider">
-            <span className="cross-symbol">✝</span>
+            <span className="cross-symbol">
+              <FaCross />
+            </span>
           </div>
 
           <h1 className="home-title">Welcome to Taz Decor's Catholic Shop</h1>
@@ -46,7 +50,9 @@ const Home = () => {
           </div>
 
           <div className="home-cross-divider">
-            <span className="cross-symbol">✝</span>
+            <span className="cross-symbol">
+              <FaCross />
+            </span>
           </div>
         </div>
       </div>

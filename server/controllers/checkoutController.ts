@@ -89,6 +89,7 @@ export const validateAddressEndpoint = async (req: Request, res: Response): Prom
  */
 export const validateCart = async (req: Request, res: Response): Promise<void> => {
   try {
+
     const user = getUserFromToken(req.headers.authorization);
     if (!user) {
       res.status(401).json({ message: "Not authenticated" });
@@ -96,11 +97,17 @@ export const validateCart = async (req: Request, res: Response): Promise<void> =
     }
 
     const { cartItems } = req.body;
-
     if (!cartItems || cartItems.length === 0) {
       res.status(400).json({ message: "Cart is empty" });
       return;
     }
+
+    const getItemLabel = (dbItem: { name: string; color: string | null; size: string | null }) => {
+      const parts = [dbItem.name];
+      if (dbItem.color) parts.push(dbItem.color);
+      if (dbItem.size) parts.push(dbItem.size);
+      return parts.join(" – ");
+    };
 
     const variantIds = cartItems.map((item: any) => item.variant_id);
 
@@ -111,7 +118,9 @@ export const validateCart = async (req: Request, res: Response): Promise<void> =
         pv.price,
         pv.quantity as stock,
         pv.is_active,
-        p.name
+        p.name,
+        pv.color,
+        pv.size
       FROM product_variants pv
       JOIN products p ON p.product_id = pv.product_id
       WHERE pv.variant_id = ANY($1)`,
@@ -139,11 +148,12 @@ export const validateCart = async (req: Request, res: Response): Promise<void> =
         };
       }
 
+      const label = getItemLabel(dbItem);
       if (!dbItem.is_active) {
         return {
           variant_id: cartItem.variant_id,
           valid: false,
-          error: "Product is no longer active"
+          error: `${label}: product is no longer active`
         };
       }
 
@@ -151,21 +161,24 @@ export const validateCart = async (req: Request, res: Response): Promise<void> =
         return {
           variant_id: cartItem.variant_id,
           valid: false,
-          error: `Insufficient stock. Only ${dbItem.stock} available`,
+          error: `${label}: only ${dbItem.stock} in stock`,
           available_stock: dbItem.stock
         };
       }
 
       // Check if price has changed
       const priceChanged = Math.abs(parseFloat(dbItem.price) - cartItem.price) > 0.01;
-      
-      return {
-        variant_id: cartItem.variant_id,
-        valid: true,
-        price_changed: priceChanged,
-        current_price: parseFloat(dbItem.price),
-        cart_price: cartItem.price
-      };
+
+      if (priceChanged) {
+        return {
+          variant_id: cartItem.variant_id,
+          valid: false,
+          error: `${label}: price has changed from $${cartItem.price.toFixed(2)} to $${parseFloat(dbItem.price).toFixed(2)}`,
+          price_changed: true,
+          current_price: parseFloat(dbItem.price),
+          cart_price: cartItem.price
+        };
+      }
     });
 
     const allValid = validationResults.every(item => item.valid);

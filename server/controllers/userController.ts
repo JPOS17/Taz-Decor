@@ -94,6 +94,14 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       return;
     }
 
+    if (phone) {
+      const phoneDigits = phone.replace(/\D/g, "");
+      if (phoneDigits.length !== 10) {
+        res.status(400).json({ message: "Please enter a valid 10-digit phone number" });
+        return;
+      }
+    }
+
     // Update user profile
     const result = await pool.query(
       `UPDATE users 

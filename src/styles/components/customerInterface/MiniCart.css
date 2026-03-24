@@ -126,36 +126,59 @@
 }
 
 /* ============================================================================
-   SUCCESS MESSAGE
+   NOTIFICATION MESSAGES
    ============================================================================ */
 
-.mini-cart-success {
+.mini-cart-notification {
   padding: 0.6rem 1.25rem;
-  background: rgba(46, 125, 82, 0.1);
-  border-bottom: 1.5px solid rgba(46, 125, 82, 0.2);
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #1e5c3a;
   flex-shrink: 0;
-  animation: slideInSuccess 0.25s ease-out;
+  animation: slideInNotification 0.25s ease-out;
 }
 
-@keyframes slideInSuccess {
+@keyframes slideInNotification {
   from { transform: translateY(-8px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
 
-.mini-cart-success-icon {
-  flex-shrink: 0;
-  font-size: 1rem;
+/* Added message — green */
+.mini-cart-notification--added {
+  background: rgba(46, 125, 82, 0.1);
+  border-bottom: 1.5px solid rgba(46, 125, 82, 0.2);
+}
+
+.mini-cart-notification--added .mini-cart-notification-icon {
   color: #2e7d52;
 }
 
-.mini-cart-success-text {
+.mini-cart-notification--added .mini-cart-notification-text {
+  color: #1e5c3a;
+}
+
+/* Removed message — red */
+.mini-cart-notification--removed {
+  background: rgba(181, 52, 30, 0.1);
+  border-bottom: 1.5px solid rgba(181, 52, 30, 0.2);
+}
+
+.mini-cart-notification--removed .mini-cart-notification-icon {
+  color: #b5341e;
+}
+
+.mini-cart-notification--removed .mini-cart-notification-text {
+  color: #b5341e;
+}
+
+.mini-cart-notification-icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.mini-cart-notification-text {
   font-size: 0.8375rem;
   font-weight: 600;
-  color: #1e5c3a;
 }
 
 /* ============================================================================
@@ -477,4 +500,13 @@
     padding: 0.6rem 1rem;
     font-size: 0.875rem;
   }
+}
+
+.mini-cart-notification--hiding {
+  animation: slideOutNotification 0.3s ease-in forwards;
+}
+
+@keyframes slideOutNotification {
+  from { transform: translateY(0);   opacity: 1; max-height: 60px; }
+  to   { transform: translateY(-8px); opacity: 0; max-height: 0;   padding: 0; }
 }

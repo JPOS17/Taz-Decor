@@ -142,13 +142,13 @@ const IndividualListing = () => {
     window.scrollTo(0, 0);
   }, [variantId]);
 
+  // Effect 1 — only runs on initial load or when variantId changes (shows spinner)
   useEffect(() => {
     const loadProduct = async () => {
       if (!variantId) return;
       try {
         setLoading(true);
         setError(null);
-
         const data = await fetchProductDetail(Number(variantId));
         setProduct(data);
         setSelectedImage(data.images[0] || "");
@@ -165,35 +165,6 @@ const IndividualListing = () => {
 
         setStats(statsData);
         setCoupons(couponsData);
-
-        // Restore saved coupon — prioritize cart over wishlist
-        if (isInCart(Number(variantId))) {
-          const cartItem = cartItems.find(
-            (item) => item.variant_id === Number(variantId),
-          );
-          if (cartItem?.selected_coupon_id) {
-            const savedCoupon = couponsData.find(
-              (c) => c.coupon_id === cartItem.selected_coupon_id,
-            );
-            setSelectedCoupon(savedCoupon || null);
-          } else {
-            setSelectedCoupon(null);
-          }
-        } else if (isInWishlist(Number(variantId))) {
-          const wishlistItem = wishlistItems.find(
-            (item) => item.variant_id === Number(variantId),
-          );
-          if (wishlistItem?.selected_coupon_id) {
-            const savedCoupon = couponsData.find(
-              (c) => c.coupon_id === wishlistItem.selected_coupon_id,
-            );
-            setSelectedCoupon(savedCoupon || null);
-          } else {
-            setSelectedCoupon(null);
-          }
-        } else {
-          setSelectedCoupon(null);
-        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
       } finally {
@@ -202,7 +173,40 @@ const IndividualListing = () => {
     };
 
     loadProduct();
-  }, [variantId, wishlistItems, cartItems]);
+  }, [variantId]);
+
+  // Effect 2 — only restores selected coupon when cart/wishlist changes (no spinner)
+  useEffect(() => {
+    if (!coupons || coupons.length === 0) return;
+
+    if (isInCart(Number(variantId))) {
+      const cartItem = cartItems.find(
+        (item) => item.variant_id === Number(variantId),
+      );
+      if (cartItem?.selected_coupon_id) {
+        const savedCoupon = coupons.find(
+          (c) => c.coupon_id === cartItem.selected_coupon_id,
+        );
+        setSelectedCoupon(savedCoupon || null);
+      } else {
+        setSelectedCoupon(null);
+      }
+    } else if (isInWishlist(Number(variantId))) {
+      const wishlistItem = wishlistItems.find(
+        (item) => item.variant_id === Number(variantId),
+      );
+      if (wishlistItem?.selected_coupon_id) {
+        const savedCoupon = coupons.find(
+          (c) => c.coupon_id === wishlistItem.selected_coupon_id,
+        );
+        setSelectedCoupon(savedCoupon || null);
+      } else {
+        setSelectedCoupon(null);
+      }
+    } else {
+      setSelectedCoupon(null);
+    }
+  }, [variantId, cartItems, wishlistItems, coupons]);
 
   // ============================================================================
   // EVENT HANDLERS — IMAGE GALLERY
@@ -621,7 +625,7 @@ const IndividualListing = () => {
                 <div className="shipping-item">
                   <FaWarehouse className="shipping-icon" />
                   <span>
-                    <strong>Ships from:</strong> {product.location_name},{" "}
+                    <strong>Ships from:</strong> {product.location_city},{" "}
                     {product.location_state}
                   </span>
                 </div>

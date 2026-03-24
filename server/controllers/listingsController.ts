@@ -151,7 +151,7 @@ export const getProductDetail = async (req: Request, res: Response): Promise<voi
         pv.length_in,
         pv.width_in,
         pv.height_in,
-        sl.location_name,
+        sl.city AS location_city,
         sl.state AS location_state,
         -- Get primary category
         (

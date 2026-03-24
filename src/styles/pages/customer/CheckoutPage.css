@@ -576,6 +576,10 @@
   margin-bottom: 1.5rem;
 }
 
+.cp-guest-address-section {
+  border-top: 1.5px solid var(--co-border);
+}
+
 .cp-guest-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -698,6 +702,18 @@
   border-style: solid;
   border-color: var(--co-accent);
   color: var(--co-accent-dark);
+}
+
+.cp-guest-contact-section input:not(:placeholder-shown),
+.cp-guest-address-section input:not(:placeholder-shown) {
+  background-color: rgba(108, 201, 255, 0.15);
+}
+
+.cp-address-verify-hint {
+  font-size: 0.8125rem;
+  color: var(--co-brown-dark);
+  font-style: italic;
+  margin: 0.25rem 0 0 0;
 }
 
 /* ============================================================================

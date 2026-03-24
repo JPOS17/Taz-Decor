@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "../../styles/pages/main/About.css";
 
+import { FaCross, FaEnvelope } from "react-icons/fa";
+
 // ============================================================================
 // ABOUT COMPONENT
 // ============================================================================
@@ -45,16 +47,16 @@ const About = () => {
       {/* Page Header */}
       <div className="about-header">
         <div className="about-header-inner">
-          <span className="about-cross">✝</span>
           <h1 className="about-title">About Us</h1>
           <p className="about-subtitle">
             A family rooted in faith, sharing it with yours.
           </p>
-          <button onClick={handleEmailCopy} className="about-email-pill">
-            {copied
-              ? "📋 Email copied to clipboard!"
-              : "✉️ tazdecorcatholiccompany@gmail.com"}
-          </button>
+          <a
+            href="mailto:tazdecorcatholiccompany@gmail.com"
+            className="about-email-pill"
+          >
+            <FaEnvelope /> tazdecorcatholiccompany@gmail.com
+          </a>
         </div>
       </div>
 
@@ -90,12 +92,16 @@ const About = () => {
                   <span className="stat-number">540</span>
                   <span className="stat-label">Sales</span>
                 </div>
-                <div className="story-divider">✝</div>
+                <div className="story-divider">
+                  <FaCross />
+                </div>
                 <div className="story-stat">
                   <span className="stat-number">2022</span>
                   <span className="stat-label">Sharing faith since</span>
                 </div>
-                <div className="story-divider">✝</div>
+                <div className="story-divider">
+                  <FaCross />
+                </div>
                 <div className="story-stat">
                   <span className="stat-number">100%</span>
                   <span className="stat-label">Family-run with love</span>
@@ -108,7 +114,9 @@ const About = () => {
         {/* Divider */}
         <div className="about-divider">
           <span className="divider-line" />
-          <span className="divider-cross">✝</span>
+          <span className="divider-cross">
+            <FaCross />
+          </span>
           <span className="divider-line" />
         </div>
 
@@ -150,7 +158,9 @@ const About = () => {
         {/* Divider */}
         <div className="about-divider">
           <span className="divider-line" />
-          <span className="divider-cross">✝</span>
+          <span className="divider-cross">
+            <FaCross />
+          </span>
           <span className="divider-line" />
         </div>
 

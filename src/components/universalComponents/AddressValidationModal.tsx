@@ -37,10 +37,11 @@ const AddressValidationModal = ({
     <div className="avm-overlay">
       <div className="avm-modal">
         <div className="avm-header">
+          {/* Header */}
           <h3>
             {is_valid ? (
               <>
-                <FaCheckCircle color="#10b981" /> Address Validation
+                <FaCheckCircle color="#10b981" /> Address Verification
               </>
             ) : (
               <>
@@ -53,13 +54,16 @@ const AddressValidationModal = ({
           </button>
         </div>
 
+        {/* Message display */}
         <div className="avm-body">
+          {/* If user types valid address */}
           {is_valid && !hasCorrections && (
             <div className="avm-validation-success">
-              <p>Your address has been validated successfully!</p>
+              <p>Your address has been verified successfully!</p>
             </div>
           )}
 
+          {/* If user types address and has corrections */}
           {is_valid && hasCorrections && (
             <div className="avm-validation-correction">
               <p className="avm-correction-notice">
@@ -95,10 +99,12 @@ const AddressValidationModal = ({
             </div>
           )}
 
+          {/* If user types invalid address */}
           {!is_valid && (
             <div className="avm-validation-error">
               <p className="avm-error-notice">
-                ⚠️ We couldn't verify this address. Please review:
+                We couldn't verify this address. Please review your address
+                before continuing!
               </p>
               {validation_results.messages.length > 0 && (
                 <ul className="avm-validation-messages">

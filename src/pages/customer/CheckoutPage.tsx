@@ -15,7 +15,7 @@ import {
   FaTag,
   FaLock,
   FaUser,
-  FaUserSecret,
+  FaShoppingBag,
 } from "react-icons/fa";
 import {
   validateCart,
@@ -108,6 +108,7 @@ const CheckoutPage = () => {
     cartLevelCouponId,
     setCartLevelCouponId,
   } = useCart();
+  const errorRef = useRef<HTMLDivElement>(null);
 
   // ============================================================================
   // STATE MANAGEMENT
@@ -354,6 +355,14 @@ const CheckoutPage = () => {
     };
   }, []);
 
+  // Scroll if error is given
+  useEffect(() => {
+    const firstErrorEl = errorRef.current;
+    if (firstErrorEl) {
+      firstErrorEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [error]);
+
   // ============================================================================
   // DATA LOADING
   // ============================================================================
@@ -502,6 +511,15 @@ const CheckoutPage = () => {
     }
     if (!guestInfo.first_name.trim()) {
       errs.first_name = "First name is required";
+    }
+    if (!guestInfo.last_name.trim()) {
+      errs.last_name = "Last name is required";
+    }
+    if (guestInfo.phone?.trim()) {
+      const phoneDigits = guestInfo.phone.replace(/\D/g, "");
+      if (phoneDigits.length !== 10) {
+        errs.phone = "Please enter a valid 10-digit phone number";
+      }
     }
     setGuestInfoErrors(errs);
     return Object.keys(errs).length === 0;
@@ -1150,7 +1168,7 @@ const CheckoutPage = () => {
                   saveSession({ checkoutMode: "guest" });
                 }}
               >
-                <FaUserSecret size={32} />
+                <FaShoppingBag size={32} />
                 <h3>Guest Checkout</h3>
                 <p>
                   No account needed. Just your email for your order
@@ -1206,9 +1224,7 @@ const CheckoutPage = () => {
           Checkout
           {isGuest && <span className="cp-guest-mode-badge">Guest</span>}
         </h1>
-
         <StepIndicator currentStep={currentStep} />
-
         {/* Address Validation Modal */}
         {showValidationModal && validationResult && (
           <AddressValidationModal
@@ -1226,7 +1242,6 @@ const CheckoutPage = () => {
             onCancel={handleCancelValidation}
           />
         )}
-
         {/* Address Form Modal */}
         {showAddressModal && (
           <div
@@ -1253,7 +1268,6 @@ const CheckoutPage = () => {
             </div>
           </div>
         )}
-
         {/* Universal Confirm Modal */}
         <ConfirmModal
           isOpen={confirmModal.isOpen}
@@ -1266,15 +1280,14 @@ const CheckoutPage = () => {
             setConfirmModal((prev) => ({ ...prev, isOpen: false }))
           }
         />
-
+        {/* When error is detected */}
         {error && (
-          <div className="cp-checkout-error">
+          <div className="cp-checkout-error" ref={errorRef}>
             <FaExclamationTriangle />
             <span>{error}</span>
           </div>
         )}
-
-        {/* Coupon errors — auth users only */}
+        {/* Coupon errors */}
         {!isGuest && couponErrors.length > 0 && (
           <div className="coupon-errors-section">
             <h3>
@@ -1290,7 +1303,7 @@ const CheckoutPage = () => {
             </p>
           </div>
         )}
-
+        {/* Validation errors */}
         {validationErrors.length > 0 && (
           <div className="cp-checkout-validation-errors">
             <h4>Please review the following issues:</h4>
@@ -1524,10 +1537,10 @@ const CheckoutPage = () => {
                         Contact Information
                       </h3>
                       <p className="cp-section-description">
-                        Your order confirmation will be sent here. Save your
-                        order number to look up your order later.
+                        Your order confirmation will be sent to this email.
                       </p>
 
+                      {/* Contact info */}
                       <div className="cp-guest-form-grid">
                         <div className="cp-form-group">
                           <label htmlFor="guest-email">Email Address *</label>
@@ -1578,7 +1591,7 @@ const CheckoutPage = () => {
                         </div>
 
                         <div className="cp-form-group">
-                          <label htmlFor="guest-last-name">Last Name</label>
+                          <label htmlFor="guest-last-name">Last Name *</label>
                           <input
                             id="guest-last-name"
                             type="text"
@@ -1590,7 +1603,15 @@ const CheckoutPage = () => {
                               })
                             }
                             placeholder="Doe"
+                            className={
+                              guestInfoErrors.last_name ? "cp-input-error" : ""
+                            }
                           />
+                          {guestInfoErrors.last_name && (
+                            <span className="cp-field-error">
+                              {guestInfoErrors.last_name}
+                            </span>
+                          )}
                         </div>
 
                         <div className="cp-form-group">
@@ -1605,12 +1626,20 @@ const CheckoutPage = () => {
                                 phone: e.target.value,
                               })
                             }
-                            placeholder="555-555-5555"
+                            placeholder="555 555"
+                            className={
+                              guestInfoErrors.phone ? "cp-input-error" : ""
+                            }
                           />
+                          {guestInfoErrors.phone && (
+                            <span className="cp-field-error">
+                              {guestInfoErrors.phone}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
-
+                    {/* Shipping info */}
                     <div className="cp-guest-address-section">
                       <h3 className="cp-subsection-title">Shipping Address</h3>
 
@@ -1719,9 +1748,12 @@ const CheckoutPage = () => {
                           onClick={handleGuestAddressValidate}
                           disabled={loading}
                         >
-                          {loading ? "Validating..." : "Validate Address"}
+                          {loading ? "Verifying..." : "Verify Address"}
                         </button>
                       )}
+                      <p className="cp-address-verify-hint">
+                        Verify your address to get shipping options.
+                      </p>
                     </div>
                   </>
                 )}
