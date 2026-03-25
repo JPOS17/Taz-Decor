@@ -1,4 +1,4 @@
-import type { OrderDetails } from '../api/checkout';
+import type { OrderDetails } from '../api/orders';
 import type { Location } from '../api/sellerLocation';
 
 // Pirate Ship CSV row interface - customer shipping info and package details
