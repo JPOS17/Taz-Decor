@@ -143,12 +143,10 @@ const ShipByDate = ({
     <div className={`ship-by-date ship-by-date--${modifier} ${className}`}>
       <div className="ship-by-date__icon">{icon}</div>
       <div className="ship-by-date__body">
-        <span className="ship-by-date__label">
-          Ship By&nbsp;
-          <span className="ship-by-date__cap-note">· {capNote}</span>
-        </span>
+        <span className="ship-by-date__label">Ship By&nbsp;</span>
         <span className="ship-by-date__date">{formatDate(shipByDate)}</span>
         <span className="ship-by-date__sub">{subtext}</span>
+        {/* <span className="ship-by-date__cap-note">{capNote}</span> */}
       </div>
     </div>
   );

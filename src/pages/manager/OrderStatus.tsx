@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Package,
@@ -79,6 +79,8 @@ const ExpandedOrderRow = ({
     handleCancel,
   } = useConfirmationModal();
 
+  const errorRef = useRef<HTMLDivElement>(null);
+
   // ============================================================================
   // CONSTANTS
   // ============================================================================
@@ -153,6 +155,7 @@ const ExpandedOrderRow = ({
   const getPreviousStatus = () => {
     const currentIndex = getCurrentStatusIndex();
     if (currentIndex <= 0) return null;
+    if (order.status === "shipped") return null;
     return statusFlow[currentIndex - 1];
   };
 
@@ -207,6 +210,22 @@ const ExpandedOrderRow = ({
       shipped: "Make sure you've added tracking information before proceeding.",
       delivered: "This indicates the customer has received their package.",
     };
+
+    if (nextStatus.value === "shipped" && !trackingNumber.trim()) {
+      setError(
+        "Please enter a tracking number before marking the order as shipped.",
+      );
+      setTimeout(
+        () =>
+          errorRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          }),
+        0,
+      );
+      return;
+    }
+
     const message =
       statusMessages[nextStatus.value] ||
       `This will move the order to ${nextStatus.label}.`;
@@ -236,7 +255,7 @@ const ExpandedOrderRow = ({
       const payload: UpdateOrderStatusPayload = {
         status: order.status,
         notes: trackingNote,
-        tracking_number: trackingNumber || undefined,
+        tracking_number: trackingNumber.trim() || null,
         shipping_carrier: shippingCarrier || undefined,
       };
       await updateOrderStatus(order.order_id, payload);
@@ -305,73 +324,69 @@ const ExpandedOrderRow = ({
             </div>
           ) : (
             <>
-              {error && <div className="order-error-message">{error}</div>}
+              {error && (
+                <div className="order-error-message" ref={errorRef}>
+                  {error}
+                </div>
+              )}
 
               {/* Order Details */}
               <div className="order-details-section">
                 <h3>Order Details</h3>
-                <div className="order-details-grid">
+
+                {/* Identity & Shipping Info */}
+                <div className="order-details-primary">
                   <div className="order-detail-item">
-                    <strong>Order Number:</strong> {order.order_number}
+                    <strong>Order Number</strong>
+                    {order.order_number}
                   </div>
                   <div className="order-detail-item">
-                    <strong>Status:</strong>{" "}
+                    <strong>Created</strong>
+                    {formatDate(order.created_at)}
+                  </div>
+                  <div className="order-detail-item">
+                    <strong>Status</strong>
                     <span
                       className={`order-status-badge order-status-badge-${statusFlow.find((s) => s.value === order.status)?.color || "gray"}`}
                     >
                       {order.status.replace(/_/g, " ")}
                     </span>
                   </div>
-                  <div className="order-detail-item">
-                    <strong>Subtotal:</strong> ${order.subtotal.toFixed(2)}
-                  </div>
-                  <div className="order-detail-item">
-                    <strong>Discount:</strong> $
-                    {order.discount_amount?.toFixed(2) || "0.00"}
-                  </div>
-                  <div className="order-detail-item">
-                    <strong>Shipping:</strong> ${order.shipping_cost.toFixed(2)}
-                  </div>
-                  <div className="order-detail-item">
-                    <strong>Tax:</strong> $
-                    {order.tax_amount?.toFixed(2) || "0.00"}
-                  </div>
-                  <div className="order-detail-item">
-                    <strong>Total:</strong> ${order.total_price.toFixed(2)}
-                  </div>
-                  <div className="order-detail-item">
-                    <strong>Created:</strong> {formatDate(order.created_at)}
-                  </div>
-                  <div className="order-detail-item">
-                    <strong>Ship By:</strong>
-                    <ShipByDate
-                      orderCreatedAt={order.created_at}
-                      orderStatus={order.status}
-                      shippingService={orderDetails?.shipping_service}
-                    />
-                  </div>
-
-                  {/* Weight & Box */}
+                  {orderDetails?.box_name && (
+                    <div className="order-detail-item">
+                      <strong>Selected Box</strong>
+                      {orderDetails.box_name}
+                    </div>
+                  )}
                   {orderDetails?.total_weight_oz != null && (
                     <div className="order-detail-item">
-                      <strong>Total Weight:</strong>{" "}
+                      <strong>Total Weight</strong>
                       {orderDetails.total_weight_oz.toFixed(2)} oz (
                       {(orderDetails.total_weight_oz / 16).toFixed(2)} lbs)
                     </div>
                   )}
-                  {orderDetails?.box_name && (
-                    <div className="order-detail-item">
-                      <strong>Selected Box:</strong> {orderDetails.box_name}
-                      {orderDetails.box_length &&
-                        orderDetails.box_width &&
-                        orderDetails.box_height && (
-                          <span className="order-detail-box-dims">
-                            ({orderDetails.box_length}×{orderDetails.box_width}×
-                            {orderDetails.box_height} in)
-                          </span>
-                        )}
-                    </div>
-                  )}
+                </div>
+
+                {/* Financials */}
+                <div className="order-details-financials">
+                  <div className="order-detail-item">
+                    <strong>Subtotal</strong>${order.subtotal.toFixed(2)}
+                  </div>
+                  <div className="order-detail-item">
+                    <strong>Discount</strong>$
+                    {order.discount_amount?.toFixed(2) || "0.00"}
+                  </div>
+                  <div className="order-detail-item">
+                    <strong>Shipping</strong>${order.shipping_cost.toFixed(2)}
+                  </div>
+                  <div className="order-detail-item">
+                    <strong>Tax</strong>$
+                    {order.tax_amount?.toFixed(2) || "0.00"}
+                  </div>
+                  <div className="order-detail-item order-detail-item--total">
+                    <strong>Total</strong>
+                    <span>${order.total_price.toFixed(2)}</span>
+                  </div>
                 </div>
 
                 {/* Shipping Address */}
@@ -487,6 +502,7 @@ const ExpandedOrderRow = ({
                         value={trackingNumber}
                         onChange={(e) => setTrackingNumber(e.target.value)}
                         placeholder="Enter tracking number"
+                        disabled={order.status !== "ready_to_ship"}
                       />
                     </div>
                     <div className="form-group">
@@ -927,10 +943,9 @@ const OrderStatusPage = () => {
                   <th>Order Number</th>
                   <th>Date</th>
                   <th>Ship By</th>
-                  <th>Total</th>
                   <th>Status</th>
-                  <th>Tracking</th>
-                  <th></th>
+                  <th>Total</th>
+                  <th className="order-col-tracking">Tracking</th>
                 </tr>
               </thead>
               <tbody>
@@ -938,6 +953,8 @@ const OrderStatusPage = () => {
                   <React.Fragment key={order.order_id}>
                     <tr
                       className={`order-row ${expandedOrderId === order.order_id ? "expanded" : ""}`}
+                      onClick={() => handleRowClick(order.order_id)}
+                      style={{ cursor: "pointer" }}
                     >
                       <td
                         onClick={(e) => {
@@ -954,48 +971,27 @@ const OrderStatusPage = () => {
                             <Square size={20} color="#6c757d" />
                           ))}
                       </td>
-                      <td
-                        className="order-number-cell order-td-clickable"
-                        onClick={() => handleRowClick(order.order_id)}
-                      >
+                      <td className="order-number-cell">
                         {order.order_number}
                       </td>
-                      <td
-                        className="order-td-clickable"
-                        onClick={() => handleRowClick(order.order_id)}
-                      >
-                        {formatDate(order.created_at)}
-                      </td>
-                      <td
-                        className="order-td-clickable"
-                        onClick={() => handleRowClick(order.order_id)}
-                      >
+                      <td>{formatDate(order.created_at)}</td>
+                      <td>
                         <ShipByDate
                           orderCreatedAt={order.created_at}
                           orderStatus={order.status}
                           shippingService={order.shipping_service}
                         />
                       </td>
-                      <td
-                        className="order-td-clickable"
-                        onClick={() => handleRowClick(order.order_id)}
-                      >
-                        ${order.total_price.toFixed(2)}
-                      </td>
-                      <td
-                        className="order-status-cell order-td-clickable"
-                        onClick={() => handleRowClick(order.order_id)}
-                      >
+
+                      <td className="order-status-cell">
                         <span
                           className={`order-status-badge order-status-badge-${getStatusColor(order.status)}`}
                         >
                           {order.status.replace(/_/g, " ")}
                         </span>
                       </td>
-                      <td
-                        className="order-td-clickable"
-                        onClick={() => handleRowClick(order.order_id)}
-                      >
+                      <td>${order.total_price.toFixed(2)}</td>
+                      <td className="order-col-tracking">
                         {order.tracking_number ? (
                           <span className="order-tracking-number">
                             {order.tracking_number}
@@ -1003,18 +999,6 @@ const OrderStatusPage = () => {
                         ) : (
                           <span className="order-no-tracking">No tracking</span>
                         )}
-                      </td>
-                      <td
-                        className="order-td-clickable"
-                        onClick={() => handleRowClick(order.order_id)}
-                      >
-                        <div className="expand-icon">
-                          {expandedOrderId === order.order_id ? (
-                            <ChevronUp size={20} />
-                          ) : (
-                            <ChevronDown size={20} />
-                          )}
-                        </div>
                       </td>
                     </tr>
                     {expandedOrderId === order.order_id && (

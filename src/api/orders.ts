@@ -84,7 +84,7 @@ export interface StatusHistoryItem {
 export interface UpdateOrderStatusPayload {
   status: string;
   notes?: string;
-  tracking_number?: string;
+  tracking_number?: string | null;
   shipping_carrier?: string;
 }
 
