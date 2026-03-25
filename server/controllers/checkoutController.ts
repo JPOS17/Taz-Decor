@@ -179,6 +179,14 @@ export const validateCart = async (req: Request, res: Response): Promise<void> =
           cart_price: cartItem.price
         };
       }
+
+      return {
+        variant_id: cartItem.variant_id,
+        valid: true,
+        price_changed: false,
+        current_price: parseFloat(dbItem.price),
+        cart_price: cartItem.price
+      };
     });
 
     const allValid = validationResults.every(item => item.valid);
