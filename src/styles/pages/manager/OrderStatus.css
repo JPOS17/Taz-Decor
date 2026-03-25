@@ -385,10 +385,15 @@
   font-size: 0.8125rem;
 }
 
-.order-tracking-number {
+.order-tracking-link {
   font-size: 0.8rem;
   font-family: monospace;
-  color: var(--os-text-secondary);
+  color: var(--os-accent);
+  text-decoration: none;
+}
+
+.order-tracking-link:hover {
+  text-decoration: underline;
 }
 
 .order-no-tracking {
@@ -1326,7 +1331,8 @@
 
   .expanded-order-content { padding: 1rem; }
    
-  .order-col-tracking {
+  .order-col-tracking,
+  .order-col-total {
     display: none;
   }
 }

@@ -419,6 +419,20 @@ const ExpandedOrderRow = ({
                           </a>
                         </p>
                       )}
+
+                      {order.tracking_number && (
+                        <p>
+                          <strong>Tracking: </strong>
+                          <a
+                            href={`https://tools.usps.com/go/TrackConfirmAction?tLabels=${order.tracking_number}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="order-contact-email"
+                          >
+                            {order.tracking_number}
+                          </a>
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -944,7 +958,7 @@ const OrderStatusPage = () => {
                   <th>Date</th>
                   <th>Ship By</th>
                   <th>Status</th>
-                  <th>Total</th>
+                  <th className="order-col-total">Total</th>
                   <th className="order-col-tracking">Tracking</th>
                 </tr>
               </thead>
@@ -990,12 +1004,20 @@ const OrderStatusPage = () => {
                           {order.status.replace(/_/g, " ")}
                         </span>
                       </td>
-                      <td>${order.total_price.toFixed(2)}</td>
+                      <td className="order-col-total">
+                        ${order.total_price.toFixed(2)}
+                      </td>
                       <td className="order-col-tracking">
                         {order.tracking_number ? (
-                          <span className="order-tracking-number">
+                          <a
+                            href={`https://tools.usps.com/go/TrackConfirmAction?tLabels=${order.tracking_number}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="order-tracking-link"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             {order.tracking_number}
-                          </span>
+                          </a>
                         ) : (
                           <span className="order-no-tracking">No tracking</span>
                         )}
