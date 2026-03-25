@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { getUserFromToken } from "../middleware/authMiddleware";
 import { pool } from "../db";
-import { sendOrderConfirmationEmail, sendShippingNotificationEmail } from "../utils/emailService";
-import { selectShippingBox, getShippingBoxById } from "../utils/boxPackingService";
+import { sendOrderConfirmationEmail } from "../utils/emailService";
+import { selectShippingBox } from "../utils/boxPackingService";
 import { getRealTimeShippingRates, validateAddress } from "../utils/shippoService";
 import type { BoxDimensions } from "../utils/shippoService";
 
@@ -27,7 +27,7 @@ const logOrderStatus = async (
 };
 
 // ============================================================================
-// ADDRESS MANAGEMENT
+// AUTH HANDLER FUNCTIONS
 // ============================================================================
 
 /**
@@ -79,10 +79,6 @@ export const validateAddressEndpoint = async (req: Request, res: Response): Prom
     });
   }
 };
-
-// ============================================================================
-// CART VALIDATION
-// ============================================================================
 
 /**
  * VALIDATE cart items before checkout
@@ -203,10 +199,6 @@ export const validateCart = async (req: Request, res: Response): Promise<void> =
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// ============================================================================
-// SHIPPING CALCULATION
-// ============================================================================
 
 /**
  * CALCULATE real-time shipping rates
@@ -394,10 +386,6 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
     });
   }
 };
-
-// ============================================================================
-// ORDER MANAGEMENT
-// ============================================================================
 
 /**
  * CREATE new order
@@ -838,237 +826,482 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+// ============================================================================
+// GUEST HANDLER FUNCTIONS
+// ============================================================================
+
 /**
- * GET user's order history
+ * VALIDATE address for GUESTS (no auth required)
  */
-export const getUserOrders = async (req: Request, res: Response): Promise<void> => {
+export const validateAddressGuest = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = getUserFromToken(req.headers.authorization);
-    if (!user) {
-      res.status(401).json({ message: "Not authenticated" });
+    const {
+      address_name,
+      address_line1,
+      address_line2,
+      city,
+      state,
+      zip,
+      country
+    } = req.body;
+
+    if (country && country !== "US" && country !== "USA") {
+      res.status(400).json({
+        message: "Address validation is only available for U.S. addresses"
+      });
       return;
     }
 
-    const { limit, offset } = req.query;
+    const validationResult = await validateAddress({
+      name: address_name || "Guest",
+      street1: address_line1,
+      street2: address_line2,
+      city,
+      state,
+      zip,
+      country: "US"
+    });
 
-    const isAdminRoute = req.path === '/admin/orders';
-    const showAllOrders = isAdminRoute && (user.role === 'admin' || user.role === 'manager');
+    res.json(validationResult);
+  } catch (error: any) {
+    console.error("Error validating guest address:", error);
+    res.status(500).json({ message: error.message || "Failed to validate address" });
+  }
+};
+
+/**
+ * VALIDATE cart items for GUESTS (no auth required)
+ */
+export const validateCartGuest = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { cartItems } = req.body;
+
+    if (!cartItems || cartItems.length === 0) {
+      res.status(400).json({ message: "Cart is empty" });
+      return;
+    }
+
+    const variantIds = cartItems.map((item: any) => item.variant_id);
 
     const result = await pool.query(
       `SELECT 
-        o.order_id,
-        o.order_number,
-        o.subtotal,
-        o.discount_amount,
-        o.shipping_cost,
-        o.tax_amount,
-        o.total_price,
-        o.total_weight_oz,
-        o.status,
-        o.tracking_number,
-        o.shipped_at,
-        o.delivered_at,
-        o.created_at,
-        o.first_name,
-        o.last_name,
-        o.address_line1,
-        o.address_line2,
-        o.city,
-        o.state,
-        o.zip,
-        o.country,
-        o.customer_email,
-        COUNT(oi.order_item_id) as item_count
-      FROM orders o
-      LEFT JOIN order_items oi ON oi.order_id = o.order_id
-      WHERE ($1::boolean = true OR o.user_id = $2)
-      GROUP BY o.order_id
-      ORDER BY o.created_at DESC
-      LIMIT $3 OFFSET $4`,
-      [showAllOrders, user.userId, limit || 20, offset || 0]
+        pv.variant_id,
+        pv.price,
+        pv.quantity as stock,
+        pv.is_active,
+        p.name
+      FROM product_variants pv
+      JOIN products p ON p.product_id = pv.product_id
+      WHERE pv.variant_id = ANY($1)`,
+      [variantIds]
     );
 
-    const orders = result.rows.map(order => ({
-      ...order,
-      subtotal: parseFloat(order.subtotal),
-      discount_amount: parseFloat(order.discount_amount),
-      shipping_cost: parseFloat(order.shipping_cost),
-      tax_amount: parseFloat(order.tax_amount),
-      total_price: parseFloat(order.total_price),
-      total_weight_oz: order.total_weight_oz ? parseFloat(order.total_weight_oz) : null,
-      item_count: parseInt(order.item_count)
-    }));
+    interface ValidationResult {
+      variant_id: number;
+      valid: boolean;
+      error?: string;
+      available_stock?: number;
+      price_changed?: boolean;
+      current_price?: number;
+      cart_price?: number;
+    }
 
-    res.json(orders);
+    const validationResults: ValidationResult[] = cartItems.map((cartItem: any) => {
+      const dbItem = result.rows.find((row: any) => row.variant_id === cartItem.variant_id);
 
+      if (!dbItem) {
+        return { variant_id: cartItem.variant_id, valid: false, error: "Product no longer available" };
+      }
+      if (!dbItem.is_active) {
+        return { variant_id: cartItem.variant_id, valid: false, error: "Product is no longer active" };
+      }
+      if (dbItem.stock < cartItem.quantity) {
+        return {
+          variant_id: cartItem.variant_id,
+          valid: false,
+          error: `Insufficient stock. Only ${dbItem.stock} available`,
+          available_stock: dbItem.stock
+        };
+      }
+
+      const priceChanged = Math.abs(parseFloat(dbItem.price) - cartItem.price) > 0.01;
+      return {
+        variant_id: cartItem.variant_id,
+        valid: true,
+        price_changed: priceChanged,
+        current_price: parseFloat(dbItem.price),
+        cart_price: cartItem.price
+      };
+    });
+
+    res.json({
+      valid: validationResults.every(item => item.valid),
+      has_price_changes: validationResults.some(item => item.price_changed),
+      items: validationResults
+    });
   } catch (error) {
-    console.error("Error fetching orders:", error);
+    console.error("Error validating guest cart:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 /**
- * GET specific order details by order ID
+ * CALCULATE shipping rates for GUESTS (no auth, address passed inline)
  */
-export const getOrderDetails = async (req: Request, res: Response): Promise<void> => {
+export const calculateShippingGuest = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = getUserFromToken(req.headers.authorization);
-    if (!user) {
-      res.status(401).json({ message: "Not authenticated" });
+    const { cartItems, address } = req.body;
+
+    if (!cartItems || cartItems.length === 0) {
+      res.status(400).json({ message: "Cart is empty" });
       return;
     }
 
-    const { orderId } = req.params;
-
-    const orderResult = await pool.query(
-      `SELECT 
-        o.*,
-        -- Auth user snapshot (already on orders row)
-        -- Guest fallback: pull from guest_orders if snapshot fields are null
-        COALESCE(o.first_name, go.guest_first_name)   AS first_name,
-        COALESCE(o.last_name, go.guest_last_name)      AS last_name,
-        COALESCE(o.address_line1, go.address_line1)    AS address_line1,
-        COALESCE(o.address_line2, go.address_line2)    AS address_line2,
-        COALESCE(o.city, go.city)                      AS city,
-        COALESCE(o.state, go.state)                    AS state,
-        COALESCE(o.zip, go.zip)                        AS zip,
-        COALESCE(o.country, go.country)                AS country,
-        COALESCE(o.customer_email, go.guest_email)     AS customer_email,
-        -- Guest-specific fields
-        go.guest_email,
-        go.guest_first_name,
-        go.guest_last_name,
-        go.guest_phone,
-        -- Whether this is a guest order
-        CASE WHEN go.guest_order_id IS NOT NULL THEN true ELSE false END AS is_guest_order,
-        u.first_name   AS user_first_name,
-        u.last_name    AS user_last_name,
-        sl.location_name,
-        sl.city        AS seller_city,
-        sl.state       AS seller_state,
-        sb.box_name,
-        sb.box_type,
-        sb.length_in   AS box_length,
-        sb.width_in    AS box_width,
-        sb.height_in   AS box_height
-      FROM orders o
-      LEFT JOIN guest_orders go ON go.order_id = o.order_id
-      LEFT JOIN users u ON u.user_id = o.user_id
-      LEFT JOIN seller_locations sl ON sl.location_id = o.location_id
-      LEFT JOIN shipping_boxes sb ON sb.box_id = o.selected_box_id
-      WHERE o.order_id = $1 AND ($2::boolean = true OR o.user_id = $3)`,
-      [orderId, user.role === 'admin' || user.role === 'manager', user.userId]
-    );
-
-    if (orderResult.rows.length === 0) {
-      res.status(404).json({ message: "Order not found" });
+    if (!address || !address.address_line1 || !address.city || !address.state || !address.zip) {
+      res.status(400).json({ message: "Full shipping address is required" });
       return;
     }
 
-    const order = orderResult.rows[0];
-
-    const itemsResult = await pool.query(
-      `SELECT 
-        oi.*,
-        pi.img_url
-      FROM order_items oi
-      LEFT JOIN product_variants pv ON pv.variant_id = oi.variant_id
-      LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id AND pi.is_primary = TRUE
-      WHERE oi.order_id = $1
-      ORDER BY oi.order_item_id`,
-      [orderId]
+    const variantIds = cartItems.map((item: any) => item.variant_id);
+    const variantsResult = await pool.query(
+      `SELECT variant_id, weight_oz, length_in, width_in, height_in
+       FROM product_variants WHERE variant_id = ANY($1)`,
+      [variantIds]
     );
 
-    const orderDetails = {
-      ...order,
-      subtotal: parseFloat(order.subtotal),
-      discount_amount: parseFloat(order.discount_amount),
-      shipping_cost: parseFloat(order.shipping_cost),
-      tax_amount: parseFloat(order.tax_amount),
-      total_price: parseFloat(order.total_price),
-      total_weight_oz: order.total_weight_oz ? parseFloat(order.total_weight_oz) : null,
-      items: itemsResult.rows.map((item: any) => ({
-        ...item,
-        price_at_purchase: parseFloat(item.price_at_purchase)
-      }))
-    };
+    const items: Array<{ weight_oz: number; length_in?: number; width_in?: number; height_in?: number }> = [];
+    const packingItems: Array<{ variant_id: number; quantity: number; length_in: number; width_in: number; height_in: number }> = [];
 
-    res.json(orderDetails);
+    for (const cartItem of cartItems) {
+      const variant = variantsResult.rows.find((v: any) => v.variant_id === cartItem.variant_id);
+      if (!variant) {
+        res.status(400).json({ message: `Variant ${cartItem.variant_id} not found` });
+        return;
+      }
 
-  } catch (error) {
-    console.error("Error fetching order details:", error);
-    res.status(500).json({ message: "Server error" });
+      const weightOz = variant.weight_oz || 8;
+      for (let i = 0; i < cartItem.quantity; i++) {
+        items.push({
+          weight_oz: parseFloat(weightOz),
+          length_in: variant.length_in ? parseFloat(variant.length_in) : undefined,
+          width_in: variant.width_in ? parseFloat(variant.width_in) : undefined,
+          height_in: variant.height_in ? parseFloat(variant.height_in) : undefined,
+        });
+      }
+
+      packingItems.push({
+        variant_id: cartItem.variant_id,
+        quantity: cartItem.quantity,
+        length_in: variant.length_in ? parseFloat(variant.length_in) : 0,
+        width_in: variant.width_in ? parseFloat(variant.width_in) : 0,
+        height_in: variant.height_in ? parseFloat(variant.height_in) : 0,
+      });
+    }
+
+    const firstVariantLocation = await pool.query(
+      'SELECT location_id FROM product_variants WHERE variant_id = $1',
+      [cartItems[0].variant_id]
+    );
+
+    if (firstVariantLocation.rows.length === 0) {
+      res.status(400).json({ message: "Product location not found" });
+      return;
+    }
+
+    const locationId = firstVariantLocation.rows[0].location_id;
+
+    let selectedBox: BoxDimensions | undefined;
+    let selectedBoxId: number | undefined;
+    try {
+      const box = await selectShippingBox(packingItems, locationId);
+      if (box) {
+        selectedBox = {
+          length_in: parseFloat(box.length_in.toString()),
+          width_in: parseFloat(box.width_in.toString()),
+          height_in: parseFloat(box.height_in.toString()),
+          box_name: box.box_name,
+        };
+        selectedBoxId = box.box_id;
+      }
+    } catch (boxError) {
+      console.error("⚠️  Guest box selection failed, continuing:", boxError);
+    }
+
+    const shippingRates = await getRealTimeShippingRates(
+      items,
+      {
+        name: `${address.first_name || "Guest"} ${address.last_name || ""}`.trim(),
+        street1: address.address_line1,
+        street2: address.address_line2,
+        city: address.city,
+        state: address.state,
+        zip: address.zip,
+        country: address.country || "US",
+      },
+      selectedBox
+    );
+
+    const totalWeightOz = items.reduce((sum, item) => sum + item.weight_oz, 0);
+
+    res.json({
+      shipping_options: shippingRates,
+      weight_lbs: parseFloat((totalWeightOz / 16).toFixed(2)),
+      total_items: items.length,
+      selected_box: selectedBox ? {
+        box_id: selectedBoxId,
+        box_name: selectedBox.box_name,
+        dimensions: `${selectedBox.length_in}×${selectedBox.width_in}×${selectedBox.height_in}`,
+      } : null,
+    });
+  } catch (error: any) {
+    console.error("Error calculating guest shipping:", error);
+    res.status(500).json({ message: "Failed to calculate shipping", error: error.message });
   }
 };
 
 /**
- * GET specific order details by order number
+ * CREATE a guest order (no auth required)
  */
-export const getOrderByNumber = async (req: Request, res: Response): Promise<void> => {
+export const createGuestOrder = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = getUserFromToken(req.headers.authorization);
-    if (!user) {
-      res.status(401).json({ message: "Not authenticated" });
+    const {
+      guest_info,
+      shipping_address,
+      cart_items,
+      subtotal,
+      shipping_cost,
+      tax_amount,
+      total_price,
+      selected_shipping_rate_id,
+      shipping_carrier,
+      shipping_service,
+    } = req.body;
+
+    // Validate required fields 
+    if (!guest_info?.email || !guest_info?.first_name) {
+      res.status(400).json({ message: "Guest email and first name are required" });
       return;
     }
 
-    const { orderNumber } = req.params;
-
-    const orderResult = await pool.query(
-      `SELECT 
-        o.*,
-        sl.location_name,
-        sl.city as seller_city,
-        sl.state as seller_state,
-        sb.box_name,
-        sb.box_type,
-        sb.length_in as box_length,
-        sb.width_in as box_width,
-        sb.height_in as box_height
-      FROM orders o
-      LEFT JOIN seller_locations sl ON sl.location_id = o.location_id
-      LEFT JOIN shipping_boxes sb ON sb.box_id = o.selected_box_id
-      WHERE o.order_number = $1 AND o.user_id = $2`,
-      [orderNumber, user.userId]
-    );
-
-    if (orderResult.rows.length === 0) {
-      res.status(404).json({ message: "Order not found" });
+    if (
+      !shipping_address?.address_line1 ||
+      !shipping_address?.city ||
+      !shipping_address?.state ||
+      !shipping_address?.zip
+    ) {
+      res.status(400).json({ message: "Complete shipping address is required" });
       return;
     }
 
-    const order = orderResult.rows[0];
+    if (!cart_items || cart_items.length === 0) {
+      res.status(400).json({ message: "Cart is empty" });
+      return;
+    }
 
-    const itemsResult = await pool.query(
-      `SELECT 
-        oi.*,
-        pi.img_url
-      FROM order_items oi
-      LEFT JOIN product_variants pv ON pv.variant_id = oi.variant_id
-      LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id AND pi.is_primary = TRUE
-      WHERE oi.order_id = $1
-      ORDER BY oi.order_item_id`,
-      [order.order_id]
-    );
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
 
-    const orderDetails = {
-      ...order,
-      subtotal: parseFloat(order.subtotal),
-      discount_amount: parseFloat(order.discount_amount),
-      shipping_cost: parseFloat(order.shipping_cost),
-      tax_amount: parseFloat(order.tax_amount),
-      total_price: parseFloat(order.total_price),
-      total_weight_oz: order.total_weight_oz ? parseFloat(order.total_weight_oz) : null,
-      items: itemsResult.rows.map(item => ({
-        ...item,
-        price_at_purchase: parseFloat(item.price_at_purchase)
-      }))
-    };
+      // Get location_id from the first cart item 
+      const firstVariantResult = await client.query(
+        'SELECT location_id FROM product_variants WHERE variant_id = $1',
+        [cart_items[0].variant_id]
+      );
 
-    res.json(orderDetails);
+      if (firstVariantResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        res.status(400).json({ message: "Invalid product" });
+        return;
+      }
+
+      const location_id = firstVariantResult.rows[0].location_id;
+
+      // Fetch variant dimensions for box packing + weight calculation 
+      const variantIds = cart_items.map((item: any) => item.variant_id);
+      const variantsResult = await client.query(
+        `SELECT variant_id, length_in, width_in, height_in, weight_oz
+         FROM product_variants WHERE variant_id = ANY($1)`,
+        [variantIds]
+      );
+
+      const packingItems = cart_items.map((cartItem: any) => {
+        const variant = variantsResult.rows.find((v: any) => v.variant_id === cartItem.variant_id);
+        return {
+          variant_id: cartItem.variant_id,
+          quantity: cartItem.quantity,
+          length_in: variant?.length_in ? parseFloat(variant.length_in) : 0,
+          width_in: variant?.width_in ? parseFloat(variant.width_in) : 0,
+          height_in: variant?.height_in ? parseFloat(variant.height_in) : 0,
+        };
+      });
+
+      let totalWeightOz = 0;
+      for (const cartItem of cart_items) {
+        const variant = variantsResult.rows.find((v: any) => v.variant_id === cartItem.variant_id);
+        const weightOz = variant?.weight_oz ? parseFloat(variant.weight_oz) : 8;
+        totalWeightOz += weightOz * cartItem.quantity;
+      }
+
+      // Box selection 
+      let selectedBoxId: number | null = null;
+      try {
+        const selectedBox = await selectShippingBox(packingItems, location_id);
+        if (selectedBox) {
+          selectedBoxId = selectedBox.box_id;
+        }
+      } catch (boxError) {
+        console.error("❌ Guest box selection failed:", boxError);
+      }
+
+      // Generate unique order number 
+      const orderNumber = `GST-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+      // Insert into orders (user_id and shipping_address_id are NULL) 
+      const orderResult = await client.query(
+        `INSERT INTO orders
+          (user_id, shipping_address_id, location_id, order_number,
+           subtotal, discount_amount, item_level_discount, cart_level_discount,
+           shipping_cost, tax_amount, total_price,
+           shipping_carrier, shipping_service,
+           selected_box_id, total_weight_oz, status, created_at)
+         VALUES
+          (NULL, NULL, $1, $2,
+           $3, 0, 0, 0,
+           $4, $5, $6,
+           $7, $8,
+           $9, $10, 'pending', NOW())
+         RETURNING *`,
+        [
+          location_id, orderNumber,
+          subtotal, shipping_cost, tax_amount || 0, total_price,
+          shipping_carrier || null, shipping_service || null,
+          selectedBoxId, totalWeightOz,
+        ]
+      );
+
+      const order = orderResult.rows[0];
+
+      // Insert into guest_orders
+      await client.query(
+        `INSERT INTO guest_orders
+          (order_id, guest_email, guest_first_name, guest_last_name, guest_phone,
+           address_name, address_line1, address_line2, city, state, zip, country)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        [
+          order.order_id,
+          guest_info.email.toLowerCase().trim(),
+          guest_info.first_name.trim(),
+          guest_info.last_name?.trim() || null,
+          guest_info.phone?.trim() || null,
+          shipping_address.address_name?.trim() || null,
+          shipping_address.address_line1.trim(),
+          shipping_address.address_line2?.trim() || null,
+          shipping_address.city.trim(),
+          shipping_address.state.trim(),
+          shipping_address.zip.trim(),
+          shipping_address.country?.trim() || 'USA',
+        ]
+      );
+
+      // Log initial status
+      await logOrderStatus(client, order.order_id, 'pending', 'Guest order placed');
+
+      // Insert order items + decrement stock 
+      for (const item of cart_items) {
+        const productResult = await client.query(
+          `SELECT p.name, pv.color, pv.size, pv.price
+           FROM product_variants pv
+           JOIN products p ON p.product_id = pv.product_id
+           WHERE pv.variant_id = $1`,
+          [item.variant_id]
+        );
+
+        if (productResult.rows.length === 0) {
+          await client.query('ROLLBACK');
+          res.status(400).json({ message: `Invalid product variant: ${item.variant_id}` });
+          return;
+        }
+
+        const product = productResult.rows[0];
+        const variantDetails = [product.color, product.size].filter(Boolean).join(', ');
+
+        await client.query(
+          `INSERT INTO order_items
+            (order_id, variant_id, product_name, variant_details, quantity, price_at_purchase)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [order.order_id, item.variant_id, product.name, variantDetails, item.quantity, item.price]
+        );
+
+        await client.query(
+          'UPDATE product_variants SET quantity = quantity - $1 WHERE variant_id = $2',
+          [item.quantity, item.variant_id]
+        );
+      }
+
+      await client.query('COMMIT');
+
+      // Send order confirmation email
+      try {
+        const orderItemsResult = await pool.query(
+          `SELECT oi.product_name, oi.variant_details, oi.quantity, oi.price_at_purchase, pi.img_url
+           FROM order_items oi
+           LEFT JOIN product_variants pv ON pv.variant_id = oi.variant_id
+           LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id AND pi.is_primary = true
+           WHERE oi.order_id = $1`,
+          [order.order_id]
+        );
+      await sendOrderConfirmationEmail(
+        guest_info.email,
+        guest_info.first_name,
+        {
+          order_number: orderNumber,
+          total_price,
+          subtotal,
+          discount_amount: 0,
+          shipping_cost,
+          tax_amount: tax_amount || 0,
+          first_name: guest_info.first_name,
+          last_name: guest_info.last_name || '',
+          address_line1: shipping_address.address_line1,
+          address_line2: shipping_address.address_line2 || '',
+          city: shipping_address.city,
+          state: shipping_address.state,
+          zip: shipping_address.zip,
+          country: shipping_address.country || 'USA',
+          items: orderItemsResult.rows.map((item: any) => ({
+            product_name: item.product_name,
+            variant_details: item.variant_details,
+            quantity: item.quantity,
+            price_at_purchase: parseFloat(item.price_at_purchase),
+            img_url: item.img_url,
+          })),
+        },
+        true
+      );
+      } catch (emailError) {
+        console.error("Failed to send guest order confirmation email:", emailError);
+      }
+
+      res.status(201).json({
+        message: "Order created successfully",
+        order: {
+          order_id: order.order_id,
+          order_number: orderNumber,
+          total_price,
+          status: "pending",
+          created_at: new Date().toISOString(),
+        },
+      });
+
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
 
   } catch (error) {
-    console.error("Error fetching order details:", error);
+    console.error("Error creating guest order:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -1662,796 +1895,6 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
     }
   } catch (error) {
     console.error("Error validating coupons:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// ============================================================================
-// ORDER STATUS MANAGEMENT
-// ============================================================================
-
-/**
- * UPDATE order status and log the change
- */
-export const updateOrderStatus = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = getUserFromToken(req.headers.authorization);
-    if (!user) {
-      res.status(401).json({ message: "Not authenticated" });
-      return;
-    }
-
-    if (user.role !== 'admin' && user.role !== 'manager') {
-      res.status(403).json({ message: "Unauthorized - Admin access required" });
-      return;
-    }
-
-    const { orderId } = req.params;
-    const { status, notes, tracking_number, shipping_carrier, shipping_service } = req.body;
-
-    const validStatuses = ['pending', 'processing', 'ready_to_ship', 'shipped', 'delivered', 'cancelled', 'refunded'];
-    if (!validStatuses.includes(status)) {
-      res.status(400).json({ 
-        message: `Invalid status. Must be one of: ${validStatuses.join(', ')}` 
-      });
-      return
-    }
-
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
-      const orderCheck = await client.query(
-        'SELECT * FROM orders WHERE order_id = $1',
-        [orderId]
-      );
-
-      if (orderCheck.rows.length === 0) {
-        await client.query('ROLLBACK');
-        res.status(404).json({ message: "Order not found" });
-      return;
-      }
-
-      const currentOrder = orderCheck.rows[0];
-
-      const updateFields: string[] = ['status = $1', 'updated_at = NOW()'];
-      const updateValues: any[] = [status];
-      let paramCounter = 2;
-
-      if (tracking_number) {
-        updateFields.push(`tracking_number = $${paramCounter}`);
-        updateValues.push(tracking_number);
-        paramCounter++;
-      }
-
-      if (shipping_carrier) {
-        updateFields.push(`shipping_carrier = $${paramCounter}`);
-        updateValues.push(shipping_carrier);
-        paramCounter++;
-      }
-
-      if (shipping_service) {
-        updateFields.push(`shipping_service = $${paramCounter}`);
-        updateValues.push(shipping_service);
-        paramCounter++;
-      }
-
-      if (status === 'shipped' && currentOrder.status !== 'shipped') {
-        updateFields.push('shipped_at = NOW()');
-      }
-
-      if (status === 'delivered' && currentOrder.status !== 'delivered') {
-        updateFields.push('delivered_at = NOW()');
-      }
-
-      updateValues.push(orderId);
-
-      const updateQuery = `
-        UPDATE orders 
-        SET ${updateFields.join(', ')}
-        WHERE order_id = $${paramCounter}
-        RETURNING *
-      `;
-
-      const orderResult = await client.query(updateQuery, updateValues);
-      const updatedOrder = orderResult.rows[0];
-
-      let logNotes = notes || `Status updated to ${status}`;
-      if (tracking_number && status === 'shipped') {
-        logNotes += ` | Tracking: ${tracking_number}`;
-        if (shipping_carrier) {
-          logNotes += ` (${shipping_carrier})`;
-        }
-      }
-
-      await client.query(
-        `INSERT INTO order_status_logs (order_id, status, notes)
-         VALUES ($1, $2, $3)`,
-        [orderId, status, logNotes]
-      );
-
-      await client.query('COMMIT');
-
-      // Send shipping notification — check both registered users and guests
-      if (status === 'shipped' && currentOrder.status !== 'shipped') {
-        try {
-          // Try registered user first
-          const customerResult = await pool.query(
-            `SELECT u.email, u.first_name
-             FROM orders o
-             JOIN users u ON u.user_id = o.user_id
-             WHERE o.order_id = $1`,
-            [orderId]
-          );
-
-          let recipientEmail: string | null = null;
-          let recipientName: string | null = null;
-
-          if (customerResult.rows.length > 0) {
-            recipientEmail = customerResult.rows[0].email;
-            recipientName = customerResult.rows[0].first_name;
-          } else {
-            // Fall back to guest_orders
-            const guestResult = await pool.query(
-              `SELECT guest_email, guest_first_name FROM guest_orders WHERE order_id = $1`,
-              [orderId]
-            );
-            if (guestResult.rows.length > 0) {
-              recipientEmail = guestResult.rows[0].guest_email;
-              recipientName = guestResult.rows[0].guest_first_name;
-            }
-          }
-
-          if (recipientEmail && recipientName) {
-            await sendShippingNotificationEmail(
-              recipientEmail,
-              recipientName,
-              {
-                order_number: updatedOrder.order_number,
-                total_price: parseFloat(updatedOrder.total_price),
-                tracking_number: tracking_number || updatedOrder.tracking_number || '',
-              },
-              // isGuest: true when the email came from guest_orders rather than users
-              customerResult.rows.length === 0
-            );
-          }
-        } catch (emailError) {
-          console.error("Failed to send shipping notification email:", emailError);
-        }
-      }
-      
-      res.json({
-        message: "Order status updated successfully",
-        order: {
-          order_id: updatedOrder.order_id,
-          order_number: updatedOrder.order_number,
-          status: updatedOrder.status,
-          tracking_number: updatedOrder.tracking_number,
-          shipped_at: updatedOrder.shipped_at,
-          delivered_at: updatedOrder.delivered_at,
-        }
-      });
-
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-
-  } catch (error) {
-    console.error("Error updating order status:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-/**
- * GET order status history
- */
-export const getOrderStatusHistory = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = getUserFromToken(req.headers.authorization);
-    if (!user) {
-      res.status(401).json({ message: "Not authenticated" });
-      return;
-    }
-
-    const { orderId } = req.params;
-
-    // Verify order belongs to user (or user is admin)
-    const orderCheck = await pool.query(
-      'SELECT * FROM orders WHERE order_id = $1 AND (user_id = $2 OR $3 = true)',
-      [orderId, user.userId, user.role === 'admin' || user.role === 'manager']
-    );
-
-    if (orderCheck.rows.length === 0) {
-      res.status(404).json({ message: "Order not found" });
-      return;
-    }
-
-    // Get status history
-    const historyResult = await pool.query(
-      `SELECT 
-        log_id,
-        status,
-        notes,
-        created_at
-      FROM order_status_logs
-      WHERE order_id = $1
-      ORDER BY created_at ASC`,
-      [orderId]
-    );
-
-    res.json({
-      order_id: parseInt(orderId),
-      order_number: orderCheck.rows[0].order_number,
-      current_status: orderCheck.rows[0].status,
-      status_history: historyResult.rows
-    });
-
-  } catch (error) {
-    console.error("Error fetching order status history:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// ============================================================================
-// GUEST HANDLER FUNCTIONS
-// ============================================================================
-
-/**
- * CREATE a guest order (no auth required)
- */
-export const createGuestOrder = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const {
-      guest_info,
-      shipping_address,
-      cart_items,
-      subtotal,
-      shipping_cost,
-      tax_amount,
-      total_price,
-      selected_shipping_rate_id,
-      shipping_carrier,
-      shipping_service,
-    } = req.body;
-
-    // Validate required fields 
-    if (!guest_info?.email || !guest_info?.first_name) {
-      res.status(400).json({ message: "Guest email and first name are required" });
-      return;
-    }
-
-    if (
-      !shipping_address?.address_line1 ||
-      !shipping_address?.city ||
-      !shipping_address?.state ||
-      !shipping_address?.zip
-    ) {
-      res.status(400).json({ message: "Complete shipping address is required" });
-      return;
-    }
-
-    if (!cart_items || cart_items.length === 0) {
-      res.status(400).json({ message: "Cart is empty" });
-      return;
-    }
-
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
-      // Get location_id from the first cart item 
-      const firstVariantResult = await client.query(
-        'SELECT location_id FROM product_variants WHERE variant_id = $1',
-        [cart_items[0].variant_id]
-      );
-
-      if (firstVariantResult.rows.length === 0) {
-        await client.query('ROLLBACK');
-        res.status(400).json({ message: "Invalid product" });
-        return;
-      }
-
-      const location_id = firstVariantResult.rows[0].location_id;
-
-      // Fetch variant dimensions for box packing + weight calculation 
-      const variantIds = cart_items.map((item: any) => item.variant_id);
-      const variantsResult = await client.query(
-        `SELECT variant_id, length_in, width_in, height_in, weight_oz
-         FROM product_variants WHERE variant_id = ANY($1)`,
-        [variantIds]
-      );
-
-      const packingItems = cart_items.map((cartItem: any) => {
-        const variant = variantsResult.rows.find((v: any) => v.variant_id === cartItem.variant_id);
-        return {
-          variant_id: cartItem.variant_id,
-          quantity: cartItem.quantity,
-          length_in: variant?.length_in ? parseFloat(variant.length_in) : 0,
-          width_in: variant?.width_in ? parseFloat(variant.width_in) : 0,
-          height_in: variant?.height_in ? parseFloat(variant.height_in) : 0,
-        };
-      });
-
-      let totalWeightOz = 0;
-      for (const cartItem of cart_items) {
-        const variant = variantsResult.rows.find((v: any) => v.variant_id === cartItem.variant_id);
-        const weightOz = variant?.weight_oz ? parseFloat(variant.weight_oz) : 8;
-        totalWeightOz += weightOz * cartItem.quantity;
-      }
-
-      // Box selection 
-      let selectedBoxId: number | null = null;
-      try {
-        const selectedBox = await selectShippingBox(packingItems, location_id);
-        if (selectedBox) {
-          selectedBoxId = selectedBox.box_id;
-        }
-      } catch (boxError) {
-        console.error("❌ Guest box selection failed:", boxError);
-      }
-
-      // Generate unique order number 
-      const orderNumber = `GST-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-
-      // Insert into orders (user_id and shipping_address_id are NULL) 
-      const orderResult = await client.query(
-        `INSERT INTO orders
-          (user_id, shipping_address_id, location_id, order_number,
-           subtotal, discount_amount, item_level_discount, cart_level_discount,
-           shipping_cost, tax_amount, total_price,
-           shipping_carrier, shipping_service,
-           selected_box_id, total_weight_oz, status, created_at)
-         VALUES
-          (NULL, NULL, $1, $2,
-           $3, 0, 0, 0,
-           $4, $5, $6,
-           $7, $8,
-           $9, $10, 'pending', NOW())
-         RETURNING *`,
-        [
-          location_id, orderNumber,
-          subtotal, shipping_cost, tax_amount || 0, total_price,
-          shipping_carrier || null, shipping_service || null,
-          selectedBoxId, totalWeightOz,
-        ]
-      );
-
-      const order = orderResult.rows[0];
-
-      // Insert into guest_orders
-      await client.query(
-        `INSERT INTO guest_orders
-          (order_id, guest_email, guest_first_name, guest_last_name, guest_phone,
-           address_name, address_line1, address_line2, city, state, zip, country)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-        [
-          order.order_id,
-          guest_info.email.toLowerCase().trim(),
-          guest_info.first_name.trim(),
-          guest_info.last_name?.trim() || null,
-          guest_info.phone?.trim() || null,
-          shipping_address.address_name?.trim() || null,
-          shipping_address.address_line1.trim(),
-          shipping_address.address_line2?.trim() || null,
-          shipping_address.city.trim(),
-          shipping_address.state.trim(),
-          shipping_address.zip.trim(),
-          shipping_address.country?.trim() || 'USA',
-        ]
-      );
-
-      // Log initial status
-      await logOrderStatus(client, order.order_id, 'pending', 'Guest order placed');
-
-      // Insert order items + decrement stock 
-      for (const item of cart_items) {
-        const productResult = await client.query(
-          `SELECT p.name, pv.color, pv.size, pv.price
-           FROM product_variants pv
-           JOIN products p ON p.product_id = pv.product_id
-           WHERE pv.variant_id = $1`,
-          [item.variant_id]
-        );
-
-        if (productResult.rows.length === 0) {
-          await client.query('ROLLBACK');
-          res.status(400).json({ message: `Invalid product variant: ${item.variant_id}` });
-          return;
-        }
-
-        const product = productResult.rows[0];
-        const variantDetails = [product.color, product.size].filter(Boolean).join(', ');
-
-        await client.query(
-          `INSERT INTO order_items
-            (order_id, variant_id, product_name, variant_details, quantity, price_at_purchase)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [order.order_id, item.variant_id, product.name, variantDetails, item.quantity, item.price]
-        );
-
-        await client.query(
-          'UPDATE product_variants SET quantity = quantity - $1 WHERE variant_id = $2',
-          [item.quantity, item.variant_id]
-        );
-      }
-
-      await client.query('COMMIT');
-
-      // Send order confirmation email
-      try {
-        const orderItemsResult = await pool.query(
-          `SELECT oi.product_name, oi.variant_details, oi.quantity, oi.price_at_purchase, pi.img_url
-           FROM order_items oi
-           LEFT JOIN product_variants pv ON pv.variant_id = oi.variant_id
-           LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id AND pi.is_primary = true
-           WHERE oi.order_id = $1`,
-          [order.order_id]
-        );
-      await sendOrderConfirmationEmail(
-        guest_info.email,
-        guest_info.first_name,
-        {
-          order_number: orderNumber,
-          total_price,
-          subtotal,
-          discount_amount: 0,
-          shipping_cost,
-          tax_amount: tax_amount || 0,
-          first_name: guest_info.first_name,
-          last_name: guest_info.last_name || '',
-          address_line1: shipping_address.address_line1,
-          address_line2: shipping_address.address_line2 || '',
-          city: shipping_address.city,
-          state: shipping_address.state,
-          zip: shipping_address.zip,
-          country: shipping_address.country || 'USA',
-          items: orderItemsResult.rows.map((item: any) => ({
-            product_name: item.product_name,
-            variant_details: item.variant_details,
-            quantity: item.quantity,
-            price_at_purchase: parseFloat(item.price_at_purchase),
-            img_url: item.img_url,
-          })),
-        },
-        true
-      );
-      } catch (emailError) {
-        console.error("Failed to send guest order confirmation email:", emailError);
-      }
-
-      res.status(201).json({
-        message: "Order created successfully",
-        order: {
-          order_id: order.order_id,
-          order_number: orderNumber,
-          total_price,
-          status: "pending",
-          created_at: new Date().toISOString(),
-        },
-      });
-
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-
-  } catch (error) {
-    console.error("Error creating guest order:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-/**
- * VALIDATE address for GUESTS (no auth required)
- */
-export const validateAddressGuest = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const {
-      address_name,
-      address_line1,
-      address_line2,
-      city,
-      state,
-      zip,
-      country
-    } = req.body;
-
-    if (country && country !== "US" && country !== "USA") {
-      res.status(400).json({
-        message: "Address validation is only available for U.S. addresses"
-      });
-      return;
-    }
-
-    const validationResult = await validateAddress({
-      name: address_name || "Guest",
-      street1: address_line1,
-      street2: address_line2,
-      city,
-      state,
-      zip,
-      country: "US"
-    });
-
-    res.json(validationResult);
-  } catch (error: any) {
-    console.error("Error validating guest address:", error);
-    res.status(500).json({ message: error.message || "Failed to validate address" });
-  }
-};
-
-/**
- * CALCULATE shipping rates for GUESTS (no auth, address passed inline)
- */
-export const calculateShippingGuest = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { cartItems, address } = req.body;
-
-    if (!cartItems || cartItems.length === 0) {
-      res.status(400).json({ message: "Cart is empty" });
-      return;
-    }
-
-    if (!address || !address.address_line1 || !address.city || !address.state || !address.zip) {
-      res.status(400).json({ message: "Full shipping address is required" });
-      return;
-    }
-
-    const variantIds = cartItems.map((item: any) => item.variant_id);
-    const variantsResult = await pool.query(
-      `SELECT variant_id, weight_oz, length_in, width_in, height_in
-       FROM product_variants WHERE variant_id = ANY($1)`,
-      [variantIds]
-    );
-
-    const items: Array<{ weight_oz: number; length_in?: number; width_in?: number; height_in?: number }> = [];
-    const packingItems: Array<{ variant_id: number; quantity: number; length_in: number; width_in: number; height_in: number }> = [];
-
-    for (const cartItem of cartItems) {
-      const variant = variantsResult.rows.find((v: any) => v.variant_id === cartItem.variant_id);
-      if (!variant) {
-        res.status(400).json({ message: `Variant ${cartItem.variant_id} not found` });
-        return;
-      }
-
-      const weightOz = variant.weight_oz || 8;
-      for (let i = 0; i < cartItem.quantity; i++) {
-        items.push({
-          weight_oz: parseFloat(weightOz),
-          length_in: variant.length_in ? parseFloat(variant.length_in) : undefined,
-          width_in: variant.width_in ? parseFloat(variant.width_in) : undefined,
-          height_in: variant.height_in ? parseFloat(variant.height_in) : undefined,
-        });
-      }
-
-      packingItems.push({
-        variant_id: cartItem.variant_id,
-        quantity: cartItem.quantity,
-        length_in: variant.length_in ? parseFloat(variant.length_in) : 0,
-        width_in: variant.width_in ? parseFloat(variant.width_in) : 0,
-        height_in: variant.height_in ? parseFloat(variant.height_in) : 0,
-      });
-    }
-
-    const firstVariantLocation = await pool.query(
-      'SELECT location_id FROM product_variants WHERE variant_id = $1',
-      [cartItems[0].variant_id]
-    );
-
-    if (firstVariantLocation.rows.length === 0) {
-      res.status(400).json({ message: "Product location not found" });
-      return;
-    }
-
-    const locationId = firstVariantLocation.rows[0].location_id;
-
-    let selectedBox: BoxDimensions | undefined;
-    let selectedBoxId: number | undefined;
-    try {
-      const box = await selectShippingBox(packingItems, locationId);
-      if (box) {
-        selectedBox = {
-          length_in: parseFloat(box.length_in.toString()),
-          width_in: parseFloat(box.width_in.toString()),
-          height_in: parseFloat(box.height_in.toString()),
-          box_name: box.box_name,
-        };
-        selectedBoxId = box.box_id;
-      }
-    } catch (boxError) {
-      console.error("⚠️  Guest box selection failed, continuing:", boxError);
-    }
-
-    const shippingRates = await getRealTimeShippingRates(
-      items,
-      {
-        name: `${address.first_name || "Guest"} ${address.last_name || ""}`.trim(),
-        street1: address.address_line1,
-        street2: address.address_line2,
-        city: address.city,
-        state: address.state,
-        zip: address.zip,
-        country: address.country || "US",
-      },
-      selectedBox
-    );
-
-    const totalWeightOz = items.reduce((sum, item) => sum + item.weight_oz, 0);
-
-    res.json({
-      shipping_options: shippingRates,
-      weight_lbs: parseFloat((totalWeightOz / 16).toFixed(2)),
-      total_items: items.length,
-      selected_box: selectedBox ? {
-        box_id: selectedBoxId,
-        box_name: selectedBox.box_name,
-        dimensions: `${selectedBox.length_in}×${selectedBox.width_in}×${selectedBox.height_in}`,
-      } : null,
-    });
-  } catch (error: any) {
-    console.error("Error calculating guest shipping:", error);
-    res.status(500).json({ message: "Failed to calculate shipping", error: error.message });
-  }
-};
-
-/**
- * VALIDATE cart items for GUESTS (no auth required)
- */
-export const validateCartGuest = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { cartItems } = req.body;
-
-    if (!cartItems || cartItems.length === 0) {
-      res.status(400).json({ message: "Cart is empty" });
-      return;
-    }
-
-    const variantIds = cartItems.map((item: any) => item.variant_id);
-
-    const result = await pool.query(
-      `SELECT 
-        pv.variant_id,
-        pv.price,
-        pv.quantity as stock,
-        pv.is_active,
-        p.name
-      FROM product_variants pv
-      JOIN products p ON p.product_id = pv.product_id
-      WHERE pv.variant_id = ANY($1)`,
-      [variantIds]
-    );
-
-    interface ValidationResult {
-      variant_id: number;
-      valid: boolean;
-      error?: string;
-      available_stock?: number;
-      price_changed?: boolean;
-      current_price?: number;
-      cart_price?: number;
-    }
-
-    const validationResults: ValidationResult[] = cartItems.map((cartItem: any) => {
-      const dbItem = result.rows.find((row: any) => row.variant_id === cartItem.variant_id);
-
-      if (!dbItem) {
-        return { variant_id: cartItem.variant_id, valid: false, error: "Product no longer available" };
-      }
-      if (!dbItem.is_active) {
-        return { variant_id: cartItem.variant_id, valid: false, error: "Product is no longer active" };
-      }
-      if (dbItem.stock < cartItem.quantity) {
-        return {
-          variant_id: cartItem.variant_id,
-          valid: false,
-          error: `Insufficient stock. Only ${dbItem.stock} available`,
-          available_stock: dbItem.stock
-        };
-      }
-
-      const priceChanged = Math.abs(parseFloat(dbItem.price) - cartItem.price) > 0.01;
-      return {
-        variant_id: cartItem.variant_id,
-        valid: true,
-        price_changed: priceChanged,
-        current_price: parseFloat(dbItem.price),
-        cart_price: cartItem.price
-      };
-    });
-
-    res.json({
-      valid: validationResults.every(item => item.valid),
-      has_price_changes: validationResults.some(item => item.price_changed),
-      items: validationResults
-    });
-  } catch (error) {
-    console.error("Error validating guest cart:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-/**
- * GET guest order by order number + email (no auth required)
- */
-export const getGuestOrderByNumber = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { orderNumber } = req.params;
-    const { email } = req.query;
-
-    if (!orderNumber || !email) {
-      res.status(400).json({ message: "Order number and email are required" });
-      return;
-    }
-
-    // Look up in guest_orders, verifying ownership via email
-    const orderResult = await pool.query(
-      `SELECT
-        o.*,
-        go.guest_email,
-        go.guest_first_name,
-        go.guest_last_name,
-        go.guest_phone,
-        go.address_name,
-        go.address_line1,
-        go.address_line2,
-        go.city,
-        go.state,
-        go.zip,
-        go.country,
-        sl.location_name,
-        sl.city  AS seller_city,
-        sl.state AS seller_state,
-        sb.box_name,
-        sb.box_type,
-        sb.length_in AS box_length,
-        sb.width_in  AS box_width,
-        sb.height_in AS box_height
-       FROM orders o
-       JOIN guest_orders go ON go.order_id = o.order_id
-       LEFT JOIN seller_locations sl ON sl.location_id = o.location_id
-       LEFT JOIN shipping_boxes sb ON sb.box_id = o.selected_box_id
-       WHERE o.order_number = $1
-         AND go.guest_email = $2`,
-      [orderNumber, (email as string).toLowerCase().trim()]
-    );
-
-    if (orderResult.rows.length === 0) {
-      res.status(404).json({ message: "Order not found. Please check your order number and email." });
-      return;
-    }
-
-    const order = orderResult.rows[0];
-
-    const itemsResult = await pool.query(
-      `SELECT oi.*, pi.img_url
-       FROM order_items oi
-       LEFT JOIN product_variants pv ON pv.variant_id = oi.variant_id
-       LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id AND pi.is_primary = TRUE
-       WHERE oi.order_id = $1
-       ORDER BY oi.order_item_id`,
-      [order.order_id]
-    );
-
-    res.json({
-      ...order,
-      subtotal: parseFloat(order.subtotal),
-      discount_amount: parseFloat(order.discount_amount),
-      shipping_cost: parseFloat(order.shipping_cost),
-      tax_amount: parseFloat(order.tax_amount),
-      total_price: parseFloat(order.total_price),
-      items: itemsResult.rows.map((item: any) => ({
-        ...item,
-        price_at_purchase: parseFloat(item.price_at_purchase),
-      })),
-    });
-
-  } catch (error) {
-    console.error("Error fetching guest order:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

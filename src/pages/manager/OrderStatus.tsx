@@ -18,7 +18,7 @@ import {
   type OrderDetails as APIOrderDetails,
   type StatusHistoryItem,
   type UpdateOrderStatusPayload,
-} from "../../api/checkout";
+} from "../../api/orders";
 import { fetchSellerLocationById } from "../../api/sellerLocation";
 import {
   generatePirateShipCSV,

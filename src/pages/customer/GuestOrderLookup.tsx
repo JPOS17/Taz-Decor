@@ -11,7 +11,7 @@ import {
 import {
   fetchGuestOrderByNumber,
   type GuestOrderDetails,
-} from "../../api/checkout";
+} from "../../api/orders";
 
 import DeliveryEstimate from "../../components/customerInterface/checkout/DeliveryEstimate";
 import "../../styles/pages/customer/GuestOrderLookup.css";

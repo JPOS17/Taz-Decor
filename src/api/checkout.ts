@@ -125,25 +125,8 @@ export interface GuestShippingAddress {
   last_name?: string;
 }
 
-export interface CreateGuestOrderPayload {
-  guest_info: GuestInfo;
-  shipping_address: GuestShippingAddress;
-  cart_items: Array<{
-    variant_id: number;
-    quantity: number;
-    price: number;
-  }>;
-  subtotal: number;
-  shipping_cost: number;
-  tax_amount: number;
-  total_price: number;
-  selected_shipping_rate_id?: string;
-  shipping_carrier?: string;
-  shipping_service?: string;
-}
-
 // ============================================================================
-// INTERFACES - ORDERS
+// INTERFACES - ORDER CREATION
 // ============================================================================
 
 export interface CreateOrderPayload {
@@ -169,6 +152,27 @@ export interface CreateOrderPayload {
   shipping_carrier?: string;
   shipping_service?: string;
 }
+
+export interface CreateGuestOrderPayload {
+  guest_info: GuestInfo;
+  shipping_address: GuestShippingAddress;
+  cart_items: Array<{
+    variant_id: number;
+    quantity: number;
+    price: number;
+  }>;
+  subtotal: number;
+  shipping_cost: number;
+  tax_amount: number;
+  total_price: number;
+  selected_shipping_rate_id?: string;
+  shipping_carrier?: string;
+  shipping_service?: string;
+}
+
+// ============================================================================
+// SHARED ORDER INTERFACES
+// ============================================================================
 
 export interface Order {
   order_id: number;
@@ -196,53 +200,6 @@ export interface Order {
   country?: string;
   customer_email?: string;
   item_count?: number;
-}
-
-export interface OrderItem {
-  order_item_id: number;
-  variant_id: number;
-  product_name: string;
-  variant_details?: string;
-  quantity: number;
-  price_at_purchase: number;
-  img_url?: string;
-}
-
-export interface OrderDetails extends Order {
-  address_line2?: string;
-  country?: string;
-  customer_email?: string;
-  location_id?: number;
-  location_name?: string;
-  seller_city?: string;
-  seller_state?: string;
-  box_name?: string;
-  box_type?: string;
-  box_length?: number;
-  box_width?: number;
-  box_height?: number;
-  items: OrderItem[];
-}
-
-export interface GuestOrderDetails extends Omit<OrderDetails, 'first_name' | 'last_name'> {
-  guest_email: string;
-  guest_first_name: string;
-  guest_last_name?: string;
-  guest_phone?: string;
-}
-
-export interface StatusHistoryItem {
-  log_id: number;
-  status: string;
-  notes: string;
-  created_at: string;
-}
-
-export interface UpdateOrderStatusPayload {
-  status: string;
-  notes?: string;
-  tracking_number?: string;
-  shipping_carrier?: string;
 }
 
 // ============================================================================
@@ -284,7 +241,7 @@ export const validateAddressGuest = async (
 };
 
 // ============================================================================
-// API FUNCTIONS - CART & VALIDATION
+// API FUNCTIONS - CART VALIDATION
 // ============================================================================
 
 // POST validate cart before checkout (authenticated)
@@ -358,7 +315,7 @@ export const calculateShippingGuest = async (
 };
 
 // ============================================================================
-// API FUNCTIONS - ORDERS
+// API FUNCTIONS - ORDER CREATION
 // ============================================================================
 
 // POST create order (authenticated)
@@ -405,120 +362,6 @@ export const createGuestOrder = async (payload: CreateGuestOrderPayload): Promis
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || 'Failed to create order');
-  }
-  return response.json();
-};
-
-// GET all orders (admin/manager use - for OrderStatus page)
-export const fetchAllOrders = async (
-  limit: number = 100,
-  offset: number = 0
-): Promise<Order[]> => {
-  const params = new URLSearchParams({
-    limit: limit.toString(),
-    offset: offset.toString(),
-  });
-
-  const response = await fetch(`${API_URL}/api/checkout/admin/orders?${params.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch orders');
-  }
-  return response.json();
-};
-
-// GET user's own order history (customers)
-export const fetchUserOrders = async (
-  limit: number = 20,
-  offset: number = 0
-): Promise<Order[]> => {
-  const params = new URLSearchParams({
-    limit: limit.toString(),
-    offset: offset.toString(),
-  });
-
-  const response = await fetch(`${API_URL}/api/checkout/orders?${params.toString()}`, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch orders');
-  }
-  return response.json();
-};
-
-// GET specific order details by order ID (authenticated)
-export const fetchOrderDetails = async (orderId: number): Promise<OrderDetails> => {
-  const response = await fetch(`${API_URL}/api/checkout/orders/${orderId}`, {
-    headers: getAuthHeaders(),
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch order details');
-  }
-  return response.json();
-};
-
-// GET specific order details by order number (authenticated)
-export const fetchOrderByNumber = async (orderNumber: string): Promise<OrderDetails> => {
-  const response = await fetch(`${API_URL}/api/checkout/orders/by-number/${orderNumber}`, {
-    headers: getAuthHeaders(),
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch order details');
-  }
-  return response.json();
-};
-
-// GET guest order by order number + email (no auth)
-export const fetchGuestOrderByNumber = async (
-  orderNumber: string,
-  email: string
-): Promise<GuestOrderDetails> => {
-  const params = new URLSearchParams({ email });
-  const response = await fetch(
-    `${API_URL}/api/checkout/guest/orders/by-number/${orderNumber}?${params.toString()}`,
-    { headers: getPublicHeaders() }
-  );
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to fetch order details');
-  }
-  return response.json();
-};
-
-// PUT update order status (admin only)
-export const updateOrderStatus = async (
-  orderId: number,
-  payload: UpdateOrderStatusPayload
-): Promise<{ message: string }> => {
-  const response = await fetch(`${API_URL}/api/checkout/orders/${orderId}/status`, {
-    method: 'PUT',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to update order status');
-  }
-  return response.json();
-};
-
-// GET order status history
-export const fetchOrderStatusHistory = async (orderId: number): Promise<{
-  status_history: StatusHistoryItem[];
-}> => {
-  const response = await fetch(`${API_URL}/api/checkout/orders/${orderId}/status-history`, {
-    headers: getAuthHeaders(),
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch status history');
   }
   return response.json();
 };

@@ -239,10 +239,6 @@ export const setDefaultAddress = async (req: Request, res: Response) => {
   }
 };
 
-// ============================================================================
-// ADDRESS MANAGEMENT
-// ============================================================================
-
 /**
  * GET all user addresses
  */

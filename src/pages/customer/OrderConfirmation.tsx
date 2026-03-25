@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { FaCheckCircle, FaShoppingBag, FaPrint, FaHome } from "react-icons/fa";
-import {
-  fetchUserProfile,
-  fetchOrderByNumber,
-  type OrderDetails,
-} from "../../api/checkout";
+import { fetchOrderByNumber, type OrderDetails } from "../../api/orders";
+import { fetchUserProfile } from "../../api/user";
 
 import DeliveryEstimate from "../../components/customerInterface/checkout/DeliveryEstimate";
 

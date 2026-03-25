@@ -13,6 +13,7 @@ import { sellerLocationRouter } from "./routes/sellerLocation";
 import { productTypesRouter } from "./routes/productTypes";
 import { couponManagementRouter } from "./routes/couponManagement";
 import { checkoutRouter } from "./routes/checkout";
+import { ordersRouter } from "./routes/orders";
 import { settingsRouter } from './routes/settings';
 import { userRouter } from './routes/user';
 
@@ -48,6 +49,7 @@ app.get("/", (req, res) => {
       product_types: "/api/product-types",
       coupons: "/api/coupons",
       checkout: "/api/checkout",
+      order: "/api/orders",
       settings: "/api/settings",
       user: "/api/user"
     }
@@ -67,6 +69,7 @@ app.use("/api/sellerlocation", sellerLocationRouter);
 app.use('/api/product-types', productTypesRouter);
 app.use('/api/coupons', couponManagementRouter);
 app.use('/api/checkout', checkoutRouter);
+app.use('/api/orders', ordersRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/user', userRouter);
 

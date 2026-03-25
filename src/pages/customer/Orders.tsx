@@ -2,11 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { FaShoppingBag, FaTruck, FaCheckCircle, FaEye } from "react-icons/fa";
-import {
-  fetchUserOrders,
-  fetchUserProfile,
-  type Order,
-} from "../../api/checkout";
+import { fetchUserOrders, type Order } from "../../api/orders";
+import { fetchUserProfile } from "../../api/user";
 
 import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import ProfileSidebar from "../../components/universalComponents/ProfileSideBar";

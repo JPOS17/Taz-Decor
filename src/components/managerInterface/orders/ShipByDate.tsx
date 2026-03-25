@@ -39,7 +39,6 @@ const addBusinessDays = (startDate: Date, n: number): Date => {
   return result;
 };
 
-/** Strips time component so date comparisons are purely day-level */
 const toDateOnly = (date: Date): Date =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate());
 

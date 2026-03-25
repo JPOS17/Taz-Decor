@@ -18,20 +18,6 @@ import {
   FaShoppingBag,
 } from "react-icons/fa";
 import {
-  validateCart,
-  validateCartGuest,
-  calculateShipping,
-  calculateShippingGuest,
-  createOrder,
-  createGuestOrder,
-  validateAddress,
-  validateAddressGuest,
-  type ShippingOption,
-  type AddressValidationResult,
-  type GuestInfo,
-  type GuestShippingAddress,
-} from "../../api/checkout";
-import {
   fetchUserAddresses,
   createAddress,
   updateAddress,
@@ -44,6 +30,20 @@ import {
   type ProductCoupon,
   type GroupedCoupons,
 } from "../../api/couponCustomer";
+import {
+  validateCart,
+  validateCartGuest,
+  validateAddress,
+  validateAddressGuest,
+  calculateShipping,
+  calculateShippingGuest,
+  createOrder,
+  createGuestOrder,
+  type GuestInfo,
+  type GuestShippingAddress,
+  type ShippingOption,
+  type AddressValidationResult,
+} from "../../api/checkout";
 import { validateCoupons } from "../../api/couponValidation";
 
 import StepIndicator from "../../components/customerInterface/checkout/StepIndicator";

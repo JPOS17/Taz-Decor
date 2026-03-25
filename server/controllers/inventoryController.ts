@@ -136,117 +136,6 @@ export const getAllProductsForManagement = async (req: Request, res: Response): 
 };
 
 // ============================================================================
-// PRODUCTS - GET VARIANTS
-// ============================================================================
-
-/**
- * GET all variants for a specific product
- */
-export const getProductVariants = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { productId } = req.params;
-    
-    const result = await pool.query(`
-      SELECT 
-        pv.variant_id,
-        pv.product_id,
-        pv.price,
-        pv.color,
-        pv.size,
-        pv.quantity AS stock_quantity,
-        pv.sku,
-        pi.img_url AS primary_image
-      FROM product_variants pv
-      LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id AND pi.is_primary = TRUE
-      WHERE pv.product_id = $1
-      ORDER BY pv.variant_id
-    `, [productId]);
-    
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching product variants:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// ============================================================================
-// VARIANTS - GET FOR EDIT
-// ============================================================================
-
-/**
- * GET detailed product variant for editing
- */
-export const getVariantForEdit = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { variantId } = req.params;
-    
-    const variantResult = await pool.query(`
-      SELECT 
-        pv.variant_id,
-        pv.product_id,
-        p.name,
-        p.description,
-        pv.price,
-        pv.color,
-        pv.size,
-        pv.quantity AS stock_quantity,
-        pv.sku,
-        pv.weight_oz,
-        pv.length_in,
-        pv.width_in,
-        pv.height_in,
-        pv.is_active,
-        pc.category_id,
-        c.category_name AS category,
-        p.product_type_id,
-        pt.type_name AS product_type,
-        pt.sku_prefix,
-        pv.location_id,
-        sl.location_name
-      FROM product_variants pv
-      JOIN products p ON p.product_id = pv.product_id
-      JOIN product_categories pc ON pc.product_id = p.product_id AND pc.is_primary = TRUE
-      JOIN categories c ON c.category_id = pc.category_id
-      LEFT JOIN product_types pt ON pt.product_type_id = p.product_type_id
-      LEFT JOIN seller_locations sl ON sl.location_id = pv.location_id
-      WHERE pv.variant_id = $1
-    `, [variantId]);
-
-    if (variantResult.rows.length === 0) {
-      res.status(404).json({ message: "Variant not found" });
-      return;
-    }
-
-    const variant = variantResult.rows[0];
-
-    // Get images for this variant
-    const imagesResult = await pool.query(`
-      SELECT 
-        image_id,
-        img_url,
-        is_primary,
-        display_order
-      FROM product_images
-      WHERE variant_id = $1
-      ORDER BY display_order ASC, image_id ASC
-    `, [variantId]);
-
-    res.json({
-      ...variant,
-      price: parseFloat(variant.price),
-      weight_oz: variant.weight_oz ? parseFloat(variant.weight_oz) : null,
-      length_in: variant.length_in ? parseFloat(variant.length_in) : null,
-      width_in: variant.width_in ? parseFloat(variant.width_in) : null,
-      height_in: variant.height_in ? parseFloat(variant.height_in) : null,
-      images: imagesResult.rows
-    });
-  } catch (error) {
-    console.error("Error fetching variant for edit:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// ============================================================================
 // PRODUCTS - CREATE
 // ============================================================================
 
@@ -372,6 +261,213 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
     });
   } finally {
     client.release();
+  }
+};
+
+// ============================================================================
+// PRODUCTS - GET VARIANTS
+// ============================================================================
+
+/**
+ * GET all variants for a specific product
+ */
+export const getProductVariants = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { productId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT 
+        pv.variant_id,
+        pv.product_id,
+        pv.price,
+        pv.color,
+        pv.size,
+        pv.quantity AS stock_quantity,
+        pv.sku,
+        pi.img_url AS primary_image
+      FROM product_variants pv
+      LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id AND pi.is_primary = TRUE
+      WHERE pv.product_id = $1
+      ORDER BY pv.variant_id
+    `, [productId]);
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching product variants:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ============================================================================
+// VARIANTS - CREATE
+// ============================================================================
+
+/**
+ * POST create new variant for existing product
+ */
+export const createVariant = async (req: Request, res: Response): Promise<void> => {
+  const client = await pool.connect();
+  
+  try {
+    await client.query('BEGIN');
+
+    const { productId } = req.params;
+    const {
+      price,
+      color,
+      size,
+      stock_quantity,
+      location_id,
+      weight_oz,
+      length_in,
+      width_in,
+      height_in,
+      image_urls
+    } = req.body;
+
+    // Validate required fields
+    if (!price || !location_id) {
+      await client.query('ROLLBACK');
+      res.status(400).json({ 
+        message: "Missing required fields: price, location_id" 
+      });
+      return;
+    }
+
+    // Generate SKU for new variant
+    const sku = await generateVariantSKU(client, parseInt(productId));
+
+    // Insert variant
+    const variantResult = await client.query(
+      `INSERT INTO product_variants (
+        product_id, sku, price, color, size, quantity, location_id,
+        weight_oz, length_in, width_in, height_in, is_active
+      ) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, TRUE) 
+      RETURNING variant_id`,
+      [
+        productId,
+        sku,
+        price,
+        color || null,
+        size || null,
+        stock_quantity || 0,
+        location_id,
+        weight_oz || null,
+        length_in || null,
+        width_in || null,
+        height_in || null
+      ]
+    );
+
+    const variantId = variantResult.rows[0].variant_id;
+
+    // Insert images if provided
+    if (image_urls && Array.isArray(image_urls) && image_urls.length > 0) {
+      for (let i = 0; i < image_urls.length; i++) {
+        const isPrimary = i === 0;
+        await client.query(
+          `INSERT INTO product_images (variant_id, img_url, is_primary, display_order) 
+           VALUES ($1, $2, $3, $4)`,
+          [variantId, image_urls[i], isPrimary, i + 1]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+
+    res.status(201).json({ 
+      message: "Variant created successfully",
+      variant_id: variantId,
+      sku: sku
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error("Error creating variant:", error);
+    res.status(500).json({ 
+      message: "Server error",
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  } finally {
+    client.release();
+  }
+};
+
+// ============================================================================
+// VARIANTS - GET FOR EDIT
+// ============================================================================
+
+/**
+ * GET detailed product variant for editing
+ */
+export const getVariantForEdit = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { variantId } = req.params;
+    
+    const variantResult = await pool.query(`
+      SELECT 
+        pv.variant_id,
+        pv.product_id,
+        p.name,
+        p.description,
+        pv.price,
+        pv.color,
+        pv.size,
+        pv.quantity AS stock_quantity,
+        pv.sku,
+        pv.weight_oz,
+        pv.length_in,
+        pv.width_in,
+        pv.height_in,
+        pv.is_active,
+        pc.category_id,
+        c.category_name AS category,
+        p.product_type_id,
+        pt.type_name AS product_type,
+        pt.sku_prefix,
+        pv.location_id,
+        sl.location_name
+      FROM product_variants pv
+      JOIN products p ON p.product_id = pv.product_id
+      JOIN product_categories pc ON pc.product_id = p.product_id AND pc.is_primary = TRUE
+      JOIN categories c ON c.category_id = pc.category_id
+      LEFT JOIN product_types pt ON pt.product_type_id = p.product_type_id
+      LEFT JOIN seller_locations sl ON sl.location_id = pv.location_id
+      WHERE pv.variant_id = $1
+    `, [variantId]);
+
+    if (variantResult.rows.length === 0) {
+      res.status(404).json({ message: "Variant not found" });
+      return;
+    }
+
+    const variant = variantResult.rows[0];
+
+    // Get images for this variant
+    const imagesResult = await pool.query(`
+      SELECT 
+        image_id,
+        img_url,
+        is_primary,
+        display_order
+      FROM product_images
+      WHERE variant_id = $1
+      ORDER BY display_order ASC, image_id ASC
+    `, [variantId]);
+
+    res.json({
+      ...variant,
+      price: parseFloat(variant.price),
+      weight_oz: variant.weight_oz ? parseFloat(variant.weight_oz) : null,
+      length_in: variant.length_in ? parseFloat(variant.length_in) : null,
+      width_in: variant.width_in ? parseFloat(variant.width_in) : null,
+      height_in: variant.height_in ? parseFloat(variant.height_in) : null,
+      images: imagesResult.rows
+    });
+  } catch (error) {
+    console.error("Error fetching variant for edit:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -509,6 +605,135 @@ export const updateVariant = async (req: Request, res: Response): Promise<void> 
 
   } catch (error) {
     console.error("Error updating variant:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ============================================================================
+// VARIANTS - DELETE
+// ============================================================================
+
+/**
+ * DELETE variant
+ */
+export const deleteVariant = async (req: Request, res: Response): Promise<void> => {
+  const client = await pool.connect();
+  
+  try {
+    const { variantId } = req.params;
+
+    await client.query('BEGIN');
+
+    // Check if variant exists and get product info
+    const variantCheck = await client.query(
+      `SELECT product_id, 
+        (SELECT COUNT(*) FROM product_variants WHERE product_id = pv.product_id) as variant_count
+       FROM product_variants pv
+       WHERE variant_id = $1`,
+      [variantId]
+    );
+
+    if (variantCheck.rows.length === 0) {
+      await client.query('ROLLBACK');
+      res.status(404).json({ message: "Variant not found" });
+      return;
+    }
+
+    const { product_id, variant_count } = variantCheck.rows[0];
+    const isLastVariant = parseInt(variant_count) === 1;
+
+    if (isLastVariant) {
+      // This is the last variant - delete the entire product
+      // 1. Delete product images (CASCADE should handle this, but being explicit)
+      await client.query(
+        "DELETE FROM product_images WHERE variant_id = $1",
+        [variantId]
+      );
+
+      // 2. Delete the variant
+      await client.query(
+        "DELETE FROM product_variants WHERE variant_id = $1",
+        [variantId]
+      );
+
+      // 3. Delete product categories
+      await client.query(
+        "DELETE FROM product_categories WHERE product_id = $1",
+        [product_id]
+      );
+
+      // 4. Delete the product itself
+      await client.query(
+        "DELETE FROM products WHERE product_id = $1",
+        [product_id]
+      );
+
+      await client.query('COMMIT');
+      res.json({ 
+        message: "Product and all associated data deleted successfully",
+        deleted_entire_product: true 
+      });
+
+    } else {
+      // Product has multiple variants - delete only this variant
+      // 1. Delete product images for this variant (CASCADE should handle this, but being explicit)
+      await client.query(
+        "DELETE FROM product_images WHERE variant_id = $1",
+        [variantId]
+      );
+
+      // 2. Delete the variant
+      await client.query(
+        "DELETE FROM product_variants WHERE variant_id = $1",
+        [variantId]
+      );
+
+      await client.query('COMMIT');
+      res.json({ 
+        message: "Variant deleted successfully",
+        deleted_entire_product: false 
+      });
+    }
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error("Error deleting variant:", error);
+    res.status(500).json({ 
+      message: "Server error",
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  } finally {
+    client.release();
+  }
+};
+
+// ============================================================================
+// VARIANTS - TOGGLE STATUS
+// ============================================================================
+
+/**
+ * PATCH toggle variant active status
+ */
+export const toggleVariantStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { variantId } = req.params;
+
+    const result = await pool.query(
+      "UPDATE product_variants SET is_active = NOT is_active WHERE variant_id = $1 RETURNING is_active",
+      [variantId]
+    );
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ message: "Variant not found" });
+      return;
+    }
+
+    res.json({ 
+      message: "Variant status updated successfully",
+      is_active: result.rows[0].is_active
+    });
+  } catch (error) {
+    console.error("Error toggling variant status:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -694,234 +919,9 @@ export const setPrimaryImage = async (req: Request, res: Response): Promise<void
     client.release();
   }
 };
-
+ 
 // ============================================================================
-// VARIANTS - DELETE
-// ============================================================================
-
-/**
- * DELETE variant
- */
-export const deleteVariant = async (req: Request, res: Response): Promise<void> => {
-  const client = await pool.connect();
-  
-  try {
-    const { variantId } = req.params;
-
-    await client.query('BEGIN');
-
-    // Check if variant exists and get product info
-    const variantCheck = await client.query(
-      `SELECT product_id, 
-        (SELECT COUNT(*) FROM product_variants WHERE product_id = pv.product_id) as variant_count
-       FROM product_variants pv
-       WHERE variant_id = $1`,
-      [variantId]
-    );
-
-    if (variantCheck.rows.length === 0) {
-      await client.query('ROLLBACK');
-      res.status(404).json({ message: "Variant not found" });
-      return;
-    }
-
-    const { product_id, variant_count } = variantCheck.rows[0];
-    const isLastVariant = parseInt(variant_count) === 1;
-
-    if (isLastVariant) {
-      // This is the last variant - delete the entire product
-      // 1. Delete product images (CASCADE should handle this, but being explicit)
-      await client.query(
-        "DELETE FROM product_images WHERE variant_id = $1",
-        [variantId]
-      );
-
-      // 2. Delete the variant
-      await client.query(
-        "DELETE FROM product_variants WHERE variant_id = $1",
-        [variantId]
-      );
-
-      // 3. Delete product categories
-      await client.query(
-        "DELETE FROM product_categories WHERE product_id = $1",
-        [product_id]
-      );
-
-      // 4. Delete the product itself
-      await client.query(
-        "DELETE FROM products WHERE product_id = $1",
-        [product_id]
-      );
-
-      await client.query('COMMIT');
-      res.json({ 
-        message: "Product and all associated data deleted successfully",
-        deleted_entire_product: true 
-      });
-
-    } else {
-      // Product has multiple variants - delete only this variant
-      // 1. Delete product images for this variant (CASCADE should handle this, but being explicit)
-      await client.query(
-        "DELETE FROM product_images WHERE variant_id = $1",
-        [variantId]
-      );
-
-      // 2. Delete the variant
-      await client.query(
-        "DELETE FROM product_variants WHERE variant_id = $1",
-        [variantId]
-      );
-
-      await client.query('COMMIT');
-      res.json({ 
-        message: "Variant deleted successfully",
-        deleted_entire_product: false 
-      });
-    }
-
-  } catch (error) {
-    await client.query('ROLLBACK');
-    console.error("Error deleting variant:", error);
-    res.status(500).json({ 
-      message: "Server error",
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  } finally {
-    client.release();
-  }
-};
-
-// ============================================================================
-// VARIANTS - CREATE
-// ============================================================================
-
-/**
- * POST create new variant for existing product
- */
-export const createVariant = async (req: Request, res: Response): Promise<void> => {
-  const client = await pool.connect();
-  
-  try {
-    await client.query('BEGIN');
-
-    const { productId } = req.params;
-    const {
-      price,
-      color,
-      size,
-      stock_quantity,
-      location_id,
-      weight_oz,
-      length_in,
-      width_in,
-      height_in,
-      image_urls
-    } = req.body;
-
-    // Validate required fields
-    if (!price || !location_id) {
-      await client.query('ROLLBACK');
-      res.status(400).json({ 
-        message: "Missing required fields: price, location_id" 
-      });
-      return;
-    }
-
-    // Generate SKU for new variant
-    const sku = await generateVariantSKU(client, parseInt(productId));
-
-    // Insert variant
-    const variantResult = await client.query(
-      `INSERT INTO product_variants (
-        product_id, sku, price, color, size, quantity, location_id,
-        weight_oz, length_in, width_in, height_in, is_active
-      ) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, TRUE) 
-      RETURNING variant_id`,
-      [
-        productId,
-        sku,
-        price,
-        color || null,
-        size || null,
-        stock_quantity || 0,
-        location_id,
-        weight_oz || null,
-        length_in || null,
-        width_in || null,
-        height_in || null
-      ]
-    );
-
-    const variantId = variantResult.rows[0].variant_id;
-
-    // Insert images if provided
-    if (image_urls && Array.isArray(image_urls) && image_urls.length > 0) {
-      for (let i = 0; i < image_urls.length; i++) {
-        const isPrimary = i === 0;
-        await client.query(
-          `INSERT INTO product_images (variant_id, img_url, is_primary, display_order) 
-           VALUES ($1, $2, $3, $4)`,
-          [variantId, image_urls[i], isPrimary, i + 1]
-        );
-      }
-    }
-
-    await client.query('COMMIT');
-
-    res.status(201).json({ 
-      message: "Variant created successfully",
-      variant_id: variantId,
-      sku: sku
-    });
-
-  } catch (error) {
-    await client.query('ROLLBACK');
-    console.error("Error creating variant:", error);
-    res.status(500).json({ 
-      message: "Server error",
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-  } finally {
-    client.release();
-  }
-};
-
-// ============================================================================
-// VARIANTS - TOGGLE STATUS
-// ============================================================================
-
-/**
- * PATCH toggle variant active status
- */
-export const toggleVariantStatus = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { variantId } = req.params;
-
-    const result = await pool.query(
-      "UPDATE product_variants SET is_active = NOT is_active WHERE variant_id = $1 RETURNING is_active",
-      [variantId]
-    );
-
-    if (result.rows.length === 0) {
-      res.status(404).json({ message: "Variant not found" });
-      return;
-    }
-
-    res.json({ 
-      message: "Variant status updated successfully",
-      is_active: result.rows[0].is_active
-    });
-  } catch (error) {
-    console.error("Error toggling variant status:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// ============================================================================
-// SKU PREVIEW - PRODUCT
+// SKU PREVIEW 
 // ============================================================================
 
 /**
@@ -937,10 +937,6 @@ export const previewProductSKUByType = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to preview SKU' });
   }
 };
-
-// ============================================================================
-// SKU PREVIEW - VARIANT
-// ============================================================================
 
 /**
  * POST preview SKU for new variant
