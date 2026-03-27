@@ -12,6 +12,7 @@ export interface CouponValidationErrors {
   bogo_get_quantity?: string;
   bogo_discount_percentage?: string;
   location_ids?: string; 
+  valid_from?: string;
 }
 
 export const validateStep1 = (
@@ -42,7 +43,7 @@ export const validateStep1 = (
   return errors;
 };
 
-export const validateStep2 = (
+export const validateStep3 = (
   formData: CreateCouponPayload
 ): CouponValidationErrors => {
   const errors: CouponValidationErrors = {};
@@ -111,7 +112,7 @@ export const validateStep2 = (
   return errors;
 };
 
-export const validateStep3 = (
+export const validateStep2 = (
   formData: CreateCouponPayload,
   customGroupProducts: number[]
 ): CouponValidationErrors => {
@@ -163,6 +164,18 @@ export const validateStep3 = (
   return errors;
 };
 
+export const validateStep4 = (
+  formData: CreateCouponPayload
+): CouponValidationErrors => {
+  const errors: CouponValidationErrors = {};
+
+  if (!formData.valid_from || formData.valid_from === "") {
+    errors.valid_from = "Valid from date is required";
+  }
+
+  return errors;
+};
+
 export const canProceedToStep = (
   step: number,
   formData: CreateCouponPayload,
@@ -174,11 +187,11 @@ export const canProceedToStep = (
     case 2:
       return Object.keys(validateStep1(formData, existingCouponCodes, isEditing)).length === 0;
     case 3:
-      return Object.keys(validateStep2(formData)).length === 0;
+      return Object.keys(validateStep2(formData, customGroupProducts)).length === 0;
     case 4:
-      return Object.keys(validateStep3(formData, customGroupProducts)).length === 0;
+      return Object.keys(validateStep3(formData)).length === 0;
     case 5:
-      return Object.keys(validateStep3(formData, customGroupProducts)).length === 0;
+      return Object.keys(validateStep4(formData)).length === 0;
     default:
       return true;
   }
