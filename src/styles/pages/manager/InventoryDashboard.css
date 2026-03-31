@@ -1,1194 +1,226 @@
-/* ============================================================================
-   MANAGER DASHBOARD
-   ============================================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 /* ============================================================================
-   BASE STYLES
+   INVENTORY DASHBOARD
+   Theme: #c2410c (accent) / #fff7ed
+   ============================================================================ */
+
+:root {
+  --inv-accent: #c2410c;
+  --inv-accent-dark: #9a3412;
+  --inv-accent-light: #fff7ed;
+  --inv-bg: #f0f2f5;
+  --inv-card: #ffffff;
+  --inv-border: #e4e7ec;
+  --inv-text-primary: #111827;
+  --inv-text-secondary: #6b7280;
+  --inv-text-muted: #9ca3af;
+  --inv-header-bg: #1c1c1e;
+  --inv-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --inv-radius: 12px;
+  --inv-font: "Inter", sans-serif;
+}
+
+/* ============================================================================
+   PAGE
    ============================================================================ */
 
 .manager-dashboard {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: var(--inv-bg);
+  font-family: var(--inv-font);
 }
 
 /* ============================================================================
-   HEADER SECTION
+   HEADER
    ============================================================================ */
 
-.manager-dashboard .dashboard-header {
-  background-color: #753a1e;
-  color: white;
-  padding: 1.5rem 0;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.dashboard-header {
+  background-color: var(--inv-header-bg);
+  padding: 2rem 3rem;
 }
 
-.manager-dashboard .dashboard-title {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 600;
-}
-
-/* ============================================================================
-   CATEGORY DROPDOWN SECTION
-   ============================================================================ */
-
-.manager-dashboard .category-section {
-  background-color: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1.5rem;
-}
-
-.manager-dashboard .category-label {
-  font-weight: 600;
-  color: #753a1e;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-.manager-dashboard .category-select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #753a1e;
-  border-radius: 6px;
-  font-size: 1rem;
-  background-color: white;
+.dashboard-back-button {
+  background: none;
+  border: none;
+  color: var(--inv-text-muted);
   cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.manager-dashboard .category-select:focus {
-  outline: none;
-  border-color: #8b4513;
-  box-shadow: 0 0 0 3px rgba(117, 58, 30, 0.1);
-}
-
-/* ============================================================================
-   MAIN LAYOUT - TWO COLUMN GRID
-   ============================================================================ */
-
-.manager-dashboard .dashboard-content {
-  display: grid;
-  grid-template-columns: 1fr 2fr; /* 4/12 (33%) and 8/12 (67%) split */
-  gap: 1.5rem;
-  height: calc(100vh - 200px);
-}
-
-/* Single column variant for create/edit product pages */
-.manager-dashboard .dashboard-content.single-column {
-  grid-template-columns: 1fr;
-  display: flex;
-  justify-content: center;
-  height: auto;
-}
-
-/* ============================================================================
-   LEFT COLUMN - PRODUCTS LIST
-   ============================================================================ */
-
-.manager-dashboard .products-column {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  overflow-y: auto;
-  max-height: calc(100vh - 200px);
-}
-
-.manager-dashboard .products-column h2 {
-  color: #753a1e;
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.manager-dashboard .products-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-/* ============================================================================
-   ADD NEW PRODUCT CARD (ProductManagement.tsx)
-   ============================================================================ */
-
-.manager-dashboard .add-new-product-card {
-  border: 3px dashed #753a1e;
-  background-color: #f0c58e1a;
-  border-radius: 8px;
-  padding: 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.manager-dashboard .add-new-product-card:hover {
-  background-color: #f0c58e4d;
-  border-color: #8b4513;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(117, 58, 30, 0.2);
-}
-
-.manager-dashboard .add-new-product-card.active {
-  background-color: #d4a574;
-  border-color: #5c2e1a;
-  box-shadow: 0 4px 8px rgba(117, 58, 30, 0.4);
-  border-style: solid;
-}
-
-.manager-dashboard .add-new-icon {
-  font-size: 3rem;
-  color: #753a1e;
-  margin-bottom: 0.5rem;
-}
-
-.manager-dashboard .add-new-text {
-  color: #753a1e;
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin: 0;
-}
-
-/* ============================================================================
-   PRODUCT LIST ITEM (ManagerListItem.tsx)
-   ============================================================================ */
-
-.manager-dashboard .product-list-item {
-  position: relative;
-  border: 2px solid #753a1e;
-  background-color: #f0c58e7e;
-  border-radius: 8px;
-  padding: 0.75rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.4rem;
+  padding: 0 0 0.75rem 0;
+  font-size: 0.8125rem;
+  font-family: var(--inv-font);
+  font-weight: 500;
+  transition: color 0.18s ease;
+  letter-spacing: 0.01em;
 }
 
-.manager-dashboard .product-list-item:hover {
-  background-color: #e8d5bd;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(117, 58, 30, 0.3);
+.dashboard-back-button:hover {
+  color: #ffffff;
 }
 
-.manager-dashboard .product-list-item.active {
-  background-color: #d4a574;
-  border-color: #5c2e1a;
-  box-shadow: 0 4px 8px rgba(117, 58, 30, 0.4);
-}
-
-.manager-dashboard .product-thumbnail {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 4px;
-  border: 1px solid #753a1e;
-  flex-shrink: 0;
-}
-
-.manager-dashboard .product-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.manager-dashboard .product-name {
-  font-weight: 600;
-  color: #000;
-  margin: 0 0 0.25rem 0;
-  font-size: 0.95rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.manager-dashboard .product-meta {
-  font-size: 0.85rem;
-  color: #555;
-  margin: 0;
-}
-
-/* Variant Badge Styling */
-.manager-dashboard .variant-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, #753a1e 0%, #a0522d 100%);
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  letter-spacing: 0.5px;
-}
-
-.manager-dashboard .variant-badge-bottom {
-  position: absolute;
-  bottom: 0.5rem;
-  right: 0.5rem;
-  margin-left: 0;
-}
-
-.manager-dashboard .variant-info {
-  color: #753a1e;
-  font-weight: 600;
-  font-size: 0.8rem;
-  font-style: italic;
-}
-
-/* Enhanced styling for products with variants */
-.manager-dashboard .product-list-item:has(.variant-badge) {
-  border-left: 4px solid #a0522d;
-}
-
-.manager-dashboard .product-list-item.active:has(.variant-badge) {
-  border-left: 4px solid #5c2e1a;
-  background: linear-gradient(to right, #d4a574 0%, #d4a574 100%);
-}
-
-/* ============================================================================
-   RIGHT COLUMN - PRODUCT DETAILS
-   ============================================================================ */
-
-.manager-dashboard .details-column {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 0;
-  overflow-y: auto;
-  max-height: calc(100vh - 200px);
-  position: relative;
-}
-
-/* Sticky header for edit mode */
-.manager-dashboard .details-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background-color: white;
-  padding: 1.5rem;
-  margin: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #753a1e;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  flex-wrap: wrap; 
-  gap: 1rem; 
-}
-
-.manager-dashboard .details-title {
-  flex: 1 1 100%; 
-  min-width: 200px; 
-}
-
-@media (min-width: 992px) {
-  .manager-dashboard .details-title {
-    flex: 0 1 auto; 
-  }
-}
-
-
-/* Add padding to all children except the header */
-.manager-dashboard .details-column > *:not(.details-header) {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
-/* First element after header needs top padding */
-.manager-dashboard .details-column > .details-header + * {
-  padding-top: 1.5rem;
-}
-
-/* Last element needs bottom padding */
-.manager-dashboard .details-column > *:last-child {
-  padding-bottom: 1.5rem;
-}
-
-.manager-dashboard .details-title {
-  color: #753a1e;
+.dashboard-title {
+  margin: 0 0 0.2rem 0;
   font-size: 1.75rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-/* ============================================================================
-   ACTION BUTTONS (ProductManagement.tsx)
-   ============================================================================ */
-
-.manager-dashboard .action-buttons {
-  display: flex;
-  gap: 0;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Remove individual border radius, buttons will be connected */
-.manager-dashboard .action-buttons > button {
-  border-radius: 0;
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-}
-
-.manager-dashboard .action-buttons > button:last-child {
-  border-right: none;
-}
-
-.manager-dashboard .action-buttons > button:first-child {
-  border-top-left-radius: 6px;
-  border-bottom-left-radius: 6px;
-}
-
-.manager-dashboard .action-buttons > button:last-child {
-  border-top-right-radius: 6px;
-  border-bottom-right-radius: 6px;
-}
-
-.manager-dashboard .btn-save {
-  background-color: #28a745;
-  border-color: #28a745;
-  color: white;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.manager-dashboard .btn-save:hover {
-  background-color: #218838;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.manager-dashboard .btn-save:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-.manager-dashboard .btn-save:disabled:hover {
-  background-color: #6c757d;
-  transform: none;
-  box-shadow: none;
-}
-
-.manager-dashboard .btn-delete {
-  background-color: #dc3545;
-  border-color: #dc3545;
-  color: white;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.manager-dashboard .btn-delete:hover {
-  background-color: #c82333;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.manager-dashboard .btn-new-variant {
-  background-color: #753a1e;
-  border-color: #753a1e;
-  color: white;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.manager-dashboard .btn-new-variant:hover {
-  background-color: #5c2e1a;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.manager-dashboard .btn-new-variant:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.manager-dashboard .btn-new-variant:disabled:hover {
-  background-color: #753a1e;
-  transform: none;
-  box-shadow: none;
-}
-
-.manager-dashboard .btn-activate {
-  background-color: #28a745;
-  border-color: #28a745;
-  color: white;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.manager-dashboard .btn-activate:hover {
-  background-color: #218838;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.manager-dashboard .btn-deactivate {
-  background-color: #ffc107;
-  border-color: #ffc107;
-  color: #000;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.manager-dashboard .btn-deactivate:hover {
-  background-color: #e0a800;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.manager-dashboard .btn-activate:disabled,
-.manager-dashboard .btn-deactivate:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.manager-dashboard .btn-activate:disabled:hover,
-.manager-dashboard .btn-deactivate:disabled:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.manager-dashboard .btn-cancel-inline {
-  background-color: #6c757d;
-  border-color: #6c757d;
-  color: white;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.manager-dashboard .btn-cancel-inline:hover {
-  background-color: #5a6268;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.manager-dashboard .btn-cancel-inline:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.manager-dashboard .btn-cancel-inline:disabled:hover {
-  background-color: #6c757d;
-  transform: none;
-  box-shadow: none;
-}
-
-/* ============================================================================
-   VARIANT SELECTOR (VariantSelector.tsx)
-   ============================================================================ */
-
-.variant-selector-container {
-  background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%);
-  border: 2px solid #753a1e;
-  border-radius: 8px;
-  
-  padding: 0.5rem;
-  margin: auto;
-  width: 95%;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-
-}
-
-.variant-selector-label {
-  display: block;
   font-weight: 700;
-  color: #753a1e;
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #ffffff;
+  letter-spacing: -0.01em;
 }
 
-.variant-selector-wrapper {
-  position: relative;
-}
-
-.variant-selector-select {
-  width: 100%;
-  padding: 0.75rem 2.5rem 0.75rem 0.75rem;
-  border: 2px solid #753a1e;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
-  background-color: white;
-  cursor: pointer;
-  appearance: none;
-  transition: all 0.3s ease;
-  color: #333;
-}
-
-.variant-selector-select:hover {
-  border-color: #8b4513;
-  box-shadow: 0 2px 8px rgba(117, 58, 30, 0.2);
-}
-
-.variant-selector-select:focus {
-  outline: none;
-  border-color: #5c2e1a;
-  box-shadow: 0 0 0 3px rgba(117, 58, 30, 0.15);
-}
-
-.variant-selector-select:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background-color: #f5f5f5;
-}
-
-.variant-selector-icon {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #753a1e;
-  pointer-events: none;
-}
-
-.variant-selector-help {
-  margin: 0.5rem 0 0 0;
-  font-size: 0.85rem;
-  color: #666;
-  font-style: italic;
-}
-
-/* Animation for variant switch */
-@keyframes variantSwitch {
-  0% { opacity: 0.5; transform: translateY(-10px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-.variant-selector-container + .image-management-section,
-.variant-selector-container + div {
-  animation: variantSwitch 0.3s ease;
+.dashboard-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--inv-text-muted);
+  font-weight: 400;
 }
 
 /* ============================================================================
-   IMAGE MANAGER (ImageManager.tsx)
+   CONTAINER
    ============================================================================ */
 
-.manager-dashboard .image-management-section {
-  margin-bottom: 2rem;
+.manager-dashboard .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
-.manager-dashboard .image-layout {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+/* ============================================================================
+   BODY
+   ============================================================================ */
+
+.id-body {
+  padding: 2.5rem 0 4rem;
 }
 
-/* Thumbnail Column */
-.manager-dashboard .thumbnail-column {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-height: 450px;
-  overflow-y: auto;
-  padding-right: 0.25rem;
-  scrollbar-width: thin;
-  scrollbar-color: #753a1e #f1f1f1;
-}
-
-.manager-dashboard .thumbnail-column::-webkit-scrollbar {
-  width: 6px;
-}
-
-.manager-dashboard .thumbnail-column::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
-  border-radius: 4px;
-}
-
-.manager-dashboard .thumbnail-column::-webkit-scrollbar-thumb {
-  background-color: #753a1e;
-  border-radius: 4px;
-}
-
-.manager-dashboard .thumbnail-column::-webkit-scrollbar-thumb:hover {
-  background-color: #5c2e1a;
-}
-
-/* Thumbnail Items */
-.manager-dashboard .thumbnail-item {
-  position: relative;
-  width: 110px;
-  height: 110px;
-  border: 2px solid #dee2e6;
-  border-radius: 6px;
-  overflow: hidden;
-  cursor: pointer;
-  background-color: #f8f9fa;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.manager-dashboard .thumbnail-item:active {
-  cursor: grabbing;
-}
-
-.manager-dashboard .thumbnail-item:hover {
-  border-color: #753a1e;
-  box-shadow: 0 2px 8px rgba(117, 58, 30, 0.3);
-}
-
-.manager-dashboard .thumbnail-item.dragging {
-  opacity: 0.5;
-  transform: scale(0.95);
-}
-
-.manager-dashboard .thumbnail-item.drag-over {
-  border-color: #28a745;
-  border-style: dashed;
-  background-color: rgba(40, 167, 69, 0.1);
-}
-
-.manager-dashboard .thumbnail-image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.manager-dashboard .thumbnail-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.manager-dashboard .thumbnail-item:hover .thumbnail-overlay {
-  opacity: 1;
-}
-
-.manager-dashboard .thumbnail-icon {
-  background-color: white;
-  border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0;
-}
-
-.manager-dashboard .thumbnail-icon:hover {
-  transform: scale(1.15);
-}
-
-.manager-dashboard .icon-star {
-  color: #ffc107;
-}
-
-.manager-dashboard .icon-star.active {
-  color: #ff9800;
-}
-
-.manager-dashboard .icon-delete {
-  color: #dc3545;
-}
-
-.manager-dashboard .order-badge {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  background-color: #753a1e;
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.id-section-label {
   font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--inv-text-secondary);
+  margin: 0 0 1.25rem 0;
 }
 
-.manager-dashboard .primary-badge {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  background-color: #ffc107;
-  color: #000;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 600;
+/* ============================================================================
+   GRID
+   ============================================================================ */
+
+.id-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
 }
 
-/* Main Image Display */
-.manager-dashboard .main-image-column {
-  flex: 1;
-  max-width: 400px;
-  min-width: 300px; 
-}
+/* ============================================================================
+   CARD
+   ============================================================================ */
 
-.manager-dashboard .main-image-display {
-  position: relative; 
-  width: 100%;
-  padding-bottom: 100%; 
-  border: 2px solid #753a1e;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #f8f9fa;
-}
-
-.manager-dashboard .main-image-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.manager-dashboard .main-image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-/* Upload Section */
-.manager-dashboard .upload-section {
-  margin-top: 1rem;
-}
-
-.manager-dashboard .btn-upload {
-  background-color: #753a1e;
-  border-color: #753a1e;
-  color: white;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  width: 100%;
-  justify-content: center;
-  border: none;
+.id-card {
+  background: var(--inv-card);
+  border: 1px solid var(--inv-border);
+  border-radius: var(--inv-radius);
+  padding: 1.5rem;
   cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: var(--inv-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.manager-dashboard .btn-upload:hover {
-  background-color: #5c2e1a;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.id-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* ============================================================================
-   EMPTY STATE
-   ============================================================================ */
-
-.manager-dashboard .empty-state {
-  text-align: center;
-  padding: 3rem 1.5rem !important;
-  color: #6c757d;
-}
-
-.manager-dashboard .empty-state-icon {
-  font-size: 4rem;
-  color: #dee2e6;
-  margin-bottom: 1rem;
-}
-
-.manager-dashboard .empty-state-text {
-  font-size: 1.25rem;
-  margin: 0;
-}
-
-/* ============================================================================
-   TOAST NOTIFICATIONS
-   ============================================================================ */
-
-.toast-notification {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 9999;
-  min-width: 300px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 1rem;
+.id-card-top {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  animation: slideIn 0.3s ease;
+  justify-content: space-between;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.toast-notification.success {
-  border-left: 4px solid #28a745;
-}
-
-.toast-notification.error {
-  border-left: 4px solid #dc3545;
-}
-
-.toast-notification.warning {
-  background-color: #fff3cd;
-  border-left: 4px solid #ffc107;
-}
-
-.toast-icon {
-  font-size: 1.5rem;
-}
-
-.toast-icon.success {
-  color: #28a745;
-}
-
-.toast-icon.error {
-  color: #dc3545;
-}
-
-.toast-icon.warning {
-  color: #ff9800;
-}
-
-.toast-notification.warning .toast-message {
-  color: #856404;
-}
-
-.toast-content {
-  flex: 1;
-}
-
-.toast-message {
-  margin: 0;
-  font-weight: 600;
-  color: #333;
-}
-
-/* ============================================================================
-   CONFIRMATION MODAL
-   ============================================================================ */
-
-.confirmation-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+.id-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
-  animation: fadeIn 0.2s ease;
+  background-color: var(--inv-accent-light);
+  color: var(--inv-accent);
+  flex-shrink: 0;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.id-card-arrow {
+  color: #d1d5db;
+  transition: color 0.18s ease, transform 0.18s ease;
 }
 
-.confirmation-modal {
-  background-color: white;
-  border-radius: 8px;
-  padding: 2rem;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+.id-card:hover .id-card-arrow {
+  color: var(--inv-accent);
+  transform: translateX(3px);
 }
 
-.confirmation-modal h3 {
-  margin: 0 0 1rem 0;
-  color: #753a1e;
-  font-size: 1.5rem;
-}
-
-.confirmation-modal p {
-  margin: 0 0 1.5rem 0;
-  color: #555;
-  line-height: 1.5;
-}
-
-.confirmation-modal-buttons {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-}
-
-.confirmation-modal-buttons button {
-  padding: 0.5rem 1.5rem;
-  border-radius: 6px;
+.id-card-title {
+  font-size: 1rem;
   font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  color: var(--inv-text-primary);
+  margin: 0 0 0.3rem 0;
+  letter-spacing: -0.01em;
 }
 
-.confirmation-modal-buttons .btn-confirm {
-  background-color: #28a745;
-  color: white;
+.id-card-description {
+  font-size: 0.8375rem;
+  color: var(--inv-text-secondary);
+  margin: 0;
+  line-height: 1.55;
 }
 
-.confirmation-modal-buttons .btn-confirm:hover {
-  background-color: #218838;
-}
-
-.confirmation-modal-buttons .btn-cancel {
-  background-color: #6c757d;
-  color: white;
-}
-
-.confirmation-modal-buttons .btn-cancel:hover {
-  background-color: #5a6268;
-}
-
-/* ============================================================================
-   LOADING STATE
-   ============================================================================ */
-
-.manager-dashboard .loading-spinner {
+.id-card-footer {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  color: #753a1e;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--inv-accent);
+  margin-top: 0.25rem;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.id-card:hover .id-card-footer {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ============================================================================
-   SCROLLBAR STYLING
+   RESPONSIVE
    ============================================================================ */
 
-.manager-dashboard .products-column::-webkit-scrollbar,
-.manager-dashboard .details-column::-webkit-scrollbar {
-  width: 8px;
-}
-
-.manager-dashboard .products-column::-webkit-scrollbar-track,
-.manager-dashboard .details-column::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
-  border-radius: 4px;
-}
-
-.manager-dashboard .products-column::-webkit-scrollbar-thumb,
-.manager-dashboard .details-column::-webkit-scrollbar-thumb {
-  background-color: #753a1e;
-  border-radius: 4px;
-}
-
-.manager-dashboard .products-column::-webkit-scrollbar-thumb:hover,
-.manager-dashboard .details-column::-webkit-scrollbar-thumb:hover {
-  background-color: #5c2e1a;
-}
-
-/* ============================================================================
-   RESPONSIVE DESIGN - MEDIA QUERIES
-   ============================================================================ */
-
-/* Tablet: 992px - 1200px */
-@media (max-width: 1200px) {
-  .manager-dashboard .dashboard-content {
-    grid-template-columns: 350px 1fr;
+@media (max-width: 1024px) {
+  .id-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Medium Mobile: < 992px */
-@media (max-width: 992px) {
-  .manager-dashboard .dashboard-content {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .manager-dashboard .products-column {
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  .manager-dashboard .details-column {
-    max-height: none; /* Allow full height */
-    overflow-y: visible; /* No container scrolling */
-  }
-
-  .manager-dashboard .details-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    position: sticky; /* Explicitly ensure sticky on mobile */
-    top: 0;
-    z-index: 100;
-  }
-
-  .manager-dashboard .action-buttons {
-    width: 100%; /* Make buttons full width on mobile for better touch targets */
-    justify-content: stretch;
-  }
-
-  .manager-dashboard .action-buttons > button {
-    flex: 1; /* Make each button grow equally */
-    min-width: 0; /* Allow buttons to shrink if needed */
-  }
-
-  .manager-dashboard .image-layout {
-    flex-direction: column;
-  }
-
-  .manager-dashboard .thumbnail-column {
-    flex-direction: row;
-    width: auto;
-    max-height: none;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .manager-dashboard .main-image-column {
-    max-width: 100%;
-    min-width: 250px; 
-  }
-
-  .manager-dashboard .product-list-item {
-    padding: 0.5rem;
-  }
-
-  .manager-dashboard .product-thumbnail {
-    width: 50px;
-    height: 50px;
-  }
-
-  .manager-dashboard .product-name {
-    font-size: 0.85rem;
-  }
-
-  .manager-dashboard .product-meta {
-    font-size: 0.75rem;
-  }
-}
-
-/* Small Mobile: < 768px */
-@media (max-width: 768px) {
-  .manager-dashboard .dashboard-title {
-    font-size: 1.5rem;
-  }
-
-  .manager-dashboard .details-title {
-    font-size: 1.5rem;
-  }
-
-  .manager-dashboard .add-new-product-card {
+@media (max-width: 640px) {
+  .dashboard-header {
     padding: 1.5rem;
   }
 
-  .manager-dashboard .add-new-icon {
-    font-size: 2rem;
+  .id-body {
+    padding: 1.75rem 0 3rem;
   }
 
-  .manager-dashboard .add-new-text {
-    font-size: 1rem;
-  }
-
-  .manager-dashboard .details-column > *:not(.details-header) {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-
-  .manager-dashboard .details-header {
-    padding: 1rem 0.5rem;
+  .id-grid {
+    grid-template-columns: 1fr;
   }
 
   .manager-dashboard .container {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-}
-
-/* Extra Small Mobile: < 576px */
-@media (max-width: 576px) {
-  .manager-dashboard .dashboard-header {
-    padding: 1rem 0;
-  }
-
-  .manager-dashboard .category-section {
-    padding: 0.75rem;
-  }
-
-  .manager-dashboard .thumbnail-column {
-    gap: 0.25rem;
-  }
-
-  .manager-dashboard .thumbnail-item {
-    width: 80px;
-    height: 80px;
-  }
-
-  .manager-dashboard .main-image-display {
-    height: 250px;
-  }
-
-  .toast-notification {
-    right: 0.5rem;
-    left: 0.5rem;
-    min-width: auto;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
 }

@@ -13,8 +13,10 @@ import { scrollToFirstErrorSection } from "../../../../utils/scrollToError";
 import { FormField } from "../../universal/FormField";
 import { TextInput } from "../../universal/TextInput";
 import { SelectInput } from "../../universal/SelectInput";
+
 import ShippingFields from "../productInfo/ShippingFields";
 import ProductAttributesFields from "../productInfo/ProductAttributesField";
+
 import { WarehouseSelector } from "../productComponents/WarehouseSelector";
 import CategoryHandler from "../productComponents/CategoryHandler";
 
@@ -214,7 +216,6 @@ const ProductForm = ({
       {/* Product Information */}
       <div className="form-section" data-section="product-info">
         <h4 className="form-section-header">Product Information</h4>
-
         {/* Product Name */}
         <FormField label="Product Name" required error={errors.name}>
           <TextInput
@@ -225,7 +226,6 @@ const ProductForm = ({
             autoFormat={true}
           />
         </FormField>
-
         {/* Description */}
         <FormField label="Description" required error={errors.description}>
           <TextInput
@@ -236,10 +236,9 @@ const ProductForm = ({
             rows={3}
           />
         </FormField>
-
         {/* Category */}
         {onAddCategory && onRemoveCategory && onSetPrimaryCategory ? (
-          <div style={{ marginBottom: "1.5rem" }}>
+          <div className="pf-category-wrapper">
             <CategoryHandler
               productCategories={productCategories}
               availableCategories={categories}
@@ -260,7 +259,6 @@ const ProductForm = ({
             />
           </FormField>
         )}
-
         {/* Price */}
         <FormField label="Price" required error={errors.price}>
           <TextInput
@@ -271,7 +269,6 @@ const ProductForm = ({
             error={!!errors.price}
           />
         </FormField>
-
         {/* Stock Quantity */}
         <FormField
           label="Stock Quantity"

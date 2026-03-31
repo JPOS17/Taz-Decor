@@ -24,10 +24,9 @@ import { ToastNotification } from "../../../components/managerInterface/universa
 import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
 
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
-
 import { formatName } from "../../../utils/nameFormatter";
 
-import "../../../styles/pages/manager/InventoryDashboard.css";
+import "../../../styles/pages/manager/ManageCategories.css";
 
 interface Message {
   text: string;
@@ -314,288 +313,130 @@ const ManageCategories = () => {
   // ============================================================================
 
   return (
-    <div className="manager-dashboard">
-      <div className="dashboard-header">
-        <div className="container">
+    <div className="mc-page">
+      {/* Header */}
+      <div className="mc-header">
+        <div className="mc-container">
           <button
+            className="mc-back-button"
             onClick={() => navigate("/manager/inventory")}
-            style={{
-              background: "none",
-              border: "none",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              cursor: "pointer",
-              fontSize: "1rem",
-              marginBottom: "0.5rem",
-              padding: "0.5rem",
-            }}
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={16} />
             Back to Product Management
           </button>
-          <h1 className="dashboard-title">Manage Categories</h1>
-          <p style={{ margin: 0, opacity: 0.9 }}>
+          <h1 className="mc-title">Manage Categories</h1>
+          <p className="mc-subtitle">
             Create, edit, and organize product categories
           </p>
         </div>
       </div>
 
-      <div className="container">
-        <div
-          style={{
-            backgroundColor: "white",
-            borderRadius: "8px",
-            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            padding: "1.5rem",
-            maxWidth: "800px",
-            margin: "0 auto",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "1.5rem",
-              flexWrap: "wrap",
-              gap: "1rem",
-            }}
-          >
-            <h2 style={{ margin: 0, color: "#753a1e" }}>Categories</h2>
-            <div
-              style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}
-            >
+      <div className="mc-container">
+        <div className="mc-panel">
+          {/* Panel header */}
+          <div className="mc-panel-header">
+            <h2 className="mc-panel-title">Categories</h2>
+            <div className="mc-header-actions">
               {hasOrderChanged && (
                 <>
                   <button
+                    className="mc-btn mc-btn-secondary"
                     onClick={handleCancelOrder}
                     disabled={loading}
-                    style={{
-                      backgroundColor: "#6c757d",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "6px",
-                      padding: "0.75rem 1.5rem",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      fontWeight: 600,
-                    }}
                   >
-                    <X size={18} />
+                    <X size={16} />
                     Cancel Order
                   </button>
                   <button
+                    className="mc-btn mc-btn-success"
                     onClick={handleSaveOrder}
                     disabled={loading}
-                    style={{
-                      backgroundColor: "#28a745",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "6px",
-                      padding: "0.75rem 1.5rem",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      fontWeight: 600,
-                    }}
                   >
-                    <Save size={18} />
+                    <Save size={16} />
                     Save Order
                   </button>
                 </>
               )}
               {editMode === "none" && !hasOrderChanged && (
                 <button
+                  className="mc-btn mc-btn-primary"
                   onClick={handleCreateNew}
                   disabled={loading}
-                  style={{
-                    backgroundColor: "#753a1e",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    padding: "0.75rem 1.5rem",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    fontWeight: 600,
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#5c2e1a";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "#753a1e";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
                 >
-                  <Plus size={18} />
+                  <Plus size={16} />
                   New Category
                 </button>
               )}
             </div>
           </div>
 
+          {/* Create / Edit form */}
           {editMode !== "none" && (
-            <div
-              style={{
-                backgroundColor: "#f8f9fa",
-                border: "2px solid #753a1e",
-                borderRadius: "8px",
-                padding: "1.5rem",
-                marginBottom: "1.5rem",
-              }}
-            >
-              <h3
-                style={{
-                  margin: "0 0 1rem 0",
-                  color: "#753a1e",
-                  fontSize: "1.1rem",
-                }}
-              >
+            <div className="mc-form">
+              <h3 className="mc-form-title">
                 {editMode === "create"
                   ? "Create New Category"
                   : "Edit Category"}
               </h3>
-              <div style={{ marginBottom: "1rem" }}>
-                <label
-                  style={{
-                    display: "block",
-                    fontWeight: 600,
-                    marginBottom: "0.5rem",
-                    color: "#333",
-                  }}
-                >
-                  Category Name *
-                </label>
+              <div className="mc-form-group">
+                <label className="mc-form-label">Category Name *</label>
                 <input
                   type="text"
+                  className="mc-form-input"
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
                   placeholder="Enter category name"
                   disabled={loading}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem",
-                    border: "2px solid #dee2e6",
-                    borderRadius: "6px",
-                    fontSize: "1rem",
-                    fontFamily: "inherit",
-                  }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleSave();
-                    } else if (e.key === "Escape") {
-                      handleCancelEdit();
-                    }
+                    if (e.key === "Enter") handleSave();
+                    else if (e.key === "Escape") handleCancelEdit();
                   }}
                 />
                 {categoryName.trim() &&
                   categoryName.trim() !== formatName(categoryName) && (
-                    <div
-                      style={{
-                        marginTop: "0.5rem",
-                        padding: "0.75rem",
-                        backgroundColor: "#e7f3ff",
-                        border: "1px solid #2196F3",
-                        borderRadius: "4px",
-                        fontSize: "0.875rem",
-                      }}
-                    >
-                      <strong style={{ color: "#1565C0" }}>
-                        Will be saved as:
-                      </strong>{" "}
-                      <span style={{ color: "#0D47A1", fontWeight: 600 }}>
-                        {formatName(categoryName)}
-                      </span>
+                    <div className="mc-name-preview">
+                      <strong>Will be saved as:</strong>{" "}
+                      {formatName(categoryName)}
                     </div>
                   )}
-                <p
-                  style={{
-                    margin: "0.5rem 0 0 0",
-                    fontSize: "0.75rem",
-                    color: "#6c757d",
-                    fontStyle: "italic",
-                  }}
-                >
+                <p className="mc-form-hint">
                   Note: Words like "of", "in", "on", "the", "and" will be
                   lowercase (except at start/end)
                 </p>
               </div>
-              <div style={{ display: "flex", gap: "0.75rem" }}>
+              <div className="mc-form-actions">
                 <button
+                  className="mc-btn mc-btn-success"
                   onClick={handleSave}
                   disabled={loading || !categoryName.trim()}
-                  style={{
-                    backgroundColor: "#28a745",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    padding: "0.75rem 1.5rem",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    fontWeight: 600,
-                    opacity: loading || !categoryName.trim() ? 0.6 : 1,
-                  }}
                 >
-                  <Save size={18} />
+                  <Save size={16} />
                   {editMode === "create" ? "Create" : "Save Changes"}
                 </button>
                 <button
+                  className="mc-btn mc-btn-secondary"
                   onClick={handleCancelEdit}
                   disabled={loading}
-                  style={{
-                    backgroundColor: "#6c757d",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    padding: "0.75rem 1.5rem",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    fontWeight: 600,
-                  }}
                 >
-                  <X size={18} />
+                  <X size={16} />
                   Cancel
                 </button>
               </div>
             </div>
           )}
 
+          {/* Loading */}
           {loading && categories.length === 0 ? (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "2rem",
-                color: "#6c757d",
-              }}
-            >
+            <div className="mc-loading">
               <div
-                className="spinner-border text-primary"
+                className="spinner-border text-primary mc-spinner"
                 role="status"
-                style={{ width: "3rem", height: "3rem" }}
               >
                 <span className="visually-hidden">Loading...</span>
               </div>
             </div>
           ) : (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.75rem",
-              }}
-            >
+            <div className="mc-list">
               {categories.map((category) => (
                 <div
                   key={category.category_id}
@@ -603,116 +444,48 @@ const ManageCategories = () => {
                   onDragStart={() => handleDragStart(category.category_id)}
                   onDragOver={(e) => handleDragOver(e, category.category_id)}
                   onDragEnd={handleDragEnd}
-                  style={{
-                    border: "2px solid #dee2e6",
-                    borderRadius: "8px",
-                    padding: "1rem",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    backgroundColor:
-                      editingCategory?.category_id === category.category_id
-                        ? "#fff3cd"
-                        : draggedItem === category.category_id
-                          ? "#e3f2fd"
-                          : !category.is_active
-                            ? "#f8f9fa"
-                            : "white",
-                    opacity: !category.is_active ? 0.7 : 1,
-                    transition: "all 0.3s ease",
-                    cursor:
-                      editMode === "none" && !loading ? "grab" : "default",
-                  }}
+                  className={[
+                    "mc-row",
+                    editingCategory?.category_id === category.category_id
+                      ? "mc-row--editing"
+                      : "",
+                    draggedItem === category.category_id
+                      ? "mc-row--dragging"
+                      : "",
+                    !category.is_active ? "mc-row--inactive" : "",
+                    editMode !== "none" || loading ? "mc-row--no-drag" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "1rem",
-                      flex: 1,
-                    }}
-                  >
+                  <div className="mc-row-left">
                     {editMode === "none" && !loading && (
-                      <div
-                        style={{
-                          cursor: "grab",
-                          color: "#753a1e",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        <GripVertical size={24} />
+                      <div className="mc-drag-handle">
+                        <GripVertical size={20} />
                       </div>
                     )}
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.5rem",
-                        }}
-                      >
-                        <h4
-                          style={{
-                            margin: "0 0 0.25rem 0",
-                            color: "#333",
-                            fontSize: "1.1rem",
-                          }}
-                        >
+                    <div className="mc-row-info">
+                      <div className="mc-row-name-row">
+                        <h4 className="mc-row-name">
                           {category.category_name}
                         </h4>
                         {!category.is_active && (
-                          <span
-                            style={{
-                              backgroundColor: "#dc3545",
-                              color: "white",
-                              padding: "0.125rem 0.5rem",
-                              borderRadius: "4px",
-                              fontSize: "0.75rem",
-                              fontWeight: 600,
-                            }}
-                          >
-                            DISABLED
-                          </span>
+                          <span className="mc-badge-disabled">Disabled</span>
                         )}
                       </div>
-                      <p
-                        style={{
-                          margin: 0,
-                          color: "#6c757d",
-                          fontSize: "0.875rem",
-                        }}
-                      >
+                      <p className="mc-row-order">
                         Display Order: {category.display_order}
                       </p>
                     </div>
                   </div>
-                  <div
-                    style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}
-                  >
+
+                  <div className="mc-row-actions">
                     <button
+                      className={`mc-btn ${category.is_active ? "mc-btn-warning" : "mc-btn-success"}`}
                       onClick={() => handleRequestToggleActive(category)}
                       disabled={
                         loading || editMode !== "none" || hasOrderChanged
                       }
-                      style={{
-                        backgroundColor: category.is_active
-                          ? "#ffc107"
-                          : "#28a745",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "6px",
-                        padding: "0.5rem 1rem",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        fontWeight: 600,
-                        opacity:
-                          loading || editMode !== "none" || hasOrderChanged
-                            ? 0.6
-                            : 1,
-                      }}
                       title={
                         category.is_active
                           ? "Disable category"
@@ -720,60 +493,30 @@ const ManageCategories = () => {
                       }
                     >
                       {category.is_active ? (
-                        <EyeOff size={16} />
+                        <EyeOff size={15} />
                       ) : (
-                        <Eye size={16} />
+                        <Eye size={15} />
                       )}
                       {category.is_active ? "Disable" : "Enable"}
                     </button>
                     <button
+                      className="mc-btn mc-btn-primary"
                       onClick={() => handleEdit(category)}
                       disabled={
                         loading || editMode !== "none" || hasOrderChanged
                       }
-                      style={{
-                        backgroundColor: "#753a1e",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "6px",
-                        padding: "0.5rem 1rem",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        fontWeight: 600,
-                        opacity:
-                          loading || editMode !== "none" || hasOrderChanged
-                            ? 0.6
-                            : 1,
-                      }}
                     >
-                      <Edit2 size={16} />
+                      <Edit2 size={15} />
                       Edit
                     </button>
                     <button
+                      className="mc-btn mc-btn-danger"
                       onClick={() => handleRequestDelete(category)}
                       disabled={
                         loading || editMode !== "none" || hasOrderChanged
                       }
-                      style={{
-                        backgroundColor: "#dc3545",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "6px",
-                        padding: "0.5rem 1rem",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        fontWeight: 600,
-                        opacity:
-                          loading || editMode !== "none" || hasOrderChanged
-                            ? 0.6
-                            : 1,
-                      }}
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={15} />
                       Delete
                     </button>
                   </div>
@@ -782,15 +525,10 @@ const ManageCategories = () => {
             </div>
           )}
 
+          {/* Empty state */}
           {!loading && categories.length === 0 && (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "3rem 1.5rem",
-                color: "#6c757d",
-              }}
-            >
-              <p style={{ fontSize: "1.25rem", margin: 0 }}>
+            <div className="mc-empty">
+              <p>
                 No categories found. Create your first category to get started!
               </p>
             </div>

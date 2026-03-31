@@ -30,18 +30,11 @@ const ProductListItem = ({
           className="product-thumbnail"
         />
       ) : (
-        <div
-          className="product-thumbnail"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#f0f0f0",
-          }}
-        >
-          <Package size={32} color="#753a1e" />
+        <div className="product-thumbnail-placeholder">
+          <Package size={28} />
         </div>
       )}
+
       <div className="product-info">
         <h3 className="product-name">{product.name}</h3>
         <p className="product-meta">
@@ -54,6 +47,7 @@ const ProductListItem = ({
           )}
         </p>
       </div>
+
       {hasVariants && (
         <span
           className="variant-badge variant-badge-bottom"

@@ -37,13 +37,11 @@ import ProductOverlayForm from "../../../components/managerInterface/inventory/f
 import CreateNewProductForm from "../../../components/managerInterface/inventory/forms/CreateNewProductForm";
 import CreateNewVariantForm from "../../../components/managerInterface/inventory/forms/CreateNewVariantForm";
 
-import ItemListings from "../../../components/managerInterface/inventory/productInfo/ItemListings";
-
 import InventoryFilters from "../../../components/managerInterface/inventory/productComponents/InventoryFilters";
-import ImageManager from "../../../components/managerInterface/inventory/productComponents/ImageManager";
-
+import ItemListings from "../../../components/managerInterface/inventory/productInfo/ItemListings";
 import { HeaderFormatter } from "../../../components/managerInterface/inventory/productComponents/HeaderFormatter";
 import VariantSelector from "../../../components/managerInterface/inventory/productComponents/VariantSelector";
+import ImageManager from "../../../components/managerInterface/inventory/productComponents/ImageManager";
 
 import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
 import { ToastNotification } from "../../../components/managerInterface/universal/ToastNotifications";
@@ -51,10 +49,9 @@ import { ToastNotification } from "../../../components/managerInterface/universa
 import { useCloudinaryWidget } from "../../../hooks/useCloudinaryWidget";
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 import { useUnsavedChanges } from "../../../hooks/useUnsavedChanges";
-
 import { sanitizeFolderName } from "../../../utils/folderNameFormatter";
 
-import "../../../styles/pages/manager/InventoryDashboard.css";
+import "../../../styles/pages/manager/ManageInventory.css";
 
 interface Message {
   text: string;
@@ -917,33 +914,25 @@ const ManageProducts = () => {
   // ============================================================================
 
   return (
-    <div className="manager-dashboard">
+    <div className="if-page">
       {/* Header Section */}
-      <div className="dashboard-header">
-        <div className="container">
+      <div className="if-header">
+        <div className="if-container">
           <button
+            className="if-back-button"
             onClick={() => navigate("/manager/inventory")}
-            style={{
-              background: "none",
-              border: "none",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              cursor: "pointer",
-              fontSize: "1rem",
-              marginBottom: "0.5rem",
-              padding: "0.5rem",
-            }}
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={16} />
             Back to Dashboard
           </button>
-          <h1 className="dashboard-title">Product Management</h1>
+          <h1 className="if-title">Product Management</h1>
+          <p className="mpt-subtitle">
+            Manage existing products, variants, images, and inventory
+          </p>
         </div>
       </div>
 
-      <div className="container">
+      <div className="if-container">
         {/* Warehouse Location Selector */}
         <div className="category-section">
           <label className="category-label">Select Warehouse</label>

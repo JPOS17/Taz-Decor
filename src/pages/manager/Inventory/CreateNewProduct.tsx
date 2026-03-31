@@ -5,14 +5,16 @@ import { fetchCategories, type Category } from "../../../api/categories";
 import { fetchProductTypes, type ProductType } from "../../../api/productTypes";
 import { createNewProduct } from "../../../api/inventory";
 
+import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 import CreateNewProductForm from "../../../components/managerInterface/inventory/forms/CreateNewProductForm";
+
 import { ToastNotification } from "../../../components/managerInterface/universal/ToastNotifications";
 import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
+
 import { HeaderFormatter } from "../../../components/managerInterface/inventory/productComponents/HeaderFormatter";
 
-import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
-
-import "../../../styles/pages/manager/InventoryDashboard.css";
+import "../../../styles/pages/manager/ManageInventory.css";
+import "../../../styles/components/managerInterface/ProductForms.css";
 
 interface Message {
   text: string;
@@ -30,16 +32,12 @@ const CreateProduct = () => {
   // STATE MANAGEMENT
   // ============================================================================
 
-  // Dropdown data
   const [categories, setCategories] = useState<Category[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
-
-  // UI state
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
   const [isFormDirty, setIsFormDirty] = useState(false);
 
-  // Confirmation modals
   const createConfirmation = useConfirmationModal();
   const cancelConfirmation = useConfirmationModal();
 
@@ -154,38 +152,25 @@ const CreateProduct = () => {
   // ============================================================================
 
   return (
-    <div className="manager-dashboard">
-      {/* Header Section */}
-      <div className="dashboard-header">
-        <div className="container">
+    <div className="if-page">
+      {/* Header */}
+      <div className="if-header">
+        <div className="if-container">
           <button
+            className="if-back-button"
             onClick={() => navigate("/manager/inventory")}
-            style={{
-              background: "none",
-              border: "none",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              cursor: "pointer",
-              fontSize: "1rem",
-              marginBottom: "0.5rem",
-              padding: "0.5rem",
-            }}
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={16} />
             Back to Product Management
           </button>
-          <h1 className="dashboard-title">Create New Product</h1>
-          <p style={{ margin: 0, opacity: 0.9 }}>
-            Add a new product to your inventory
-          </p>
+          <h1 className="if-title">Create New Product</h1>
+          <p className="if-subtitle">Add a new product to your inventory</p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container">
-        <div className="dashboard-content single-column">
+      <div className="if-container">
+        <div className="cnp-content">
           <div className="details-column">
             <HeaderFormatter
               viewMode="create-product"

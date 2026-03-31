@@ -23,7 +23,7 @@ import OrderConfirmation from "../pages/customer/OrderConfirmation";
 import Orders from "../pages/customer/Orders";
 
 import ManagerDashboard from "../pages/manager/ManagerDashboard";
-import ProductManagementDirectory from "../pages/manager/Inventory/ProductManagementDirectory";
+import InventoryDashboard from "../pages/manager/Inventory/InventoryDashboard";
 import CreateProduct from "../pages/manager/Inventory/CreateNewProduct";
 import ManageProducts from "../pages/manager/Inventory/ManageInventory";
 import ManageCategories from "../pages/manager/Inventory/ManageCategories";
@@ -113,7 +113,7 @@ const AppRoutes = () => {
         path="/manager/inventory"
         element={
           <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <ProductManagementDirectory />
+            <InventoryDashboard />
           </ProtectedRoute>
         }
       />

@@ -19,9 +19,11 @@ import { sanitizeFolderName } from "../../../../utils/folderNameFormatter";
 import { FormField } from "../../universal/FormField";
 import { TextInput } from "../../universal/TextInput";
 import { SelectInput } from "../../universal/SelectInput";
+
 import SKUPreview from "../productInfo/SKUPreview";
 import ShippingFields from "../productInfo/ShippingFields";
 import ProductAttributesFields from "../productInfo/ProductAttributesField";
+
 import ImageUploadGrid from "../productComponents/ImageUploadGrid";
 import { WarehouseSelector } from "../productComponents/WarehouseSelector";
 import CategoryHandler from "../productComponents/CategoryHandler";
@@ -456,7 +458,7 @@ const CreateProductForm = ({
         <h4 className="form-section-header">Product Information</h4>
 
         {/* Category Manager */}
-        <div style={{ marginBottom: "1.5rem" }}>
+        <div className="pf-category-wrapper">
           <CategoryHandler
             productCategories={formData.productCategories}
             availableCategories={categories}

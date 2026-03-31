@@ -1,0 +1,528 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+/* ============================================================================
+   INVENTORY FORMS — ManageInventory page layout only
+   Prefix: if- (InventoryForms)
+   Theme: #c2410c (accent) / #fff7ed
+
+   This file handles ONLY the page shell:
+   - Header, container, filter selectors
+   - Left column: product list, add-new card, item listings
+   - Right column shell: details-column scroll container
+   - Page-level loading, empty state, scrollbars, responsive
+   ============================================================================ */
+
+:root {
+  --inv-accent: #c2410c;
+  --inv-accent-dark: #9a3412;
+  --inv-accent-light: #fff7ed;
+  --inv-bg: #f0f2f5;
+  --inv-card: #ffffff;
+  --inv-border: #e4e7ec;
+  --inv-text-primary: #111827;
+  --inv-text-secondary: #6b7280;
+  --inv-text-muted: #9ca3af;
+  --inv-header-bg: #1c1c1e;
+  --inv-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --inv-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --inv-shadow-hover: 0 8px 16px rgba(194, 65, 12, 0.15);
+  --inv-radius: 12px;
+  --inv-font: "Inter", sans-serif;
+}
+
+/* ============================================================================
+   PAGE WRAPPER
+   ============================================================================ */
+
+.if-page {
+  min-height: 100vh;
+  background-color: var(--inv-bg);
+  font-family: var(--inv-font);
+}
+
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+
+.if-header {
+  background-color: var(--inv-header-bg);
+  padding: 2rem 3rem;
+}
+
+.if-back-button {
+  background: none;
+  border: none;
+  text-decoration: none !important;
+  outline: none;
+  color: var(--inv-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0 0.75rem 0;
+  font-size: 0.8125rem;
+  font-family: var(--inv-font);
+  font-weight: 500;
+  transition: color 0.18s ease;
+  letter-spacing: 0.01em;
+}
+
+.if-back-button:hover { color: #ffffff; }
+
+.if-title {
+  margin: 0 0 0.2rem 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+/* ============================================================================
+   CONTAINER
+   ============================================================================ */
+
+.if-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* Top gap below the header — targets only the content container, not the one inside the header */
+.if-page > .if-container {
+  padding-top: 2.5rem;
+}
+
+/* ============================================================================
+   FILTER SELECTORS — warehouse & category dropdowns above the grid
+   ============================================================================ */
+
+.if-page .category-section {
+  background-color: var(--inv-card);
+  padding: 1rem;
+  border-radius: var(--inv-radius);
+  border: 1px solid var(--inv-border);
+  box-shadow: var(--inv-shadow-sm);
+  margin-bottom: 1rem;
+}
+
+.if-page .category-label {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--inv-text-primary);
+  margin-bottom: 0.5rem;
+  display: block;
+  letter-spacing: 0.01em;
+}
+
+.if-page .category-select {
+  width: 100%;
+  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+  border: 1px solid var(--inv-border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: var(--inv-font);
+  font-weight: 500;
+  background-color: var(--inv-card);
+  color: var(--inv-text-primary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1em;
+}
+
+.if-page .category-select:hover { border-color: var(--inv-accent); }
+
+.if-page .category-select:focus {
+  outline: none;
+  border-color: var(--inv-accent);
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.12);
+}
+
+/* ============================================================================
+   INVENTORY FILTERS — InventoryFilters.tsx
+   ============================================================================ */
+
+.if-page .if-filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.if-page .if-filter-toggle {
+  background-color: var(--inv-card);
+  color: var(--inv-accent);
+  border: 1px solid var(--inv-accent);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: var(--inv-font);
+  transition: all 0.18s ease;
+}
+
+.if-page .if-filter-toggle--active {
+  background-color: var(--inv-accent);
+  color: white;
+  border-color: var(--inv-accent);
+}
+
+.if-page .if-filter-clear {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: var(--inv-font);
+  transition: all 0.18s ease;
+}
+
+.if-page .if-filter-clear:hover { background-color: #b91c1c; }
+
+.if-page .if-filter-panel {
+  margin-top: 0.75rem;
+  padding: 1.25rem;
+  background-color: var(--inv-card);
+  border: 1px solid var(--inv-border);
+  border-left: 3px solid var(--inv-accent);
+  border-radius: var(--inv-radius);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  box-shadow: var(--inv-shadow-sm);
+}
+
+.if-page .if-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.if-page .if-filter-group-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--inv-accent);
+}
+
+.if-page .if-filter-dropdown-btn {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--inv-border);
+  border-radius: 8px;
+  background-color: var(--inv-card);
+  color: var(--inv-text-primary);
+  font-size: 0.875rem;
+  font-family: var(--inv-font);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+}
+
+.if-page .if-filter-dropdown-btn:hover { border-color: var(--inv-accent); }
+
+/* ============================================================================
+   TWO-COLUMN LAYOUT
+   ============================================================================ */
+
+.if-page .dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+/* ============================================================================
+   LEFT COLUMN — products list
+   ============================================================================ */
+
+.if-page .products-column {
+  background-color: var(--inv-card);
+  border-radius: var(--inv-radius);
+  border: 1px solid var(--inv-border);
+  box-shadow: var(--inv-shadow-sm);
+  padding: 1rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+.if-page .products-column h2 {
+  color: var(--inv-accent);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.if-page .products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ============================================================================
+   ADD NEW PRODUCT CARD
+   ============================================================================ */
+
+.if-page .add-new-product-card {
+  border: 2px dashed var(--inv-accent);
+  background-color: var(--inv-accent-light);
+  border-radius: var(--inv-radius);
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.if-page .add-new-product-card:hover {
+  background-color: #fed7aa;
+  border-color: var(--inv-accent-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--inv-shadow-hover);
+}
+
+.if-page .add-new-product-card.active {
+  background-color: #fdba74;
+  border-color: var(--inv-accent-dark);
+  box-shadow: var(--inv-shadow-hover);
+  border-style: solid;
+}
+
+.if-page .add-new-icon { color: var(--inv-accent); margin-bottom: 0.5rem; }
+
+.if-page .add-new-text {
+  color: var(--inv-accent);
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* ============================================================================
+   PRODUCT LIST ITEM — ItemListings.tsx
+   ============================================================================ */
+
+.if-page .product-list-item {
+  position: relative;
+  border: 1px solid var(--inv-border);
+  background-color: var(--inv-card);
+  border-radius: var(--inv-radius);
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--inv-shadow-sm);
+}
+
+.if-page .product-list-item:hover {
+  border-color: var(--inv-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--inv-shadow-hover);
+}
+
+.if-page .product-list-item.active {
+  background-color: var(--inv-accent-light);
+  border-color: var(--inv-accent);
+  box-shadow: var(--inv-shadow-hover);
+}
+
+.if-page .product-thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--inv-border);
+  flex-shrink: 0;
+}
+
+.if-page .product-thumbnail-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  border: 1px solid var(--inv-border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--inv-accent-light);
+  color: var(--inv-accent);
+}
+
+.if-page .product-info { flex: 1; min-width: 0; }
+
+.if-page .product-name {
+  font-weight: 600;
+  color: var(--inv-text-primary);
+  margin: 0 0 0.25rem 0;
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.if-page .product-meta {
+  font-size: 0.8125rem;
+  color: var(--inv-text-secondary);
+  margin: 0;
+}
+
+.if-page .variant-badge {
+  display: inline-block;
+  background-color: var(--inv-accent);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 5px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  letter-spacing: 0.03em;
+}
+
+.if-page .variant-badge-bottom {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  margin-left: 0;
+}
+
+.if-page .variant-info {
+  color: var(--inv-accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.if-page .product-list-item:has(.variant-badge) { border-left: 3px solid var(--inv-accent); }
+.if-page .product-list-item.active:has(.variant-badge) { border-left: 3px solid var(--inv-accent-dark); }
+
+/* ============================================================================
+   RIGHT COLUMN SHELL — details-column scroll container only
+   ============================================================================ */
+
+.if-page .details-column {
+  background-color: var(--inv-card);
+  border-radius: var(--inv-radius);
+  border: 1px solid var(--inv-border);
+  box-shadow: var(--inv-shadow-sm);
+  padding: 0;
+  position: relative;
+  overflow-y: auto;
+  /* max-height: calc(100vh - 200px); */
+}
+
+/* ============================================================================
+   LOADING SPINNER
+   ============================================================================ */
+
+.if-page .loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--inv-accent);
+}
+
+/* ============================================================================
+   SCROLLBARS
+   ============================================================================ */
+
+.if-page .products-column::-webkit-scrollbar,
+.if-page .details-column::-webkit-scrollbar { width: 6px; }
+
+.if-page .products-column::-webkit-scrollbar-track,
+.if-page .details-column::-webkit-scrollbar-track { background-color: var(--inv-accent-light); border-radius: 4px; }
+
+.if-page .products-column::-webkit-scrollbar-thumb,
+.if-page .details-column::-webkit-scrollbar-thumb { background-color: var(--inv-accent); border-radius: 4px; }
+
+.if-page .products-column::-webkit-scrollbar-thumb:hover,
+.if-page .details-column::-webkit-scrollbar-thumb:hover { background-color: var(--inv-accent-dark); }
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 1200px) {
+  .if-page .dashboard-content { grid-template-columns: 350px 1fr; }
+}
+
+@media (max-width: 1024px) {
+  .if-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+@media (max-width: 992px) {
+  .if-header { padding: 1.5rem; }
+  .if-page .dashboard-content { grid-template-columns: 1fr; height: auto; }
+  .if-page .products-column { max-height: 400px; overflow-y: auto; }
+  .if-page .details-column { max-height: none; overflow-y: visible; }
+  .if-page .product-list-item { padding: 0.5rem; }
+  .if-page .product-thumbnail,
+  .if-page .product-thumbnail-placeholder { width: 50px; height: 50px; }
+  .if-page .product-name { font-size: 0.8125rem; }
+  .if-page .product-meta { font-size: 0.75rem; }
+  .if-page .if-filter-panel { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .if-page .add-new-product-card { padding: 1.5rem; }
+  .if-page .if-filter-panel { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 576px) {
+  .if-header { padding: 1.25rem; }
+  .if-container { padding-left: 1rem; padding-right: 1rem; }
+  .if-page .category-section { padding: 0.75rem; }
+}
+/* ============================================================================
+   CREATE NEW PRODUCT PAGE — standalone page additions
+   ============================================================================ */
+
+/* Header subtitle — "Add a new product to your inventory" */
+.if-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--inv-text-muted);
+  font-weight: 400;
+}
+
+/* Single-column content wrapper — centres the details-column with max width */
+.if-page .cnp-content {
+  padding-bottom: 4rem;
+  display: flex;
+  justify-content: center;
+}
+
+.if-page .cnp-content .details-column {
+  width: 100%;
+  max-height: none;
+  overflow-y: visible;
+}
+
+@media (max-width: 992px) {
+  .if-page .cnp-content { padding-top: 1.5rem; }
+}
+
+@media (max-width: 576px) {
+  .if-page .cnp-content { padding-bottom: 2.5rem; }
+}

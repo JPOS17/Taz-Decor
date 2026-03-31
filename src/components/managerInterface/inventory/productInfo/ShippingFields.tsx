@@ -43,9 +43,9 @@ const ShippingFields = ({
       {/* Title */}
       {showTitle && (
         <>
-          <h4 className="section-title">Shipping Information</h4>
+          <h4 className="form-section-header">Shipping Information</h4>
           <span className="section-subtitle">
-            Required for USPS shipping label generation
+            Required for USPS shipping rate calculations
           </span>
         </>
       )}

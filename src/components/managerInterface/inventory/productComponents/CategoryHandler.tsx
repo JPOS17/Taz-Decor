@@ -5,7 +5,6 @@ import type { ProductCategory } from "../../../../api/categoriesAssignments";
 import { FormField } from "../../universal/FormField";
 import { SelectInput } from "../../universal/SelectInput";
 import ConfirmationModal from "../../universal/ConfirmationModal";
-import "../../../../styles/components/managerInterface/CategoryHandler.css";
 
 interface CategoryHandlerProps {
   productCategories: ProductCategory[];

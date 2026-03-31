@@ -32,6 +32,13 @@ const ManagerFilterBar = ({
     currentCategoryStatus !== null ||
     currentSortBy !== null;
 
+  const activeFilterCount = [
+    currentStatus,
+    currentStockStatus,
+    currentCategoryStatus,
+    currentSortBy,
+  ].filter(Boolean).length;
+
   const getStatusLabel = () => {
     switch (currentStatus) {
       case "active":
@@ -91,104 +98,39 @@ const ManagerFilterBar = ({
   };
 
   return (
-    <div style={{ marginBottom: "1rem" }}>
-      <div
-        style={{
-          display: "flex",
-          gap: "0.5rem",
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
+    <div>
+      <div className="if-filter-bar">
         <button
+          className={`if-filter-toggle ${hasActiveFilters ? "if-filter-toggle--active" : ""}`}
           onClick={() => setShowFilters(!showFilters)}
-          style={{
-            backgroundColor: hasActiveFilters ? "#753a1e" : "white",
-            color: hasActiveFilters ? "white" : "#753a1e",
-            border: "2px solid #753a1e",
-            padding: "0.5rem 1rem",
-            borderRadius: "6px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            fontWeight: 600,
-            transition: "all 0.3s ease",
-          }}
         >
-          <Filter size={18} />
-          Filters{" "}
-          {hasActiveFilters &&
-            `(${
-              [
-                currentStatus,
-                currentStockStatus,
-                currentCategoryStatus,
-                currentSortBy,
-              ].filter(Boolean).length
-            })`}
+          <Filter size={16} />
+          Filters{hasActiveFilters ? ` (${activeFilterCount})` : ""}
         </button>
 
         {hasActiveFilters && (
-          <button
-            onClick={onClearFilters}
-            style={{
-              backgroundColor: "#dc3545",
-              color: "white",
-              border: "none",
-              padding: "0.5rem 1rem",
-              borderRadius: "6px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              fontWeight: 600,
-              transition: "all 0.3s ease",
-            }}
-          >
-            <X size={18} />
+          <button className="if-filter-clear" onClick={onClearFilters}>
+            <X size={16} />
             Clear All
           </button>
         )}
       </div>
 
       {showFilters && (
-        <div
-          style={{
-            marginTop: "1rem",
-            padding: "1rem",
-            backgroundColor: "white",
-            border: "2px solid #753a1e",
-            borderRadius: "8px",
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "1rem",
-          }}
-        >
-          {/* Product Status Filter */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                fontWeight: 600,
-                color: "#753a1e",
-                marginBottom: "0.5rem",
-                fontSize: "0.9rem",
-              }}
-            >
-              Product Status
-            </label>
-            <div className="dropdown" style={{ width: "100%" }}>
+        <div className="if-filter-panel">
+          {/* Product Status */}
+          <div className="if-filter-group">
+            <span className="if-filter-group-label">Product Status</span>
+            <div className="dropdown">
               <button
-                className="btn btn-outline-secondary dropdown-toggle"
+                className="if-filter-dropdown-btn dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
-                style={{ width: "100%", textAlign: "left" }}
               >
                 {getStatusLabel()}
               </button>
-              <ul className="dropdown-menu" style={{ width: "100%" }}>
+              <ul className="dropdown-menu">
                 <li>
                   <button
                     className="dropdown-item"
@@ -220,30 +162,19 @@ const ManagerFilterBar = ({
             </div>
           </div>
 
-          {/* Stock Level Filter */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                fontWeight: 600,
-                color: "#753a1e",
-                marginBottom: "0.5rem",
-                fontSize: "0.9rem",
-              }}
-            >
-              Stock Level
-            </label>
-            <div className="dropdown" style={{ width: "100%" }}>
+          {/* Stock Level */}
+          <div className="if-filter-group">
+            <span className="if-filter-group-label">Stock Level</span>
+            <div className="dropdown">
               <button
-                className="btn btn-outline-secondary dropdown-toggle"
+                className="if-filter-dropdown-btn dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
-                style={{ width: "100%", textAlign: "left" }}
               >
                 {getStockLabel()}
               </button>
-              <ul className="dropdown-menu" style={{ width: "100%" }}>
+              <ul className="dropdown-menu">
                 <li>
                   <button
                     className="dropdown-item"
@@ -275,30 +206,19 @@ const ManagerFilterBar = ({
             </div>
           </div>
 
-          {/* Category Status Filter */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                fontWeight: 600,
-                color: "#753a1e",
-                marginBottom: "0.5rem",
-                fontSize: "0.9rem",
-              }}
-            >
-              Category Status
-            </label>
-            <div className="dropdown" style={{ width: "100%" }}>
+          {/* Category Status */}
+          <div className="if-filter-group">
+            <span className="if-filter-group-label">Category Status</span>
+            <div className="dropdown">
               <button
-                className="btn btn-outline-secondary dropdown-toggle"
+                className="if-filter-dropdown-btn dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
-                style={{ width: "100%", textAlign: "left" }}
               >
                 {getCategoryStatusLabel()}
               </button>
-              <ul className="dropdown-menu" style={{ width: "100%" }}>
+              <ul className="dropdown-menu">
                 <li>
                   <button
                     className="dropdown-item"
@@ -341,30 +261,19 @@ const ManagerFilterBar = ({
             </div>
           </div>
 
-          {/* Sort Order */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                fontWeight: 600,
-                color: "#753a1e",
-                marginBottom: "0.5rem",
-                fontSize: "0.9rem",
-              }}
-            >
-              Sort By
-            </label>
-            <div className="dropdown" style={{ width: "100%" }}>
+          {/* Sort By */}
+          <div className="if-filter-group">
+            <span className="if-filter-group-label">Sort By</span>
+            <div className="dropdown">
               <button
-                className="btn btn-outline-secondary dropdown-toggle"
+                className="if-filter-dropdown-btn dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
-                style={{ width: "100%", textAlign: "left" }}
               >
                 {getSortLabel()}
               </button>
-              <ul className="dropdown-menu" style={{ width: "100%" }}>
+              <ul className="dropdown-menu">
                 <li>
                   <button
                     className="dropdown-item"

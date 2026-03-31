@@ -12,7 +12,6 @@ import { ToastNotification } from "../../../components/managerInterface/universa
 import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
 
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
-
 import { formatName } from "../../../utils/nameFormatter";
 
 import "../../../styles/pages/manager/ManageProductType.css";
@@ -201,53 +200,57 @@ const ManageProductTypes = () => {
   // ============================================================================
 
   return (
-    <div className="manage-product-types">
-      <div className="types-header">
-        <div className="container">
+    <div className="mpt-page">
+      {/* Header */}
+      <div className="mpt-header">
+        <div className="mpt-container">
           <button
+            className="mpt-back-button"
             onClick={() => navigate("/manager/inventory")}
-            className="back-button"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={16} />
             Back to Product Management
           </button>
-          <h1 className="types-title">Manage Product Types</h1>
-          <p className="types-subtitle">
+          <h1 className="mpt-title">Manage Product Types</h1>
+          <p className="mpt-subtitle">
             Create and manage product type classifications and SKU prefixes
           </p>
         </div>
       </div>
 
-      <div className="container">
-        <div className="types-content">
-          <div className="types-actions">
-            <h2 className="section-title">Product Types</h2>
+      <div className="mpt-container">
+        <div className="mpt-panel">
+          {/* Actions bar */}
+          <div className="mpt-actions-bar">
+            <h2 className="mpt-section-title">Product Types</h2>
             {editMode === "none" && (
               <button
+                className="mpt-btn mpt-btn-primary"
                 onClick={handleCreateNew}
                 disabled={loading}
-                className="btn-create"
               >
-                <Plus size={18} />
+                <Plus size={16} />
                 New Product Type
               </button>
             )}
           </div>
 
+          {/* Create / Edit form */}
           {editMode !== "none" && (
-            <div className="edit-form">
-              <h3 className="form-title">
+            <div className="mpt-form">
+              <h3 className="mpt-form-title">
                 {editMode === "create"
                   ? "Create New Product Type"
                   : "Edit Product Type"}
               </h3>
 
-              <div className="form-group">
-                <label className="form-label">
+              <div className="mpt-form-group">
+                <label className="mpt-form-label">
                   SKU Prefix * {editMode === "edit" && "(Read-only)"}
                 </label>
                 <input
                   type="text"
+                  className="mpt-form-input"
                   value={formData.sku_prefix}
                   onChange={(e) => {
                     const value = e.target.value.toUpperCase().slice(0, 3);
@@ -255,67 +258,67 @@ const ManageProductTypes = () => {
                   }}
                   placeholder="e.g., JRN"
                   disabled={loading || editMode === "edit"}
-                  className="form-input"
                   maxLength={3}
                 />
-                <p className="form-helper">
+                <p className="mpt-form-helper">
                   Must be exactly 3 uppercase letters
                 </p>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">
+              <div className="mpt-form-group">
+                <label className="mpt-form-label">
                   Type Name * {editMode === "edit" && "(Read-only)"}
                 </label>
                 <input
                   type="text"
+                  className="mpt-form-input"
                   value={formData.type_name}
                   onChange={(e) =>
                     setFormData({ ...formData, type_name: e.target.value })
                   }
                   placeholder="Enter type name"
                   disabled={loading || editMode === "edit"}
-                  className="form-input"
                 />
                 {editMode === "create" &&
                   formData.type_name.trim() &&
                   formData.type_name.trim() !==
                     formatName(formData.type_name) && (
-                    <div className="format-preview">
+                    <div className="mpt-format-preview">
                       <strong>Will be saved as:</strong>{" "}
                       <span>{formatName(formData.type_name)}</span>
                     </div>
                   )}
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Description *</label>
+              <div className="mpt-form-group">
+                <label className="mpt-form-label">Description *</label>
                 <textarea
+                  className="mpt-form-textarea"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
                   placeholder="Enter description"
                   disabled={loading}
-                  className="form-textarea"
                   rows={3}
                 />
                 {formData.description.trim() &&
                   formData.description.trim() !==
                     formatName(formData.description) && (
-                    <div className="format-preview">
+                    <div className="mpt-format-preview">
                       <strong>Will be saved as:</strong>{" "}
                       <span>{formatName(formData.description)}</span>
                     </div>
                   )}
-                <p className="form-helper">
+                <p className="mpt-form-helper">
                   Note: Words like "of", "in", "on", "the", "and" will be
                   lowercase (except at start/end)
                 </p>
               </div>
 
-              <div className="form-actions">
+              <div className="mpt-form-actions">
                 <button
+                  className="mpt-btn mpt-btn-success"
                   onClick={handleRequestSave}
                   disabled={
                     loading ||
@@ -324,38 +327,38 @@ const ManageProductTypes = () => {
                     !formData.description.trim() ||
                     (editMode === "create" && formData.sku_prefix.length !== 3)
                   }
-                  className="btn-save"
                 >
-                  <Save size={18} />
+                  <Save size={16} />
                   {editMode === "create" ? "Create" : "Save Changes"}
                 </button>
                 <button
+                  className="mpt-btn mpt-btn-secondary"
                   onClick={handleCancelEdit}
                   disabled={loading}
-                  className="btn-cancel"
                 >
-                  <X size={18} />
+                  <X size={16} />
                   Cancel
                 </button>
               </div>
             </div>
           )}
 
+          {/* Loading */}
           {loading && productTypes.length === 0 ? (
-            <div className="loading-state">
-              <div className="spinner-border" role="status">
+            <div className="mpt-loading">
+              <div className="mpt-spinner" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
             </div>
           ) : (
-            <div className="types-table-container">
-              <table className="types-table">
+            <div className="mpt-table-container">
+              <table className="mpt-table">
                 <thead>
                   <tr>
                     <th>SKU Prefix</th>
                     <th>Type Name</th>
                     <th>Description</th>
-                    <th className="actions-column">Actions</th>
+                    <th className="mpt-actions-col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -365,29 +368,32 @@ const ManageProductTypes = () => {
                       className={
                         editingType?.product_type_id ===
                         productType.product_type_id
-                          ? "editing"
+                          ? "mpt-row-editing"
                           : ""
                       }
                     >
-                      <td className="sku-cell" data-label="SKU Prefix">
-                        <span className="sku-badge">
+                      <td className="mpt-sku-cell" data-label="SKU Prefix">
+                        <span className="mpt-sku-badge">
                           {productType.sku_prefix}
                         </span>
                       </td>
-                      <td className="type-name-cell" data-label="Type Name">
+                      <td className="mpt-name-cell" data-label="Type Name">
                         {productType.type_name}
                       </td>
-                      <td className="description-cell" data-label="Description">
+                      <td
+                        className="mpt-description-cell"
+                        data-label="Description"
+                      >
                         {productType.description}
                       </td>
-                      <td className="actions-cell" data-label="Actions">
+                      <td className="mpt-actions-cell" data-label="Actions">
                         <button
+                          className="mpt-btn mpt-btn-primary mpt-btn-sm"
                           onClick={() => handleEdit(productType)}
                           disabled={loading || editMode !== "none"}
-                          className="btn-edit"
                           title="Edit description"
                         >
-                          <Edit2 size={16} />
+                          <Edit2 size={15} />
                           Edit
                         </button>
                       </td>
@@ -398,8 +404,9 @@ const ManageProductTypes = () => {
             </div>
           )}
 
+          {/* Empty state */}
           {!loading && productTypes.length === 0 && (
-            <div className="empty-state">
+            <div className="mpt-empty">
               <p>
                 No product types found. Create your first product type to get
                 started!

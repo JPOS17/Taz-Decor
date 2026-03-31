@@ -21,9 +21,7 @@ const ImageManager = ({
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [selectedImage, setSelectedImage] = useState<VariantImage | null>(null);
 
-  const handleDragStart = (index: number) => {
-    setDraggedIndex(index);
-  };
+  const handleDragStart = (index: number) => setDraggedIndex(index);
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
@@ -31,9 +29,7 @@ const ImageManager = ({
     setDragOverIndex(index);
   };
 
-  const handleDragLeave = () => {
-    setDragOverIndex(null);
-  };
+  const handleDragLeave = () => setDragOverIndex(null);
 
   const handleDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
@@ -44,7 +40,6 @@ const ImageManager = ({
     newImages.splice(draggedIndex, 1);
     newImages.splice(dropIndex, 0, draggedImage);
 
-    // Update display_order for all images
     const reorderedImages = newImages.map((img, index) => ({
       ...img,
       display_order: index + 1,
@@ -60,9 +55,7 @@ const ImageManager = ({
     setDragOverIndex(null);
   };
 
-  const handleThumbnailClick = (image: VariantImage) => {
-    setSelectedImage(image);
-  };
+  const handleThumbnailClick = (image: VariantImage) => setSelectedImage(image);
 
   const handleSetPrimary = (e: React.MouseEvent, imageId: number) => {
     e.stopPropagation();
@@ -77,9 +70,7 @@ const ImageManager = ({
       )
     ) {
       onDelete(imageId);
-      if (selectedImage?.image_id === imageId) {
-        setSelectedImage(null);
-      }
+      if (selectedImage?.image_id === imageId) setSelectedImage(null);
     }
   };
 
@@ -92,7 +83,7 @@ const ImageManager = ({
 
       {images.length > 0 ? (
         <div className="image-layout">
-          {/* Thumbnail Column with scroll */}
+          {/* Thumbnail Column */}
           <div className="thumbnail-column">
             {images.map((image, index) => (
               <div
@@ -104,22 +95,23 @@ const ImageManager = ({
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
                 onClick={() => handleThumbnailClick(image)}
-                className={`thumbnail-item ${
-                  draggedIndex === index ? "dragging" : ""
-                } ${dragOverIndex === index ? "drag-over" : ""}`}
+                className={[
+                  "thumbnail-item",
+                  draggedIndex === index ? "dragging" : "",
+                  dragOverIndex === index ? "drag-over" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
                 <img
                   src={image.img_url}
                   alt={`Product ${index + 1}`}
                   className="thumbnail-image"
                 />
-
                 <div className="order-badge">{index + 1}</div>
-
                 {image.is_primary && (
                   <div className="primary-badge">Primary</div>
                 )}
-
                 <div className="thumbnail-overlay">
                   <button
                     type="button"
@@ -129,13 +121,10 @@ const ImageManager = ({
                   >
                     <Star
                       size={16}
-                      className={`icon-star ${
-                        image.is_primary ? "active" : ""
-                      }`}
+                      className={`icon-star ${image.is_primary ? "active" : ""}`}
                       fill={image.is_primary ? "currentColor" : "none"}
                     />
                   </button>
-
                   <button
                     type="button"
                     className="thumbnail-icon"
@@ -160,7 +149,7 @@ const ImageManager = ({
                     className="main-image"
                   />
                 ) : (
-                  <span style={{ color: "#999" }}>No images available</span>
+                  <span className="main-image-empty">No images available</span>
                 )}
               </div>
             </div>
@@ -173,9 +162,8 @@ const ImageManager = ({
         </div>
       )}
 
-      {/* Upload Button */}
       <div className="upload-section">
-        <button type="button" className="btn btn-upload" onClick={onUpload}>
+        <button type="button" className="btn-upload" onClick={onUpload}>
           <Upload size={20} />
           Upload Product Image
         </button>

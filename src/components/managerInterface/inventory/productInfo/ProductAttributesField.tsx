@@ -23,7 +23,7 @@ const ProductAttributesFields = ({
   return (
     <div className="form-section" data-section={dataSection}>
       {/* Title */}
-      <h4 className="section-title">
+      <h4 className="form-section-header">
         Product Attributes {optional && "(Optional)"}
       </h4>
 
