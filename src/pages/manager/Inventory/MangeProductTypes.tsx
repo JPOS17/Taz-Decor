@@ -14,6 +14,7 @@ import ConfirmationModal from "../../../components/managerInterface/universal/Co
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 import { formatName } from "../../../utils/nameFormatter";
 
+import "../../../styles/pages/manager/ManagerShared.css";
 import "../../../styles/pages/manager/ManageProductType.css";
 
 interface Message {
@@ -200,219 +201,223 @@ const ManageProductTypes = () => {
   // ============================================================================
 
   return (
-    <div className="mpt-page">
+    <div className="manager-dashboard">
       {/* Header */}
-      <div className="mpt-header">
-        <div className="mpt-container">
+      <div className="dashboard-header">
+        <div className="container">
           <button
-            className="mpt-back-button"
+            className="dashboard-back-button"
             onClick={() => navigate("/manager/inventory")}
           >
             <ArrowLeft size={16} />
             Back to Product Management
           </button>
-          <h1 className="mpt-title">Manage Product Types</h1>
-          <p className="mpt-subtitle">
+          <h1 className="dashboard-title">Manage Product Types</h1>
+          <p className="dashboard-subtitle">
             Create and manage product type classifications and SKU prefixes
           </p>
         </div>
       </div>
 
-      <div className="mpt-container">
-        <div className="mpt-panel">
-          {/* Actions bar */}
-          <div className="mpt-actions-bar">
-            <h2 className="mpt-section-title">Product Types</h2>
-            {editMode === "none" && (
-              <button
-                className="mpt-btn mpt-btn-primary"
-                onClick={handleCreateNew}
-                disabled={loading}
-              >
-                <Plus size={16} />
-                New Product Type
-              </button>
+      {/* Main Content */}
+      <div className="container">
+        <div className="body">
+          <div className="mpt-panel">
+            {/* Actions bar */}
+            <div className="mpt-actions-bar">
+              <h2 className="mpt-section-title">Product Types</h2>
+              {editMode === "none" && (
+                <button
+                  className="mpt-btn mpt-btn-primary"
+                  onClick={handleCreateNew}
+                  disabled={loading}
+                >
+                  <Plus size={16} />
+                  New Product Type
+                </button>
+              )}
+            </div>
+
+            {/* Create / Edit form */}
+            {editMode !== "none" && (
+              <div className="mpt-form">
+                <h3 className="mpt-form-title">
+                  {editMode === "create"
+                    ? "Create New Product Type"
+                    : "Edit Product Type"}
+                </h3>
+
+                <div className="mpt-form-group">
+                  <label className="mpt-form-label">
+                    SKU Prefix * {editMode === "edit" && "(Read-only)"}
+                  </label>
+                  <input
+                    type="text"
+                    className="mpt-form-input"
+                    value={formData.sku_prefix}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase().slice(0, 3);
+                      setFormData({ ...formData, sku_prefix: value });
+                    }}
+                    placeholder="e.g., JRN"
+                    disabled={loading || editMode === "edit"}
+                    maxLength={3}
+                  />
+                  <p className="mpt-form-helper">
+                    Must be exactly 3 uppercase letters
+                  </p>
+                </div>
+
+                <div className="mpt-form-group">
+                  <label className="mpt-form-label">
+                    Type Name * {editMode === "edit" && "(Read-only)"}
+                  </label>
+                  <input
+                    type="text"
+                    className="mpt-form-input"
+                    value={formData.type_name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, type_name: e.target.value })
+                    }
+                    placeholder="Enter type name"
+                    disabled={loading || editMode === "edit"}
+                  />
+                  {editMode === "create" &&
+                    formData.type_name.trim() &&
+                    formData.type_name.trim() !==
+                      formatName(formData.type_name) && (
+                      <div className="mpt-format-preview">
+                        <strong>Will be saved as:</strong>{" "}
+                        <span>{formatName(formData.type_name)}</span>
+                      </div>
+                    )}
+                </div>
+
+                <div className="mpt-form-group">
+                  <label className="mpt-form-label">Description *</label>
+                  <textarea
+                    className="mpt-form-textarea"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    placeholder="Enter description"
+                    disabled={loading}
+                    rows={3}
+                  />
+                  {formData.description.trim() &&
+                    formData.description.trim() !==
+                      formatName(formData.description) && (
+                      <div className="mpt-format-preview">
+                        <strong>Will be saved as:</strong>{" "}
+                        <span>{formatName(formData.description)}</span>
+                      </div>
+                    )}
+                  <p className="mpt-form-helper">
+                    Note: Words like "of", "in", "on", "the", "and" will be
+                    lowercase (except at start/end)
+                  </p>
+                </div>
+
+                <div className="mpt-form-actions">
+                  <button
+                    className="mpt-btn mpt-btn-success"
+                    onClick={handleRequestSave}
+                    disabled={
+                      loading ||
+                      !formData.type_name.trim() ||
+                      !formData.sku_prefix.trim() ||
+                      !formData.description.trim() ||
+                      (editMode === "create" &&
+                        formData.sku_prefix.length !== 3)
+                    }
+                  >
+                    <Save size={16} />
+                    {editMode === "create" ? "Create" : "Save Changes"}
+                  </button>
+                  <button
+                    className="mpt-btn mpt-btn-secondary"
+                    onClick={handleCancelEdit}
+                    disabled={loading}
+                  >
+                    <X size={16} />
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Loading */}
+            {loading && productTypes.length === 0 ? (
+              <div className="mpt-loading">
+                <div className="mpt-spinner" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            ) : (
+              <div className="mpt-table-container">
+                <table className="mpt-table">
+                  <thead>
+                    <tr>
+                      <th>SKU Prefix</th>
+                      <th>Type Name</th>
+                      <th>Description</th>
+                      <th className="mpt-actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {productTypes.map((productType) => (
+                      <tr
+                        key={productType.product_type_id}
+                        className={
+                          editingType?.product_type_id ===
+                          productType.product_type_id
+                            ? "mpt-row-editing"
+                            : ""
+                        }
+                      >
+                        <td className="mpt-sku-cell" data-label="SKU Prefix">
+                          <span className="mpt-sku-badge">
+                            {productType.sku_prefix}
+                          </span>
+                        </td>
+                        <td className="mpt-name-cell" data-label="Type Name">
+                          {productType.type_name}
+                        </td>
+                        <td
+                          className="mpt-description-cell"
+                          data-label="Description"
+                        >
+                          {productType.description}
+                        </td>
+                        <td className="mpt-actions-cell" data-label="Actions">
+                          <button
+                            className="mpt-btn mpt-btn-primary mpt-btn-sm"
+                            onClick={() => handleEdit(productType)}
+                            disabled={loading || editMode !== "none"}
+                            title="Edit description"
+                          >
+                            <Edit2 size={15} />
+                            Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Empty state */}
+            {!loading && productTypes.length === 0 && (
+              <div className="mpt-empty">
+                <p>
+                  No product types found. Create your first product type to get
+                  started!
+                </p>
+              </div>
             )}
           </div>
-
-          {/* Create / Edit form */}
-          {editMode !== "none" && (
-            <div className="mpt-form">
-              <h3 className="mpt-form-title">
-                {editMode === "create"
-                  ? "Create New Product Type"
-                  : "Edit Product Type"}
-              </h3>
-
-              <div className="mpt-form-group">
-                <label className="mpt-form-label">
-                  SKU Prefix * {editMode === "edit" && "(Read-only)"}
-                </label>
-                <input
-                  type="text"
-                  className="mpt-form-input"
-                  value={formData.sku_prefix}
-                  onChange={(e) => {
-                    const value = e.target.value.toUpperCase().slice(0, 3);
-                    setFormData({ ...formData, sku_prefix: value });
-                  }}
-                  placeholder="e.g., JRN"
-                  disabled={loading || editMode === "edit"}
-                  maxLength={3}
-                />
-                <p className="mpt-form-helper">
-                  Must be exactly 3 uppercase letters
-                </p>
-              </div>
-
-              <div className="mpt-form-group">
-                <label className="mpt-form-label">
-                  Type Name * {editMode === "edit" && "(Read-only)"}
-                </label>
-                <input
-                  type="text"
-                  className="mpt-form-input"
-                  value={formData.type_name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, type_name: e.target.value })
-                  }
-                  placeholder="Enter type name"
-                  disabled={loading || editMode === "edit"}
-                />
-                {editMode === "create" &&
-                  formData.type_name.trim() &&
-                  formData.type_name.trim() !==
-                    formatName(formData.type_name) && (
-                    <div className="mpt-format-preview">
-                      <strong>Will be saved as:</strong>{" "}
-                      <span>{formatName(formData.type_name)}</span>
-                    </div>
-                  )}
-              </div>
-
-              <div className="mpt-form-group">
-                <label className="mpt-form-label">Description *</label>
-                <textarea
-                  className="mpt-form-textarea"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder="Enter description"
-                  disabled={loading}
-                  rows={3}
-                />
-                {formData.description.trim() &&
-                  formData.description.trim() !==
-                    formatName(formData.description) && (
-                    <div className="mpt-format-preview">
-                      <strong>Will be saved as:</strong>{" "}
-                      <span>{formatName(formData.description)}</span>
-                    </div>
-                  )}
-                <p className="mpt-form-helper">
-                  Note: Words like "of", "in", "on", "the", "and" will be
-                  lowercase (except at start/end)
-                </p>
-              </div>
-
-              <div className="mpt-form-actions">
-                <button
-                  className="mpt-btn mpt-btn-success"
-                  onClick={handleRequestSave}
-                  disabled={
-                    loading ||
-                    !formData.type_name.trim() ||
-                    !formData.sku_prefix.trim() ||
-                    !formData.description.trim() ||
-                    (editMode === "create" && formData.sku_prefix.length !== 3)
-                  }
-                >
-                  <Save size={16} />
-                  {editMode === "create" ? "Create" : "Save Changes"}
-                </button>
-                <button
-                  className="mpt-btn mpt-btn-secondary"
-                  onClick={handleCancelEdit}
-                  disabled={loading}
-                >
-                  <X size={16} />
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Loading */}
-          {loading && productTypes.length === 0 ? (
-            <div className="mpt-loading">
-              <div className="mpt-spinner" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          ) : (
-            <div className="mpt-table-container">
-              <table className="mpt-table">
-                <thead>
-                  <tr>
-                    <th>SKU Prefix</th>
-                    <th>Type Name</th>
-                    <th>Description</th>
-                    <th className="mpt-actions-col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {productTypes.map((productType) => (
-                    <tr
-                      key={productType.product_type_id}
-                      className={
-                        editingType?.product_type_id ===
-                        productType.product_type_id
-                          ? "mpt-row-editing"
-                          : ""
-                      }
-                    >
-                      <td className="mpt-sku-cell" data-label="SKU Prefix">
-                        <span className="mpt-sku-badge">
-                          {productType.sku_prefix}
-                        </span>
-                      </td>
-                      <td className="mpt-name-cell" data-label="Type Name">
-                        {productType.type_name}
-                      </td>
-                      <td
-                        className="mpt-description-cell"
-                        data-label="Description"
-                      >
-                        {productType.description}
-                      </td>
-                      <td className="mpt-actions-cell" data-label="Actions">
-                        <button
-                          className="mpt-btn mpt-btn-primary mpt-btn-sm"
-                          onClick={() => handleEdit(productType)}
-                          disabled={loading || editMode !== "none"}
-                          title="Edit description"
-                        >
-                          <Edit2 size={15} />
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Empty state */}
-          {!loading && productTypes.length === 0 && (
-            <div className="mpt-empty">
-              <p>
-                No product types found. Create your first product type to get
-                started!
-              </p>
-            </div>
-          )}
         </div>
       </div>
 

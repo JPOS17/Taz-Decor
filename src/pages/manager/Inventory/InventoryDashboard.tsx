@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Folder, Plus, ArrowLeft, Edit, Tag, ArrowRight } from "lucide-react";
 
+import "../../../styles/pages/manager/ManagerShared.css";
 import "../../../styles/pages/manager/InventoryDashboard.css";
 
 const directoryCards = [
@@ -39,6 +40,7 @@ const ProductManagementDirectory = () => {
 
   return (
     <div className="manager-dashboard">
+      {/* Header */}
       <div className="dashboard-header">
         <div className="container">
           <button
@@ -55,9 +57,10 @@ const ProductManagementDirectory = () => {
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="container">
-        <div className="id-body">
-          <p className="id-section-label">Management Areas</p>
+        <div className="body">
+          <p className="id-section-label">Inventory Dashboard</p>
           <div className="id-grid">
             {directoryCards.map((card) => {
               const Icon = card.icon;

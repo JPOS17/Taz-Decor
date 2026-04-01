@@ -51,6 +51,7 @@ import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 import { useUnsavedChanges } from "../../../hooks/useUnsavedChanges";
 import { sanitizeFolderName } from "../../../utils/folderNameFormatter";
 
+import "../../../styles/pages/manager/ManagerShared.css";
 import "../../../styles/pages/manager/ManageInventory.css";
 
 interface Message {
@@ -914,24 +915,25 @@ const ManageProducts = () => {
   // ============================================================================
 
   return (
-    <div className="if-page">
-      {/* Header Section */}
-      <div className="if-header">
-        <div className="if-container">
+    <div className="if-page manager-dashboard">
+      {/* Header */}
+      <div className="dashboard-header">
+        <div className="container">
           <button
-            className="if-back-button"
+            className="dashboard-back-button"
             onClick={() => navigate("/manager/inventory")}
           >
             <ArrowLeft size={16} />
             Back to Dashboard
           </button>
-          <h1 className="if-title">Product Management</h1>
-          <p className="mpt-subtitle">
+          <h1 className="dashboard-title">Edit Products</h1>
+          <p className="dashboard-subtitle">
             Manage existing products, variants, images, and inventory
           </p>
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="if-container">
         {/* Warehouse Location Selector */}
         <div className="category-section">

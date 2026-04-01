@@ -1,21 +1,18 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 /* ============================================================================
-   MANAGE CATEGORIES
+   MANAGE CATEGORIES — mc-* prefix
    Theme: #c2410c (accent) / #fff7ed
+   Shared header/container/page shell → ManagerShared.css
    ============================================================================ */
 
 :root {
   --inv-accent: #c2410c;
   --inv-accent-dark: #9a3412;
   --inv-accent-light: #fff7ed;
-  --inv-bg: #f0f2f5;
   --inv-card: #ffffff;
   --inv-border: #e4e7ec;
   --inv-text-primary: #111827;
   --inv-text-secondary: #6b7280;
   --inv-text-muted: #9ca3af;
-  --inv-header-bg: #1c1c1e;
   --inv-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
   --inv-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --inv-radius: 12px;
@@ -23,72 +20,7 @@
 }
 
 /* ============================================================================
-   PAGE
-   ============================================================================ */
-
-.mc-page {
-  min-height: 100vh;
-  background-color: var(--inv-bg);
-  font-family: var(--inv-font);
-}
-
-/* ============================================================================
-   HEADER
-   ============================================================================ */
-
-.mc-header {
-  background-color: var(--inv-header-bg);
-  padding: 2rem 3rem;
-}
-
-.mc-back-button {
-  background: none;
-  border: none;
-  color: var(--inv-text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0 0 0.75rem 0;
-  font-size: 0.8125rem;
-  font-family: var(--inv-font);
-  font-weight: 500;
-  transition: color 0.18s ease;
-  letter-spacing: 0.01em;
-}
-
-.mc-back-button:hover {
-  color: #ffffff;
-}
-
-.mc-title {
-  margin: 0 0 0.2rem 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-}
-
-.mc-subtitle {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--inv-text-muted);
-  font-weight: 400;
-}
-
-/* ============================================================================
-   CONTAINER
-   ============================================================================ */
-
-.mc-page .mc-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-
-/* ============================================================================
-   MAIN PANEL
+   1. MAIN PANEL
    ============================================================================ */
 
 .mc-panel {
@@ -97,12 +29,11 @@
   border: 1px solid var(--inv-border);
   box-shadow: var(--inv-shadow-sm);
   padding: 1.5rem;
-  max-width: 1200px;
-  margin: 2.5rem auto 4rem;
+  margin: 0;
 }
 
 /* ============================================================================
-   PANEL HEADER (title row + action buttons)
+   2. PANEL HEADER (title row + action buttons)
    ============================================================================ */
 
 .mc-panel-header {
@@ -129,7 +60,7 @@
 }
 
 /* ============================================================================
-   BUTTONS
+   3. BUTTONS
    ============================================================================ */
 
 .mc-btn {
@@ -202,7 +133,7 @@
 }
 
 /* ============================================================================
-   EDIT / CREATE FORM
+   4. EDIT / CREATE FORM
    ============================================================================ */
 
 .mc-form {
@@ -264,7 +195,6 @@
   background-color: var(--inv-accent-light);
 }
 
-/* "Will be saved as" preview */
 .mc-name-preview {
   margin-top: 0.5rem;
   padding: 0.625rem 0.875rem;
@@ -292,7 +222,7 @@
 }
 
 /* ============================================================================
-   CATEGORY LIST
+   5. CATEGORY LIST
    ============================================================================ */
 
 .mc-list {
@@ -302,7 +232,7 @@
 }
 
 /* ============================================================================
-   CATEGORY ROW
+   6. CATEGORY ROW
    ============================================================================ */
 
 .mc-row {
@@ -333,7 +263,7 @@
 }
 
 .mc-row--inactive {
-  background-color: var(--inv-bg);
+  background-color: var(--mgr-bg);
   opacity: 0.7;
 }
 
@@ -385,7 +315,6 @@
   color: var(--inv-text-secondary);
 }
 
-/* Disabled badge */
 .mc-badge-disabled {
   background-color: #dc2626;
   color: white;
@@ -404,7 +333,7 @@
 }
 
 /* ============================================================================
-   LOADING STATE
+   7. LOADING STATE
    ============================================================================ */
 
 .mc-loading {
@@ -419,7 +348,7 @@
 }
 
 /* ============================================================================
-   EMPTY STATE
+   8. EMPTY STATE
    ============================================================================ */
 
 .mc-empty {
@@ -437,21 +366,11 @@
 }
 
 /* ============================================================================
-   RESPONSIVE
+   9. RESPONSIVE
    ============================================================================ */
 
 @media (max-width: 640px) {
-  .mc-header {
-    padding: 1.5rem;
-  }
-
-  .mc-page .mc-container {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-  }
-
   .mc-panel {
-    margin: 1.5rem auto 3rem;
     padding: 1rem;
   }
 

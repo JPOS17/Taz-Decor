@@ -38,6 +38,7 @@ import {
 import { ToastNotification } from "../../components/managerInterface/universal/ToastNotifications";
 import AddressValidationModal from "../../components/universalComponents/AddressValidationModal";
 
+import "../../styles/pages/manager/ManagerShared.css";
 import "../../styles/pages/manager/Settings.css";
 
 type TabType = "locations" | "shipping";
@@ -585,7 +586,6 @@ const Settings = () => {
 
   const renderShippingTab = () => {
     const isLocationSelected = boxLocationFilter !== "all";
-
     return (
       <>
         <div className="settings-actions-bar">
@@ -773,52 +773,49 @@ const Settings = () => {
   };
 
   return (
-    <div className="settings-page-container">
+    <div className="manager-dashboard">
       {/* Header */}
-      <div className="settings-dashboard-header">
+      <div className="dashboard-header">
         <div className="container">
           <button
             onClick={() => navigate("/manager")}
-            className="settings-back-button"
+            className="dashboard-back-button"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={16} />
             Back to Dashboard
           </button>
-          <div className="settings-header-content">
-            <div>
-              <h1 className="settings-dashboard-title">Settings</h1>
-              <p className="settings-dashboard-subtitle">
-                Manage seller locations and shipping boxes
-              </p>
-            </div>
-          </div>
+          <h1 className="dashboard-title">Settings</h1>
+          <p className="dashboard-subtitle">
+            Manage seller locations and shipping boxes
+          </p>
         </div>
       </div>
-
       {/* Main Content */}
-      <div className="container settings-container-spacing">
-        {/* Tabs */}
-        <div className="settings-tabs">
-          <button
-            onClick={() => setActiveTab("locations")}
-            className={`settings-tab ${activeTab === "locations" ? "settings-tab-active" : ""}`}
-          >
-            <MapPin size={20} />
-            Seller Locations
-          </button>
-          <button
-            onClick={() => setActiveTab("shipping")}
-            className={`settings-tab ${activeTab === "shipping" ? "settings-tab-active" : ""}`}
-          >
-            <Package size={20} />
-            Shipping Boxes
-          </button>
-        </div>
+      <div className="container">
+        <div className="body">
+          {/* Tabs */}
+          <div className="settings-tabs">
+            <button
+              onClick={() => setActiveTab("locations")}
+              className={`settings-tab ${activeTab === "locations" ? "settings-tab-active" : ""}`}
+            >
+              <MapPin size={20} />
+              Seller Locations
+            </button>
+            <button
+              onClick={() => setActiveTab("shipping")}
+              className={`settings-tab ${activeTab === "shipping" ? "settings-tab-active" : ""}`}
+            >
+              <Package size={20} />
+              Shipping Boxes
+            </button>
+          </div>
 
-        {/* Tab Content */}
-        <div className="settings-tab-content">
-          {activeTab === "locations" && renderLocationsTab()}
-          {activeTab === "shipping" && renderShippingTab()}
+          {/* Tab Content */}
+          <div className="settings-tab-content">
+            {activeTab === "locations" && renderLocationsTab()}
+            {activeTab === "shipping" && renderShippingTab()}
+          </div>
         </div>
       </div>
 

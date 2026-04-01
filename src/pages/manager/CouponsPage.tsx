@@ -27,6 +27,7 @@ import { CouponsTable } from "../../components/managerInterface/coupons/CouponsT
 import { CouponWizard } from "../../components/managerInterface/coupons/CouponWizard";
 import { CouponPreview } from "../../components/managerInterface/coupons/CouponPreview";
 
+import "../../styles/pages/manager/ManagerShared.css";
 import "../../styles/pages/manager/CouponsPage.css";
 
 // ============================================================================
@@ -431,71 +432,58 @@ const CouponsPage = () => {
 
   return (
     <div className="manager-dashboard">
-      <div className="dashboard-header coupon-dashboard-header">
+      {/* Header */}
+      <div className="dashboard-header">
         <div className="container">
           <button
+            className="dashboard-back-button"
             onClick={() => navigate("/manager")}
-            style={{
-              background: "none",
-              border: "none",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              cursor: "pointer",
-              fontSize: "1rem",
-              marginBottom: "0.5rem",
-              padding: "0.5rem",
-            }}
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={16} />
             Back to Dashboard
           </button>
-          <div className="coupon-dashboard-header-content">
-            <div>
-              <h1 className="dashboard-title">Coupons & Discounts</h1>
-              <p className="coupon-dashboard-subtitle">
-                Create and manage discount codes
-              </p>
-            </div>
-          </div>
+          <h1 className="dashboard-title">Coupons & Discounts</h1>
+          <p className="dashboard-subtitle">Create and manage discount codes</p>
         </div>
       </div>
 
-      <div className="container coupon-page-container">
-        {error && <div className="coupon-error-alert">{error}</div>}
+      {/* Main Content */}
+      <div className="container">
+        <div className="body">
+          {error && <div className="coupon-error-alert">{error}</div>}
 
-        <div style={{ marginBottom: "1.5rem" }}>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="coupon-btn coupon-btn-primary coupon-btn-icon"
-          >
-            <Plus size={20} />
-            Create Coupon
-          </button>
+          <div className="coupon-create-action">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="coupon-btn coupon-btn-primary coupon-btn-icon"
+            >
+              <Plus size={20} />
+              Create Coupon
+            </button>
+          </div>
+
+          <CouponFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            appliesToFilter={appliesToFilter}
+            setAppliesToFilter={setAppliesToFilter}
+            locationFilter={locationFilter}
+            setLocationFilter={setLocationFilter}
+            locations={locations}
+          />
+
+          <CouponsTable
+            coupons={coupons}
+            loading={loading}
+            onPreview={handlePreviewCoupon}
+            onToggleStatus={handleToggleStatus}
+            onEdit={openEditModal}
+            onDelete={handleDeleteCoupon}
+            onCopyCode={copyToClipboard}
+          />
         </div>
-
-        <CouponFilters
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          appliesToFilter={appliesToFilter}
-          setAppliesToFilter={setAppliesToFilter}
-          locationFilter={locationFilter}
-          setLocationFilter={setLocationFilter}
-          locations={locations}
-        />
-
-        <CouponsTable
-          coupons={coupons}
-          loading={loading}
-          onPreview={handlePreviewCoupon}
-          onToggleStatus={handleToggleStatus}
-          onEdit={openEditModal}
-          onDelete={handleDeleteCoupon}
-          onCopyCode={copyToClipboard}
-        />
       </div>
 
       {/* Create/Edit Modal */}

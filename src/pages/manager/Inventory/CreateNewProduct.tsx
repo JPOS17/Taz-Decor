@@ -152,19 +152,21 @@ const CreateProduct = () => {
   // ============================================================================
 
   return (
-    <div className="if-page">
+    <div className="if-page manager-dashboard">
       {/* Header */}
-      <div className="if-header">
-        <div className="if-container">
+      <div className="dashboard-header">
+        <div className="container">
           <button
-            className="if-back-button"
+            className="dashboard-back-button"
             onClick={() => navigate("/manager/inventory")}
           >
             <ArrowLeft size={16} />
             Back to Product Management
           </button>
-          <h1 className="if-title">Create New Product</h1>
-          <p className="if-subtitle">Add a new product to your inventory</p>
+          <h1 className="dashboard-title">Create New Product</h1>
+          <p className="dashboard-subtitle">
+            Add a new product to your inventory
+          </p>
         </div>
       </div>
 

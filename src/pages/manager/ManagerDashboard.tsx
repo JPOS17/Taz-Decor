@@ -63,6 +63,7 @@ const ManagerDashboard = () => {
 
   return (
     <div className="md-page">
+      {/* Header */}
       <header className="md-header">
         <div className="md-header-inner">
           <div>
@@ -72,6 +73,7 @@ const ManagerDashboard = () => {
         </div>
       </header>
 
+      {/* Main Content */}
       <div className="md-body">
         <p className="md-section-label">Management Areas</p>
         <div className="md-grid">

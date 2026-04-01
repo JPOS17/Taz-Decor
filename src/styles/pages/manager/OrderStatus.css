@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 /* ============================================================================
    ORDER STATUS PAGE
+   Theme: #1d4ed8 (accent) / #eff6ff (accent-light)
+   Shared header/container/page shell → ManagerShared.css
    ============================================================================ */
 
 :root {
@@ -9,13 +9,11 @@
   --os-accent-dark: #1e40af;
   --os-accent-light: #eff6ff;
   --os-accent-ring: rgba(29, 78, 216, 0.12);
-  --os-bg: #f0f2f5;
   --os-card: #ffffff;
   --os-border: #e4e7ec;
   --os-text-primary: #111827;
   --os-text-secondary: #6b7280;
   --os-text-muted: #9ca3af;
-  --os-header-bg: #1c1c1e;
   --os-shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
   --os-shadow-md: 0 4px 16px rgba(0,0,0,0.08);
   --os-radius: 12px;
@@ -23,73 +21,7 @@
 }
 
 /* ============================================================================
-   1. LAYOUT & PAGE
-   ============================================================================ */
-
-.order-status-page-container {
-  min-height: 100vh;
-  background-color: var(--os-bg);
-  font-family: var(--os-font);
-}
-
-/* ============================================================================
-   2. HEADER
-   ============================================================================ */
-
-.order-dashboard-header {
-  background-color: var(--os-header-bg);
-  padding: 2rem 3rem;
-  color: white;
-}
-
-.order-status-dashboard-header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.order-back-button {
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0 0 0.75rem 0;
-  font-size: 0.8125rem;
-  font-family: var(--os-font);
-  font-weight: 500;
-  transition: color 0.18s ease;
-}
-
-.order-back-button:hover {
-  color: #ffffff;
-}
-
-.order-dashboard-title {
-  margin: 0 0 0.2rem 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-}
-
-.order-status-dashboard-subtitle {
-  margin: 0;
-  font-size: 0.875rem;
-  color: #9ca3af;
-  font-weight: 400;
-}
-
-.order-container-spacing {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 2rem 4rem;
-}
-
-/* ============================================================================
-   3. ERROR & SUCCESS MESSAGES
+   1. ERROR & SUCCESS MESSAGES
    ============================================================================ */
 
 .order-error-message {
@@ -136,7 +68,7 @@
 }
 
 /* ============================================================================
-   4. STATUS BADGES
+   2. STATUS BADGES
    ============================================================================ */
 
 .order-status-badge {
@@ -158,7 +90,7 @@
 .order-status-badge-pink   { background: #fce7f3; color: #9d174d; }
 
 /* ============================================================================
-   5. FILTERS
+   3. FILTERS
    ============================================================================ */
 
 .order-filters {
@@ -219,7 +151,7 @@
 }
 
 /* ============================================================================
-   6. EXPORT ACTIONS BAR
+   4. EXPORT ACTIONS BAR
    ============================================================================ */
 
 .export-actions-bar {
@@ -311,7 +243,7 @@
 }
 
 /* ============================================================================
-   7. ORDERS TABLE
+   5. ORDERS TABLE
    ============================================================================ */
 
 .order-table-wrapper {
@@ -403,7 +335,7 @@
 }
 
 /* ============================================================================
-   8. LOADING & EMPTY STATES
+   6. LOADING & EMPTY STATES
    ============================================================================ */
 
 .order-loading-state,
@@ -448,17 +380,17 @@
 .order-empty-state-icon { color: var(--os-text-muted); }
 
 /* ============================================================================
-   9. EXPANDED ROW CONTENT
+   7. EXPANDED ROW CONTENT
    ============================================================================ */
 
 .expanded-order-content {
   padding: 1.5rem;
-  background: var(--os-bg);
+  background: var(--mgr-bg);
   border-top: 1px solid var(--os-border);
 }
 
 /* ============================================================================
-   10. ORDER DETAILS SECTION
+   8. ORDER DETAILS SECTION
    ============================================================================ */
 
 .order-details-section {
@@ -478,7 +410,6 @@
   color: var(--os-text-muted);
 }
 
-/* Primary info row: order number, date, status, box, weight, ship by */
 .order-details-primary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -488,7 +419,6 @@
   margin-bottom: 1rem;
 }
 
-/* Financials row: subtotal, discount, shipping, tax, total */
 .order-details-financials {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -530,6 +460,13 @@
   margin-bottom: 0.2rem;
 }
 
+.order-detail-item--total strong,
+.order-detail-item--total span {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--os-text-primary);
+}
+
 .order-detail-box-dims {
   color: var(--os-text-muted);
   font-size: 0.8rem;
@@ -537,7 +474,7 @@
 }
 
 /* ============================================================================
-   11. SHIPPING ADDRESS
+   9. SHIPPING ADDRESS
    ============================================================================ */
 
 .shipping-address-section {
@@ -571,7 +508,7 @@
 .order-contact-email:hover { text-decoration: underline; }
 
 /* ============================================================================
-   12. ORDER ITEMS
+   10. ORDER ITEMS
    ============================================================================ */
 
 .order-items-section {
@@ -653,7 +590,7 @@
 }
 
 /* ============================================================================
-   13. STATUS UPDATE SECTION
+   11. STATUS UPDATE SECTION
    ============================================================================ */
 
 .status-update-section {
@@ -674,7 +611,7 @@
 }
 
 /* ============================================================================
-   14. STATUS FLOW INDICATOR
+   12. STATUS FLOW INDICATOR
    ============================================================================ */
 
 .status-flow {
@@ -744,7 +681,7 @@
 .status-flow-item:last-child .status-connector { display: none; }
 
 /* ============================================================================
-   15. TRACKING SECTION
+   13. TRACKING SECTION
    ============================================================================ */
 
 .tracking-section {
@@ -787,7 +724,7 @@
 }
 
 /* ============================================================================
-   16. GENERIC FORM GROUP (expanded row)
+   14. GENERIC FORM GROUP (expanded row)
    ============================================================================ */
 
 .form-group {
@@ -863,7 +800,7 @@
 }
 
 /* ============================================================================
-   17. NOTES SECTION
+   15. NOTES SECTION
    ============================================================================ */
 
 .notes-section { margin-bottom: 1rem; }
@@ -898,7 +835,7 @@
 }
 
 /* ============================================================================
-   18. STATUS ACTION BUTTONS
+   16. STATUS ACTION BUTTONS
    ============================================================================ */
 
 .status-actions {
@@ -1040,7 +977,7 @@
 }
 
 /* ============================================================================
-   19. STATUS HISTORY
+   17. STATUS HISTORY
    ============================================================================ */
 
 .status-history-section {
@@ -1122,7 +1059,7 @@
 }
 
 /* ============================================================================
-   20. ORDER DETAILS LOADING
+   18. ORDER DETAILS LOADING
    ============================================================================ */
 
 .order-details-loading {
@@ -1137,7 +1074,7 @@
 }
 
 /* ============================================================================
-   21. CONFIRMATION MODAL
+   19. CONFIRMATION MODAL
    ============================================================================ */
 
 .confirmation-modal-overlay {
@@ -1225,7 +1162,7 @@
 }
 
 /* ============================================================================
-   22. LEGACY / MISC
+   20. LEGACY / MISC
    ============================================================================ */
 
 .order-status-manager {
@@ -1248,24 +1185,10 @@
 }
 
 /* ============================================================================
-   23. RESPONSIVE
+   21. RESPONSIVE
    ============================================================================ */
 
-@media (max-width: 1024px) {
-  .order-container-spacing {
-    padding: 1.5rem 1.5rem 3rem;
-  }
-}
-
 @media (max-width: 768px) {
-  .order-dashboard-header {
-    padding: 1.5rem;
-  }
-
-  .order-dashboard-title {
-    font-size: 1.4rem;
-  }
-
   .order-table { font-size: 0.8125rem; }
 
   .order-table th,
@@ -1330,7 +1253,7 @@
   .order-item-row .order-item-image { width: 100%; height: 140px; }
 
   .expanded-order-content { padding: 1rem; }
-   
+
   .order-col-tracking,
   .order-col-total {
     display: none;
@@ -1338,12 +1261,6 @@
 }
 
 @media (max-width: 576px) {
-  .order-dashboard-header { padding: 1.25rem; }
-
-  .order-container-spacing {
-    padding: 1rem 1rem 2.5rem;
-  }
-
   .order-details-grid {
     grid-template-columns: 1fr 1fr;
   }

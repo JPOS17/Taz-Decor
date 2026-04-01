@@ -30,6 +30,7 @@ import ConfirmationModal from "../../components/managerInterface/universal/Confi
 import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 import ShipByDate from "../../components/managerInterface/orders/ShipByDate";
 
+import "../../styles/pages/manager/ManagerShared.css";
 import "../../styles/pages/manager/OrderStatus.css";
 
 type Order = APIOrder;
@@ -820,30 +821,26 @@ const OrderStatusPage = () => {
 
   if (loading) {
     return (
-      <div className="order-status-page-container">
-        <div className="order-dashboard-header">
+      <div className="manager-dashboard">
+        <div className="dashboard-header">
           <div className="container">
             <button
               onClick={() => navigate("/manager")}
-              className="order-back-button"
+              className="dashboard-back-button"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={16} />
               Back to Dashboard
             </button>
-            <div className="order-status-dashboard-header-content">
-              <div>
-                <h1 className="order-dashboard-title">Order Management</h1>
-                <p className="order-status-dashboard-subtitle">
-                  View and update order statuses
-                </p>
-              </div>
-            </div>
+            <h1 className="dashboard-title">Order Management</h1>
+            <p className="dashboard-subtitle">View and update order statuses</p>
           </div>
         </div>
-        <div className="container order-container-spacing">
-          <div className="order-loading-state">
-            <div className="order-spinner"></div>
-            <p>Loading orders...</p>
+        <div className="container">
+          <div className="body">
+            <div className="order-loading-state">
+              <div className="order-spinner"></div>
+              <p>Loading orders...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -851,193 +848,197 @@ const OrderStatusPage = () => {
   }
 
   return (
-    <div className="order-status-page-container">
-      <div className="order-dashboard-header">
+    <div className="manager-dashboard">
+      {/* Header */}
+      <div className="dashboard-header">
         <div className="container">
           <button
             onClick={() => navigate("/manager")}
-            className="order-back-button"
+            className="dashboard-back-button"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={16} />
             Back to Dashboard
           </button>
-          <div className="order-status-dashboard-header-content">
-            <div>
-              <h1 className="order-dashboard-title">Order Management</h1>
-              <p className="order-status-dashboard-subtitle">
-                View and update order statuses
-              </p>
-            </div>
-          </div>
+          <h1 className="dashboard-title">Order Management</h1>
+          <p className="dashboard-subtitle">View and update order statuses</p>
         </div>
       </div>
 
-      <div className="container order-container-spacing">
-        {error && <div className="order-error-message">{error}</div>}
-
-        {exportError && (
-          <div className="order-error-message order-error-dismissible">
-            {exportError}
-            <button
-              onClick={() => setExportError(null)}
-              className="order-error-dismiss"
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
-
-        {/* Export Actions Bar */}
-        {readyToShipCount > 0 && (
-          <div className="export-actions-bar">
-            <div className="export-actions-left">
-              <div>
-                <strong>{selectedOrderIds.size}</strong> order(s) selected
-                {selectedOrderIds.size > 0 && (
-                  <button
-                    onClick={clearSelection}
-                    className="btn-clear-selection"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-              <button onClick={selectAllReadyToShip} className="btn-select-all">
-                Select All Ready to Ship ({readyToShipCount})
+      {/* Main Content */}
+      <div className="container">
+        <div className="body">
+          {error && <div className="order-error-message">{error}</div>}
+          {exportError && (
+            <div className="order-error-message order-error-dismissible">
+              {exportError}
+              <button
+                onClick={() => setExportError(null)}
+                className="order-error-dismiss"
+              >
+                Dismiss
               </button>
             </div>
-            <button
-              onClick={exportToPirateShip}
-              disabled={selectedOrderIds.size === 0 || isExporting}
-              className={`btn-export-csv ${selectedOrderIds.size === 0 ? "btn-export-csv--disabled" : ""}`}
-            >
-              <Download size={20} />
-              {isExporting ? "Exporting..." : "Export to Pirate Ship CSV"}
-            </button>
-          </div>
-        )}
+          )}
 
-        {/* Filters */}
-        <div className="order-filters">
-          <div className="order-filters-grid">
-            <div className="order-filter-item">
-              <label>Filter by Status:</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+          {/* Export Actions Bar */}
+          {readyToShipCount > 0 && (
+            <div className="export-actions-bar">
+              <div className="export-actions-left">
+                <div>
+                  <strong>{selectedOrderIds.size}</strong> order(s) selected
+                  {selectedOrderIds.size > 0 && (
+                    <button
+                      onClick={clearSelection}
+                      className="btn-clear-selection"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <button
+                  onClick={selectAllReadyToShip}
+                  className="btn-select-all"
+                >
+                  Select All Ready to Ship ({readyToShipCount})
+                </button>
+              </div>
+              <button
+                onClick={exportToPirateShip}
+                disabled={selectedOrderIds.size === 0 || isExporting}
+                className={`btn-export-csv ${selectedOrderIds.size === 0 ? "btn-export-csv--disabled" : ""}`}
               >
-                <option value="all">All Orders</option>
-                <option value="pending">Pending</option>
-                <option value="processing">Processing</option>
-                <option value="ready_to_ship">
-                  Ready to Ship ({readyToShipCount})
-                </option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="refunded">Refunded</option>
-              </select>
+                <Download size={20} />
+                {isExporting ? "Exporting..." : "Export to Pirate Ship CSV"}
+              </button>
+            </div>
+          )}
+
+          {/* Filters */}
+          <div className="order-filters">
+            <div className="order-filters-grid">
+              <div className="order-filter-item">
+                <label>Filter by Status:</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="all">All Orders</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="ready_to_ship">
+                    Ready to Ship ({readyToShipCount})
+                  </option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="refunded">Refunded</option>
+                </select>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Orders Table */}
-        {filteredOrders.length === 0 ? (
-          <div className="order-empty-state">
-            <Package className="order-empty-state-icon" size={48} />
-            <h3>No Orders Found</h3>
-            <p>There are no orders matching your filters.</p>
-          </div>
-        ) : (
-          <div className="order-table-wrapper">
-            <table className="order-table">
-              <thead>
-                <tr>
-                  <th className="order-th-checkbox">{/* Checkbox column */}</th>
-                  <th>Order Number</th>
-                  <th>Date</th>
-                  <th>Ship By</th>
-                  <th>Status</th>
-                  <th className="order-col-total">Total</th>
-                  <th className="order-col-tracking">Tracking</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.map((order) => (
-                  <React.Fragment key={order.order_id}>
-                    <tr
-                      className={`order-row ${expandedOrderId === order.order_id ? "expanded" : ""}`}
-                      onClick={() => handleRowClick(order.order_id)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <td
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (order.status === "ready_to_ship")
-                            toggleOrderSelection(order.order_id);
-                        }}
-                        className={`order-td-checkbox ${order.status === "ready_to_ship" ? "order-td-checkbox--selectable" : ""}`}
+          {/* Orders Table */}
+          {filteredOrders.length === 0 ? (
+            <div className="order-empty-state">
+              <Package className="order-empty-state-icon" size={48} />
+              <h3>No Orders Found</h3>
+              <p>There are no orders matching your filters.</p>
+            </div>
+          ) : (
+            <div className="order-table-wrapper">
+              <table className="order-table">
+                <thead>
+                  <tr>
+                    <th className="order-th-checkbox">
+                      {/* Checkbox column */}
+                    </th>
+                    <th>Order Number</th>
+                    <th>Date</th>
+                    <th>Ship By</th>
+                    <th>Status</th>
+                    <th className="order-col-total">Total</th>
+                    <th className="order-col-tracking">Tracking</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOrders.map((order) => (
+                    <React.Fragment key={order.order_id}>
+                      <tr
+                        className={`order-row ${expandedOrderId === order.order_id ? "expanded" : ""}`}
+                        onClick={() => handleRowClick(order.order_id)}
+                        style={{ cursor: "pointer" }}
                       >
-                        {order.status === "ready_to_ship" &&
-                          (selectedOrderIds.has(order.order_id) ? (
-                            <CheckSquare size={20} color="#28a745" />
-                          ) : (
-                            <Square size={20} color="#6c757d" />
-                          ))}
-                      </td>
-                      <td className="order-number-cell">
-                        {order.order_number}
-                      </td>
-                      <td>{formatDate(order.created_at)}</td>
-                      <td>
-                        <ShipByDate
-                          orderCreatedAt={order.created_at}
-                          orderStatus={order.status}
-                          shippingService={order.shipping_service}
-                        />
-                      </td>
-
-                      <td className="order-status-cell">
-                        <span
-                          className={`order-status-badge order-status-badge-${getStatusColor(order.status)}`}
+                        <td
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (order.status === "ready_to_ship")
+                              toggleOrderSelection(order.order_id);
+                          }}
+                          className={`order-td-checkbox ${order.status === "ready_to_ship" ? "order-td-checkbox--selectable" : ""}`}
                         >
-                          {order.status.replace(/_/g, " ")}
-                        </span>
-                      </td>
-                      <td className="order-col-total">
-                        ${order.total_price.toFixed(2)}
-                      </td>
-                      <td className="order-col-tracking">
-                        {order.tracking_number ? (
-                          <a
-                            href={`https://tools.usps.com/go/TrackConfirmAction?tLabels=${order.tracking_number}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="order-tracking-link"
-                            onClick={(e) => e.stopPropagation()}
+                          {order.status === "ready_to_ship" &&
+                            (selectedOrderIds.has(order.order_id) ? (
+                              <CheckSquare size={20} color="#28a745" />
+                            ) : (
+                              <Square size={20} color="#6c757d" />
+                            ))}
+                        </td>
+                        <td className="order-number-cell">
+                          {order.order_number}
+                        </td>
+                        <td>{formatDate(order.created_at)}</td>
+                        <td>
+                          <ShipByDate
+                            orderCreatedAt={order.created_at}
+                            orderStatus={order.status}
+                            shippingService={order.shipping_service}
+                          />
+                        </td>
+
+                        <td className="order-status-cell">
+                          <span
+                            className={`order-status-badge order-status-badge-${getStatusColor(order.status)}`}
                           >
-                            {order.tracking_number}
-                          </a>
-                        ) : (
-                          <span className="order-no-tracking">No tracking</span>
-                        )}
-                      </td>
-                    </tr>
-                    {expandedOrderId === order.order_id && (
-                      <ExpandedOrderRow
-                        order={order}
-                        onStatusUpdated={() => {
-                          loadOrders();
-                        }}
-                        onCollapse={() => setExpandedOrderId(null)}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                            {order.status.replace(/_/g, " ")}
+                          </span>
+                        </td>
+                        <td className="order-col-total">
+                          ${order.total_price.toFixed(2)}
+                        </td>
+                        <td className="order-col-tracking">
+                          {order.tracking_number ? (
+                            <a
+                              href={`https://tools.usps.com/go/TrackConfirmAction?tLabels=${order.tracking_number}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="order-tracking-link"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {order.tracking_number}
+                            </a>
+                          ) : (
+                            <span className="order-no-tracking">
+                              No tracking
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                      {expandedOrderId === order.order_id && (
+                        <ExpandedOrderRow
+                          order={order}
+                          onStatusUpdated={() => {
+                            loadOrders();
+                          }}
+                          onCollapse={() => setExpandedOrderId(null)}
+                        />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

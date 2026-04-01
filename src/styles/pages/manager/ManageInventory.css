@@ -1,12 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 /* ============================================================================
    INVENTORY FORMS — ManageInventory page layout only
    Prefix: if- (InventoryForms)
    Theme: #c2410c (accent) / #fff7ed
+   Shared header/container/page shell → ManagerShared.css
 
-   This file handles ONLY the page shell:
-   - Header, container, filter selectors
+   This file handles ONLY the page content:
+   - Filter selectors
    - Left column: product list, add-new card, item listings
    - Right column shell: details-column scroll container
    - Page-level loading, empty state, scrollbars, responsive
@@ -16,13 +15,11 @@
   --inv-accent: #c2410c;
   --inv-accent-dark: #9a3412;
   --inv-accent-light: #fff7ed;
-  --inv-bg: #f0f2f5;
   --inv-card: #ffffff;
   --inv-border: #e4e7ec;
   --inv-text-primary: #111827;
   --inv-text-secondary: #6b7280;
   --inv-text-muted: #9ca3af;
-  --inv-header-bg: #1c1c1e;
   --inv-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
   --inv-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --inv-shadow-hover: 0 8px 16px rgba(194, 65, 12, 0.15);
@@ -31,54 +28,7 @@
 }
 
 /* ============================================================================
-   PAGE WRAPPER
-   ============================================================================ */
-
-.if-page {
-  min-height: 100vh;
-  background-color: var(--inv-bg);
-  font-family: var(--inv-font);
-}
-
-/* ============================================================================
-   HEADER
-   ============================================================================ */
-
-.if-header {
-  background-color: var(--inv-header-bg);
-  padding: 2rem 3rem;
-}
-
-.if-back-button {
-  background: none;
-  border: none;
-  text-decoration: none !important;
-  outline: none;
-  color: var(--inv-text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0 0 0.75rem 0;
-  font-size: 0.8125rem;
-  font-family: var(--inv-font);
-  font-weight: 500;
-  transition: color 0.18s ease;
-  letter-spacing: 0.01em;
-}
-
-.if-back-button:hover { color: #ffffff; }
-
-.if-title {
-  margin: 0 0 0.2rem 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-}
-
-/* ============================================================================
-   CONTAINER
+   1. CONTAINER
    ============================================================================ */
 
 .if-container {
@@ -86,15 +36,11 @@
   margin: 0 auto;
   padding-left: 2rem;
   padding-right: 2rem;
-}
-
-/* Top gap below the header — targets only the content container, not the one inside the header */
-.if-page > .if-container {
   padding-top: 2.5rem;
 }
 
 /* ============================================================================
-   FILTER SELECTORS — warehouse & category dropdowns above the grid
+   2. FILTER SELECTORS — warehouse & category dropdowns above the grid
    ============================================================================ */
 
 .if-page .category-section {
@@ -143,7 +89,7 @@
 }
 
 /* ============================================================================
-   INVENTORY FILTERS — InventoryFilters.tsx
+   3. INVENTORY FILTERS — InventoryFilters.tsx
    ============================================================================ */
 
 .if-page .if-filter-bar {
@@ -240,7 +186,7 @@
 .if-page .if-filter-dropdown-btn:hover { border-color: var(--inv-accent); }
 
 /* ============================================================================
-   TWO-COLUMN LAYOUT
+   4. TWO-COLUMN LAYOUT
    ============================================================================ */
 
 .if-page .dashboard-content {
@@ -252,7 +198,7 @@
 }
 
 /* ============================================================================
-   LEFT COLUMN — products list
+   5. LEFT COLUMN — products list
    ============================================================================ */
 
 .if-page .products-column {
@@ -280,7 +226,7 @@
 }
 
 /* ============================================================================
-   ADD NEW PRODUCT CARD
+   6. ADD NEW PRODUCT CARD
    ============================================================================ */
 
 .if-page .add-new-product-card {
@@ -317,7 +263,7 @@
 }
 
 /* ============================================================================
-   PRODUCT LIST ITEM — ItemListings.tsx
+   7. PRODUCT LIST ITEM — ItemListings.tsx
    ============================================================================ */
 
 .if-page .product-list-item {
@@ -417,7 +363,7 @@
 .if-page .product-list-item.active:has(.variant-badge) { border-left: 3px solid var(--inv-accent-dark); }
 
 /* ============================================================================
-   RIGHT COLUMN SHELL — details-column scroll container only
+   8. RIGHT COLUMN SHELL — details-column scroll container only
    ============================================================================ */
 
 .if-page .details-column {
@@ -428,11 +374,10 @@
   padding: 0;
   position: relative;
   overflow-y: auto;
-  /* max-height: calc(100vh - 200px); */
 }
 
 /* ============================================================================
-   LOADING SPINNER
+   9. LOADING SPINNER
    ============================================================================ */
 
 .if-page .loading-spinner {
@@ -444,7 +389,7 @@
 }
 
 /* ============================================================================
-   SCROLLBARS
+   10. SCROLLBARS
    ============================================================================ */
 
 .if-page .products-column::-webkit-scrollbar,
@@ -460,53 +405,9 @@
 .if-page .details-column::-webkit-scrollbar-thumb:hover { background-color: var(--inv-accent-dark); }
 
 /* ============================================================================
-   RESPONSIVE
+   11. CREATE NEW PRODUCT PAGE — standalone page additions
    ============================================================================ */
 
-@media (max-width: 1200px) {
-  .if-page .dashboard-content { grid-template-columns: 350px 1fr; }
-}
-
-@media (max-width: 1024px) {
-  .if-container { padding-left: 1.5rem; padding-right: 1.5rem; }
-}
-
-@media (max-width: 992px) {
-  .if-header { padding: 1.5rem; }
-  .if-page .dashboard-content { grid-template-columns: 1fr; height: auto; }
-  .if-page .products-column { max-height: 400px; overflow-y: auto; }
-  .if-page .details-column { max-height: none; overflow-y: visible; }
-  .if-page .product-list-item { padding: 0.5rem; }
-  .if-page .product-thumbnail,
-  .if-page .product-thumbnail-placeholder { width: 50px; height: 50px; }
-  .if-page .product-name { font-size: 0.8125rem; }
-  .if-page .product-meta { font-size: 0.75rem; }
-  .if-page .if-filter-panel { grid-template-columns: 1fr 1fr; }
-}
-
-@media (max-width: 768px) {
-  .if-page .add-new-product-card { padding: 1.5rem; }
-  .if-page .if-filter-panel { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 576px) {
-  .if-header { padding: 1.25rem; }
-  .if-container { padding-left: 1rem; padding-right: 1rem; }
-  .if-page .category-section { padding: 0.75rem; }
-}
-/* ============================================================================
-   CREATE NEW PRODUCT PAGE — standalone page additions
-   ============================================================================ */
-
-/* Header subtitle — "Add a new product to your inventory" */
-.if-subtitle {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--inv-text-muted);
-  font-weight: 400;
-}
-
-/* Single-column content wrapper — centres the details-column with max width */
 .if-page .cnp-content {
   padding-bottom: 4rem;
   display: flex;
@@ -519,10 +420,38 @@
   overflow-y: visible;
 }
 
+/* ============================================================================
+   12. RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 1200px) {
+  .if-page .dashboard-content { grid-template-columns: 350px 1fr; }
+}
+
+@media (max-width: 1024px) {
+  .if-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
 @media (max-width: 992px) {
+  .if-page .dashboard-content { grid-template-columns: 1fr; height: auto; }
+  .if-page .products-column { max-height: 400px; overflow-y: auto; }
+  .if-page .details-column { max-height: none; overflow-y: visible; }
+  .if-page .product-list-item { padding: 0.5rem; }
+  .if-page .product-thumbnail,
+  .if-page .product-thumbnail-placeholder { width: 50px; height: 50px; }
+  .if-page .product-name { font-size: 0.8125rem; }
+  .if-page .product-meta { font-size: 0.75rem; }
+  .if-page .if-filter-panel { grid-template-columns: 1fr 1fr; }
   .if-page .cnp-content { padding-top: 1.5rem; }
 }
 
+@media (max-width: 768px) {
+  .if-page .add-new-product-card { padding: 1.5rem; }
+  .if-page .if-filter-panel { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 576px) {
+  .if-container { padding-left: 1rem; padding-right: 1rem; }
+  .if-page .category-section { padding: 0.75rem; }
   .if-page .cnp-content { padding-bottom: 2.5rem; }
 }

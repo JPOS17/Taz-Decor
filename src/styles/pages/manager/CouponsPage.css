@@ -1,8 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 /* ============================================================================
    COUPONS PAGE
-   Theme: #b45309 (accent) / #fffbeb (icon bg) — matches dashboard card
+   Theme: #b45309 (accent) / #fffbeb (icon bg)
+   Shared header/container/page shell → ManagerShared.css
    ============================================================================ */
 
 :root {
@@ -16,7 +15,6 @@
   --cp-text-primary: #111827;
   --cp-text-secondary: #6b7280;
   --cp-text-muted: #9ca3af;
-  --cp-header-bg: #1c1c1e;
   --cp-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
   --cp-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --cp-radius: 12px;
@@ -24,73 +22,15 @@
 }
 
 /* ============================================================================
-   1. LAYOUT & CONTAINERS
+   1. BODY
    ============================================================================ */
 
-.coupon-page-container {
-  padding-top: 2rem;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  padding-bottom: 4rem;
-  font-family: var(--cp-font);
+.coupon-create-action {
+  margin-bottom: 1.5rem;
 }
 
 /* ============================================================================
-   2. HEADER
-   ============================================================================ */
-
-.coupon-dashboard-header {
-  background-color: var(--cp-header-bg) !important;
-  color: white;
-  padding: 2rem 3rem;
-  margin-bottom: 0;
-}
-
-.coupon-dashboard-header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.coupon-back-button {
-  background: none;
-  border: none;
-  color: var(--cp-text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0 0 0.75rem 0;
-  font-size: 0.8125rem;
-  font-family: var(--cp-font);
-  font-weight: 500;
-  transition: color 0.18s ease;
-  letter-spacing: 0.01em;
-}
-
-.coupon-back-button:hover {
-  color: #ffffff;
-}
-
-.dashboard-title {
-  margin: 0 0 0.2rem 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-}
-
-.coupon-dashboard-subtitle {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--cp-text-muted);
-  font-weight: 400;
-}
-
-/* ============================================================================
-   3. BADGES & STATUS INDICATORS
+   2. BADGES & STATUS INDICATORS
    ============================================================================ */
 
 .coupon-badge {
@@ -147,7 +87,7 @@
 }
 
 /* ============================================================================
-   4. TABLES
+   3. TABLES
    ============================================================================ */
 
 .coupon-table-wrapper {
@@ -198,7 +138,6 @@
   background-color: var(--cp-accent-light);
 }
 
-/* Table Cell Specific Styles */
 .coupon-code-cell {
   display: flex;
   align-items: center;
@@ -228,7 +167,7 @@
 }
 
 /* ============================================================================
-   5. ACTION BUTTONS
+   4. ACTION BUTTONS
    ============================================================================ */
 
 .coupon-action-button {
@@ -313,7 +252,7 @@
 }
 
 /* ============================================================================
-   6. BUTTONS (PRIMARY, SECONDARY)
+   5. BUTTONS (PRIMARY, SECONDARY)
    ============================================================================ */
 
 .coupon-btn {
@@ -361,7 +300,7 @@
 }
 
 /* ============================================================================
-   7. MODALS & OVERLAYS
+   6. MODALS & OVERLAYS
    ============================================================================ */
 
 .coupon-modal-overlay {
@@ -403,7 +342,7 @@
 }
 
 /* ============================================================================
-   8. WIZARD/STEPPER COMPONENTS
+   7. WIZARD/STEPPER COMPONENTS
    ============================================================================ */
 
 .coupon-wizard-header {
@@ -511,7 +450,7 @@
 }
 
 /* ============================================================================
-   9. FORMS
+   8. FORMS
    ============================================================================ */
 
 .coupon-form-group {
@@ -551,7 +490,6 @@
   transition: all 0.18s ease;
 }
 
-/* Special styling for select dropdowns */
 .coupon-form-select {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -625,7 +563,6 @@
   line-height: 1.4;
 }
 
-/* Form Validation */
 .coupon-input-error {
   border-color: #dc2626;
   background-color: #fff5f5;
@@ -748,7 +685,7 @@
 }
 
 /* ============================================================================
-   10. FILTERS
+   9. FILTERS
    ============================================================================ */
 
 .coupon-filters-container {
@@ -776,7 +713,7 @@
 }
 
 /* ============================================================================
-   11. CUSTOM GROUP PRODUCTS SELECTOR
+   10. CUSTOM GROUP PRODUCTS SELECTOR
    ============================================================================ */
 
 .coupon-custom-group-products {
@@ -883,7 +820,7 @@
 }
 
 /* ============================================================================
-   12. EMPTY & LOADING STATES
+   11. EMPTY & LOADING STATES
    ============================================================================ */
 
 .coupon-empty-state {
@@ -920,7 +857,7 @@
 }
 
 /* ============================================================================
-   13. ERROR ALERTS
+   12. ERROR ALERTS
    ============================================================================ */
 
 .coupon-error-alert {
@@ -935,7 +872,7 @@
 }
 
 /* ============================================================================
-   14. PREVIEW COMPONENTS
+   13. PREVIEW COMPONENTS
    ============================================================================ */
 
 .coupon-preview-modal {
@@ -1054,7 +991,7 @@
 }
 
 /* ============================================================================
-   15. PREVIEW TABLE
+   14. PREVIEW TABLE
    ============================================================================ */
 
 .coupon-preview-table-container {
@@ -1164,7 +1101,7 @@
 }
 
 /* ============================================================================
-   16. PREVIEW TOTALS
+   15. PREVIEW TOTALS
    ============================================================================ */
 
 .coupon-preview-totals {
@@ -1204,7 +1141,7 @@
 }
 
 /* ============================================================================
-   17. CUSTOM SELECT DROPDOWN COMPONENT
+   16. CUSTOM SELECT DROPDOWN COMPONENT
    ============================================================================ */
 
 .custom-select-container {
@@ -1264,7 +1201,6 @@
   cursor: not-allowed;
 }
 
-/* Dropdown */
 .custom-select-dropdown {
   position: absolute;
   top: calc(100% + 4px);
@@ -1292,7 +1228,6 @@
   }
 }
 
-/* Search */
 .custom-select-search {
   padding: 0.625rem 0.875rem;
   border-bottom: 1px solid var(--cp-border);
@@ -1322,7 +1257,6 @@
   color: var(--cp-text-muted);
 }
 
-/* Options */
 .custom-select-options {
   overflow-y: auto;
   max-height: 260px;
@@ -1362,7 +1296,6 @@
   font-size: 0.875rem;
 }
 
-/* Scrollbar styling for options */
 .custom-select-options::-webkit-scrollbar {
   width: 6px;
 }
@@ -1382,14 +1315,8 @@
 }
 
 /* ============================================================================
-   18. RESPONSIVE DESIGN
+   17. RESPONSIVE DESIGN
    ============================================================================ */
-
-@media (max-width: 1024px) {
-  .coupon-dashboard-header {
-    padding: 1.5rem 2rem;
-  }
-}
 
 @media (max-width: 768px) {
   .coupon-table {
@@ -1453,23 +1380,7 @@
 }
 
 @media (max-width: 640px) {
-  .coupon-dashboard-header {
-    padding: 1.5rem;
-  }
-
-  .coupon-dashboard-header-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .dashboard-title {
-    font-size: 1.4rem;
-  }
-
-  .coupon-page-container {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    padding-bottom: 3rem;
+  .cp-body {
+    padding: 1.75rem 0 3rem;
   }
 }
