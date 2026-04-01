@@ -29,6 +29,8 @@ import { formatName } from "../../../utils/nameFormatter";
 import "../../../styles/pages/manager/ManagerShared.css";
 import "../../../styles/pages/manager/ManageCategories.css";
 
+import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+
 interface Message {
   text: string;
   type: "success" | "error" | "warning";
@@ -430,14 +432,7 @@ const ManageCategories = () => {
 
             {/* Loading */}
             {loading && categories.length === 0 ? (
-              <div className="mc-loading">
-                <div
-                  className="spinner-border text-primary mc-spinner"
-                  role="status"
-                >
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              </div>
+              <LoadingSpinner message="Loading categories..." />
             ) : (
               <div className="mc-list">
                 {categories.map((category) => (

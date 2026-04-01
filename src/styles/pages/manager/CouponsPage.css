@@ -844,12 +844,6 @@
   font-size: 0.9rem;
 }
 
-.coupon-loading-container {
-  text-align: center;
-  padding: 3rem;
-  color: var(--cp-text-secondary);
-}
-
 .coupon-loading-text {
   color: var(--cp-text-secondary);
   margin: 0;
@@ -956,13 +950,6 @@
 .coupon-discount-shipping {
   font-weight: 600;
   color: #166534;
-}
-
-.coupon-preview-loading {
-  text-align: center;
-  padding: 3rem;
-  color: var(--cp-text-secondary);
-  font-size: 0.9rem;
 }
 
 .coupon-preview-empty {

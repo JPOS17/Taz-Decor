@@ -36,7 +36,9 @@ import {
 } from "../../api/checkout";
 
 import { ToastNotification } from "../../components/managerInterface/universal/ToastNotifications";
+
 import AddressValidationModal from "../../components/universalComponents/AddressValidationModal";
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 
 import "../../styles/pages/manager/ManagerShared.css";
 import "../../styles/pages/manager/Settings.css";
@@ -482,7 +484,7 @@ const Settings = () => {
     return (
       <>
         {loadingLocations ? (
-          <div className="settings-loading">Loading locations...</div>
+          <LoadingSpinner message="Loading locations..." />
         ) : locations.length === 0 ? (
           <div className="settings-empty">No locations found.</div>
         ) : (
@@ -644,7 +646,7 @@ const Settings = () => {
             Please select a location to view shipping boxes.
           </div>
         ) : loadingBoxes ? (
-          <div className="settings-loading">Loading shipping boxes...</div>
+          <LoadingSpinner message="Loading shipping boxes..." />
         ) : shippingBoxes.length === 0 ? (
           <div className="settings-empty">
             No shipping boxes found for this location. Add a box or envelope to

@@ -310,30 +310,7 @@
 }
 
 /* ============================================================================
-   6. LOADING STATE
-   ============================================================================ */
-
-.mpt-loading {
-  text-align: center;
-  padding: 2rem;
-  color: var(--inv-text-secondary);
-}
-
-.mpt-spinner {
-  width: 3rem;
-  height: 3rem;
-  border: 0.25em solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: mpt-spin 0.75s linear infinite;
-}
-
-@keyframes mpt-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ============================================================================
-   7. EMPTY STATE
+   6. EMPTY STATE
    ============================================================================ */
 
 .mpt-empty {
@@ -351,7 +328,7 @@
 }
 
 /* ============================================================================
-   8. RESPONSIVE
+   7. RESPONSIVE
    ============================================================================ */
 
 @media (max-width: 992px) {

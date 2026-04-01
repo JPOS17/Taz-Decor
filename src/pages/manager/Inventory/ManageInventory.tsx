@@ -54,6 +54,8 @@ import { sanitizeFolderName } from "../../../utils/folderNameFormatter";
 import "../../../styles/pages/manager/ManagerShared.css";
 import "../../../styles/pages/manager/ManageInventory.css";
 
+import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+
 interface Message {
   text: string;
   type: "success" | "error" | "warning";
@@ -933,7 +935,6 @@ const ManageProducts = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="if-container">
         {/* Warehouse Location Selector */}
         <div className="category-section">
@@ -989,17 +990,13 @@ const ManageProducts = () => {
         />
 
         {/* Main Content */}
-        <div className="dashboard-content">
-          {/* Left Column - Product List */}
-          <div className="products-column">
-            <h2>Products</h2>
-            {loading && !variantDetails && viewMode === "edit" ? (
-              <div className="loading-spinner">
-                <div className="spinner-border text-primary" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              </div>
-            ) : (
+        {loading && !variantDetails && viewMode === "edit" ? (
+          <LoadingSpinner message="Loading products..." />
+        ) : (
+          <div className="dashboard-content">
+            {/* Left Column - Product List */}
+            <div className="products-column">
+              <h2>Products</h2>
               <div className="products-list">
                 {/* Create New Product Card */}
                 <div
@@ -1022,37 +1019,12 @@ const ManageProducts = () => {
                   />
                 ))}
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Right Column - Forms */}
-          <div className="details-column" ref={detailsColumnRef}>
-            {/* Create Product View */}
-            {viewMode === "create-product" && (
-              <>
-                <HeaderFormatter
-                  viewMode={viewMode}
-                  loading={loading}
-                  onCancel={handleCancelCreate}
-                  onSubmitForm={handleSubmitForm}
-                />
-                <CreateNewProductForm
-                  categoryId={selectedCategory === null ? 0 : selectedCategory}
-                  categories={categories}
-                  productTypes={productTypes}
-                  onSubmit={handleCreateProduct}
-                  onDirtyChange={setIsCreateFormDirty}
-                  loading={loading}
-                  onFormValidChange={setIsFormValid}
-                  onRequestSubmit={handleRequestCreateProduct}
-                />
-              </>
-            )}
-
-            {/* Create Variant View */}
-            {viewMode === "create-variant" &&
-              parentVariantForNewVariant &&
-              variantDetails && (
+            {/* Right Column - Forms */}
+            <div className="details-column" ref={detailsColumnRef}>
+              {/* Create Product View */}
+              {viewMode === "create-product" && (
                 <>
                   <HeaderFormatter
                     viewMode={viewMode}
@@ -1060,80 +1032,107 @@ const ManageProducts = () => {
                     onCancel={handleCancelCreate}
                     onSubmitForm={handleSubmitForm}
                   />
-                  <CreateNewVariantForm
-                    productId={variantDetails.product_id}
-                    productName={variantDetails.name}
-                    categoryId={variantDetails.category_id}
-                    description={variantDetails.description}
+                  <CreateNewProductForm
+                    categoryId={
+                      selectedCategory === null ? 0 : selectedCategory
+                    }
                     categories={categories}
-                    parentPrice={variantDetails.price}
-                    parentWeightOz={variantDetails.weight_oz}
-                    parentLengthIn={variantDetails.length_in}
-                    parentWidthIn={variantDetails.width_in}
-                    parentHeightIn={variantDetails.height_in}
-                    onSubmit={handleCreateVariant}
+                    productTypes={productTypes}
+                    onSubmit={handleCreateProduct}
                     onDirtyChange={setIsCreateFormDirty}
                     loading={loading}
                     onFormValidChange={setIsFormValid}
-                    onRequestSubmit={handleRequestCreateVariant}
+                    onRequestSubmit={handleRequestCreateProduct}
                   />
                 </>
               )}
 
-            {/* Edit View */}
-            {viewMode === "edit" && variantDetails && (
-              <>
-                <HeaderFormatter
-                  viewMode={viewMode}
-                  loading={loading}
-                  isActive={variantDetails.is_active}
-                  hasUnsavedChanges={hasUnsavedChanges()}
-                  isFormValid={isFormValid}
-                  onNewVariant={handleNewVariant}
-                  onToggleStatus={handleToggleStatus}
-                  onSave={handleSaveVariant}
-                  onDelete={handleDeleteVariant}
-                />
-
-                {availableVariants.length > 1 && (
-                  <VariantSelector
-                    variants={availableVariants}
-                    currentVariantId={variantDetails.variant_id}
-                    onVariantChange={handleVariantSwitch}
-                    disabled={loading || hasUnsavedChanges()}
-                  />
+              {/* Create Variant View */}
+              {viewMode === "create-variant" &&
+                parentVariantForNewVariant &&
+                variantDetails && (
+                  <>
+                    <HeaderFormatter
+                      viewMode={viewMode}
+                      loading={loading}
+                      onCancel={handleCancelCreate}
+                      onSubmitForm={handleSubmitForm}
+                    />
+                    <CreateNewVariantForm
+                      productId={variantDetails.product_id}
+                      productName={variantDetails.name}
+                      categoryId={variantDetails.category_id}
+                      description={variantDetails.description}
+                      categories={categories}
+                      parentPrice={variantDetails.price}
+                      parentWeightOz={variantDetails.weight_oz}
+                      parentLengthIn={variantDetails.length_in}
+                      parentWidthIn={variantDetails.width_in}
+                      parentHeightIn={variantDetails.height_in}
+                      onSubmit={handleCreateVariant}
+                      onDirtyChange={setIsCreateFormDirty}
+                      loading={loading}
+                      onFormValidChange={setIsFormValid}
+                      onRequestSubmit={handleRequestCreateVariant}
+                    />
+                  </>
                 )}
 
-                <ImageManager
-                  images={variantDetails.images}
-                  onReorder={handleImageReorder}
-                  onSetPrimary={handleSetPrimaryImage}
-                  onDelete={handleDeleteImageLocal}
-                  onUpload={openCloudinaryWidget}
-                />
+              {/* Edit View */}
+              {viewMode === "edit" && variantDetails && (
+                <>
+                  <HeaderFormatter
+                    viewMode={viewMode}
+                    loading={loading}
+                    isActive={variantDetails.is_active}
+                    hasUnsavedChanges={hasUnsavedChanges()}
+                    isFormValid={isFormValid}
+                    onNewVariant={handleNewVariant}
+                    onToggleStatus={handleToggleStatus}
+                    onSave={handleSaveVariant}
+                    onDelete={handleDeleteVariant}
+                  />
 
-                <ProductOverlayForm
-                  variant={variantDetails}
-                  categories={categories}
-                  productCategories={productCategories}
-                  onChange={handleInputChange}
-                  onValidationChange={setIsFormValid}
-                  onAddCategory={handleAddCategory}
-                  onRemoveCategory={handleRemoveCategory}
-                  onSetPrimaryCategory={handleSetPrimaryCategory}
-                />
-              </>
-            )}
+                  {availableVariants.length > 1 && (
+                    <VariantSelector
+                      variants={availableVariants}
+                      currentVariantId={variantDetails.variant_id}
+                      onVariantChange={handleVariantSwitch}
+                      disabled={loading || hasUnsavedChanges()}
+                    />
+                  )}
 
-            {/* Empty State */}
-            {viewMode === "edit" && !variantDetails && (
-              <div className="empty-state">
-                <Package className="empty-state-icon" size={80} />
-                <p className="empty-state-text">Select a product to edit</p>
-              </div>
-            )}
+                  <ImageManager
+                    images={variantDetails.images}
+                    onReorder={handleImageReorder}
+                    onSetPrimary={handleSetPrimaryImage}
+                    onDelete={handleDeleteImageLocal}
+                    onUpload={openCloudinaryWidget}
+                  />
+
+                  <ProductOverlayForm
+                    variant={variantDetails}
+                    categories={categories}
+                    productCategories={productCategories}
+                    onChange={handleInputChange}
+                    onValidationChange={setIsFormValid}
+                    onAddCategory={handleAddCategory}
+                    onRemoveCategory={handleRemoveCategory}
+                    onSetPrimaryCategory={handleSetPrimaryCategory}
+                  />
+                </>
+              )}
+
+              {/* Empty State */}
+              {viewMode === "edit" && !variantDetails && (
+                <div className="empty-state">
+                  <Package className="empty-state-icon" size={80} />
+                  <p className="empty-state-text">Select a product to edit</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Toast Notifications */}

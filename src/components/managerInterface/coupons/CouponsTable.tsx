@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import type { Coupon } from "../../../api/couponManagement";
 
+import LoadingSpinner from "../../universalComponents/LoadingSpinner";
+
 interface CouponsTableProps {
   coupons: Coupon[];
   loading: boolean;
@@ -98,7 +100,7 @@ export const CouponsTable = ({
   };
 
   if (loading) {
-    return <div className="coupon-loading-container">Loading coupons...</div>;
+    return <LoadingSpinner message="Loading coupons..." />;
   }
 
   if (coupons.length === 0) {

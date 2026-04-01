@@ -5,6 +5,8 @@ import {
   fetchDraftCouponPreview,
 } from "../../../api/couponManagement";
 
+import LoadingSpinner from "../../universalComponents/LoadingSpinner";
+
 interface CouponPreviewProps {
   coupon: Coupon | null;
   couponId?: number;
@@ -188,9 +190,7 @@ export const CouponPreview = ({
       </div>
 
       {loading ? (
-        <div className="coupon-preview-loading">
-          Loading affected products...
-        </div>
+        <LoadingSpinner message="Loading affected products..." />
       ) : previewProducts.length === 0 ? (
         <div className="coupon-preview-empty">
           <p>

@@ -32,6 +32,7 @@ import ShipByDate from "../../components/managerInterface/orders/ShipByDate";
 
 import "../../styles/pages/manager/ManagerShared.css";
 import "../../styles/pages/manager/OrderStatus.css";
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 
 type Order = APIOrder;
 type OrderDetails = APIOrderDetails;
@@ -819,34 +820,6 @@ const OrderStatusPage = () => {
   // RENDER
   // ============================================================================
 
-  if (loading) {
-    return (
-      <div className="manager-dashboard">
-        <div className="dashboard-header">
-          <div className="container">
-            <button
-              onClick={() => navigate("/manager")}
-              className="dashboard-back-button"
-            >
-              <ArrowLeft size={16} />
-              Back to Dashboard
-            </button>
-            <h1 className="dashboard-title">Order Management</h1>
-            <p className="dashboard-subtitle">View and update order statuses</p>
-          </div>
-        </div>
-        <div className="container">
-          <div className="body">
-            <div className="order-loading-state">
-              <div className="order-spinner"></div>
-              <p>Loading orders...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="manager-dashboard">
       {/* Header */}
@@ -879,6 +852,30 @@ const OrderStatusPage = () => {
               </button>
             </div>
           )}
+
+          {/* Filters */}
+          <div className="order-filters">
+            <div className="order-filters-grid">
+              <div className="order-filter-item">
+                <label>Filter by Status:</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="all">All Orders</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="ready_to_ship">
+                    Ready to Ship ({readyToShipCount})
+                  </option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="refunded">Refunded</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
           {/* Export Actions Bar */}
           {readyToShipCount > 0 && (
@@ -913,32 +910,10 @@ const OrderStatusPage = () => {
             </div>
           )}
 
-          {/* Filters */}
-          <div className="order-filters">
-            <div className="order-filters-grid">
-              <div className="order-filter-item">
-                <label>Filter by Status:</label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="all">All Orders</option>
-                  <option value="pending">Pending</option>
-                  <option value="processing">Processing</option>
-                  <option value="ready_to_ship">
-                    Ready to Ship ({readyToShipCount})
-                  </option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="refunded">Refunded</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
           {/* Orders Table */}
-          {filteredOrders.length === 0 ? (
+          {loading ? (
+            <LoadingSpinner message="Loading orders..." />
+          ) : filteredOrders.length === 0 ? (
             <div className="order-empty-state">
               <Package className="order-empty-state-icon" size={48} />
               <h3>No Orders Found</h3>

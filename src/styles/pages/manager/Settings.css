@@ -522,15 +522,8 @@
 }
 
 /* ============================================================================
-   9. LOADING & EMPTY STATES
+   9. EMPTY STATES
    ============================================================================ */
-
-.settings-loading {
-  text-align: center;
-  padding: 3rem;
-  color: var(--st-text-muted);
-  font-size: 0.9375rem;
-}
 
 .settings-empty {
   text-align: center;
