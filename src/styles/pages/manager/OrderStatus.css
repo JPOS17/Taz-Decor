@@ -429,7 +429,7 @@
 
 .order-detail-item {
   font-size: 0.8375rem;
-  color: var(--os-text-secondary);
+  color: var(--os-text-primary);
   line-height: 1.5;
 }
 
@@ -477,7 +477,7 @@
 
 .address-details {
   font-size: 0.875rem;
-  color: var(--os-text-secondary);
+  color: var(--os-text-primary);
   line-height: 1.7;
 }
 

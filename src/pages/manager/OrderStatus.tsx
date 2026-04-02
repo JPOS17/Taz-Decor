@@ -385,7 +385,7 @@ const ExpandedOrderRow = ({
                     <strong>Tax</strong>$
                     {order.tax_amount?.toFixed(2) || "0.00"}
                   </div>
-                  <div className="order-detail-item order-detail-item--total">
+                  <div className="order-detail-item">
                     <strong>Total</strong>
                     <span>${order.total_price.toFixed(2)}</span>
                   </div>

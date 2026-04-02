@@ -128,7 +128,7 @@ const ShipByDate = ({
     overdue: {
       icon: <AlertTriangle size={16} />,
       modifier: "overdue",
-      subtext: "This order is overdue — ship as soon as possible",
+      subtext: "Overdue! Ship as soon as possible",
     },
   };
 

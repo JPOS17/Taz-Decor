@@ -13,6 +13,17 @@
   margin-top: 0.5rem;
 }
 
+@media (max-width: 515px) {
+  .ship-by-date {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ship-by-date__icon {
+    margin-top: 0;
+  }
+}
+
 /* ── Icon ────────────────────────────────────────────────────────────────── */
 
 .ship-by-date__icon {
