@@ -391,6 +391,15 @@
     text-align: right;
   }
 
+  .mpt-sku-cell {
+    width: auto;
+    text-align: right;
+  }
+
+  .mpt-sku-badge {
+    display: inline-flex;
+  }
+
   .mpt-table td::before {
     content: attr(data-label);
     position: absolute;
