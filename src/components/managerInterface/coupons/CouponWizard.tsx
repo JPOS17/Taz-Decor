@@ -128,6 +128,8 @@ export const CouponWizard = ({
       <div className="coupon-modal-content coupon-modal-wizard">
         <div className="coupon-wizard-header">
           <h2>{editingCoupon ? "Edit Coupon" : "Create New Coupon"}</h2>
+
+          {/* Progress Bar */}
           <div className="coupon-wizard-progress">
             <div className="coupon-progress-steps">
               {[1, 2, 3, 4, 5].map((step) => (
@@ -155,6 +157,7 @@ export const CouponWizard = ({
           </div>
         </div>
 
+        {/* Main Content */}
         <div className="coupon-wizard-body">
           {/* Step 1: Basic Info */}
           {modalStep === 1 && (
@@ -269,6 +272,7 @@ export const CouponWizard = ({
           {/* Step 2: Apply To */}
           {modalStep === 2 && (
             <div className="coupon-wizard-step">
+              {/* Coupon Select */}
               <div className="coupon-form-group">
                 <label className="coupon-form-label">
                   This coupon applies to *
@@ -327,6 +331,7 @@ export const CouponWizard = ({
                 )}
               </div>
 
+              {/* If Category Selected */}
               {formData.applies_to_type === "category" && (
                 <div className="coupon-form-group">
                   <label className="coupon-form-label">Select Category *</label>
@@ -364,6 +369,7 @@ export const CouponWizard = ({
                   )}
                 </div>
               )}
+              {/* If Product Type Selected */}
 
               {formData.applies_to_type === "product_type" && (
                 <div className="coupon-form-group">
@@ -404,6 +410,7 @@ export const CouponWizard = ({
                   )}
                 </div>
               )}
+              {/* If Product Selected */}
 
               {formData.applies_to_type === "product" && (
                 <div className="coupon-form-group">
@@ -442,6 +449,7 @@ export const CouponWizard = ({
                   )}
                 </div>
               )}
+              {/* If Variant Selected */}
 
               {formData.applies_to_type === "variant" && (
                 <>
@@ -518,6 +526,7 @@ export const CouponWizard = ({
                   )}
                 </>
               )}
+              {/* If Custom Group Selected */}
 
               {formData.applies_to_type === "custom_group" && (
                 <div className="coupon-form-group">
@@ -703,6 +712,7 @@ export const CouponWizard = ({
           {/* Step 3: Discount Details */}
           {modalStep === 3 && (
             <div className="coupon-wizard-step">
+              {/* Discount Type */}
               <div className="coupon-form-group">
                 <label className="coupon-form-label">Discount Type *</label>
                 <CustomSelect
@@ -748,13 +758,11 @@ export const CouponWizard = ({
                     validationErrors.discount_type ? "coupon-input-error" : ""
                   }
                 />
-
                 {validationErrors.discount_type && (
                   <span className="coupon-error-message">
                     {validationErrors.discount_type}
                   </span>
                 )}
-
                 {formData.applies_to_type !== "all" && (
                   <small className="coupon-form-hint">
                     Fixed amount and free shipping discounts are only available
@@ -763,140 +771,134 @@ export const CouponWizard = ({
                 )}
               </div>
 
+              {/* ── No type selected ── */}
               {!formData.discount_type ? (
-                <div className="coupon-form-group">
-                  <div
-                    className="coupon-info-message"
+                <div
+                  className="coupon-info-message"
+                  style={{
+                    backgroundColor: "#fff3cd",
+                    border: "1px solid #ffc107",
+                    borderRadius: "4px",
+                    padding: "16px",
+                    marginTop: "12px",
+                  }}
+                >
+                  <strong
                     style={{
-                      backgroundColor: "#fff3cd",
-                      border: "1px solid #ffc107",
-                      borderRadius: "4px",
-                      padding: "16px",
-                      marginTop: "12px",
+                      display: "block",
+                      color: "#856404",
+                      marginBottom: "8px",
+                      fontSize: "16px",
                     }}
                   >
-                    <strong
-                      style={{
-                        display: "block",
-                        color: "#856404",
-                        marginBottom: "8px",
-                        fontSize: "16px",
-                      }}
-                    >
-                      Please Select a Discount Type
-                    </strong>
-                    <p
-                      style={{
-                        margin: "8px 0",
-                        color: "#856404",
-                        lineHeight: "1.5",
-                      }}
-                    >
-                      Choose one of the discount types above to continue
-                      creating your coupon.
-                    </p>
-                  </div>
+                    Please Select a Discount Type
+                  </strong>
+                  <p
+                    style={{
+                      margin: "8px 0",
+                      color: "#856404",
+                      lineHeight: "1.5",
+                    }}
+                  >
+                    Choose one of the discount types above to continue creating
+                    your coupon.
+                  </p>
                 </div>
-              ) : formData.discount_type === "bogo" ? (
+              ) : /* ── BOGO ── */
+              formData.discount_type === "bogo" ? (
                 <>
-                  <div className="coupon-form-grid-3">
-                    <div className="coupon-form-group">
-                      <label className="coupon-form-label">
-                        Buy Quantity *
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.bogo_buy_quantity ?? ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setFormData({
-                            ...formData,
-                            bogo_buy_quantity:
-                              value === "" ? undefined : parseInt(value),
+                  <div className="coupon-form-group">
+                    <label className="coupon-form-label">Buy Quantity *</label>
+                    <input
+                      type="number"
+                      value={formData.bogo_buy_quantity ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData({
+                          ...formData,
+                          bogo_buy_quantity:
+                            value === "" ? undefined : parseInt(value),
+                        });
+                        if (validationErrors.bogo_buy_quantity) {
+                          setValidationErrors({
+                            ...validationErrors,
+                            bogo_buy_quantity: undefined,
                           });
-                          if (validationErrors.bogo_buy_quantity) {
-                            setValidationErrors({
-                              ...validationErrors,
-                              bogo_buy_quantity: undefined,
-                            });
-                          }
-                        }}
-                        min="1"
-                        placeholder="1"
-                        className={`coupon-form-input ${validationErrors.bogo_buy_quantity ? "coupon-input-error" : ""}`}
-                      />
-                      {validationErrors.bogo_buy_quantity && (
-                        <span className="coupon-error-message">
-                          {validationErrors.bogo_buy_quantity}
-                        </span>
-                      )}
-                    </div>
+                        }
+                      }}
+                      min="1"
+                      placeholder="1"
+                      className={`coupon-form-input ${validationErrors.bogo_buy_quantity ? "coupon-input-error" : ""}`}
+                    />
+                    {validationErrors.bogo_buy_quantity && (
+                      <span className="coupon-error-message">
+                        {validationErrors.bogo_buy_quantity}
+                      </span>
+                    )}
+                  </div>
 
-                    <div className="coupon-form-group">
-                      <label className="coupon-form-label">
-                        Get Quantity *
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.bogo_get_quantity ?? ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setFormData({
-                            ...formData,
-                            bogo_get_quantity:
-                              value === "" ? undefined : parseInt(value),
+                  <div className="coupon-form-group">
+                    <label className="coupon-form-label">Get Quantity *</label>
+                    <input
+                      type="number"
+                      value={formData.bogo_get_quantity ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData({
+                          ...formData,
+                          bogo_get_quantity:
+                            value === "" ? undefined : parseInt(value),
+                        });
+                        if (validationErrors.bogo_get_quantity) {
+                          setValidationErrors({
+                            ...validationErrors,
+                            bogo_get_quantity: undefined,
                           });
-                          if (validationErrors.bogo_get_quantity) {
-                            setValidationErrors({
-                              ...validationErrors,
-                              bogo_get_quantity: undefined,
-                            });
-                          }
-                        }}
-                        min="1"
-                        placeholder="1"
-                        className={`coupon-form-input ${validationErrors.bogo_get_quantity ? "coupon-input-error" : ""}`}
-                      />
-                      {validationErrors.bogo_get_quantity && (
-                        <span className="coupon-error-message">
-                          {validationErrors.bogo_get_quantity}
-                        </span>
-                      )}
-                    </div>
+                        }
+                      }}
+                      min="1"
+                      placeholder="1"
+                      className={`coupon-form-input ${validationErrors.bogo_get_quantity ? "coupon-input-error" : ""}`}
+                    />
+                    {validationErrors.bogo_get_quantity && (
+                      <span className="coupon-error-message">
+                        {validationErrors.bogo_get_quantity}
+                      </span>
+                    )}
+                  </div>
 
-                    <div className="coupon-form-group">
-                      <label className="coupon-form-label">Discount % *</label>
-                      <input
-                        type="number"
-                        value={formData.bogo_discount_percentage ?? ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setFormData({
-                            ...formData,
-                            bogo_discount_percentage:
-                              value === "" ? undefined : parseInt(value),
+                  <div className="coupon-form-group">
+                    <label className="coupon-form-label">Discount % *</label>
+                    <input
+                      type="number"
+                      value={formData.bogo_discount_percentage ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData({
+                          ...formData,
+                          bogo_discount_percentage:
+                            value === "" ? undefined : parseInt(value),
+                        });
+                        if (validationErrors.bogo_discount_percentage) {
+                          setValidationErrors({
+                            ...validationErrors,
+                            bogo_discount_percentage: undefined,
                           });
-                          if (validationErrors.bogo_discount_percentage) {
-                            setValidationErrors({
-                              ...validationErrors,
-                              bogo_discount_percentage: undefined,
-                            });
-                          }
-                        }}
-                        min="1"
-                        max="100"
-                        placeholder="50"
-                        className={`coupon-form-input ${validationErrors.bogo_discount_percentage ? "coupon-input-error" : ""}`}
-                      />
-                      {validationErrors.bogo_discount_percentage && (
-                        <span className="coupon-error-message">
-                          {validationErrors.bogo_discount_percentage}
-                        </span>
-                      )}
-                      <small className="coupon-form-hint">
-                        1-100% (100 = Free)
-                      </small>
-                    </div>
+                        }
+                      }}
+                      min="1"
+                      max="100"
+                      placeholder="50"
+                      className={`coupon-form-input ${validationErrors.bogo_discount_percentage ? "coupon-input-error" : ""}`}
+                    />
+                    {validationErrors.bogo_discount_percentage && (
+                      <span className="coupon-error-message">
+                        {validationErrors.bogo_discount_percentage}
+                      </span>
+                    )}
+                    <small className="coupon-form-hint">
+                      1–100% (100 = Free)
+                    </small>
                   </div>
 
                   <div className="coupon-bogo-preview">
@@ -908,41 +910,40 @@ export const CouponWizard = ({
                       : `${formData.bogo_discount_percentage || 50}% Off`}
                   </div>
                 </>
-              ) : formData.discount_type === "free_shipping_only" ? (
+              ) : /* ── Free Shipping Only ── */
+              formData.discount_type === "free_shipping_only" ? (
                 <>
-                  <div className="coupon-form-group">
-                    <div
-                      className="coupon-info-message"
+                  <div
+                    className="coupon-info-message"
+                    style={{
+                      backgroundColor: "#e3f2fd",
+                      border: "1px solid #2196f3",
+                      borderRadius: "4px",
+                      padding: "16px",
+                      marginTop: "12px",
+                    }}
+                  >
+                    <strong
                       style={{
-                        backgroundColor: "#e3f2fd",
-                        border: "1px solid #2196f3",
-                        borderRadius: "4px",
-                        padding: "16px",
-                        marginTop: "12px",
+                        display: "block",
+                        color: "#1976d2",
+                        marginBottom: "8px",
+                        fontSize: "16px",
                       }}
                     >
-                      <strong
-                        style={{
-                          display: "block",
-                          color: "#1976d2",
-                          marginBottom: "8px",
-                          fontSize: "16px",
-                        }}
-                      >
-                        Free Shipping Only
-                      </strong>
-                      <p
-                        style={{
-                          margin: "8px 0",
-                          color: "#424242",
-                          lineHeight: "1.5",
-                        }}
-                      >
-                        This coupon will provide free shipping without any
-                        additional discount. You must set a minimum purchase
-                        amount below.
-                      </p>
-                    </div>
+                      Free Shipping Only
+                    </strong>
+                    <p
+                      style={{
+                        margin: "8px 0",
+                        color: "#424242",
+                        lineHeight: "1.5",
+                      }}
+                    >
+                      This coupon will provide free shipping without any
+                      additional discount. You must set a minimum purchase
+                      amount below.
+                    </p>
                   </div>
 
                   <div className="coupon-form-group">
@@ -986,7 +987,9 @@ export const CouponWizard = ({
                   </div>
                 </>
               ) : (
+                /* ── Percentage / Fixed ── */
                 <>
+                  {/* Discount Value */}
                   <div className="coupon-form-group">
                     <label className="coupon-form-label">
                       Discount Value *
@@ -1036,80 +1039,78 @@ export const CouponWizard = ({
                       </span>
                     )}
                   </div>
-
-                  <div className="coupon-form-grid-2">
-                    <div className="coupon-form-group">
-                      <label className="coupon-form-label">
-                        Minimum Purchase Amount
-                        {formData.discount_type === "fixed" && " *"}
-                      </label>
-                      <div className="coupon-input-with-prefix">
-                        <span className="coupon-input-prefix">$</span>
-                        <input
-                          type="number"
-                          value={formData.min_purchase_amount ?? ""}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setFormData({
-                              ...formData,
-                              min_purchase_amount:
-                                value === "" ? undefined : parseFloat(value),
+                  {/* Min Purchase */}
+                  <div className="coupon-form-group">
+                    <label className="coupon-form-label">
+                      Minimum Purchase Amount
+                      {formData.discount_type === "fixed" && " *"}
+                    </label>
+                    <div className="coupon-input-with-prefix">
+                      <span className="coupon-input-prefix">$</span>
+                      <input
+                        type="number"
+                        value={formData.min_purchase_amount ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFormData({
+                            ...formData,
+                            min_purchase_amount:
+                              value === "" ? undefined : parseFloat(value),
+                          });
+                          if (validationErrors.min_purchase_amount) {
+                            setValidationErrors({
+                              ...validationErrors,
+                              min_purchase_amount: undefined,
                             });
-                            if (validationErrors.min_purchase_amount) {
-                              setValidationErrors({
-                                ...validationErrors,
-                                min_purchase_amount: undefined,
-                              });
-                            }
-                          }}
-                          placeholder="0.00"
-                          step="0.01"
-                          min="0"
-                          className={`coupon-form-input ${validationErrors.min_purchase_amount ? "coupon-input-error" : ""}`}
-                        />
-                      </div>
-                      {validationErrors.min_purchase_amount && (
-                        <span className="coupon-error-message">
-                          {validationErrors.min_purchase_amount}
-                        </span>
+                          }
+                        }}
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0"
+                        className={`coupon-form-input ${validationErrors.min_purchase_amount ? "coupon-input-error" : ""}`}
+                      />
+                    </div>
+                    {validationErrors.min_purchase_amount && (
+                      <span className="coupon-error-message">
+                        {validationErrors.min_purchase_amount}
+                      </span>
+                    )}
+                    {formData.discount_type === "fixed" &&
+                      formData.discount_value && (
+                        <small className="coupon-form-hint">
+                          Required: Minimum $
+                          {(formData.discount_value * 5).toFixed(2)} (5×
+                          discount amount)
+                        </small>
                       )}
-                      {formData.discount_type === "fixed" &&
-                        formData.discount_value && (
-                          <small className="coupon-form-hint">
-                            Required: Minimum $
-                            {(formData.discount_value * 5).toFixed(2)} (5x
-                            discount amount)
-                          </small>
-                        )}
+                  </div>
+                  {/* Max Purchase */}
+                  <div className="coupon-form-group">
+                    <label className="coupon-form-label">
+                      Maximum Discount Amount
+                    </label>
+                    <div className="coupon-input-with-prefix">
+                      <span className="coupon-input-prefix">$</span>
+                      <input
+                        type="number"
+                        value={formData.max_discount_amount ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFormData({
+                            ...formData,
+                            max_discount_amount:
+                              value === "" ? undefined : parseFloat(value),
+                          });
+                        }}
+                        placeholder="No limit"
+                        step="0.01"
+                        min="0"
+                        className="coupon-form-input"
+                      />
                     </div>
-
-                    <div className="coupon-form-group">
-                      <label className="coupon-form-label">
-                        Maximum Discount Amount
-                      </label>
-                      <div className="coupon-input-with-prefix">
-                        <span className="coupon-input-prefix">$</span>
-                        <input
-                          type="number"
-                          value={formData.max_discount_amount ?? ""}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setFormData({
-                              ...formData,
-                              max_discount_amount:
-                                value === "" ? undefined : parseFloat(value),
-                            });
-                          }}
-                          placeholder="No limit"
-                          step="0.01"
-                          min="0"
-                          className="coupon-form-input"
-                        />
-                      </div>
-                      <small className="coupon-form-hint">
-                        Cap total discount (useful for % off)
-                      </small>
-                    </div>
+                    <small className="coupon-form-hint">
+                      Cap total discount (useful for % off)
+                    </small>
                   </div>
                 </>
               )}
@@ -1119,52 +1120,52 @@ export const CouponWizard = ({
           {/* Step 4: Limits & Dates */}
           {modalStep === 4 && (
             <div className="coupon-wizard-step">
-              <div className="coupon-form-grid-2">
-                <div className="coupon-form-group">
-                  <label className="coupon-form-label">Total Usage Limit</label>
-                  <input
-                    type="number"
-                    value={formData.usage_limit_total ?? ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setFormData({
-                        ...formData,
-                        usage_limit_total:
-                          value === "" ? undefined : parseInt(value),
-                      });
-                    }}
-                    placeholder="Unlimited"
-                    min="1"
-                    className="coupon-form-input"
-                  />
-                  <small className="coupon-form-hint">
-                    Max times this coupon can be used total
-                  </small>
-                </div>
-
-                <div className="coupon-form-group">
-                  <label className="coupon-form-label">Per User Limit</label>
-                  <input
-                    type="number"
-                    value={formData.usage_limit_per_user ?? ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setFormData({
-                        ...formData,
-                        usage_limit_per_user:
-                          value === "" ? undefined : parseInt(value),
-                      });
-                    }}
-                    placeholder="Unlimited"
-                    min="1"
-                    className="coupon-form-input"
-                  />
-                  <small className="coupon-form-hint">
-                    Max times per customer
-                  </small>
-                </div>
+              {/* Total Usage Limit */}
+              <div className="coupon-form-group">
+                <label className="coupon-form-label">Total Usage Limit</label>
+                <input
+                  type="number"
+                  value={formData.usage_limit_total ?? ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({
+                      ...formData,
+                      usage_limit_total:
+                        value === "" ? undefined : parseInt(value),
+                    });
+                  }}
+                  placeholder="Unlimited"
+                  min="1"
+                  className="coupon-form-input"
+                />
+                <small className="coupon-form-hint">
+                  Max times this coupon can be used total
+                </small>
+              </div>
+              {/* Usage Per User */}
+              <div className="coupon-form-group">
+                <label className="coupon-form-label">Per User Limit</label>
+                <input
+                  type="number"
+                  value={formData.usage_limit_per_user ?? ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({
+                      ...formData,
+                      usage_limit_per_user:
+                        value === "" ? undefined : parseInt(value),
+                    });
+                  }}
+                  placeholder="Unlimited"
+                  min="1"
+                  className="coupon-form-input"
+                />
+                <small className="coupon-form-hint">
+                  Max times per customer
+                </small>
               </div>
 
+              {/* Requires Email Check */}
               <div className="coupon-form-group">
                 <label className="coupon-form-checkbox-label">
                   <input
@@ -1180,54 +1181,46 @@ export const CouponWizard = ({
                   <span>Require Verified Email</span>
                 </label>
               </div>
-
-              <div className="coupon-form-grid-2">
-                <div className="coupon-form-group">
-                  <label className="coupon-form-label">Valid From</label>
-                  <input
-                    type="date"
-                    value={formData.valid_from}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        valid_from: e.target.value,
-                      })
-                    }
-                    className="coupon-form-input"
-                  />
-                  {validationErrors.valid_from && (
-                    <span className="coupon-error-message">
-                      {validationErrors.valid_from}
-                    </span>
-                  )}
-                </div>
-
-                <div className="coupon-form-group">
-                  <label className="coupon-form-label">Valid Until</label>
-                  <input
-                    type="date"
-                    value={formData.valid_until || ""}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        valid_until: e.target.value || undefined,
-                      })
-                    }
-                    className="coupon-form-input"
-                  />
-                </div>
+              {/* Valid From */}
+              <div className="coupon-form-group">
+                <label className="coupon-form-label">Valid From</label>
+                <input
+                  type="date"
+                  value={formData.valid_from}
+                  onChange={(e) =>
+                    setFormData({ ...formData, valid_from: e.target.value })
+                  }
+                  className="coupon-form-input"
+                />
+                {validationErrors.valid_from && (
+                  <span className="coupon-error-message">
+                    {validationErrors.valid_from}
+                  </span>
+                )}
               </div>
-
+              {/* Valid Until */}
+              <div className="coupon-form-group">
+                <label className="coupon-form-label">Valid Until</label>
+                <input
+                  type="date"
+                  value={formData.valid_until || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      valid_until: e.target.value || undefined,
+                    })
+                  }
+                  className="coupon-form-input"
+                />
+              </div>
+              {/* Is Active */}
               <div className="coupon-form-group">
                 <label className="coupon-form-checkbox-label">
                   <input
                     type="checkbox"
                     checked={formData.is_active}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        is_active: e.target.checked,
-                      })
+                      setFormData({ ...formData, is_active: e.target.checked })
                     }
                   />
                   <span>Active</span>
@@ -1292,6 +1285,7 @@ export const CouponWizard = ({
           )}
         </div>
 
+        {/* Footer */}
         <div className="coupon-wizard-footer">
           <button onClick={onClose} className="coupon-btn coupon-btn-secondary">
             Cancel
