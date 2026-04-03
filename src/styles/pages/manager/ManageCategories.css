@@ -245,6 +245,7 @@
   background-color: var(--inv-card);
   transition: all 0.18s ease;
   cursor: grab;
+  touch-action: none; 
 }
 
 .mc-row:active {

@@ -11,6 +11,27 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+
+// dnd-kit imports
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 import {
   fetchCategories,
   createCategory,
@@ -39,6 +60,116 @@ interface Message {
 type EditMode = "none" | "edit" | "create";
 
 // ============================================================================
+// SORTABLE ROW — individual draggable category row
+// ============================================================================
+
+interface SortableRowProps {
+  category: Category;
+  editMode: EditMode;
+  loading: boolean;
+  hasOrderChanged: boolean;
+  editingCategory: Category | null;
+  onEdit: (category: Category) => void;
+  onRequestDelete: (category: Category) => void;
+  onRequestToggleActive: (category: Category) => void;
+}
+
+const SortableRow = ({
+  category,
+  editMode,
+  loading,
+  hasOrderChanged,
+  editingCategory,
+  onEdit,
+  onRequestDelete,
+  onRequestToggleActive,
+}: SortableRowProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.category_id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const isDragDisabled = editMode !== "none" || loading;
+
+  const rowClasses = [
+    "mc-row",
+    editingCategory?.category_id === category.category_id
+      ? "mc-row--editing"
+      : "",
+    isDragging ? "mc-row--dragging" : "",
+    !category.is_active ? "mc-row--inactive" : "",
+    isDragDisabled ? "mc-row--no-drag" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={rowClasses}
+      {...(!isDragDisabled ? { ...attributes, ...listeners } : {})}
+    >
+      <div className="mc-row-left">
+        {!isDragDisabled && (
+          <div className="mc-drag-handle">
+            <GripVertical size={20} />
+          </div>
+        )}
+        <div className="mc-row-info">
+          <div className="mc-row-name-row">
+            <h4 className="mc-row-name">{category.category_name}</h4>
+            {!category.is_active && (
+              <span className="mc-badge-disabled">Disabled</span>
+            )}
+          </div>
+          <p className="mc-row-order">
+            Display Order: {category.display_order}
+          </p>
+        </div>
+      </div>
+
+      <div className="mc-row-actions">
+        <button
+          className={`mc-btn ${category.is_active ? "mc-btn-warning" : "mc-btn-success"}`}
+          onClick={() => onRequestToggleActive(category)}
+          disabled={loading || editMode !== "none" || hasOrderChanged}
+          title={category.is_active ? "Disable category" : "Enable category"}
+        >
+          {category.is_active ? <EyeOff size={15} /> : <Eye size={15} />}
+          {category.is_active ? "Disable" : "Enable"}
+        </button>
+        <button
+          className="mc-btn mc-btn-primary"
+          onClick={() => onEdit(category)}
+          disabled={loading || editMode !== "none" || hasOrderChanged}
+        >
+          <Edit2 size={15} />
+          Edit
+        </button>
+        <button
+          className="mc-btn mc-btn-danger"
+          onClick={() => onRequestDelete(category)}
+          disabled={loading || editMode !== "none" || hasOrderChanged}
+        >
+          <Trash2 size={15} />
+          Delete
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================================
 // MANAGE CATEGORIES COMPONENT
 // ============================================================================
 
@@ -49,26 +180,34 @@ const ManageCategories = () => {
   // STATE MANAGEMENT
   // ============================================================================
 
-  // Category data
   const [categories, setCategories] = useState<Category[]>([]);
-
-  // UI state
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
   const [editMode, setEditMode] = useState<EditMode>("none");
   const [hasOrderChanged, setHasOrderChanged] = useState(false);
-
-  // Form state
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [categoryName, setCategoryName] = useState("");
 
-  // Drag and drop state
-  const [draggedItem, setDraggedItem] = useState<number | null>(null);
-
-  // Confirmation modals
   const deleteConfirmation = useConfirmationModal();
   const saveOrderConfirmation = useConfirmationModal();
   const toggleActiveConfirmation = useConfirmationModal();
+
+  // ============================================================================
+  // DND-KIT SENSORS
+  // Handles mouse, touch, and keyboard all in one — no separate touch logic needed
+  // ============================================================================
+
+  const sensors = useSensors(
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 5 },
+    }),
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   // ============================================================================
   // DATA LOADING
@@ -81,7 +220,6 @@ const ManageCategories = () => {
   const loadCategories = async () => {
     setLoading(true);
     try {
-      // Load all categories including inactive ones for management
       const data = await fetchCategories(true);
       setCategories(data);
     } catch (error) {
@@ -200,9 +338,7 @@ const ManageCategories = () => {
     const action = category.is_active ? "disable" : "enable";
     toggleActiveConfirmation.showConfirmation({
       title: `${action.charAt(0).toUpperCase() + action.slice(1)} Category`,
-      message: `Are you sure you want to ${action} "${
-        category.category_name
-      }"? ${
+      message: `Are you sure you want to ${action} "${category.category_name}"? ${
         category.is_active
           ? "This will hide the category and its products from customers."
           : "This will make the category and its products visible to customers."
@@ -231,43 +367,28 @@ const ManageCategories = () => {
   };
 
   // ============================================================================
-  // EVENT HANDLERS — DRAG AND DROP
+  // EVENT HANDLERS — DRAG END (dnd-kit)
+  // Called once when the user drops — works for mouse, touch, and keyboard
   // ============================================================================
 
-  const handleDragStart = (categoryId: number) => {
-    setDraggedItem(categoryId);
-  };
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
 
-  const handleDragOver = (e: React.DragEvent, targetCategoryId: number) => {
-    e.preventDefault();
+    if (!over || active.id === over.id) return;
 
-    if (draggedItem === null || draggedItem === targetCategoryId) return;
-
-    const draggedIndex = categories.findIndex(
-      (cat) => cat.category_id === draggedItem,
+    const oldIndex = categories.findIndex(
+      (cat) => cat.category_id === active.id,
     );
-    const targetIndex = categories.findIndex(
-      (cat) => cat.category_id === targetCategoryId,
+    const newIndex = categories.findIndex((cat) => cat.category_id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(categories, oldIndex, newIndex).map(
+      (cat, index) => ({ ...cat, display_order: index + 1 }),
     );
 
-    if (draggedIndex === -1 || targetIndex === -1) return;
-
-    const newCategories = [...categories];
-    const [removed] = newCategories.splice(draggedIndex, 1);
-    newCategories.splice(targetIndex, 0, removed);
-
-    // Update display_order based on new positions
-    const updatedCategories = newCategories.map((cat, index) => ({
-      ...cat,
-      display_order: index + 1,
-    }));
-
-    setCategories(updatedCategories);
+    setCategories(reordered);
     setHasOrderChanged(true);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedItem(null);
   };
 
   // ============================================================================
@@ -434,93 +555,34 @@ const ManageCategories = () => {
             {loading && categories.length === 0 ? (
               <LoadingSpinner message="Loading categories..." />
             ) : (
-              <div className="mc-list">
-                {categories.map((category) => (
-                  <div
-                    key={category.category_id}
-                    draggable={editMode === "none" && !loading}
-                    onDragStart={() => handleDragStart(category.category_id)}
-                    onDragOver={(e) => handleDragOver(e, category.category_id)}
-                    onDragEnd={handleDragEnd}
-                    className={[
-                      "mc-row",
-                      editingCategory?.category_id === category.category_id
-                        ? "mc-row--editing"
-                        : "",
-                      draggedItem === category.category_id
-                        ? "mc-row--dragging"
-                        : "",
-                      !category.is_active ? "mc-row--inactive" : "",
-                      editMode !== "none" || loading ? "mc-row--no-drag" : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    <div className="mc-row-left">
-                      {editMode === "none" && !loading && (
-                        <div className="mc-drag-handle">
-                          <GripVertical size={20} />
-                        </div>
-                      )}
-                      <div className="mc-row-info">
-                        <div className="mc-row-name-row">
-                          <h4 className="mc-row-name">
-                            {category.category_name}
-                          </h4>
-                          {!category.is_active && (
-                            <span className="mc-badge-disabled">Disabled</span>
-                          )}
-                        </div>
-                        <p className="mc-row-order">
-                          Display Order: {category.display_order}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mc-row-actions">
-                      <button
-                        className={`mc-btn ${category.is_active ? "mc-btn-warning" : "mc-btn-success"}`}
-                        onClick={() => handleRequestToggleActive(category)}
-                        disabled={
-                          loading || editMode !== "none" || hasOrderChanged
-                        }
-                        title={
-                          category.is_active
-                            ? "Disable category"
-                            : "Enable category"
-                        }
-                      >
-                        {category.is_active ? (
-                          <EyeOff size={15} />
-                        ) : (
-                          <Eye size={15} />
-                        )}
-                        {category.is_active ? "Disable" : "Enable"}
-                      </button>
-                      <button
-                        className="mc-btn mc-btn-primary"
-                        onClick={() => handleEdit(category)}
-                        disabled={
-                          loading || editMode !== "none" || hasOrderChanged
-                        }
-                      >
-                        <Edit2 size={15} />
-                        Edit
-                      </button>
-                      <button
-                        className="mc-btn mc-btn-danger"
-                        onClick={() => handleRequestDelete(category)}
-                        disabled={
-                          loading || editMode !== "none" || hasOrderChanged
-                        }
-                      >
-                        <Trash2 size={15} />
-                        Delete
-                      </button>
-                    </div>
+              // DndContext wraps the whole sortable list.
+              // sensors handle mouse, touch, and keyboard automatically.
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={categories.map((cat) => cat.category_id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="mc-list">
+                    {categories.map((category) => (
+                      <SortableRow
+                        key={category.category_id}
+                        category={category}
+                        editMode={editMode}
+                        loading={loading}
+                        hasOrderChanged={hasOrderChanged}
+                        editingCategory={editingCategory}
+                        onEdit={handleEdit}
+                        onRequestDelete={handleRequestDelete}
+                        onRequestToggleActive={handleRequestToggleActive}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             )}
 
             {/* Empty state */}
