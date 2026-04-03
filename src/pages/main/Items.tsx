@@ -10,14 +10,12 @@ import {
   formatBogoBadge,
   calculateDiscount,
   shouldShowDiscountedPrice,
-  isItemLevelCoupon,
   type GroupedCoupons,
   type ProductCoupon,
 } from "../../api/couponCustomer";
 
 import CategoryDropDown from "../../components/customerInterface/items/CategoryDropDown";
 import SideBar from "../../components/customerInterface/items/SideBar";
-import ItemFilters from "../../components/customerInterface/items/ItemFilters";
 import ItemListings from "../../components/customerInterface/items/ItemListings";
 import CartCouponBanner from "../../components/customerInterface/items/CartCouponBanner";
 import Pagination from "../../components/customerInterface/items/Pagination";
@@ -227,7 +225,7 @@ const Items = () => {
   // PRICE CALCULATIONS
   // ============================================================================
 
-  // Sort products by effective (post-discount) price when price sort is active.
+  // Sort products by effective (post-discount) price when price sort is active
   const sortedProducts = useMemo(() => {
     if (sortBy !== "price-asc" && sortBy !== "price-desc") {
       return products;
@@ -345,6 +343,16 @@ const Items = () => {
     setSearchParams(newParams);
   };
 
+  const handleReset = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("minPrice");
+    newParams.delete("maxPrice");
+    newParams.delete("sortBy");
+    newParams.delete("onSale");
+    newParams.delete("page");
+    setSearchParams(newParams);
+  };
+
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -361,13 +369,19 @@ const Items = () => {
     <div className="items-page">
       <div className="items-container">
         {/* Sidebar - Hidden on small screens, visible on medium+ */}
-        <div className="items-sidebar-wrapper">
-          <SideBar
-            activeCategoryId={activeCategoryId}
-            onSelectCategory={handleSelectCategory}
-            categories={categories}
-          />
-        </div>
+        <SideBar
+          activeCategoryId={activeCategoryId}
+          onSelectCategory={handleSelectCategory}
+          categories={categories}
+          currentMinPrice={minPrice}
+          currentMaxPrice={maxPrice}
+          currentSortBy={sortBy}
+          currentOnSaleOnly={onSaleOnly}
+          onPriceChange={handlePriceChange}
+          onSortChange={handleSortChange}
+          onSaleFilterChange={handleSaleFilterChange}
+          onReset={handleReset}
+        />
 
         <div className="items-main-content">
           {/* Category dropdown - Only visible on small screens */}
@@ -401,18 +415,6 @@ const Items = () => {
                     )}
                 </div>
               )}
-            </div>
-
-            <div className="items-filter-wrapper">
-              <ItemFilters
-                onPriceChange={handlePriceChange}
-                onSortChange={handleSortChange}
-                onSaleFilterChange={handleSaleFilterChange}
-                currentMinPrice={minPrice}
-                currentMaxPrice={maxPrice}
-                currentSortBy={sortBy}
-                currentOnSaleOnly={onSaleOnly}
-              />
             </div>
           </div>
 

@@ -90,7 +90,7 @@ const Pagination = ({
           <span className="pagination-btn--nav-label">Prev</span>
         </button>
 
-        {/* Page numbers */}
+        {/* Page numbers (hidden on mobile, replaced by indicator below) */}
         <div className="pagination-pages">
           {pageNumbers.map((page, idx) =>
             page === "..." ? (
@@ -112,6 +112,11 @@ const Pagination = ({
             ),
           )}
         </div>
+
+        {/* Mobile-only: Page X of Y sits between < and > */}
+        <span className="pagination-mobile-indicator">
+          Page {currentPage} of {totalPages}
+        </span>
 
         {/* Next button */}
         <button
