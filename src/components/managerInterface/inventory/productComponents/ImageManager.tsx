@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Star, X, Upload } from "lucide-react";
 import type { VariantImage } from "../../../../api/inventory";
 
-// dnd-kit imports
 import {
   DndContext,
   closestCenter,

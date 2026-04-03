@@ -12,7 +12,6 @@ import {
   EyeOff,
 } from "lucide-react";
 
-// dnd-kit imports
 import {
   DndContext,
   closestCenter,
@@ -194,7 +193,7 @@ const ManageCategories = () => {
 
   // ============================================================================
   // DND-KIT SENSORS
-  // Handles mouse, touch, and keyboard all in one — no separate touch logic needed
+  // Handles mouse, touch, and keyboard all in one
   // ============================================================================
 
   const sensors = useSensors(
@@ -368,7 +367,7 @@ const ManageCategories = () => {
 
   // ============================================================================
   // EVENT HANDLERS — DRAG END (dnd-kit)
-  // Called once when the user drops — works for mouse, touch, and keyboard
+  // Called once when the user drops
   // ============================================================================
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -555,8 +554,7 @@ const ManageCategories = () => {
             {loading && categories.length === 0 ? (
               <LoadingSpinner message="Loading categories..." />
             ) : (
-              // DndContext wraps the whole sortable list.
-              // sensors handle mouse, touch, and keyboard automatically.
+              // DndContext wraps the whole sortable list and handle mouse, touch, and keyboard
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
