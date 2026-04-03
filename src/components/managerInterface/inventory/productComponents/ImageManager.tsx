@@ -2,6 +2,26 @@ import { useState } from "react";
 import { Star, X, Upload } from "lucide-react";
 import type { VariantImage } from "../../../../api/inventory";
 
+// dnd-kit imports
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 interface ImageManagerProps {
   images: VariantImage[];
   onReorder: (newOrder: VariantImage[]) => void;
@@ -10,6 +30,96 @@ interface ImageManagerProps {
   onUpload: () => void;
 }
 
+// ============================================================================
+// SORTABLE THUMBNAIL — individual draggable image tile
+// ============================================================================
+
+interface SortableThumbnailProps {
+  image: VariantImage;
+  index: number;
+  isSelected: boolean;
+  onClick: (image: VariantImage) => void;
+  onSetPrimary: (e: React.MouseEvent, imageId: number) => void;
+  onDelete: (e: React.MouseEvent, imageId: number) => void;
+}
+
+const SortableThumbnail = ({
+  image,
+  index,
+  isSelected,
+  onClick,
+  onSetPrimary,
+  onDelete,
+}: SortableThumbnailProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: image.image_id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  const classes = [
+    "thumbnail-item",
+    isDragging ? "dragging" : "",
+    isSelected ? "selected" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={classes}
+      {...attributes}
+      {...listeners}
+      onClick={() => onClick(image)}
+    >
+      <img
+        src={image.img_url}
+        alt={`Product ${index + 1}`}
+        className="thumbnail-image"
+        draggable={false}
+      />
+      <div className="order-badge">{index + 1}</div>
+      {image.is_primary && <div className="primary-badge">Primary</div>}
+      <div className="thumbnail-overlay">
+        <button
+          type="button"
+          className="thumbnail-icon"
+          onClick={(e) => onSetPrimary(e, image.image_id)}
+          title="Set as primary (will apply on save)"
+        >
+          <Star
+            size={16}
+            className={`icon-star ${image.is_primary ? "active" : ""}`}
+            fill={image.is_primary ? "currentColor" : "none"}
+          />
+        </button>
+        <button
+          type="button"
+          className="thumbnail-icon"
+          onClick={(e) => onDelete(e, image.image_id)}
+          title="Delete image (will apply on save)"
+        >
+          <X size={16} className="icon-delete" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================================
+// IMAGE MANAGER
+// ============================================================================
+
 const ImageManager = ({
   images,
   onReorder,
@@ -17,43 +127,48 @@ const ImageManager = ({
   onDelete,
   onUpload,
 }: ImageManagerProps) => {
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [selectedImage, setSelectedImage] = useState<VariantImage | null>(null);
 
-  const handleDragStart = (index: number) => setDraggedIndex(index);
+  // ============================================================================
+  // DND-KIT SENSORS
+  // ============================================================================
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === index) return;
-    setDragOverIndex(index);
+  const sensors = useSensors(
+    useSensor(TouchSensor, {
+      // 250ms press activates drag; 5px tolerance prevents accidental drags on taps
+      activationConstraint: { delay: 250, tolerance: 5 },
+    }),
+    useSensor(PointerSensor, {
+      // 8px movement required before drag starts on desktop
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  // ============================================================================
+  // DRAG END
+  // ============================================================================
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = images.findIndex((img) => img.image_id === active.id);
+    const newIndex = images.findIndex((img) => img.image_id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(images, oldIndex, newIndex).map(
+      (img, index) => ({ ...img, display_order: index + 1 }),
+    );
+
+    onReorder(reordered);
   };
 
-  const handleDragLeave = () => setDragOverIndex(null);
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) return;
-
-    const newImages = [...images];
-    const draggedImage = newImages[draggedIndex];
-    newImages.splice(draggedIndex, 1);
-    newImages.splice(dropIndex, 0, draggedImage);
-
-    const reorderedImages = newImages.map((img, index) => ({
-      ...img,
-      display_order: index + 1,
-    }));
-
-    onReorder(reorderedImages);
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
+  // ============================================================================
+  // OTHER HANDLERS
+  // ============================================================================
 
   const handleThumbnailClick = (image: VariantImage) => setSelectedImage(image);
 
@@ -85,57 +200,28 @@ const ImageManager = ({
         <div className="image-layout">
           {/* Thumbnail Column */}
           <div className="thumbnail-column">
-            {images.map((image, index) => (
-              <div
-                key={image.image_id}
-                draggable
-                onDragStart={() => handleDragStart(index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, index)}
-                onDragEnd={handleDragEnd}
-                onClick={() => handleThumbnailClick(image)}
-                className={[
-                  "thumbnail-item",
-                  draggedIndex === index ? "dragging" : "",
-                  dragOverIndex === index ? "drag-over" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={images.map((img) => img.image_id)}
+                strategy={rectSortingStrategy}
               >
-                <img
-                  src={image.img_url}
-                  alt={`Product ${index + 1}`}
-                  className="thumbnail-image"
-                />
-                <div className="order-badge">{index + 1}</div>
-                {image.is_primary && (
-                  <div className="primary-badge">Primary</div>
-                )}
-                <div className="thumbnail-overlay">
-                  <button
-                    type="button"
-                    className="thumbnail-icon"
-                    onClick={(e) => handleSetPrimary(e, image.image_id)}
-                    title="Set as primary (will apply on save)"
-                  >
-                    <Star
-                      size={16}
-                      className={`icon-star ${image.is_primary ? "active" : ""}`}
-                      fill={image.is_primary ? "currentColor" : "none"}
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    className="thumbnail-icon"
-                    onClick={(e) => handleDeleteImage(e, image.image_id)}
-                    title="Delete image (will apply on save)"
-                  >
-                    <X size={16} className="icon-delete" />
-                  </button>
-                </div>
-              </div>
-            ))}
+                {images.map((image, index) => (
+                  <SortableThumbnail
+                    key={image.image_id}
+                    image={image}
+                    index={index}
+                    isSelected={selectedImage?.image_id === image.image_id}
+                    onClick={handleThumbnailClick}
+                    onSetPrimary={handleSetPrimary}
+                    onDelete={handleDeleteImage}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
 
           {/* Main Image Display */}
