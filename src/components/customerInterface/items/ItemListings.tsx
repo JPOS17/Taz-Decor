@@ -29,7 +29,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
   };
 
   const handleWishlistClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent navigating to detail page
+    e.stopPropagation();
 
     const wishlistItem = {
       variant_id: product.variant_id,

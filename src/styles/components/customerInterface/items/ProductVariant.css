@@ -5,12 +5,9 @@
    ============================================================================ */
 
 .variant-selector {
-  padding: 0.85rem;
-  background: linear-gradient(160deg, #fdf8f0 0%, #f5ede0 100%);
-  border: 1.5px solid #d4a96a;
-  border-radius: 10px;
-  margin-top: 1rem;
-  box-shadow: 0 2px 10px rgba(117, 58, 30, 0.07);
+  margin-top: 0.5rem;
+  width: 100%;
+  min-width: 0;
 }
 
 /* ============================================================================
@@ -21,6 +18,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  min-width: 0;
 }
 
 /* ============================================================================
@@ -28,13 +26,31 @@
    ============================================================================ */
 
 .variant-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 0.625rem;
   margin-top: 0;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.5rem;
+  min-width: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #c9a97a #f5ede0;
+}
+
+.variant-grid::-webkit-scrollbar {
+  height: 5px;
+}
+
+.variant-grid::-webkit-scrollbar-track {
+  background: #f5ede0;
+  border-radius: 4px;
+}
+
+.variant-grid::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #c9a97a, #8a6030);
+  border-radius: 4px;
 }
 
 /* ============================================================================
@@ -54,16 +70,18 @@
   cursor: pointer;
   transition: all 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
-  min-height: 90px;
-  width: 100%;
+  width: 110px;
+  height: 70px;
+  flex-shrink: 0;
+  flex-grow: 0;
   text-align: center;
+  overflow: hidden;
   font-family: "Lato", sans-serif;
 }
 
 .variant-card:hover:not(:disabled):not(.variant-card-selected) {
   border-color: #c9a97a;
   background: linear-gradient(160deg, #fdf8f0 0%, #f0e3cc 100%);
-  transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(117, 58, 30, 0.15);
 }
 
@@ -85,7 +103,6 @@
 .variant-card-selected:hover {
   background: linear-gradient(135deg, #9a6e38 0%, #7a5228 100%);
   border-color: #9a6e38;
-  transform: translateY(-3px);
 }
 
 .variant-card-selected::before {
@@ -215,20 +232,6 @@
    ============================================================================ */
 
 @media (max-width: 768px) {
-  .variant-selector {
-    padding: 0.7rem;
-  }
-
-  .variant-grid {
-    gap: 0.5rem;
-    max-width: 550px;
-  }
-
-  .variant-card {
-    padding: 0.625rem;
-    min-height: 85px;
-  }
-
   .variant-card-number {
     font-size: 1.375rem;
   }
@@ -243,22 +246,6 @@
 }
 
 @media (max-width: 576px) {
-  .variant-selector {
-    padding: 0.625rem;
-    margin-top: 0.75rem;
-  }
-
-  .variant-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    max-width: 450px;
-  }
-
-  .variant-card {
-    padding: 0.6rem;
-    min-height: 80px;
-  }
-
   .variant-card-number {
     font-size: 1.25rem;
   }
@@ -273,16 +260,5 @@
 
   .variant-card-stock-badge {
     font-size: 0.58rem;
-    padding: 0.18rem 0.38rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .variant-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .variant-card {
-    min-height: 75px;
   }
 }

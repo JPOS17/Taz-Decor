@@ -30,7 +30,6 @@
   border: 1.5px solid #d4a96a;
   border-radius: 7px;
   color: #7a5c35;
-  font-family: "Lato", sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -81,6 +80,7 @@
   gap: 0.5rem;
   max-height: 450px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 0.5rem;
   scrollbar-width: thin;
   scrollbar-color: #c9a97a #f5ede0;
@@ -124,16 +124,25 @@
 }
 
 .main-image-wrapper {
-  flex: 1;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
   min-width: 0;
-  width: 100%;
+}
+
+/* Row that holds left arrow + image + right arrow */
+.main-image-with-arrows {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .main-image-container {
   position: relative;
-  width: 100%;
-  height: 450px;
+  width: 400px;
+  height: 400px;
+  flex-shrink: 0;
   background: linear-gradient(160deg, #f9f1e4 0%, #f0e3cc 100%);
   border-radius: 10px;
   overflow: hidden;
@@ -164,7 +173,6 @@
   padding: 0.35rem 0.7rem;
   border-radius: 6px;
   font-size: 0.78rem;
-  font-family: "Lato", sans-serif;
   opacity: 0;
   transition: opacity 0.25s ease;
   pointer-events: none;
@@ -176,14 +184,12 @@
 }
 
 .image-nav-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
   background: rgba(253, 248, 240, 0.95);
   border: 1.5px solid #d4a96a;
   border-radius: 50%;
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,7 +197,6 @@
   font-size: 1rem;
   color: #7a5c35;
   transition: all 0.22s ease;
-  z-index: 10;
   box-shadow: 0 2px 8px rgba(117, 58, 30, 0.15);
 }
 
@@ -199,11 +204,16 @@
   background: linear-gradient(135deg, #be8b50 0%, #c9a97a 100%);
   border-color: transparent;
   color: white;
-  transform: translateY(-50%) scale(1.1);
+  transform: scale(1.1);
 }
 
-.image-nav-prev { left: 0.75rem; }
-.image-nav-next { right: 0.75rem; }
+
+/* Variant Selector centered below main image */
+.variant-selector-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
 
 /* ============================================================================
    PRODUCT INFO SECTION
@@ -239,7 +249,6 @@
   color: white;
   padding: 0.35rem 0.75rem;
   border-radius: 5px;
-  font-family: "Lato", sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -259,7 +268,6 @@
 }
 
 .product-price {
-  font-family: "Lato", sans-serif;
   font-size: 1.75rem;
   font-weight: 700;
   color: #7a5c35;
@@ -277,7 +285,6 @@
   gap: 0.5rem;
   padding: 0.6rem 0.875rem;
   border-radius: 7px;
-  font-family: "Lato", sans-serif;
   font-weight: 600;
   font-size: 0.8rem;
   letter-spacing: 0.01em;
@@ -296,91 +303,6 @@
 }
 
 /* ============================================================================
-   VARIANT SELECTOR (within listing page context)
-   ============================================================================ */
-
-/* .variant-selector {
-  padding: 1rem;
-  background: linear-gradient(160deg, #fdf8f0 0%, #f5ede0 100%);
-  border-radius: 8px;
-  border: 1.5px solid #d4a96a;
-}
-
-.variant-group {
-  margin: 0 0 0.875rem 0;
-}
-
-.variant-group:last-child {
-  margin: 0;
-}
-
-.variant-label {
-  font-family: "Lato", sans-serif;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #3d2b0e;
-  margin: 0 0 0.5rem 0;
-  display: block;
-  letter-spacing: 0.02em;
-}
-
-.variant-label-value {
-  font-weight: 400;
-  color: #8a6030;
-}
-
-.variant-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.variant-option-button {
-  padding: 0.48rem 1rem;
-  background: linear-gradient(160deg, #fdf8f0 0%, #f5ede0 100%);
-  border: 1.5px solid #e8d8c0;
-  border-radius: 6px;
-  color: #5a4228;
-  font-family: "Lato", sans-serif;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.22s ease;
-  min-width: 60px;
-  text-align: center;
-}
-
-.variant-option-button:hover {
-  border-color: #c9a97a;
-  background: linear-gradient(160deg, #fdf8f0 0%, #f0e3cc 100%);
-  color: #3d2b0e;
-}
-
-.variant-option-button.active {
-  background: linear-gradient(135deg, #8a6030 0%, #6a4820 100%);
-  border-color: transparent;
-  color: white;
-  box-shadow: 0 3px 10px rgba(117, 58, 30, 0.25);
-}
-
-.variant-option-button.unavailable {
-  opacity: 0.4;
-  cursor: not-allowed;
-  text-decoration: line-through;
-}
-
-.variant-unavailable-alert {
-  padding: 0.7rem 0.875rem;
-  background: rgba(201, 160, 48, 0.1);
-  border: 1.5px solid rgba(201, 160, 48, 0.3);
-  border-radius: 7px;
-  color: #7a5c00;
-  font-family: "Lato", sans-serif;
-  font-size: 0.8rem;
-  margin: 0.75rem 0 0 0;
-} */
-
-/* ============================================================================
    POPULARITY STATS
    ============================================================================ */
 
@@ -395,7 +317,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: "Lato", sans-serif;
   font-size: 0.8rem;
   color: #5a4228;
   margin: 0 0 0.35rem 0;
@@ -473,7 +394,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: "Lato", sans-serif;
   font-size: 0.875rem;
   color: #5a4228;
   margin: 0 0 0.5rem 0;
@@ -499,13 +419,12 @@
 }
 
 .btn-add-to-cart {
-  flex: 1;
+  flex: 0 0 60%;
   padding: 0.9rem 1.5rem;
   background: linear-gradient(135deg, #8a6030 0%, #6a4820 100%);
   border: none;
   border-radius: 8px;
   color: white;
-  font-family: "Lato", sans-serif;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -606,7 +525,6 @@
 .error-container {
   padding: 3rem;
   text-align: center;
-  font-family: "Lato", sans-serif;
 }
 
 .loading-text {
@@ -622,7 +540,6 @@
   border: 1.5px solid rgba(181, 52, 30, 0.25);
   border-radius: 9px;
   color: #8c2515;
-  font-family: "Lato", sans-serif;
   margin: 0 0 1rem 0;
 }
 
@@ -632,7 +549,6 @@
   border: none;
   border-radius: 8px;
   color: white;
-  font-family: "Lato", sans-serif;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -646,43 +562,64 @@
   box-shadow: 0 6px 16px rgba(117, 58, 30, 0.32);
 }
 
-/* ============================================================================
-   LIGHTBOX
-   ============================================================================ */
-
-.lightbox-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.918);
-  z-index: 9999;
+.listing-loading-state {
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.25s ease;
+  min-height: 100vh;
 }
+
+/* ============================================================================
+   LIGHTBOX — 3-row layout
+   Row 1: top bar (close button)
+   Row 2: thumbnails (10%) + main image (90%)
+   Row 3: < counter >
+   ============================================================================ */
 
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
+/* Full-screen backdrop — column flex so our 3 rows stack naturally */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: fadeIn 0.25s ease;
+  /* Prevent the backdrop click from propagating into child rows */
+}
+
+/* ── ROW 1: close button bar ── */
+.lightbox-row-top {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 14px 18px 0;
+}
+
 .lightbox-close {
-  position: absolute;
-  top: 20px; right: 20px;
   background: rgba(253, 248, 240, 0.95);
   border: none;
   border-radius: 50%;
-  width: 50px; height: 50px;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   color: #3d2b0e;
-  z-index: 10001;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
 }
 
 .lightbox-close:hover {
@@ -690,85 +627,27 @@
   transform: scale(1.1);
 }
 
-.lightbox-layout {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-  max-width: 90vw;
-  max-height: 90vh;
-}
-
-.lightbox-thumbnails,
-.lightbox-thumbnails-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-height: 80vh;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: #c9a97a #2a1a08;
-}
-
-.lightbox-thumbnails::-webkit-scrollbar,
-.lightbox-thumbnails-vertical::-webkit-scrollbar {
-  width: 5px;
-}
-
-.lightbox-thumbnails::-webkit-scrollbar-track,
-.lightbox-thumbnails-vertical::-webkit-scrollbar-track {
-  background: #2a1a08;
-  border-radius: 4px;
-}
-
-.lightbox-thumbnails::-webkit-scrollbar-thumb,
-.lightbox-thumbnails-vertical::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #c9a97a, #8a6030);
-  border-radius: 4px;
-}
-
-.lightbox-thumbnail {
-  width: 90px;
-  height: 90px;
-  object-fit: cover;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  opacity: 0.45;
-  transition: all 0.22s ease;
-}
-
-.lightbox-thumbnail:hover {
-  opacity: 0.8;
-  border-color: rgba(201, 169, 122, 0.5);
-}
-
-.lightbox-thumbnail.active {
-  border-color: #887658;
-  opacity: 1;
-  box-shadow: 0 0 0 1px rgba(201, 169, 122, 0.3);
-}
-
-.lightbox-main,
-.lightbox-main-section {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.lightbox-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.lightbox-image-container {
-  width: 70vw;
-  height: 80vh;
+/* ── ROW 2: main image ── */
+.lightbox-row-middle {
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 10px 16px 6px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Main image fills available height, respects aspect ratio */
+.lightbox-main-image-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  max-width: 90vw;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .lightbox-image {
@@ -776,6 +655,84 @@
   max-height: 100%;
   object-fit: contain;
   border-radius: 8px;
+  display: block;
+}
+
+/* ── ROW 3: thumbnails (horizontal strip, centered below image) ── */
+.lightbox-row-thumbnails {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px 6px;
+}
+
+.lightbox-thumbnails-vertical {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  max-width: 90vw;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #c9a97a #2a1a08;
+}
+
+.lightbox-thumbnails-vertical::-webkit-scrollbar {
+  height: 4px;
+}
+
+.lightbox-thumbnails-vertical::-webkit-scrollbar-track {
+  background: #2a1a08;
+  border-radius: 4px;
+}
+
+.lightbox-thumbnails-vertical::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #c9a97a, #8a6030);
+  border-radius: 4px;
+}
+
+.lightbox-thumbnail {
+  width: clamp(52px, 5vw, 80px);
+  height: clamp(52px, 5vw, 80px);
+  object-fit: cover;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.lightbox-thumbnail:hover {
+  opacity: 0.75;
+  border-color: rgba(201, 169, 122, 0.55);
+}
+
+.lightbox-thumbnail.active {
+  opacity: 1;
+  border-color: #c9a97a;
+  box-shadow: 0 0 0 1px rgba(201, 169, 122, 0.4);
+}
+
+/* ── ROW 4: < counter > — width-matched to the image column ── */
+.lightbox-row-bottom {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: 8px 16px 16px;
+}
+
+/* This inner div is what's actually centered — same max-width as the image wrap
+   so the controls visually sit under the image, not under the full overlay */
+.lightbox-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 90vw;
 }
 
 .lightbox-nav,
@@ -784,15 +741,17 @@
   background: rgba(253, 248, 240, 0.95);
   border: none;
   border-radius: 50%;
-  width: 55px; height: 55px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   color: #3d2b0e;
   transition: all 0.22s ease;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+  flex-shrink: 0;
 }
 
 .lightbox-nav:hover,
@@ -804,20 +763,79 @@
 
 .lightbox-counter {
   background: rgba(253, 248, 240, 0.95);
-  padding: 0.6rem 1.4rem;
+  padding: 0.55rem 1.3rem;
   border-radius: 25px;
-  font-family: "Lato", sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
   color: #3d2b0e;
   letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ── RESPONSIVE: tablets (≤ 860px) ── */
+@media (max-width: 860px) {
+  .lightbox-row-middle {
+    padding: 6px 12px 4px;
+  }
+
+  .lightbox-thumbnail {
+    width: clamp(44px, 11vw, 64px);
+    height: clamp(44px, 11vw, 64px);
+  }
+
+  .lightbox-nav,
+  .lightbox-prev,
+  .lightbox-next {
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+  }
+
+  .lightbox-row-bottom {
+    padding: 6px 12px 12px;
+  }
+
+  .lightbox-controls {
+    gap: 1.25rem;
+  }
+}
+
+/* ── RESPONSIVE: phones (≤ 480px) ── */
+@media (max-width: 480px) {
+  .lightbox-row-top {
+    padding: 10px 12px 0;
+  }
+
+  .lightbox-close {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .lightbox-thumbnail {
+    width: clamp(38px, 13vw, 55px);
+    height: clamp(38px, 13vw, 55px);
+  }
+
+  .lightbox-nav,
+  .lightbox-prev,
+  .lightbox-next {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .lightbox-counter {
+    font-size: 0.82rem;
+    padding: 0.45rem 1rem;
+  }
 }
 
 /* ============================================================================
    RESPONSIVE
    ============================================================================ */
 
-@media (max-width: 1200px) {
+@media (max-width: 1300px) {
   .product-header-row {
     grid-template-columns: 1fr;
   }
@@ -826,37 +844,175 @@
   }
 }
 
-@media (max-width: 1024px) {
+/* TWO COLUMNS - Fixed Image Column, Proudct info section molds */
+@media (max-width: 1325px) and (min-width: 1060px) {
   .product-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 595px) 1fr;
+  }
+
+}
+
+/* TWO COLUMNS - Thumbnail moves vertical */
+@media (max-width: 1060px) and (min-width: 860px) {
+  /* Keep the two-column layout — only restructure the image section internally */
+  .product-layout {
+    grid-template-columns: minmax(0, 400px) 1fr;
     gap: 1.5rem;
   }
-  .main-image-container {
-    height: auto;
-    aspect-ratio: 1 / 1;
-    max-height: none;
+
+  /* Switch image section to column layout with explicit ordering */
+  .product-image-section {
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
   }
-  .main-image {
+
+  /* Thumbnail gallery — order 1 puts it ABOVE the main image */
+  .thumbnail-gallery {
+    order: 1;
+    flex-direction: row;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-right: 0;
+    padding-bottom: 0.5rem;
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+  }
+
+  .thumbnail-image {
+    min-width: 60px;
+    width: 60px;
+    height: 60px;
+  }
+
+  /* Main image wrapper — order 2 puts it BELOW the thumbnails */
+  .main-image-wrapper {
+    order: 2;
+    width: 100%;
+    align-items: center;
+    min-width: 0;
+  }
+
+  /* Fixed 1:1 ratio box — image never changes the container size */
+  .main-image-container {
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    flex-shrink: 1;
+  }
+
+  .variant-selector-wrapper {
+    width: 100%;
   }
 }
 
-@media (max-width: 768px) {
-  .individual-listing-page {
-    padding: 1rem 0;
-  }
+/* SINGLE-COLUMN BREAKPOINT */
+@media (max-width: 860px) and (min-width: 605px) {
   .individual-listing-container {
-    padding: 0 1rem;
+    max-width: 605px;
   }
+
+  /* Collapse the two-column page grid into a single column */
   .product-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
     padding: 1.25rem;
   }
+
+  /* Image section stays as row — thumbnails on the left, main image on the right */
   .product-image-section {
-    flex-direction: column-reverse;
-    overflow: hidden;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+    gap: 1rem;
   }
+
+  .thumbnail-gallery {
+    flex-direction: column;
+    max-height: 340px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.5rem;
+    padding-bottom: 0;
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .thumbnail-image {
+    width: 62px;
+    height: 62px;
+    min-width: 62px;
+  }
+
+  .main-image-wrapper {
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+  }
+
+  .main-image-container {
+    width: 100%;
+    max-width: 350px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    flex-shrink: 1;
+  }
+
+  .variant-selector-wrapper {
+    width: 100%;
+  }
+
+  .product-title {
+    font-size: 1.35rem;
+  }
+
+  .product-price {
+    font-size: 1.5rem;
+  }
+
+  .product-header-row {
+    grid-template-columns: 1fr;
+  }
+
+  .product-header-coupons {
+    min-width: unset;
+    max-width: 100%;
+  }
+
+  .image-nav-button {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+
+  .product-info-table th {
+    width: 40%;
+    font-size: 0.82rem;
+  }
+
+  .product-info-table td {
+    font-size: 0.82rem;
+  }
+
+}
+
+/* Thumbnails move to a horizontal row ABOVE the main image */
+@media (max-width: 605px) {
+  .product-layout {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding: 1.25rem;
+  }
+
+  /* Image section: thumbnails go horizontal above the main image */
+  .product-image-section {
+    flex-direction: column;
+    align-items: center;
+    overflow: visible;
+    width: 100%;
+  }
+
   .thumbnail-gallery {
     flex-direction: row;
     max-height: none;
@@ -864,70 +1020,59 @@
     overflow-y: hidden;
     padding-right: 0;
     padding-bottom: 0.5rem;
-  }
-  .thumbnail-image {
-    width: 80px;
-    height: 80px;
-    min-width: 80px;
-  }
-  .main-image-container {
-    height: auto;
-    aspect-ratio: 1 / 1;
-    max-height: none;
-  }
-  .main-image {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    justify-content: center;
   }
+
+  .thumbnail-image {
+    width: 62px;
+    height: 62px;
+    min-width: 62px;
+  }
+
+  .main-image-wrapper {
+    width: 100%;
+    align-items: center;
+  }
+
+  .main-image-container {
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    flex-shrink: 1;
+  }
+
   .product-title {
     font-size: 1.35rem;
   }
+
   .product-price {
     font-size: 1.5rem;
   }
+
+  .product-header-row {
+    grid-template-columns: 1fr;
+  }
+
+  .product-header-coupons {
+    min-width: unset;
+    max-width: 100%;
+  }
+
   .image-nav-button {
     width: 38px;
     height: 38px;
     font-size: 0.95rem;
   }
-  .image-nav-prev { left: 0.5rem; }
-  .image-nav-next { right: 0.5rem; }
+
   .product-info-table th {
     width: 40%;
     font-size: 0.82rem;
   }
+
   .product-info-table td {
     font-size: 0.82rem;
-  }
-  .lightbox-layout {
-    flex-direction: column-reverse;
-    max-width: 95vw;
-  }
-  .lightbox-thumbnails,
-  .lightbox-thumbnails-vertical {
-    flex-direction: row;
-    max-height: none;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 0.5rem;
-    padding-right: 0;
-  }
-  .lightbox-thumbnail {
-    width: 70px;
-    height: 70px;
-    min-width: 70px;
-  }
-  .lightbox-image-container {
-    width: 100%;
-    height: 60vh;
-  }
-  .lightbox-nav,
-  .lightbox-prev,
-  .lightbox-next {
-    width: 45px;
-    height: 45px;
-    font-size: 1.2rem;
   }
 }
 
@@ -936,49 +1081,48 @@
     padding: 0.45rem 0.875rem;
     font-size: 0.85rem;
   }
+
   .product-layout {
     padding: 1rem;
   }
-  .main-image-container {
-    height: auto;
-    aspect-ratio: 1 / 1;
-    max-height: none;
+
+  .thumbnail-image {
+    width: 55px;
+    height: 55px;
+    min-width: 55px;
   }
-  .main-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
+
   .product-title {
     font-size: 1.2rem;
   }
+
   .product-price {
     font-size: 1.4rem;
   }
+
   .btn-add-to-cart {
     font-size: 0.875rem;
     padding: 0.75rem 1.25rem;
   }
+
   .btn-wishlist {
     width: 48px;
     height: 48px;
     font-size: 1.1rem;
   }
+
   .reviews-section {
     padding: 1.25rem;
   }
+
   .product-info-table th {
     width: 45%;
     padding: 0.5rem;
+    font-size: 0.8rem;
   }
+
   .product-info-table td {
     padding: 0.5rem;
+    font-size: 0.8rem;
   }
-}
-
-.listing-loading-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
 }

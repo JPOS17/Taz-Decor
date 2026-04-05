@@ -366,7 +366,7 @@ const IndividualListing = () => {
           <div className="product-layout">
             {/* Image Section */}
             <div className="product-image-section">
-              {/* Thumbnail Gallery */}
+              {/* Thumbnail Gallery — left of main image */}
               {product.images.length > 1 && (
                 <div className="thumbnail-gallery">
                   {product.images.map((img, index) => (
@@ -382,51 +382,59 @@ const IndividualListing = () => {
                 </div>
               )}
 
-              {/* Main Image */}
+              {/* Main Image Wrapper — contains arrow row + image container */}
               <div className="main-image-wrapper">
-                <div
-                  className="main-image-container"
-                  onClick={() => openLightbox(currentImageIndex)}
-                >
-                  <img
-                    src={selectedImage}
-                    alt={product.name}
-                    className="main-image"
-                  />
-                  <div className="zoom-hint">Click to view full size</div>
-
-                  {/* Navigation Arrows */}
+                {/* Arrow + Image Row */}
+                <div className="main-image-with-arrows">
+                  {/* Left Arrow — outside the image container */}
                   {product.images.length > 1 && (
-                    <>
-                      <button
-                        className="image-nav-button image-nav-prev"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          prevMainImage();
-                        }}
-                      >
-                        <FaChevronLeft />
-                      </button>
-                      <button
-                        className="image-nav-button image-nav-next"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          nextMainImage();
-                        }}
-                      >
-                        <FaChevronRight />
-                      </button>
-                    </>
+                    <button
+                      className="image-nav-button image-nav-prev"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        prevMainImage();
+                      }}
+                    >
+                      <FaChevronLeft />
+                    </button>
+                  )}
+
+                  {/* Main Image Container — click opens lightbox */}
+                  <div
+                    className="main-image-container"
+                    onClick={() => openLightbox(currentImageIndex)}
+                  >
+                    <img
+                      src={selectedImage}
+                      alt={product.name}
+                      className="main-image"
+                    />
+                    <div className="zoom-hint">Click to view full size</div>
+                  </div>
+
+                  {/* Right Arrow — outside the image container */}
+                  {product.images.length > 1 && (
+                    <button
+                      className="image-nav-button image-nav-next"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        nextMainImage();
+                      }}
+                    >
+                      <FaChevronRight />
+                    </button>
                   )}
                 </div>
 
-                {/* Variant Selector */}
+                {/* Variant Selector — centered below the image */}
                 {product.variants && product.variants.length > 1 && (
-                  <VariantSelector
-                    variants={product.variants}
-                    selectedVariantId={Number(variantId)}
-                    onVariantChange={handleVariantChange}
-                  />
+                  <div className="variant-selector-wrapper">
+                    <VariantSelector
+                      variants={product.variants}
+                      selectedVariantId={Number(variantId)}
+                      onVariantChange={handleVariantChange}
+                    />
+                  </div>
                 )}
               </div>
             </div>

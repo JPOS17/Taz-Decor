@@ -72,11 +72,6 @@ const VariantSelector = ({
                 <div className="variant-card-details">
                   {formatVariantDetails(variant)}
                 </div>
-                {variant.price && (
-                  <div className="variant-card-price">
-                    ${variant.price.toFixed(2)}
-                  </div>
-                )}
                 {isOutOfStock && (
                   <div className="variant-card-stock-badge">Out of Stock</div>
                 )}

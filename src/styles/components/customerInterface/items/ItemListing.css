@@ -158,7 +158,7 @@
    TYPOGRAPHY
    ============================================================================ */
 
-.item-title {
+.list-item .item-title {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: 1.05rem;
   font-weight: 600;
@@ -166,13 +166,14 @@
   margin: 0 0.6rem 0.25rem;
   line-height: 1.35;
   letter-spacing: 0.01em;
+  text-align: center;
 }
 
 /* ============================================================================
    PRICE
    ============================================================================ */
 
-.item-price-container {
+.list-item .item-price-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,7 +183,7 @@
   padding: 0 0.5rem;
 }
 
-.item-price {
+.list-item .item-price {
   font-family: "Lato", sans-serif;
   font-size: 1.15rem;
   font-weight: 700;
@@ -191,15 +192,15 @@
   letter-spacing: 0.01em;
 }
 
-.item-price-original {
+.list-item .item-price-original {
   font-size: 0.92rem;
   font-weight: 400;
-  color: #a08060;
+  color: #000000;
   text-decoration: line-through;
   margin: 0;
 }
 
-.item-price-discounted {
+.list-item .item-price-discounted {
   font-size: 1.2rem;
   font-weight: 700;
   color: #b5341e;
@@ -211,7 +212,7 @@
    VERIFICATION ICON
    ============================================================================ */
 
-.verification-required-icon {
+.list-item .verification-required-icon {
   display: inline-flex;
   align-items: center;
   color: #c9a030;

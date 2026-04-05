@@ -140,6 +140,13 @@
   letter-spacing: 0.02em;
 }
 
+.items-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
 .items-error-state {
   color: #b5341e;
   font-size: 1rem;
@@ -254,10 +261,3 @@
   }
 }
 
-/* Add this to your Items.css */
-.items-loading-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-}
