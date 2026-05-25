@@ -152,21 +152,23 @@ const CreateProduct = () => {
   // ============================================================================
 
   return (
-    <div className="manager-page accent-orange">
+    <div className="manager-page accent-inventory">
       {/* Header */}
       <div className="mgr-header">
-        <div className="mgr-container">
-          <button
-            className="mgr-back-button"
-            onClick={() => navigate("/manager/inventory")}
-          >
-            <ArrowLeft size={16} />
-            Back to Product Management
-          </button>
-          <h1 className="mgr-header-title">Create New Product</h1>
-          <p className="mgr-header-subtitle">
-            Add a new product to your inventory
-          </p>
+        <div className="mgr-header-inner">
+          <div>
+            <button
+              className="mgr-back-button"
+              onClick={() => navigate("/manager/inventory")}
+            >
+              <ArrowLeft size={16} />
+              Back to Product Management
+            </button>
+            <h1 className="mgr-header-title">Create New Product</h1>
+            <p className="mgr-header-subtitle">
+              Add a new product to your inventory
+            </p>
+          </div>
         </div>
       </div>
 

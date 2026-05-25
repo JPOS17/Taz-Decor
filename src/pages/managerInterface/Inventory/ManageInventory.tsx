@@ -918,21 +918,23 @@ const ManageProducts = () => {
   // ============================================================================
 
   return (
-    <div className="manager-page accent-orange">
+    <div className="manager-page accent-inventory">
       {/* Header */}
       <div className="mgr-header">
-        <div className="mgr-container">
-          <button
-            className="mgr-back-button"
-            onClick={() => navigate("/manager/inventory")}
-          >
-            <ArrowLeft size={16} />
-            Back to Dashboard
-          </button>
-          <h1 className="mgr-header-title">Edit Products</h1>
-          <p className="mgr-header-subtitle">
-            Manage existing products, variants, images, and inventory
-          </p>
+        <div className="mgr-header-inner">
+          <div>
+            <button
+              className="mgr-back-button"
+              onClick={() => navigate("/manager/inventory")}
+            >
+              <ArrowLeft size={16} />
+              Back to Dashboard
+            </button>
+            <h1 className="mgr-header-title">Edit Products</h1>
+            <p className="mgr-header-subtitle">
+              Manage existing products, variants, images, and inventory
+            </p>
+          </div>
         </div>
       </div>
 
