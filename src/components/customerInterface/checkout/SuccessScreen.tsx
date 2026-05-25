@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaFileAlt, FaHome } from "react-icons/fa";
 import DeliveryEstimate from "./DeliveryEstimate";
+import "../../../styles/components/customerInterface/checkout/SuccessScreen.css";
 
 interface OrderResult {
   order_id: number;
@@ -28,39 +29,39 @@ const SuccessScreen = ({
   if (!orderResult) return null;
 
   return (
-    <div className="cp-checkout-success">
-      <div className="cp-success-content">
-        <div className="cp-success-icon-large">
+    <div className="ss-checkout-success">
+      <div className="ss-content">
+        <div className="ss-icon-large">
           <FaCheckCircle />
         </div>
-        <h1 className="cp-success-title">Order Successfully Placed!</h1>
-        <p className="cp-success-message">
+        <h1 className="ss-title">Order Successfully Placed!</h1>
+        <p className="ss-message">
           Thank you for your order. We've sent a confirmation email to{" "}
           <strong>{userEmail}</strong>.
         </p>
 
-        <div className="cp-success-order-info">
-          <div className="cp-order-info-item">
-            <span className="cp-info-label">Order Number</span>
-            <span className="cp-info-value">{orderResult.order_number}</span>
+        <div className="ss-order-info">
+          <div className="ss-order-info-item">
+            <span className="ss-info-label">Order Number</span>
+            <span className="ss-info-value">{orderResult.order_number}</span>
           </div>
-          <div className="cp-order-info-item">
-            <span className="cp-info-label">Total Amount</span>
-            <span className="cp-info-value">
+          <div className="ss-order-info-item">
+            <span className="ss-info-label">Total Amount</span>
+            <span className="ss-info-value">
               ${orderResult.total_price.toFixed(2)}
             </span>
           </div>
-          <div className="cp-order-info-item">
-            <span className="cp-info-label">Status</span>
-            <span className="cp-info-value cp-status-badge">
+          <div className="ss-order-info-item">
+            <span className="ss-info-label">Status</span>
+            <span className="ss-info-value ss-status-badge">
               {orderResult.status}
             </span>
           </div>
         </div>
 
-        <div className="cp-success-actions">
+        <div className="ss-actions">
           <button
-            className="cp-btn-primary cp-btn-large"
+            className="ss-btn-primary ss-btn-large"
             onClick={() =>
               isGuest
                 ? navigate(`/order-lookup`)
@@ -71,14 +72,14 @@ const SuccessScreen = ({
           </button>
           {!isGuest && (
             <button
-              className="cp-btn-secondary cp-btn-large"
+              className="ss-btn-secondary ss-btn-large"
               onClick={() => navigate("/orders")}
             >
               View All Orders
             </button>
           )}
           <button
-            className="cp-btn-outline cp-btn-large"
+            className="ss-btn-outline ss-btn-large"
             onClick={() => navigate("/")}
           >
             <FaHome /> Continue Shopping
@@ -86,10 +87,10 @@ const SuccessScreen = ({
         </div>
 
         {isGuest && (
-          <div className="success-guest-note">
+          <div className="ss-guest-note">
             <p>
               <strong>Save your order number:</strong>{" "}
-              <span className="order-number-highlight">
+              <span className="ss-order-number-highlight">
                 {orderResult.order_number}
               </span>
             </p>
@@ -100,16 +101,16 @@ const SuccessScreen = ({
           </div>
         )}
 
-        <div className="cp-success-note">
+        <div className="ss-note">
           <p>
             <strong>What happens next?</strong>
           </p>
           <ul>
-            <li>We'll send you shipping updates via email</li>
+            <li>We'll send you order updates via email</li>
             {shippingMethodName && (
               <DeliveryEstimate
                 shippingMethodName={shippingMethodName}
-                className="cp-review-delivery-estimate"
+                className="ss-review-delivery-estimate"
               />
             )}
           </ul>

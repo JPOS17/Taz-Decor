@@ -1,88 +1,67 @@
-/* =============================================================================
-   DeliveryEstimate.css
-   Companion styles for the DeliveryEstimate universal component.
-   ============================================================================= */
+/* ============================================================================
+   DELIVERY ESTIMATE
+   Prefix: de-*
+   Imports: Tokens.css → this file
+   ============================================================================ */
 
-.delivery-estimate {
+.de-delivery-estimate {
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
   padding: 0.75rem 1rem;
-  background: #f0faf4;
-  border: 1px solid #b7e4c7;
-  border-radius: 8px;
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-md);
   margin-top: 0.75rem;
 }
 
-/* ── Icon ────────────────────────────────────────────────────────────────── */
-
-.delivery-estimate__icon {
+.de-icon {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 2px;
-  color: #2d6a4f;
+  color: var(--color-success);
   font-size: 1rem;
 }
 
-/* ── Text stack ──────────────────────────────────────────────────────────── */
-
-.delivery-estimate__body {
+.de-body {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
   line-height: 1.3;
 }
 
-.delivery-estimate__label {
+.de-label {
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #2d6a4f;
+  color: var(--color-success);
 }
 
-.delivery-estimate__range {
+.de-range {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #1b4332;
+  color: var(--color-success-dark);
 }
 
-.delivery-estimate__sub {
+.de-sub {
   font-size: 0.72rem;
-  color: #52796f;
+  color: var(--color-success-text);
 }
 
-/* Carrier attribution — makes clear this is an estimate, not a promise */
-.delivery-estimate__disclaimer {
+.de-disclaimer {
   font-size: 0.68rem;
-  color: #74a08a;
+  color: var(--color-success-hover);
   font-style: italic;
   margin-top: 0.1rem;
 }
 
-/* =============================================================================
-   Context-specific overrides
-   ============================================================================= */
-
-/* Inside the shipping options selector — sits right below a selected option */
-.shipping-option-selected .delivery-estimate {
-  margin-top: 0.5rem;
-  border-radius: 0 0 6px 6px;
-  border-top: none;
-}
-
-/* Inside the order confirmation page — slightly more breathing room */
-.oc-details-section .delivery-estimate,
-.order-result-body .delivery-estimate {
-  margin-top: 1rem;
-}
-
-/* Print — keep it clean */
+/* Print */
 @media print {
-  .delivery-estimate {
+  .de-delivery-estimate {
     background: none;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border);
   }
 }

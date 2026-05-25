@@ -3,6 +3,7 @@ import { useCart } from "../../context/CartContext";
 import { FaRegHeart } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
+import "../../styles/components/universal/TopBar.css";
 
 const NavIcons = () => {
   const { getCartCount, wishlistItems } = useCart();
@@ -34,10 +35,15 @@ const NavIcons = () => {
   return (
     <>
       {icons.map(({ to, icon, label, count }) => (
-        <Link className="topbar-icon-link" key={to} to={to} data-label={label}>
-          <span className="topbar-icon-wrapper">
+        <Link
+          className="tb-topbar-icon-link"
+          key={to}
+          to={to}
+          data-label={label}
+        >
+          <span className="tb-topbar-icon-wrapper">
             {icon}
-            {count > 0 && <span className="topbar-icon-badge">{count}</span>}
+            {count > 0 && <span className="tb-topbar-icon-badge">{count}</span>}
           </span>
         </Link>
       ))}

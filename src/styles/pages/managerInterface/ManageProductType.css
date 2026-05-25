@@ -1,0 +1,232 @@
+/* ============================================================================
+   MANAGE PRODUCT TYPES
+   Imports: tokens.css → components.css → ManagerShared.css → this file
+   Accent: apply .accent-orange to .manager-dashboard wrapper in JSX
+
+   Unique to this page:
+   - SKU badge style
+   - Mobile card-flip table layout (thead hidden, td::before labels)
+   - mpt-* aliases for existing JSX
+   ============================================================================ */
+
+/* ── Panel alias ── */
+.mpt-panel {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+}
+
+.mpt-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.mpt-section-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+
+/* ── Button aliases ── */
+.mpt-btn {
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  transition: all 0.18s ease;
+  padding: 0.6rem 1.25rem;
+}
+
+.mpt-btn-sm               { padding: 0.4rem 0.875rem; }
+.mpt-btn:disabled         { opacity: 0.5; cursor: not-allowed; }
+.mpt-btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.mpt-btn-primary   { background-color: var(--accent);        color: white; }
+.mpt-btn-primary:not(:disabled):hover  { background-color: var(--accent-dark); }
+.mpt-btn-success   { background-color: var(--color-success); color: white; }
+.mpt-btn-success:not(:disabled):hover  { background-color: #15803d; }
+.mpt-btn-success:disabled { background-color: var(--text-secondary); }
+.mpt-btn-secondary { background-color: #6b7280; color: white; }
+.mpt-btn-secondary:not(:disabled):hover { background-color: #4b5563; }
+
+/* ── Form aliases ── */
+.mpt-form {
+  background-color: var(--accent-light);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.mpt-form-title  { margin: 0 0 1rem 0; color: var(--accent); font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.mpt-form-group  { margin-bottom: 1.25rem; }
+.mpt-form-label  { display: block; font-weight: 600; font-size: 0.8125rem; margin-bottom: 0.5rem; color: var(--text-primary); letter-spacing: 0.01em; }
+
+.mpt-form-input,
+.mpt-form-textarea {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  background-color: var(--card);
+  color: var(--text-primary);
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.mpt-form-input:hover:not(:disabled),
+.mpt-form-textarea:hover:not(:disabled)  { border-color: var(--accent); }
+.mpt-form-input:focus,
+.mpt-form-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.mpt-form-input:disabled,
+.mpt-form-textarea:disabled { background-color: var(--bg); cursor: not-allowed; opacity: 0.6; }
+
+.mpt-form-textarea { resize: vertical; min-height: 80px; }
+.mpt-form-helper   { margin: 0.5rem 0 0 0; font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
+
+/* Format preview (blue info box, same as mc-name-preview) */
+.mpt-format-preview {
+  margin-top: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  color: #1e40af;
+}
+
+.mpt-format-preview strong { font-weight: 700; }
+.mpt-format-preview span   { font-weight: 600; }
+.mpt-form-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+
+/* ── Table aliases ── */
+.mpt-table-container {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.mpt-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--card);
+  font-size: 0.875rem;
+}
+
+.mpt-table thead tr { background-color: var(--accent-light); border-bottom: 1px solid var(--border); }
+.mpt-table th { padding: 0.875rem 1rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+.mpt-table td { padding: 0.875rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+.mpt-table tbody tr { transition: background-color 0.18s ease; }
+.mpt-table tbody tr:hover { background-color: var(--accent-light); }
+.mpt-table tbody tr.mpt-row-editing { background-color: #fffbeb; }
+.mpt-table tbody tr:last-child td { border-bottom: none; }
+
+/* ── SKU badge — UNIQUE ── */
+.mpt-sku-cell  { width: 120px; font-weight: 600; }
+
+.mpt-sku-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.625rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
+.mpt-name-cell        { font-weight: 600; color: var(--text-primary); }
+.mpt-description-cell { color: var(--text-secondary); }
+.mpt-actions-col      { width: 120px; text-align: right; }
+.mpt-actions-cell     { text-align: right; }
+
+/* ── Empty state ── */
+.mpt-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-secondary);
+  background-color: var(--accent-light);
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+}
+
+.mpt-empty p { font-size: 1rem; margin: 0; }
+
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .mpt-actions-bar { flex-direction: column; align-items: stretch; }
+  .mpt-actions-bar .mpt-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 768px) {
+  .mpt-panel { padding: 1rem; }
+  .mpt-form-actions { flex-direction: column; }
+  .mpt-form-actions .mpt-btn { width: 100%; justify-content: center; }
+
+  /* Card-flip table — UNIQUE mobile pattern */
+  .mpt-table-container { border: none; }
+
+  .mpt-table,
+  .mpt-table thead,
+  .mpt-table tbody,
+  .mpt-table th,
+  .mpt-table td,
+  .mpt-table tr { display: block; }
+
+  .mpt-table thead tr { position: absolute; top: -9999px; left: -9999px; }
+
+  .mpt-table tr {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: var(--card);
+  }
+
+  .mpt-table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    text-align: right;
+  }
+
+  .mpt-sku-cell { width: auto; text-align: right; }
+  .mpt-sku-badge { display: inline-flex; }
+
+  .mpt-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.75rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    text-align: left;
+  }
+
+  .mpt-actions-cell { padding-left: 0.75rem; text-align: left; }
+  .mpt-actions-cell .mpt-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 576px) {
+  .mpt-panel { padding: 0.75rem; }
+}

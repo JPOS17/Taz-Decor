@@ -124,8 +124,8 @@ export const CouponWizard = ({
   };
 
   return (
-    <div className="coupon-modal-overlay">
-      <div className="coupon-modal-content coupon-modal-wizard">
+    <div className="mgr-modal-overlay">
+      <div className="mgr-modal-content coupon-modal-wizard">
         <div className="coupon-wizard-header">
           <h2>{editingCoupon ? "Edit Coupon" : "Create New Coupon"}</h2>
 
@@ -163,8 +163,8 @@ export const CouponWizard = ({
           {modalStep === 1 && (
             <div className="coupon-wizard-step">
               {/* Store Location - ABOVE Coupon Code */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-label">Store Location *</label>
+              <div className="mgr-form-group">
+                <label className="mgr-form-label">Store Location *</label>
                 <CustomSelect
                   options={[
                     ...locations.map((loc) => ({
@@ -212,18 +212,18 @@ export const CouponWizard = ({
                   }
                 />
                 {validationErrors.location_ids && (
-                  <span className="coupon-error-message">
+                  <span className="mgr-form-error">
                     {validationErrors.location_ids}
                   </span>
                 )}
-                <small className="coupon-form-hint">
+                <small className="mgr-form-hint">
                   Select which store location(s)
                 </small>
               </div>
 
               {/* Coupon Code - BELOW Store Location */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-label">Coupon Code *</label>
+              <div className="mgr-form-group">
+                <label className="mgr-form-label">Coupon Code *</label>
                 <input
                   type="text"
                   value={formData.coupon_code}
@@ -241,18 +241,18 @@ export const CouponWizard = ({
                   }}
                   placeholder="e.g., SAVE20"
                   disabled={!!editingCoupon}
-                  className={`coupon-form-input ${validationErrors.coupon_code ? "coupon-input-error" : ""}`}
+                  className={`mgr-form-input ${validationErrors.coupon_code ? "coupon-input-error" : ""}`}
                 />
                 {validationErrors.coupon_code && (
-                  <span className="coupon-error-message">
+                  <span className="mgr-form-error">
                     {validationErrors.coupon_code}
                   </span>
                 )}
               </div>
 
               {/* Description */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-label">Description</label>
+              <div className="mgr-form-group">
+                <label className="mgr-form-label">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) =>
@@ -263,7 +263,7 @@ export const CouponWizard = ({
                   }
                   placeholder="Internal description for tracking"
                   rows={3}
-                  className="coupon-form-textarea"
+                  className="mgr-form-textarea"
                 />
               </div>
             </div>
@@ -273,8 +273,8 @@ export const CouponWizard = ({
           {modalStep === 2 && (
             <div className="coupon-wizard-step">
               {/* Coupon Select */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-label">
+              <div className="mgr-form-group">
+                <label className="mgr-form-label">
                   This coupon applies to *
                 </label>
                 <CustomSelect
@@ -325,7 +325,7 @@ export const CouponWizard = ({
                   }
                 />
                 {validationErrors.applies_to_type && (
-                  <span className="coupon-error-message">
+                  <span className="mgr-form-error">
                     {validationErrors.applies_to_type}
                   </span>
                 )}
@@ -333,8 +333,8 @@ export const CouponWizard = ({
 
               {/* If Category Selected */}
               {formData.applies_to_type === "category" && (
-                <div className="coupon-form-group">
-                  <label className="coupon-form-label">Select Category *</label>
+                <div className="mgr-form-group">
+                  <label className="mgr-form-label">Select Category *</label>
                   <CustomSelect
                     options={[
                       { value: "", label: "Choose a category..." },
@@ -363,7 +363,7 @@ export const CouponWizard = ({
                     }
                   />
                   {validationErrors.applies_to_id && (
-                    <span className="coupon-error-message">
+                    <span className="mgr-form-error">
                       {validationErrors.applies_to_id}
                     </span>
                   )}
@@ -372,8 +372,8 @@ export const CouponWizard = ({
               {/* If Product Type Selected */}
 
               {formData.applies_to_type === "product_type" && (
-                <div className="coupon-form-group">
-                  <label className="coupon-form-label">
+                <div className="mgr-form-group">
+                  <label className="mgr-form-label">
                     Select Product Type *
                   </label>
                   <CustomSelect
@@ -404,7 +404,7 @@ export const CouponWizard = ({
                     }
                   />
                   {validationErrors.applies_to_id && (
-                    <span className="coupon-error-message">
+                    <span className="mgr-form-error">
                       {validationErrors.applies_to_id}
                     </span>
                   )}
@@ -413,8 +413,8 @@ export const CouponWizard = ({
               {/* If Product Selected */}
 
               {formData.applies_to_type === "product" && (
-                <div className="coupon-form-group">
-                  <label className="coupon-form-label">Select Product *</label>
+                <div className="mgr-form-group">
+                  <label className="mgr-form-label">Select Product *</label>
                   <CustomSelect
                     options={[
                       { value: "", label: "Choose a product..." },
@@ -443,7 +443,7 @@ export const CouponWizard = ({
                     }
                   />
                   {validationErrors.applies_to_id && (
-                    <span className="coupon-error-message">
+                    <span className="mgr-form-error">
                       {validationErrors.applies_to_id}
                     </span>
                   )}
@@ -453,8 +453,8 @@ export const CouponWizard = ({
 
               {formData.applies_to_type === "variant" && (
                 <>
-                  <div className="coupon-form-group">
-                    <label className="coupon-form-label">
+                  <div className="mgr-form-group">
+                    <label className="mgr-form-label">
                       First, Select Product *
                     </label>
                     <CustomSelect
@@ -480,8 +480,8 @@ export const CouponWizard = ({
                   </div>
 
                   {selectedProductForVariant && (
-                    <div className="coupon-form-group">
-                      <label className="coupon-form-label">
+                    <div className="mgr-form-group">
+                      <label className="mgr-form-label">
                         Then, Select Variant *
                       </label>
                       <CustomSelect
@@ -518,7 +518,7 @@ export const CouponWizard = ({
                         }
                       />
                       {validationErrors.applies_to_id && (
-                        <span className="coupon-error-message">
+                        <span className="mgr-form-error">
                           {validationErrors.applies_to_id}
                         </span>
                       )}
@@ -529,8 +529,8 @@ export const CouponWizard = ({
               {/* If Custom Group Selected */}
 
               {formData.applies_to_type === "custom_group" && (
-                <div className="coupon-form-group">
-                  <label className="coupon-form-label">
+                <div className="mgr-form-group">
+                  <label className="mgr-form-label">
                     Build Custom Product Group *
                   </label>
                   <div className="coupon-custom-group-builder">
@@ -695,11 +695,11 @@ export const CouponWizard = ({
                     )}
                   </div>
                   {validationErrors.custom_group && (
-                    <span className="coupon-error-message">
+                    <span className="mgr-form-error">
                       {validationErrors.custom_group}
                     </span>
                   )}
-                  <small className="coupon-form-hint">
+                  <small className="mgr-form-hint">
                     {customGroupProducts.length === 0
                       ? "Select at least one product to create a custom group"
                       : `${customGroupProducts.length} product${customGroupProducts.length !== 1 ? "s" : ""} selected - ${Object.values(customGroupVariants).flat().length} variant${Object.values(customGroupVariants).flat().length !== 1 ? "s" : ""} will be included`}
@@ -713,8 +713,8 @@ export const CouponWizard = ({
           {modalStep === 3 && (
             <div className="coupon-wizard-step">
               {/* Discount Type */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-label">Discount Type *</label>
+              <div className="mgr-form-group">
+                <label className="mgr-form-label">Discount Type *</label>
                 <CustomSelect
                   options={[
                     { value: "", label: "--Select--" },
@@ -759,12 +759,12 @@ export const CouponWizard = ({
                   }
                 />
                 {validationErrors.discount_type && (
-                  <span className="coupon-error-message">
+                  <span className="mgr-form-error">
                     {validationErrors.discount_type}
                   </span>
                 )}
                 {formData.applies_to_type !== "all" && (
-                  <small className="coupon-form-hint">
+                  <small className="mgr-form-hint">
                     Fixed amount and free shipping discounts are only available
                     when applying to All Products
                   </small>
@@ -773,33 +773,9 @@ export const CouponWizard = ({
 
               {/* ── No type selected ── */}
               {!formData.discount_type ? (
-                <div
-                  className="coupon-info-message"
-                  style={{
-                    backgroundColor: "#fff3cd",
-                    border: "1px solid #ffc107",
-                    borderRadius: "4px",
-                    padding: "16px",
-                    marginTop: "12px",
-                  }}
-                >
-                  <strong
-                    style={{
-                      display: "block",
-                      color: "#856404",
-                      marginBottom: "8px",
-                      fontSize: "16px",
-                    }}
-                  >
-                    Please Select a Discount Type
-                  </strong>
-                  <p
-                    style={{
-                      margin: "8px 0",
-                      color: "#856404",
-                      lineHeight: "1.5",
-                    }}
-                  >
+                <div className="coupon-info-message coupon-info-message-warning">
+                  <strong>Please Select a Discount Type</strong>
+                  <p>
                     Choose one of the discount types above to continue creating
                     your coupon.
                   </p>
@@ -807,8 +783,8 @@ export const CouponWizard = ({
               ) : /* ── BOGO ── */
               formData.discount_type === "bogo" ? (
                 <>
-                  <div className="coupon-form-group">
-                    <label className="coupon-form-label">Buy Quantity *</label>
+                  <div className="mgr-form-group">
+                    <label className="mgr-form-label">Buy Quantity *</label>
                     <input
                       type="number"
                       value={formData.bogo_buy_quantity ?? ""}
@@ -828,17 +804,17 @@ export const CouponWizard = ({
                       }}
                       min="1"
                       placeholder="1"
-                      className={`coupon-form-input ${validationErrors.bogo_buy_quantity ? "coupon-input-error" : ""}`}
+                      className={`mgr-form-input ${validationErrors.bogo_buy_quantity ? "coupon-input-error" : ""}`}
                     />
                     {validationErrors.bogo_buy_quantity && (
-                      <span className="coupon-error-message">
+                      <span className="mgr-form-error">
                         {validationErrors.bogo_buy_quantity}
                       </span>
                     )}
                   </div>
 
-                  <div className="coupon-form-group">
-                    <label className="coupon-form-label">Get Quantity *</label>
+                  <div className="mgr-form-group">
+                    <label className="mgr-form-label">Get Quantity *</label>
                     <input
                       type="number"
                       value={formData.bogo_get_quantity ?? ""}
@@ -858,17 +834,17 @@ export const CouponWizard = ({
                       }}
                       min="1"
                       placeholder="1"
-                      className={`coupon-form-input ${validationErrors.bogo_get_quantity ? "coupon-input-error" : ""}`}
+                      className={`mgr-form-input ${validationErrors.bogo_get_quantity ? "coupon-input-error" : ""}`}
                     />
                     {validationErrors.bogo_get_quantity && (
-                      <span className="coupon-error-message">
+                      <span className="mgr-form-error">
                         {validationErrors.bogo_get_quantity}
                       </span>
                     )}
                   </div>
 
-                  <div className="coupon-form-group">
-                    <label className="coupon-form-label">Discount % *</label>
+                  <div className="mgr-form-group">
+                    <label className="mgr-form-label">Discount % *</label>
                     <input
                       type="number"
                       value={formData.bogo_discount_percentage ?? ""}
@@ -889,16 +865,14 @@ export const CouponWizard = ({
                       min="1"
                       max="100"
                       placeholder="50"
-                      className={`coupon-form-input ${validationErrors.bogo_discount_percentage ? "coupon-input-error" : ""}`}
+                      className={`mgr-form-input ${validationErrors.bogo_discount_percentage ? "coupon-input-error" : ""}`}
                     />
                     {validationErrors.bogo_discount_percentage && (
-                      <span className="coupon-error-message">
+                      <span className="mgr-form-error">
                         {validationErrors.bogo_discount_percentage}
                       </span>
                     )}
-                    <small className="coupon-form-hint">
-                      1–100% (100 = Free)
-                    </small>
+                    <small className="mgr-form-hint">1–100% (100 = Free)</small>
                   </div>
 
                   <div className="coupon-bogo-preview">
@@ -913,41 +887,17 @@ export const CouponWizard = ({
               ) : /* ── Free Shipping Only ── */
               formData.discount_type === "free_shipping_only" ? (
                 <>
-                  <div
-                    className="coupon-info-message"
-                    style={{
-                      backgroundColor: "#e3f2fd",
-                      border: "1px solid #2196f3",
-                      borderRadius: "4px",
-                      padding: "16px",
-                      marginTop: "12px",
-                    }}
-                  >
-                    <strong
-                      style={{
-                        display: "block",
-                        color: "#1976d2",
-                        marginBottom: "8px",
-                        fontSize: "16px",
-                      }}
-                    >
-                      Free Shipping Only
-                    </strong>
-                    <p
-                      style={{
-                        margin: "8px 0",
-                        color: "#424242",
-                        lineHeight: "1.5",
-                      }}
-                    >
+                  <div className="coupon-info-message coupon-info-message-info">
+                    <strong>Free Shipping Only</strong>
+                    <p>
                       This coupon will provide free shipping without any
                       additional discount. You must set a minimum purchase
                       amount below.
                     </p>
                   </div>
 
-                  <div className="coupon-form-group">
-                    <label className="coupon-form-label">
+                  <div className="mgr-form-group">
+                    <label className="mgr-form-label">
                       Minimum Purchase Amount *
                     </label>
                     <div className="coupon-input-with-prefix">
@@ -972,15 +922,15 @@ export const CouponWizard = ({
                         placeholder="e.g., 50.00"
                         step="0.01"
                         min="0"
-                        className={`coupon-form-input ${validationErrors.min_purchase_amount ? "coupon-input-error" : ""}`}
+                        className={`mgr-form-input ${validationErrors.min_purchase_amount ? "coupon-input-error" : ""}`}
                       />
                     </div>
                     {validationErrors.min_purchase_amount && (
-                      <span className="coupon-error-message">
+                      <span className="mgr-form-error">
                         {validationErrors.min_purchase_amount}
                       </span>
                     )}
-                    <small className="coupon-form-hint">
+                    <small className="mgr-form-hint">
                       Free shipping will only apply if order total meets or
                       exceeds this amount
                     </small>
@@ -990,10 +940,8 @@ export const CouponWizard = ({
                 /* ── Percentage / Fixed ── */
                 <>
                   {/* Discount Value */}
-                  <div className="coupon-form-group">
-                    <label className="coupon-form-label">
-                      Discount Value *
-                    </label>
+                  <div className="mgr-form-group">
+                    <label className="mgr-form-label">Discount Value *</label>
                     <div className="coupon-input-with-prefix">
                       {formData.discount_type === "percentage" && (
                         <span className="coupon-input-prefix">%</span>
@@ -1030,18 +978,18 @@ export const CouponWizard = ({
                             ? "100"
                             : undefined
                         }
-                        className={`coupon-form-input ${validationErrors.discount_value ? "coupon-input-error" : ""}`}
+                        className={`mgr-form-input ${validationErrors.discount_value ? "coupon-input-error" : ""}`}
                       />
                     </div>
                     {validationErrors.discount_value && (
-                      <span className="coupon-error-message">
+                      <span className="mgr-form-error">
                         {validationErrors.discount_value}
                       </span>
                     )}
                   </div>
                   {/* Min Purchase */}
-                  <div className="coupon-form-group">
-                    <label className="coupon-form-label">
+                  <div className="mgr-form-group">
+                    <label className="mgr-form-label">
                       Minimum Purchase Amount
                       {formData.discount_type === "fixed" && " *"}
                     </label>
@@ -1067,17 +1015,17 @@ export const CouponWizard = ({
                         placeholder="0.00"
                         step="0.01"
                         min="0"
-                        className={`coupon-form-input ${validationErrors.min_purchase_amount ? "coupon-input-error" : ""}`}
+                        className={`mgr-form-input ${validationErrors.min_purchase_amount ? "coupon-input-error" : ""}`}
                       />
                     </div>
                     {validationErrors.min_purchase_amount && (
-                      <span className="coupon-error-message">
+                      <span className="mgr-form-error">
                         {validationErrors.min_purchase_amount}
                       </span>
                     )}
                     {formData.discount_type === "fixed" &&
                       formData.discount_value && (
-                        <small className="coupon-form-hint">
+                        <small className="mgr-form-hint">
                           Required: Minimum $
                           {(formData.discount_value * 5).toFixed(2)} (5×
                           discount amount)
@@ -1085,8 +1033,8 @@ export const CouponWizard = ({
                       )}
                   </div>
                   {/* Max Purchase */}
-                  <div className="coupon-form-group">
-                    <label className="coupon-form-label">
+                  <div className="mgr-form-group">
+                    <label className="mgr-form-label">
                       Maximum Discount Amount
                     </label>
                     <div className="coupon-input-with-prefix">
@@ -1105,10 +1053,10 @@ export const CouponWizard = ({
                         placeholder="No limit"
                         step="0.01"
                         min="0"
-                        className="coupon-form-input"
+                        className="mgr-form-input"
                       />
                     </div>
-                    <small className="coupon-form-hint">
+                    <small className="mgr-form-hint">
                       Cap total discount (useful for % off)
                     </small>
                   </div>
@@ -1121,8 +1069,8 @@ export const CouponWizard = ({
           {modalStep === 4 && (
             <div className="coupon-wizard-step">
               {/* Total Usage Limit */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-label">Total Usage Limit</label>
+              <div className="mgr-form-group">
+                <label className="mgr-form-label">Total Usage Limit</label>
                 <input
                   type="number"
                   value={formData.usage_limit_total ?? ""}
@@ -1136,15 +1084,15 @@ export const CouponWizard = ({
                   }}
                   placeholder="Unlimited"
                   min="1"
-                  className="coupon-form-input"
+                  className="mgr-form-input"
                 />
-                <small className="coupon-form-hint">
+                <small className="mgr-form-hint">
                   Max times this coupon can be used total
                 </small>
               </div>
               {/* Usage Per User */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-label">Per User Limit</label>
+              <div className="mgr-form-group">
+                <label className="mgr-form-label">Per User Limit</label>
                 <input
                   type="number"
                   value={formData.usage_limit_per_user ?? ""}
@@ -1158,16 +1106,14 @@ export const CouponWizard = ({
                   }}
                   placeholder="Unlimited"
                   min="1"
-                  className="coupon-form-input"
+                  className="mgr-form-input"
                 />
-                <small className="coupon-form-hint">
-                  Max times per customer
-                </small>
+                <small className="mgr-form-hint">Max times per customer</small>
               </div>
 
               {/* Requires Email Check */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-checkbox-label">
+              <div className="mgr-form-group">
+                <label className="mgr-checkbox-label">
                   <input
                     type="checkbox"
                     checked={formData.requires_verified_email}
@@ -1182,25 +1128,25 @@ export const CouponWizard = ({
                 </label>
               </div>
               {/* Valid From */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-label">Valid From</label>
+              <div className="mgr-form-group">
+                <label className="mgr-form-label">Valid From</label>
                 <input
                   type="date"
                   value={formData.valid_from}
                   onChange={(e) =>
                     setFormData({ ...formData, valid_from: e.target.value })
                   }
-                  className="coupon-form-input"
+                  className="mgr-form-input"
                 />
                 {validationErrors.valid_from && (
-                  <span className="coupon-error-message">
+                  <span className="mgr-form-error">
                     {validationErrors.valid_from}
                   </span>
                 )}
               </div>
               {/* Valid Until */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-label">Valid Until</label>
+              <div className="mgr-form-group">
+                <label className="mgr-form-label">Valid Until</label>
                 <input
                   type="date"
                   value={formData.valid_until || ""}
@@ -1210,12 +1156,12 @@ export const CouponWizard = ({
                       valid_until: e.target.value || undefined,
                     })
                   }
-                  className="coupon-form-input"
+                  className="mgr-form-input"
                 />
               </div>
               {/* Is Active */}
-              <div className="coupon-form-group">
-                <label className="coupon-form-checkbox-label">
+              <div className="mgr-form-group">
+                <label className="mgr-checkbox-label">
                   <input
                     type="checkbox"
                     checked={formData.is_active}
@@ -1287,29 +1233,26 @@ export const CouponWizard = ({
 
         {/* Footer */}
         <div className="coupon-wizard-footer">
-          <button onClick={onClose} className="coupon-btn coupon-btn-secondary">
+          <button onClick={onClose} className="mgr-btn mgr-btn-secondary">
             Cancel
           </button>
           <div className="coupon-wizard-navigation">
             {modalStep > 1 && (
               <button
                 onClick={() => setModalStep(modalStep - 1)}
-                className="coupon-btn coupon-btn-secondary"
+                className="mgr-btn mgr-btn-secondary"
               >
                 Back
               </button>
             )}
             {modalStep < TOTAL_STEPS ? (
-              <button
-                onClick={handleNext}
-                className="coupon-btn coupon-btn-primary"
-              >
+              <button onClick={handleNext} className="mgr-btn mgr-btn-primary">
                 Next
               </button>
             ) : (
               <button
                 onClick={handleSubmit}
-                className="coupon-btn coupon-btn-primary"
+                className="mgr-btn mgr-btn-primary"
               >
                 {editingCoupon ? "Update Coupon" : "Create Coupon"}
               </button>

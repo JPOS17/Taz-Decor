@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchCategories, type Category } from "../../../api/categories";
+
 import "../../../styles/components/customerInterface/items/CategoryDropDown.css";
 
 interface CategoryDropDownProps {
@@ -66,43 +67,57 @@ const CategoryDropDown = ({
   };
 
   return (
-    <div className="category-dropdown-container">
+    <div className="cdd-container">
       {loading ? (
-        <div className="category-dropdown-loading">Loading categories...</div>
+        <div className="cdd-loading">Loading categories...</div>
       ) : error ? (
-        <div className="category-dropdown-error">Error: {error}</div>
+        <div className="cdd-error">Error: {error}</div>
       ) : (
-        <div className="category-dropdown-wrapper" ref={dropdownRef}>
+        <div className="cdd-wrapper" ref={dropdownRef}>
           <button
-            className={`category-dropdown-toggle ${isOpen ? "open" : ""}`}
+            className={["cdd-toggle", isOpen ? "cdd-toggle--open" : ""]
+              .filter(Boolean)
+              .join(" ")}
             onClick={handleToggle}
             type="button"
             aria-expanded={isOpen}
           >
             Category: {activeCategoryName}
-            <span className="category-dropdown-icon">▼</span>
+            <span className="cdd-icon">▼</span>
           </button>
 
-          <ul className={`category-dropdown-menu ${isOpen ? "open" : ""}`}>
+          <ul
+            className={["cdd-menu", isOpen ? "cdd-menu--open" : ""]
+              .filter(Boolean)
+              .join(" ")}
+          >
             {/* "All" option */}
-            <li className="category-dropdown-item">
+            <li className="cdd-item">
               <button
-                className={`category-dropdown-item-button ${
-                  activeCategoryId === null ? "active" : ""
-                }`}
+                className={[
+                  "cdd-item-btn",
+                  activeCategoryId === null ? "cdd-item-btn--active" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={() => handleSelect(null, "All")}
               >
                 All
               </button>
             </li>
 
-            {/* Dynamic categories from database */}
+            {/* Fetch categories from DB */}
             {categories.map((category) => (
-              <li key={category.category_id} className="category-dropdown-item">
+              <li key={category.category_id} className="cdd-item">
                 <button
-                  className={`category-dropdown-item-button ${
-                    activeCategoryId === category.category_id ? "active" : ""
-                  }`}
+                  className={[
+                    "cdd-item-btn",
+                    activeCategoryId === category.category_id
+                      ? "cdd-item-btn--active"
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                   onClick={() =>
                     handleSelect(category.category_id, category.category_name)
                   }

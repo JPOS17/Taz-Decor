@@ -24,23 +24,29 @@ const ConfirmModal = ({
 }: ConfirmModalProps) => {
   if (!isOpen) return null;
 
+  const confirmBtnVariantClass = {
+    danger: "confirm-modal-btn-confirm--danger",
+    warning: "confirm-modal-btn-confirm--warning",
+    info: "confirm-modal-btn-confirm--info",
+  }[variant];
+
   return (
-    <div className="cm-overlay" onClick={onCancel}>
+    <div className="confirm-modal-overlay" onClick={onCancel}>
       <div
-        className={`cm-modal cm-modal--${variant}`}
+        className={`confirm-modal confirm-modal--${variant}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="cm-icon">
+        <div className="confirm-modal-icon">
           <FaExclamationTriangle size={40} />
         </div>
-        <h3 className="cm-title">{title}</h3>
-        <p className="cm-message">{message}</p>
-        <div className="cm-actions">
-          <button className="cm-btn-cancel" onClick={onCancel}>
+        <h3 className="confirm-modal-title">{title}</h3>
+        <p className="confirm-modal-message">{message}</p>
+        <div className="confirm-modal-actions">
+          <button className="confirm-modal-btn-cancel" onClick={onCancel}>
             {cancelLabel}
           </button>
           <button
-            className={`cm-btn-confirm cm-btn-confirm--${variant}`}
+            className={`confirm-modal-btn-confirm ${confirmBtnVariantClass}`}
             onClick={onConfirm}
           >
             {confirmLabel}

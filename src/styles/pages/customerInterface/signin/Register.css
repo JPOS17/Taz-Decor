@@ -1,0 +1,244 @@
+/* ============================================================================
+   REGISTER PAGE
+   Imports: Tokens.css → this file
+   Prefix: register-*
+   ============================================================================ */
+
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-page-bg);
+  padding: 20px;
+  font-family: var(--font-sans);
+}
+
+.register-card {
+  background: var(--color-surface-gradient);
+  border: 1.5px solid var(--color-border-accent);
+  border-radius: var(--radius-2xl);
+  width: 100%;
+  max-width: 520px;
+  padding: 48px 40px;
+  animation: register-slide-up 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes register-slide-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.register-title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  margin-bottom: 8px;
+  letter-spacing: 0.01em;
+}
+
+.register-subtitle {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.register-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.register-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.register-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-strong);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.register-required {
+  color: var(--color-danger);
+  margin-left: 2px;
+}
+
+.register-input {
+  padding: 11px 15px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  background: var(--color-surface-solid);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-strongest);
+  transition: all 0.22s ease;
+  outline: none;
+}
+
+.register-input:focus {
+  border-color: var(--color-primary-mid);
+  background: var(--color-surface-solid);
+  box-shadow: 0 0 0 3px var(--color-primary-mid-alpha-20);
+}
+
+.register-input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.register-input:-webkit-autofill,
+.register-input:-webkit-autofill:hover,
+.register-input:-webkit-autofill:focus,
+.register-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-surface-solid) inset !important;
+  -webkit-text-fill-color: var(--color-text-strongest) !important;
+  caret-color: var(--color-text-strongest);
+  border-color: var(--color-primary-mid) !important;
+}
+
+.register-error-message {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-dark);
+  padding: 11px 15px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  border-left: 3px solid var(--color-danger);
+}
+
+/* ============================================================================
+   PASSWORD STRENGTH
+   ============================================================================ */
+
+.register-password-strength {
+  margin-top: 8px;
+}
+
+.register-strength-bar {
+  height: 4px;
+  background: var(--color-border-light);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.register-strength-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.register-strength-0 { width: 0%;   background: var(--color-danger); }
+.register-strength-1 { width: 20%;  background: var(--color-danger); }
+.register-strength-2 { width: 40%;  background: var(--color-strength-weak); }
+.register-strength-3 { width: 60%;  background: var(--color-primary-mid); }
+.register-strength-4 { width: 80%;  background: var(--color-strength-strong); }
+.register-strength-5 { width: 100%; background: var(--color-success); }
+
+.register-password-requirements {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.register-password-requirements li {
+  margin: 4px 0;
+}
+
+.register-submit-btn {
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  color: var(--color-text-on-primary-alt);
+  padding: 13px 24px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 8px;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-btn);
+  position: relative;
+  overflow: hidden;
+}
+
+.register-submit-btn::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, var(--color-shimmer), transparent);
+  transition: left 0.4s ease;
+}
+
+.register-submit-btn:hover:not(:disabled)::before { left: 100%; }
+
+.register-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-hover);
+  background: linear-gradient(135deg, var(--color-success-hover) 0%, var(--color-success) 100%);
+}
+
+.register-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.register-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.register-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.register-footer-text {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.register-footer-link {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.register-footer-link:hover {
+  color: var(--color-primary-deep);
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .register-card {
+    padding: 32px 24px;
+  }
+
+  .register-title {
+    font-size: 24px;
+  }
+
+  .register-form-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

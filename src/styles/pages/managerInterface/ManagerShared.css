@@ -1,0 +1,81 @@
+/* ============================================================================
+   MANAGER SHARED
+   Imports: tokens.css → components.css → this file
+
+   This file now only contains aliases that map the old class names used in
+   child-page JSX (.manager-dashboard, .dashboard-header, .dashboard-title,
+   etc.) to the new shared component styles.
+
+   You can migrate JSX class names to mgr-* at your own pace. Once all pages
+   use the new names, delete this file.
+   ============================================================================ */
+
+/* Page shell */
+.manager-dashboard {
+  min-height: 100vh;
+  background-color: var(--bg);
+  font-family: var(--font);
+}
+
+/* Container */
+.manager-dashboard .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* Header */
+.dashboard-header {
+  background-color: var(--header-bg);
+  padding: 2rem 3rem;
+}
+
+.dashboard-back-button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0 0.75rem 0;
+  font-size: 0.8125rem;
+  font-family: var(--font);
+  font-weight: 500;
+  transition: color 0.18s ease;
+  letter-spacing: 0.01em;
+}
+
+.dashboard-back-button:hover { color: #ffffff; }
+
+.dashboard-title {
+  margin: 0 0 0.2rem 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.dashboard-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Body */
+.body {
+  padding: 2.5rem 0 4rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .dashboard-header { padding: 1.5rem 2rem; }
+}
+
+@media (max-width: 640px) {
+  .dashboard-header { padding: 1.5rem; }
+  .manager-dashboard .container { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .dashboard-title { font-size: 1.4rem; }
+}

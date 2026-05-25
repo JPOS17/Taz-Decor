@@ -34,8 +34,8 @@ export const HeaderFormatter = ({
   };
 
   return (
-    <div className="details-header">
-      <h2 className="details-title">{getTitle()}</h2>
+    <div className="mi-details-header">
+      <h2 className="mi-details-title">{getTitle()}</h2>
       <ActionButtons viewMode={viewMode} {...buttonProps} />
     </div>
   );

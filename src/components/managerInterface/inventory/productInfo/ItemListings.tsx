@@ -20,29 +20,29 @@ const ProductListItem = ({
 
   return (
     <div
-      className={`product-list-item ${isActive ? "active" : ""}`}
+      className={`mi-product-item ${isActive ? "active" : ""}`}
       onClick={onClick}
     >
       {product.primary_image ? (
         <img
           src={product.primary_image}
           alt={product.name}
-          className="product-thumbnail"
+          className="mi-product-thumbnail"
         />
       ) : (
-        <div className="product-thumbnail-placeholder">
+        <div className="mi-product-thumbnail-placeholder">
           <Package size={28} />
         </div>
       )}
 
-      <div className="product-info">
-        <h3 className="product-name">{product.name}</h3>
-        <p className="product-meta">
+      <div className="mi-product-info">
+        <h3 className="mi-product-name">{product.name}</h3>
+        <p className="mi-product-meta">
           ${product.price.toFixed(2)} • Stock: {product.stock_quantity}
           {hasVariants && (
             <>
               <br />
-              <span className="variant-info">{variantLabel}</span>
+              <span className="mi-variant-info">{variantLabel}</span>
             </>
           )}
         </p>
@@ -50,7 +50,7 @@ const ProductListItem = ({
 
       {hasVariants && (
         <span
-          className="variant-badge variant-badge-bottom"
+          className="mi-variant-badge mi-variant-badge-bottom"
           title={`This product has ${product.variant_count} variants`}
         >
           {product.variant_count}V

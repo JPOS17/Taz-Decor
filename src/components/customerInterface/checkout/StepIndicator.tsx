@@ -4,6 +4,7 @@ import {
   FaCreditCard,
   FaCheckCircle,
 } from "react-icons/fa";
+import "../../../styles/components/customerInterface/checkout/StepIndicator.css";
 
 type CheckoutStep = "cart" | "shipping" | "payment" | "review" | "success";
 
@@ -22,7 +23,7 @@ const StepIndicator = ({ currentStep }: StepIndicatorProps) => {
   const currentStepIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
-    <div className="cp-checkout-steps">
+    <div className="si-steps">
       {steps.map((step, index) => {
         const StepIcon = step.icon;
         const isActive = currentStep === step.key;
@@ -31,12 +32,18 @@ const StepIndicator = ({ currentStep }: StepIndicatorProps) => {
         return (
           <div
             key={step.key}
-            className={`cp-checkout-step ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""}`}
+            className={[
+              "si-step",
+              isActive ? "si-step--active" : "",
+              isCompleted ? "si-step--completed" : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
           >
-            <div className="cp-step-icon">
+            <div className="si-icon">
               <StepIcon />
             </div>
-            <span className="cp-step-label">{step.label}</span>
+            <span className="si-label">{step.label}</span>
           </div>
         );
       })}

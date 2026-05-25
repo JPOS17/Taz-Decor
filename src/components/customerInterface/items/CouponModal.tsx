@@ -8,6 +8,7 @@ import {
 } from "../../../api/couponCustomer";
 import { useAuth } from "../../../context/AuthContext";
 import CouponBanner from "./CouponBanner";
+
 import "../../../styles/components/customerInterface/items/CouponModal.css";
 
 interface CouponModalProps {
@@ -120,20 +121,20 @@ const CouponModal = ({
           <h3 className="coupon-modal-title">
             Select Coupon for {productName}
           </h3>
-          <button className="coupon-modal-close" onClick={onClose}>
+          <button className="coupon-modal-btn-close" onClick={onClose}>
             <FaTimes />
           </button>
         </div>
 
         <div className="coupon-modal-body">
-          {/* Guest notice — shown above coupons, margin-bottom in CSS creates separation */}
+          {/* Guest notice */}
           {!isEmailVerified && (
             <div className="coupon-modal-guest-notice">
               <FaLock className="coupon-modal-guest-icon" />
               <p>
                 Coupons are only applicable for signed-in users.{" "}
                 <button
-                  className="coupon-modal-sign-in-link"
+                  className="coupon-modal-btn-sign-in"
                   onClick={() => {
                     onClose();
                     navigate("/login");
@@ -145,11 +146,11 @@ const CouponModal = ({
             </div>
           )}
 
-          {/* Coupon list — shown for all users */}
+          {/* Coupon list */}
           {loading ? (
             <div className="coupon-modal-loading">
-              <div className="spinner-border" role="status">
-                <span className="visually-hidden">Loading...</span>
+              <div className="coupon-modal-spinner" role="status">
+                <span className="coupon-modal-visually-hidden">Loading...</span>
               </div>
             </div>
           ) : coupons.length === 0 ? (
@@ -158,9 +159,6 @@ const CouponModal = ({
             </div>
           ) : (
             <>
-              {/*
-                For guests: pointer-events none disables dropdown toggle and all clicks.
-              */}
               <div
                 style={
                   !isEmailVerified
@@ -179,11 +177,10 @@ const CouponModal = ({
                 />
               </div>
 
-              {/* Only show the remove/no-coupon option for signed-in users */}
               {isEmailVerified && (
                 <div className="coupon-modal-remove-option">
                   <button
-                    className={`coupon-remove-btn ${!selectedCoupon ? "selected" : ""}`}
+                    className={`coupon-modal-btn-remove${!selectedCoupon ? " coupon-modal-btn-remove-selected" : ""}`}
                     onClick={handleRemoveCoupon}
                   >
                     {!selectedCoupon ? "✓ " : ""}No Coupon

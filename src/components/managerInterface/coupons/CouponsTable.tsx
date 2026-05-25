@@ -43,22 +43,18 @@ export const CouponsTable = ({
     const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
 
     if (!coupon.is_active) {
-      return (
-        <span className="coupon-badge coupon-badge-secondary">Inactive</span>
-      );
+      return <span className="mgr-badge mgr-badge-secondary">Inactive</span>;
     }
     if (validUntil && validUntil < now) {
-      return <span className="coupon-badge coupon-badge-danger">Expired</span>;
+      return <span className="mgr-badge mgr-badge-danger">Expired</span>;
     }
     if (
       coupon.usage_limit_total &&
       coupon.usage_count_total >= coupon.usage_limit_total
     ) {
-      return (
-        <span className="coupon-badge coupon-badge-warning">Limit Reached</span>
-      );
+      return <span className="mgr-badge mgr-badge-warning">Limit Reached</span>;
     }
-    return <span className="coupon-badge coupon-badge-success">Active</span>;
+    return <span className="mgr-badge mgr-badge-success">Active</span>;
   };
 
   const formatDiscount = (coupon: Coupon) => {
@@ -115,8 +111,8 @@ export const CouponsTable = ({
   }
 
   return (
-    <div className="coupon-table-wrapper">
-      <table className="coupon-table">
+    <div className="mgr-table-wrapper">
+      <table className="mgr-table">
         <thead>
           <tr>
             <th>Code</th>
@@ -180,10 +176,10 @@ export const CouponsTable = ({
               </td>
               <td>{getStatusBadge(coupon)}</td>
               <td>
-                <div className="coupon-table-actions">
+                <div className="mgr-action-group">
                   <button
                     onClick={() => onPreview(coupon)}
-                    className="coupon-action-button coupon-action-preview"
+                    className="mgr-action-btn mgr-action-btn-preview"
                     title="Preview affected products"
                   >
                     <Eye size={16} />
@@ -192,7 +188,7 @@ export const CouponsTable = ({
                     onClick={() =>
                       onToggleStatus(coupon.coupon_id, coupon.is_active)
                     }
-                    className="coupon-action-button coupon-action-toggle"
+                    className="mgr-action-btn mgr-action-btn-toggle"
                     title={
                       coupon.is_active ? "Deactivate coupon" : "Activate coupon"
                     }
@@ -205,14 +201,14 @@ export const CouponsTable = ({
                   </button>
                   <button
                     onClick={() => onEdit(coupon)}
-                    className="coupon-action-button coupon-action-edit"
+                    className="mgr-action-btn mgr-action-btn-edit"
                     title="Edit coupon"
                   >
                     <Edit2 size={16} />
                   </button>
                   <button
                     onClick={() => onDelete(coupon.coupon_id)}
-                    className="coupon-action-button coupon-action-delete"
+                    className="mgr-action-btn mgr-action-btn-delete"
                     title={
                       coupon.usage_count_total > 0
                         ? "Cannot delete used coupon"

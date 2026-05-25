@@ -8,7 +8,6 @@ interface PasswordInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
   required?: boolean;
-  className?: string;
 }
 
 const PasswordInput = ({
@@ -18,17 +17,16 @@ const PasswordInput = ({
   onChange,
   placeholder,
   required = false,
-  className = "form-input",
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="password-input-wrapper">
+    <div className="pwd-input-wrapper">
       <input
         type={showPassword ? "text" : "password"}
         id={id}
         name={name}
-        className={className}
+        className="pwd-input-field"
         value={value}
         onChange={onChange}
         placeholder={placeholder}
@@ -36,7 +34,7 @@ const PasswordInput = ({
       />
       <button
         type="button"
-        className="password-toggle"
+        className="pwd-input-toggle"
         onClick={() => setShowPassword(!showPassword)}
         aria-label={showPassword ? "Hide password" : "Show password"}
       >

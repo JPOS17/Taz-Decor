@@ -2,6 +2,7 @@ import { FaExclamationTriangle, FaShippingFast, FaCheck } from "react-icons/fa";
 import type { ShippingOption } from "../../../api/checkout";
 import DeliveryEstimate from "./DeliveryEstimate";
 import LoadingSpinner from "../../universalComponents/LoadingSpinner";
+import "../../../styles/components/customerInterface/checkout/ShippingOptionsSelector.css";
 
 const SERVICE_DISPLAY_MAP: Record<string, { carrier: string; name: string }> = {
   usps_ground_advantage: { carrier: "USPS", name: "Ground Advantage" },
@@ -28,17 +29,16 @@ const ShippingOptionsSelector = ({
   onRetryCalculation,
   isFreeShippingCoupon = false,
 }: ShippingOptionsSelectorProps) => {
-  // If free shipping coupon is applied, show special message
   if (isFreeShippingCoupon) {
     return (
-      <div className="cp-shipping-options-container">
-        <h3 className="cp-shipping-title">Shipping Method</h3>
-        <div className="cp-free-shipping-coupon-notice">
-          <div className="cp-free-shipping-icon-wrapper">
+      <div className="sos-container">
+        <h3 className="sos-title">Shipping Method</h3>
+        <div className="sos-free-shipping-notice">
+          <div className="sos-free-shipping-icon-wrap">
             <FaShippingFast size={32} />
-            <FaCheck className="cp-check-overlay" size={16} />
+            <FaCheck className="sos-check-overlay" size={16} />
           </div>
-          <div className="cp-free-shipping-message">
+          <div className="sos-free-shipping-message">
             <h4>Shipping is covered!</h4>
             <p>
               Your free shipping coupon has been applied. Our team will select
@@ -53,8 +53,8 @@ const ShippingOptionsSelector = ({
 
   if (loadingShipping) {
     return (
-      <div className="cp-shipping-options-container">
-        <h3 className="cp-shipping-title">Shipping Method</h3>
+      <div className="sos-container">
+        <h3 className="sos-title">Shipping Method</h3>
         <LoadingSpinner message="Calculating shipping rates..." />
       </div>
     );
@@ -62,12 +62,12 @@ const ShippingOptionsSelector = ({
 
   if (shippingError) {
     return (
-      <div className="cp-shipping-options-container">
-        <h3 className="cp-shipping-title">Shipping Method</h3>
-        <div className="cp-shipping-error">
+      <div className="sos-container">
+        <h3 className="sos-title">Shipping Method</h3>
+        <div className="sos-error">
           <FaExclamationTriangle />
           <p>{shippingError}</p>
-          <button onClick={onRetryCalculation} className="cp-btn-retry">
+          <button onClick={onRetryCalculation} className="sos-btn-retry">
             Try again
           </button>
         </div>
@@ -77,9 +77,9 @@ const ShippingOptionsSelector = ({
 
   if (shippingOptions.length === 0) {
     return (
-      <div className="cp-shipping-options-container">
-        <h3 className="cp-shipping-title">Shipping Method</h3>
-        <div className="cp-shipping-placeholder">
+      <div className="sos-container">
+        <h3 className="sos-title">Shipping Method</h3>
+        <div className="sos-placeholder">
           <p>No Current Carriers Available</p>
         </div>
       </div>
@@ -87,19 +87,24 @@ const ShippingOptionsSelector = ({
   }
 
   return (
-    <div className="cp-shipping-options-container">
-      <h3 className="cp-shipping-title">
+    <div className="sos-container">
+      <h3 className="sos-title">
         Shipping Method ({shippingOptions.length} option
         {shippingOptions.length !== 1 ? "s" : ""} available)
       </h3>
 
-      <div className="cp-shipping-options-list">
+      <div className="sos-options-list">
         {shippingOptions.map((option) => (
           <label
             key={option.rate_id}
-            className={`cp-shipping-option ${
-              selectedShipping?.rate_id === option.rate_id ? "selected" : ""
-            }`}
+            className={[
+              "sos-option",
+              selectedShipping?.rate_id === option.rate_id
+                ? "sos-option--selected"
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
           >
             <input
               type="radio"
@@ -107,22 +112,22 @@ const ShippingOptionsSelector = ({
               value={option.rate_id}
               checked={selectedShipping?.rate_id === option.rate_id}
               onChange={() => onShippingOptionSelect(option)}
-              className="cp-shipping-radio"
+              className="sos-radio"
             />
-            <div className="cp-shipping-option-details">
-              <div className="cp-shipping-option-header">
-                <p className="cp-shipping-carrier-name">
+            <div className="sos-option-details">
+              <div className="sos-option-header">
+                <p className="sos-carrier-name">
                   {SERVICE_DISPLAY_MAP[option.service]?.carrier ??
                     option.carrier}{" "}
                   -{" "}
                   {SERVICE_DISPLAY_MAP[option.service]?.name ??
                     option.service_level_name}
                 </p>
-                <p className="cp-shipping-price">
+                <p className="sos-price">
                   ${parseFloat(option.amount).toFixed(2)}
                 </p>
               </div>
-              <p className="cp-shipping-estimate">
+              <p className="sos-estimate">
                 {option.estimated_days
                   ? `Estimated delivery: ${option.estimated_days} business day${option.estimated_days !== 1 ? "s" : ""}`
                   : "Delivery time varies"}

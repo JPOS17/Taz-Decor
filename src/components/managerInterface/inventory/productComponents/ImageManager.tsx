@@ -65,7 +65,7 @@ const SortableThumbnail = ({
   };
 
   const classes = [
-    "thumbnail-item",
+    "mi-thumbnail-item",
     isDragging ? "dragging" : "",
     isSelected ? "selected" : "",
   ]
@@ -84,31 +84,31 @@ const SortableThumbnail = ({
       <img
         src={image.img_url}
         alt={`Product ${index + 1}`}
-        className="thumbnail-image"
+        className="mi-thumbnail-image"
         draggable={false}
       />
-      <div className="order-badge">{index + 1}</div>
-      {image.is_primary && <div className="primary-badge">Primary</div>}
-      <div className="thumbnail-overlay">
+      <div className="mi-order-badge">{index + 1}</div>
+      {image.is_primary && <div className="mi-primary-badge">Primary</div>}
+      <div className="mi-thumbnail-overlay">
         <button
           type="button"
-          className="thumbnail-icon"
+          className="mi-thumbnail-icon"
           onClick={(e) => onSetPrimary(e, image.image_id)}
           title="Set as primary (will apply on save)"
         >
           <Star
             size={16}
-            className={`icon-star ${image.is_primary ? "active" : ""}`}
+            className={`mi-icon-star ${image.is_primary ? "active" : ""}`}
             fill={image.is_primary ? "currentColor" : "none"}
           />
         </button>
         <button
           type="button"
-          className="thumbnail-icon"
+          className="mi-thumbnail-icon"
           onClick={(e) => onDelete(e, image.image_id)}
           title="Delete image (will apply on save)"
         >
-          <X size={16} className="icon-delete" />
+          <X size={16} className="mi-icon-delete" />
         </button>
       </div>
     </div>
@@ -192,13 +192,13 @@ const ImageManager = ({
   const displayImage = selectedImage || primaryImage || images[0];
 
   return (
-    <div className="image-management-section">
+    <div className="mi-image-management-section">
       <h3 className="form-label">Product Images</h3>
 
       {images.length > 0 ? (
-        <div className="image-layout">
+        <div className="mi-image-layout">
           {/* Thumbnail Column */}
-          <div className="thumbnail-column">
+          <div className="mi-thumbnail-column">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -224,31 +224,33 @@ const ImageManager = ({
           </div>
 
           {/* Main Image Display */}
-          <div className="main-image-column">
-            <div className="main-image-display">
-              <div className="main-image-wrapper">
+          <div className="mi-main-image-column">
+            <div className="mi-main-image-display">
+              <div className="mi-main-image-wrapper">
                 {displayImage ? (
                   <img
                     src={displayImage.img_url}
                     alt="Product display image"
-                    className="main-image"
+                    className="mi-main-image"
                   />
                 ) : (
-                  <span className="main-image-empty">No images available</span>
+                  <span className="mi-main-image-empty">
+                    No images available
+                  </span>
                 )}
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div className="empty-state">
-          <Upload className="empty-state-icon" size={64} />
-          <p className="empty-state-text">No images yet</p>
+        <div className="mi-empty-state">
+          <Upload className="mi-empty-state-icon" size={64} />
+          <p className="mi-empty-state-text">No images yet</p>
         </div>
       )}
 
-      <div className="upload-section">
-        <button type="button" className="btn-upload" onClick={onUpload}>
+      <div className="mi-upload-section">
+        <button type="button" className="mi-btn-upload" onClick={onUpload}>
           <Upload size={20} />
           Upload Product Image
         </button>

@@ -1,0 +1,269 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;600;700&display=swap");
+
+/* ============================================================================
+   DESIGN TOKENS
+   Single source of truth for all customer pages.
+   Import this FIRST before any other CSS file.
+
+   HOW TO RETHEME:
+   Every token is named by ROLE, not by color.
+   To swap the palette (e.g. gold → blue), only change the values below.
+   No page CSS file needs to be touched.
+   ============================================================================ */
+
+:root {
+
+  /* ── Typography ── */
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans:  "Lato", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ── Page background ── */
+  --color-page-bg: #f8f9fa;
+
+  /* ── Surfaces ──
+     Layered from warm gradient (richest) down to flat white (plainest).
+     Use -gradient for cards, -alt for secondary cards,
+     -solid for inputs/modals, -warm for About-style content cards. */
+  --color-surface-gradient:    linear-gradient(160deg, #fdf8f0 0%, #f9f1e4 100%);
+  --color-surface-alt:         linear-gradient(160deg, #fdf8f0 0%, #f5ede0 100%);
+  --color-surface-solid:       #ffffff;
+  --color-surface-warm:        #fffaf4;
+  --color-surface-hero:        linear-gradient(160deg, #fdf8f0 0%, #f9f1e4 100%);
+  --color-surface-image-bg:    linear-gradient(160deg, #f9f1e4 0%, #f0e3cc 100%);
+  --color-surface-table-header: rgba(245, 237, 224, 0.70);
+  --color-surface-table-cell:   rgba(253, 248, 240, 0.50);
+  --color-surface-zoom-hint:    rgba(61, 43, 14, 0.82);
+
+  /* ── Borders ── */
+  --color-border:        #d9c2a3;
+  --color-border-light:  #e8ddd0;
+  --color-border-subtle: #e8d9c0;   /* warm card borders */
+  --color-border-image:  #e8d8c0;   /* image / table cell borders */
+  --color-border-hover:  #c9a97a;
+  --color-border-accent: #d4a96a;   /* prominent accent border (inputs, back btn) */
+
+  /* ── Text palette ──
+     Runs from strongest (near-black) to faintest.
+     -accent is the warm mid-tone used for prices, links, highlights. */
+  --color-text-strongest:     #3d2b0e;
+  --color-text-strong:        #5a4228;
+  --color-text-mid:           #6b5640;
+  --color-text-accent:        #7a5c35;
+  --color-text-muted:         #9b7d56;
+  --color-text-faint:         #c0a882;
+  --color-text-on-primary:    #fdf8f0;   /* text sitting on gradient/dark bg */
+  --color-text-on-primary-alt: #ffffff;
+
+  /* ── Primary color scale ──
+     -mid       → the main accent hue (use for borders, icons, subtle fills)
+     -vivid     → brighter/saturated version (badges, highlights)
+     -text      → dark enough for body text on light bg
+     -bg-light  → very light tint for hover areas, info panels
+     -bg-hover  → slightly stronger tint for interactive hover
+     -focus-ring → translucent ring for focused inputs
+     -glow      → very faint glow effect
+     Ramp from lightest to darkest:
+     -tint → -mid → -vivid → default → -dark → -hover → -hover-dark → -deep → -deepest */
+  --color-primary:          #8a6030;
+  --color-primary-dark:     #6a4820;
+  --color-primary-hover:    #9a6e38;
+  --color-primary-hover-dark: #7a5228;
+  --color-primary-deep:     #5a4228;
+  --color-primary-deepest:  #3d2b0e;
+  --color-primary-tint:     #f0d9b5;
+  --color-primary-mid:      #c9a97a;
+  --color-primary-vivid:    #c9a440;
+  --color-primary-text:     #7a5c35;
+  --color-primary-bg-light: rgba(201, 169, 122, 0.10);
+  --color-primary-bg-hover: rgba(201, 169, 122, 0.25);
+  --color-primary-bg:       rgba(201, 160, 48, 0.10);
+  --color-primary-border:       rgba(201, 160, 48, 0.25);
+  --color-primary-border-light: rgba(201, 169, 122, 0.30);
+  --color-primary-focus-ring:   rgba(201, 169, 122, 0.20);
+  --color-primary-glow:         rgba(201, 169, 122, 0.20);
+
+  /* ── Disabled state (primary button) ── */
+  --color-primary-disabled-start: #c0b0a0;
+  --color-primary-disabled-end:   #a89880;
+
+  /* ── Gradients ──
+     Named by where they appear, not by color. */
+  --gradient-header:       linear-gradient(135deg, #a8803f 0%, #8d6d43 60%, #946d40 100%);
+  --gradient-header-dark:  linear-gradient(135deg, #753a1e 0%, #5c2e1a 100%);
+  --gradient-hero-overlay: linear-gradient(to bottom, transparent, rgba(253, 248, 240, 0.41));
+
+  /* Semantic badge gradients (danger / success / warning tones).
+     These map to --color-danger / --color-success / --color-warning families. */
+  --gradient-badge-danger:  linear-gradient(135deg, #b5341e 0%, #8c2515 100%);
+  --gradient-badge-success: linear-gradient(135deg, #2e7d52 0%, #1e5c3a 100%);
+  --gradient-badge-warning: linear-gradient(135deg, #c9a030 0%, #a07c20 100%);
+
+  /* ── Section label tints ── */
+  --color-label-bg:     rgba(155, 125, 86, 0.10);
+  --color-label-border: rgba(155, 125, 86, 0.25);
+
+  /* ── Header overlay tints ──
+     Used for elements rendered on top of --gradient-header. */
+  --color-header-icon:                rgba(255, 220, 150, 0.70);
+  --color-header-sub:                 rgba(253, 220, 160, 0.85);
+  --color-header-glass:               rgba(255, 255, 255, 0.15);
+  --color-header-glass-border:        rgba(255, 255, 255, 0.35);
+  --color-header-glass-hover:         rgba(255, 255, 255, 0.25);
+  --color-header-glass-border-hover:  rgba(255, 255, 255, 0.55);
+  --color-header-watermark:           rgba(255, 255, 255, 0.20);
+
+  /* ── Overlays / backdrops ── */
+  --color-overlay:      rgba(0, 0, 0, 0.50);
+  --color-overlay-dark: rgba(0, 0, 0, 0.55);
+
+  /* ── Semantic: danger / red ── */
+  --color-danger:        #b5341e;
+  --color-danger-dark:   #8c2515;
+  --color-danger-bg:     rgba(181, 52, 30, 0.07);
+  --color-danger-border: rgba(181, 52, 30, 0.25);
+  --color-danger-shadow: rgba(181, 52, 30, 0.28);
+
+  /* ── Semantic: success / green ── */
+  --color-success:        #2e7d52;
+  --color-success-dark:   #1e5c3a;
+  --color-success-hover:  #38936a;
+  --color-success-bg:     rgba(46, 125, 82, 0.10);
+  --color-success-border: rgba(46, 125, 82, 0.20);
+  --color-success-text:   #1e5c3a;
+  --color-success-shadow: rgba(30, 92, 58, 0.22);
+
+  /* ── Semantic: info / blue ── */
+  --color-info-bg:     #eff6ff;
+  --color-info-border: #3b82f6;
+  --color-info-text:   #1e40af;
+
+  /* ── Semantic: warning / amber ── */
+  --color-warning-text:     #5a3a00;
+  --color-warning-text-mid: #7a5000;
+  --color-warning-bg:       rgba(201, 160, 48, 0.10);
+  --color-warning-border:   rgba(201, 160, 48, 0.30);
+
+  /* ── Shadows ── */
+  --shadow-xs:        0 1px 4px  rgba(117, 58, 30, 0.08);
+  --shadow-sm:        0 2px 10px rgba(117, 58, 30, 0.07);
+  --shadow-md:        0 4px 20px rgba(117, 58, 30, 0.10);
+  --shadow-lg:        0 8px 32px rgba(117, 58, 30, 0.15);
+  --shadow-btn:       0 4px 14px rgba(117, 58, 30, 0.28);
+  --shadow-btn-hover: 0 8px 22px rgba(117, 58, 30, 0.36);
+  --shadow-card-hover: 0 6px 20px rgba(201, 169, 122, 0.20);
+  --shadow-img-hover:  0 2px 8px  rgba(117, 58, 30, 0.15);
+  --shadow-badge:      0 2px 8px  rgba(117, 58, 30, 0.22);
+  --shadow-btn-deep:       0 3px 10px rgba(61, 43, 14, 0.18);
+  --shadow-btn-deep-hover: 0 6px 14px rgba(61, 43, 14, 0.26);
+
+  /* ── Primary alpha tints ──
+     Semi-transparent tints of the primary color at various strengths.
+     Used for hover backgrounds, step indicators, progress fills, etc. */
+  --color-primary-alpha-03:  rgba(138, 96, 48, 0.03);
+  --color-primary-alpha-04:  rgba(138, 96, 48, 0.04);
+  --color-primary-alpha-05:  rgba(138, 96, 48, 0.05);
+  --color-primary-alpha-06:  rgba(138, 96, 48, 0.06);
+  --color-primary-alpha-08:  rgba(138, 96, 48, 0.08);
+  --color-primary-alpha-10:  rgba(138, 96, 48, 0.10);
+  --color-primary-alpha-12:  rgba(138, 96, 48, 0.12);
+  --color-primary-alpha-14:  rgba(138, 96, 48, 0.14);
+  --color-primary-alpha-15:  rgba(138, 96, 48, 0.15);
+  --color-primary-alpha-18:  rgba(138, 96, 48, 0.18);
+
+  /* --color-primary-mid alpha tints (lighter gold tone) */
+  --color-primary-mid-alpha-06:  rgba(201, 169, 122, 0.06);
+  --color-primary-mid-alpha-18:  rgba(201, 169, 122, 0.18);
+  --color-primary-mid-alpha-20:  rgba(201, 169, 122, 0.20);
+
+  /* --color-primary-vivid alpha tint (brighter gold) */
+  --color-primary-vivid-alpha-06: rgba(201, 160, 48, 0.06);
+
+  /* ── Secondary button gradient ──
+     Used for secondary/neutral CTA buttons distinct from the primary. */
+  --gradient-btn-secondary: linear-gradient(135deg, #c4a882 0%, #a8906a 100%);
+  --gradient-btn-secondary-start: #c4a882;
+  --gradient-btn-secondary-end:   #a8906a;
+
+  /* ── Shimmer / shine on dark backgrounds ── */
+  --color-shimmer: rgba(255, 255, 255, 0.10);
+
+  /* ── Warm white surface (solid, no gradient) ── */
+  --color-surface-warm-solid: #fdf8f0;
+
+  /* ── Placeholder / disabled text ── */
+  --color-text-placeholder: #b0a090;
+
+  /* ── Warning text (amber tones for text on light bg) ──
+     Slightly darker than the existing warning tokens for legibility. */
+  --color-warning-text-dark:  #7a5c00;
+  --color-warning-text-mid2:  #8a5c00;
+
+  /* ── Status: shipped / in-transit (blue family) ──
+     Distinct from --color-info-* to allow independent theming. */
+  --color-status-shipped:        #5a7ab5;
+  --color-status-shipped-dark:   #2e4e80;
+  --color-status-shipped-border: #a8bfdf;
+  --color-status-shipped-bg:     rgba(90, 122, 181, 0.15);
+
+  /* ── Danger extended ──
+     Lighter danger tint used for delete / remove hover states. */
+  --color-danger-bg-hover: rgba(181, 52, 30, 0.08);
+  --color-danger-focus-ring: rgba(181, 52, 30, 0.10);
+
+  /* ── Danger border (peach tone, lighter than --color-danger-border) ── */
+  --color-danger-border-light: #e8b8a8;
+
+  /* ── Subtle primary gradient (used for card header tints) ── */
+  --gradient-primary-subtle: linear-gradient(135deg, var(--color-primary-alpha-06) 0%, transparent 60%);
+
+  /* 25002500 Password strength indicator 25002500 */
+  --color-strength-weak:   #c97a2e;   /* amber 2014 partial strength */
+  --color-strength-strong: #7ab87a;   /* green 2014 near-full strength */
+
+  /* ── Shape / radius ── */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   14px;
+  --radius-2xl:  16px;
+  --radius-full: 50px;
+
+  /* ── Dark header gradient ──
+     Deep espresso-brown used for the top bar, modal headers, and floating pills.
+     Distinct from --gradient-header (which is the lighter gold-toned nav gradient). */
+  --gradient-header-dark-bar: linear-gradient(90deg, #3d2b0e 0%, #5c3d18 60%, #7a5229 100%);
+  --gradient-header-dark-bar-hover: linear-gradient(90deg, #4a3310 0%, #6b4a1e 60%, #8a6030 100%);
+  --gradient-header-dark-pill: linear-gradient(135deg, #3d2b0e 0%, #5c3d18 100%);
+  --gradient-header-dark-pill-hover: linear-gradient(135deg, #4a3310 0%, #6b4a1e 100%);
+
+  /* ── Warning-orange / notice family ──
+     Used for guest notices, soft alerts, and urgent meta chips.
+     Warmer and more orange than the amber --color-warning-* family. */
+  --color-notice-bg:          #fef3ec;
+  --color-notice-border:      #e8a87a;
+  --color-notice-text:        #a04520;
+  --color-notice-text-dark:   #8c3510;
+
+  /* ── Card / table border tones ──
+     Slightly warmer than --color-border for inner card elements. */
+  --color-border-card:        #e0cdb4;
+  --color-border-footer:      #e8d8bf;
+
+  /* ── Surface: card meta background ──
+     Warm cream fill for small chip/pill elements inside cards. */
+  --color-surface-chip:       #f5ede0;
+
+  /* ── Copied / confirmed state (green distinct from --color-success) ──
+     Lighter, more muted green used for clipboard copy confirmations. */
+  --color-copied:             #2e7d4f;
+  --color-copied-border:      #4caf50;
+  --color-copied-bg-start:    #eef7f1;
+  --color-copied-bg-end:      #d8f0e2;
+
+  /* ── Surface hover gradient stops ──
+     Slightly deeper warm-cream tones used as gradient end-stops on hover states.
+     Use these instead of raw hex when a warm surface needs a hover variant. */
+  --color-surface-hover-mid:  #f0e3cc;   /* medium hover deepening */
+  --color-surface-hover-deep: #ebe0cc;   /* stronger hover deepening */
+  --color-surface-hover-code: #ede0cc;   /* code/dashed-button hover end */
+}

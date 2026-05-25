@@ -75,34 +75,34 @@ const SideBar = ({
   };
 
   const sidebarContent = (
-    <nav className="sidebar">
+    <nav className="sb-sidebar">
       {/* FILTERS */}
-      <div className="sidebar-filters">
+      <div className="sb-sidebar-filters">
         {/* Price */}
-        <div className="sidebar-filter-section">
+        <div className="sb-sidebar-filter-section">
           <button
-            className="sidebar-filter-heading"
+            className="sb-sidebar-filter-heading"
             onClick={() => setPriceOpen((o) => !o)}
           >
             <span>
               Price
-              {isPriceActive && <span className="sidebar-filter-dot" />}
+              {isPriceActive && <span className="sb-sidebar-filter-dot" />}
             </span>
             <span
-              className={`sidebar-filter-chevron ${priceOpen ? "open" : ""}`}
+              className={`sb-sidebar-filter-chevron${priceOpen ? " sb-open" : ""}`}
             >
               ▼
             </span>
           </button>
           {priceOpen && (
-            <ul className="sidebar-filter-options">
+            <ul className="sb-sidebar-filter-options">
               {PRICE_OPTIONS.map((opt) => (
                 <li key={opt.label}>
                   <button
-                    className={`sidebar-filter-option ${matchesPrice(opt.min, opt.max) ? "active" : ""}`}
+                    className={`sb-sidebar-filter-option${matchesPrice(opt.min, opt.max) ? " sb-active" : ""}`}
                     onClick={() => onPriceChange(opt.min, opt.max)}
                   >
-                    <span className="sidebar-filter-radio" />
+                    <span className="sb-sidebar-filter-radio" />
                     {opt.label}
                   </button>
                 </li>
@@ -112,30 +112,30 @@ const SideBar = ({
         </div>
 
         {/* Sort */}
-        <div className="sidebar-filter-section">
+        <div className="sb-sidebar-filter-section">
           <button
-            className="sidebar-filter-heading"
+            className="sb-sidebar-filter-heading"
             onClick={() => setSortOpen((o) => !o)}
           >
             <span>
               Sort By
-              {currentSortBy && <span className="sidebar-filter-dot" />}
+              {currentSortBy && <span className="sb-sidebar-filter-dot" />}
             </span>
             <span
-              className={`sidebar-filter-chevron ${sortOpen ? "open" : ""}`}
+              className={`sb-sidebar-filter-chevron${sortOpen ? " sb-open" : ""}`}
             >
               ▼
             </span>
           </button>
           {sortOpen && (
-            <ul className="sidebar-filter-options">
+            <ul className="sb-sidebar-filter-options">
               {SORT_OPTIONS.map((opt) => (
                 <li key={opt.label}>
                   <button
-                    className={`sidebar-filter-option ${currentSortBy === opt.value ? "active" : ""}`}
+                    className={`sb-sidebar-filter-option${currentSortBy === opt.value ? " sb-active" : ""}`}
                     onClick={() => onSortChange(opt.value)}
                   >
-                    <span className="sidebar-filter-radio" />
+                    <span className="sb-sidebar-filter-radio" />
                     {opt.label}
                   </button>
                 </li>
@@ -146,40 +146,38 @@ const SideBar = ({
 
         {/* Sale toggle */}
         <button
-          className={`sidebar-sale-btn ${currentOnSaleOnly ? "active" : ""}`}
+          className={`sb-sidebar-sale-btn${currentOnSaleOnly ? " sb-active" : ""}`}
           onClick={() => onSaleFilterChange(!currentOnSaleOnly)}
         >
-          <span className="sidebar-sale-check" />
+          <span className="sb-sidebar-sale-check" />
           On Sale Only
         </button>
 
         {/* Reset filters */}
         {hasActiveFilters && (
-          <button className="sidebar-reset-btn" onClick={onReset}>
+          <button className="sb-sidebar-reset-btn" onClick={onReset}>
             Reset Filters
           </button>
         )}
       </div>
 
       {/* DIVIDER */}
-      <div className="sidebar-divider" />
+      <div className="sb-sidebar-divider" />
 
       {/* CATEGORIES */}
-      <ul className="sidebar-nav">
-        <li className="sidebar-nav-item">
+      <ul className="sb-sidebar-nav">
+        <li className="sb-sidebar-nav-item">
           <button
-            className={`sidebar-nav-link ${activeCategoryId === null ? "active" : ""}`}
+            className={`sb-sidebar-nav-link${activeCategoryId === null ? " sb-active" : ""}`}
             onClick={() => handleSelectCategory(null, "All")}
           >
-            <span className="sidebar-link-text">All</span>
+            <span className="sb-sidebar-link-text">All</span>
           </button>
         </li>
         {categories.map((category) => (
-          <li key={category.category_id} className="sidebar-nav-item">
+          <li key={category.category_id} className="sb-sidebar-nav-item">
             <button
-              className={`sidebar-nav-link ${
-                activeCategoryId === category.category_id ? "active" : ""
-              }`}
+              className={`sb-sidebar-nav-link${activeCategoryId === category.category_id ? " sb-active" : ""}`}
               onClick={() =>
                 handleSelectCategory(
                   category.category_id,
@@ -187,7 +185,7 @@ const SideBar = ({
                 )
               }
             >
-              <span className="sidebar-link-text">
+              <span className="sb-sidebar-link-text">
                 {category.category_name}
               </span>
             </button>
@@ -200,15 +198,14 @@ const SideBar = ({
   return (
     <>
       {/* DESKTOP: normal sidebar */}
-      <div className="sidebar-desktop">{sidebarContent}</div>
+      <div className="sb-sidebar-desktop">{sidebarContent}</div>
 
       {/* MOBILE: floating FAB button */}
       <button
-        className={`sidebar-fab ${hasActiveFilters ? "has-filters" : ""}`}
+        className={`sb-sidebar-fab${hasActiveFilters ? " sb-has-filters" : ""}`}
         onClick={() => setMobileOpen(true)}
         aria-label="Open filters and categories"
       >
-        {/* Filter / sliders icon */}
         <svg
           width="20"
           height="20"
@@ -227,22 +224,22 @@ const SideBar = ({
           <circle cx="12" cy="18" r="2" fill="currentColor" stroke="none" />
         </svg>
         <span>Browse</span>
-        {hasActiveFilters && <span className="sidebar-fab-badge" />}
+        {hasActiveFilters && <span className="sb-sidebar-fab-badge" />}
       </button>
 
       {/* MOBILE: backdrop */}
       <div
-        className={`sidebar-backdrop ${mobileOpen ? "open" : ""}`}
+        className={`sb-sidebar-backdrop${mobileOpen ? " sb-open" : ""}`}
         onClick={() => setMobileOpen(false)}
         aria-hidden="true"
       />
 
       {/* MOBILE: slide-in drawer */}
-      <div className={`sidebar-drawer ${mobileOpen ? "open" : ""}`}>
-        <div className="sidebar-drawer-header">
-          <span className="sidebar-drawer-title">Browse & Filter</span>
+      <div className={`sb-sidebar-drawer${mobileOpen ? " sb-open" : ""}`}>
+        <div className="sb-sidebar-drawer-header">
+          <span className="sb-sidebar-drawer-title">Browse & Filter</span>
           <button
-            className="sidebar-drawer-close"
+            className="sb-sidebar-drawer-close"
             onClick={() => setMobileOpen(false)}
             aria-label="Close filters"
           >

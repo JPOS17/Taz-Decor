@@ -19,10 +19,10 @@ const AddressCard = ({
 }: AddressCardProps) => {
   return (
     <div
-      className={`cp-address-card ${isSelected ? "selected" : ""}`}
+      className={`ac-address-card ${isSelected ? "ac-address-card-selected" : ""}`}
       onClick={onSelect}
     >
-      <div className="cp-address-radio">
+      <div className="ac-address-radio">
         <input
           type="radio"
           name="shipping_address"
@@ -30,7 +30,7 @@ const AddressCard = ({
           onChange={onSelect}
         />
       </div>
-      <div className="cp-address-info">
+      <div className="ac-address-info">
         <h4>{address.address_name}</h4>
         <p>{address.address_line1}</p>
         {address.address_line2 && <p>{address.address_line2}</p>}
@@ -38,12 +38,12 @@ const AddressCard = ({
           {address.city}, {address.state} {address.zip}
         </p>
         {address.is_default && (
-          <span className="cp-default-badge">Default</span>
+          <span className="ac-default-badge">Default</span>
         )}
       </div>
-      <div className="cp-address-actions">
+      <div className="ac-address-actions">
         <button
-          className="cp-btn-icon"
+          className="ac-btn-icon"
           onClick={(e) => {
             e.stopPropagation();
             onEdit();
@@ -52,7 +52,7 @@ const AddressCard = ({
           <FaEdit />
         </button>
         <button
-          className="cp-btn-icon cp-btn-delete"
+          className="ac-btn-icon ac-btn-delete"
           onClick={(e) => {
             e.stopPropagation();
             onDelete();

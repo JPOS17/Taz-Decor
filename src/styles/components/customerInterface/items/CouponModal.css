@@ -1,11 +1,16 @@
-/* Coupon Modal Overlay */
+/* ============================================================================
+   COUPON MODAL
+   Imports: Tokens.css → this file
+   Prefix: coupon-modal-*
+   ============================================================================ */
+
 .coupon-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,39 +18,41 @@
   padding: 1rem;
 }
 
-/* Modal Container */
 .coupon-modal-container {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-surface-solid);
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
-/* Modal Header */
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+
 .coupon-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .coupon-modal-title {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text-strongest);
 }
 
-.coupon-modal-close {
+.coupon-modal-btn-close {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 0.25rem;
   display: flex;
@@ -54,18 +61,24 @@
   transition: color 0.2s;
 }
 
-.coupon-modal-close:hover {
-  color: #1f2937;
+.coupon-modal-btn-close:hover {
+  color: var(--color-text-strongest);
 }
 
-/* Modal Body */
+/* ============================================================================
+   BODY
+   ============================================================================ */
+
 .coupon-modal-body {
   padding: 1.5rem;
   overflow-y: auto;
   flex: 1;
 }
 
-/* Loading State */
+/* ============================================================================
+   LOADING STATE
+   ============================================================================ */
+
 .coupon-modal-loading {
   display: flex;
   justify-content: center;
@@ -73,22 +86,22 @@
   padding: 3rem;
 }
 
-.spinner-border {
+.coupon-modal-spinner {
   width: 3rem;
   height: 3rem;
-  border: 0.25rem solid #e5e7eb;
-  border-right-color: #3b82f6;
+  border: 0.25rem solid var(--color-border-light);
+  border-right-color: var(--color-info-border);
   border-radius: 50%;
-  animation: spinner-border 0.75s linear infinite;
+  animation: coupon-modal-spin 0.75s linear infinite;
 }
 
-@keyframes spinner-border {
+@keyframes coupon-modal-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-.visually-hidden {
+.coupon-modal-visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -100,79 +113,65 @@
   border: 0;
 }
 
-/* Empty State */
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+
 .coupon-modal-empty {
   text-align: center;
   padding: 3rem 1rem;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
-/* Remove Coupon Option */
+/* ============================================================================
+   REMOVE COUPON OPTION
+   ============================================================================ */
+
 .coupon-modal-remove-option {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-border-light);
 }
 
-.coupon-remove-btn {
+.coupon-modal-btn-remove {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
+  background: var(--color-surface-solid);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-md);
   font-size: 0.95rem;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--color-text-muted);
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.coupon-remove-btn:hover {
-  border-color: #9ca3af;
-  background: #f9fafb;
+.coupon-modal-btn-remove:hover {
+  border-color: var(--color-border);
+  background: var(--color-page-bg);
 }
 
-.coupon-remove-btn.selected {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  color: #3b82f6;
+.coupon-modal-btn-remove-selected {
+  border-color: var(--color-info-border);
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
   font-weight: 600;
 }
 
-/* Selected coupon in modal */
-.coupon-modal-body .compact-coupon-item.selected {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
-}
+/* ============================================================================
+   GUEST / SIGNED-OUT NOTICE
+   ============================================================================ */
 
-.coupon-modal-body .compact-coupon-item.selected .compact-coupon-header {
-  background: #dbeafe;
-}
-
-.coupon-modal-body .compact-coupon-code.selected {
-  background: #3b82f6;
-  color: white;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-}
-
-.coupon-modal-body .compact-coupon-code.selected:hover {
-  background: #2563eb;
-}
-
-/* Guest / signed-out notice */
 .coupon-modal-guest-notice {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
   padding: 0.6rem 0.85rem;
   margin-bottom: 1.25rem;
-  background: #fef3ec;
-  border: 1px solid #e8a87a;
-  border-radius: 8px;
-  color: #a04520;
-  /* Reduced font size to match the dropdown's inline message */
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border-light);
+  border-radius: var(--radius-md);
+  color: var(--color-danger-dark);
   font-size: 0.8rem;
   line-height: 1.5;
 }
@@ -181,32 +180,35 @@
   flex-shrink: 0;
   margin-top: 0.15rem;
   font-size: 0.85rem;
-  color: #b5341e;
+  color: var(--color-danger);
 }
 
 .coupon-modal-guest-notice p {
   margin: 0;
 }
 
-.coupon-modal-sign-in-link {
+.coupon-modal-btn-sign-in {
   background: none;
   border: none;
   padding: 0;
   font-family: inherit;
   font-size: inherit;
   font-weight: 700;
-  color: #b5341e;
+  color: var(--color-danger);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color 0.15s ease;
 }
 
-.coupon-modal-sign-in-link:hover {
-  color: #8c2515;
+.coupon-modal-btn-sign-in:hover {
+  color: var(--color-danger-dark);
 }
 
-/* Responsive Design */
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
 @media (max-width: 640px) {
   .coupon-modal-overlay {
     padding: 0;

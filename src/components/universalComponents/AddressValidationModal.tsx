@@ -37,15 +37,16 @@ const AddressValidationModal = ({
     <div className="avm-overlay">
       <div className="avm-modal">
         <div className="avm-header">
-          {/* Header */}
           <h3>
             {is_valid ? (
               <>
-                <FaCheckCircle color="#10b981" /> Address Verification
+                <FaCheckCircle className="avm-header-icon-success" /> Address
+                Verification
               </>
             ) : (
               <>
-                <FaExclamationTriangle color="#f59e0b" /> Address Issue Detected
+                <FaExclamationTriangle className="avm-header-icon-warning" />{" "}
+                Address Issue Detected
               </>
             )}
           </h3>
@@ -54,26 +55,24 @@ const AddressValidationModal = ({
           </button>
         </div>
 
-        {/* Message display */}
         <div className="avm-body">
-          {/* If user types valid address */}
+          {/* Valid, no corrections */}
           {is_valid && !hasCorrections && (
             <div className="avm-validation-success">
               <p>Your address has been verified successfully!</p>
             </div>
           )}
 
-          {/* If user types address and has corrections */}
+          {/* Valid, with corrections */}
           {is_valid && hasCorrections && (
             <div className="avm-validation-correction">
               <p className="avm-correction-notice">
                 We found a suggested correction for your address:
               </p>
-
               <div className="avm-address-comparison">
                 <div className="avm-address-column">
                   <h4>You Entered:</h4>
-                  <div className="avm-address-box original">
+                  <div className="avm-address-box avm-address-box-original">
                     <p>{originalStreet1}</p>
                     {originalStreet2 && <p>{originalStreet2}</p>}
                     <p>
@@ -81,10 +80,9 @@ const AddressValidationModal = ({
                     </p>
                   </div>
                 </div>
-
                 <div className="avm-address-column">
                   <h4>Suggested:</h4>
-                  <div className="avm-address-box corrected">
+                  <div className="avm-address-box avm-address-box-corrected">
                     <p>{validated_address.street1}</p>
                     {validated_address.street2 && (
                       <p>{validated_address.street2}</p>
@@ -99,7 +97,7 @@ const AddressValidationModal = ({
             </div>
           )}
 
-          {/* If user types invalid address */}
+          {/* Invalid */}
           {!is_valid && (
             <div className="avm-validation-error">
               <p className="avm-error-notice">
@@ -113,7 +111,7 @@ const AddressValidationModal = ({
                   ))}
                 </ul>
               )}
-              <div className="avm-address-box original">
+              <div className="avm-address-box avm-address-box-original">
                 <p>{originalStreet1}</p>
                 {originalStreet2 && <p>{originalStreet2}</p>}
                 <p>

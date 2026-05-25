@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { type ProductCoupon } from "../../../api/couponCustomer";
 import { useAuth } from "../../../context/AuthContext";
+
 import "../../../styles/components/customerInterface/items/CartCouponBanner.css";
 
 interface CartCouponBannerProps {
@@ -28,7 +29,6 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
 
   const cartCoupons = coupons.filter((c) => c.applies_to_type === "all");
 
-  // Close modal on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsModalOpen(false);
@@ -195,7 +195,6 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
             <div className="ccb-modal-cards">
               {cartCoupons.map((coupon) => (
                 <div key={coupon.coupon_id} className="ccb-card">
-                  {/* Burgundy accent strip */}
                   <div className="ccb-card-strip" />
 
                   <div className="ccb-card-inner">
@@ -237,9 +236,12 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
 
                     {/* Copy code button */}
                     {/* <button
-                      className={`ccb-code-btn ${
-                        copiedCode === coupon.coupon_code ? "copied" : ""
-                      }`}
+                      className={[
+                        "ccb-code-btn",
+                        copiedCode === coupon.coupon_code ? "ccb-code-btn-copied" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
                       onClick={(e) => copyCode(coupon.coupon_code, e)}
                     >
                       {copiedCode === coupon.coupon_code ? (

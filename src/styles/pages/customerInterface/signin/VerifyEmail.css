@@ -1,0 +1,189 @@
+/* ============================================================================
+   VERIFY EMAIL PAGE
+   Imports: Tokens.css → this file
+   Prefix: verify-*
+   ============================================================================ */
+
+.verify-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-page-bg);
+  padding: 20px;
+  font-family: var(--font-sans);
+}
+
+.verify-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.verify-card {
+  background: var(--color-surface-gradient);
+  border: 1.5px solid var(--color-border-accent);
+  border-radius: var(--radius-2xl);
+  width: 100%;
+  max-width: 480px;
+  padding: 48px 40px;
+  text-align: center;
+  animation: verify-slide-up 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes verify-slide-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================================
+   STATUS ICONS
+   ============================================================================ */
+
+.verify-success-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: var(--color-text-on-primary-alt);
+  margin: 0 auto 24px;
+  box-shadow: 0 8px 24px var(--color-success-shadow);
+  animation: verify-scale-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.verify-error-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: var(--color-text-on-primary-alt);
+  margin: 0 auto 24px;
+  box-shadow: 0 8px 24px var(--color-danger-shadow);
+  animation: verify-scale-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes verify-scale-in {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+/* ============================================================================
+   TEXT CONTENT
+   ============================================================================ */
+
+.verify-title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  margin-bottom: 16px;
+  letter-spacing: 0.01em;
+}
+
+.verify-message {
+  font-size: 15px;
+  color: var(--color-text-muted);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.verify-help {
+  font-size: 13.5px;
+  color: var(--color-text-faint);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.verify-redirect {
+  font-size: 14px;
+  color: var(--color-primary);
+  margin-bottom: 24px;
+}
+
+/* ============================================================================
+   ACTIONS
+   ============================================================================ */
+
+.verify-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.verify-btn-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  color: var(--color-text-on-primary-alt);
+  padding: 13px 24px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-btn);
+  position: relative;
+  overflow: hidden;
+}
+
+.verify-btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, var(--color-shimmer), transparent);
+  transition: left 0.4s ease;
+}
+
+.verify-btn-primary:hover::before { left: 100%; }
+
+.verify-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-hover);
+  background: linear-gradient(135deg, var(--color-success-hover) 0%, var(--color-success) 100%);
+}
+
+.verify-btn-secondary {
+  display: inline-block;
+  background: var(--color-surface-alt);
+  color: var(--color-primary-text);
+  padding: 13px 24px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  border: 1.5px solid var(--color-border-accent);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  letter-spacing: 0.02em;
+}
+
+.verify-btn-secondary:hover {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
+  border-color: transparent;
+  color: var(--color-text-on-primary-alt);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 480px) {
+  .verify-card {
+    padding: 32px 24px;
+  }
+
+  .verify-title {
+    font-size: 24px;
+  }
+}

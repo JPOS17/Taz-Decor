@@ -1,297 +1,268 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;600;700&display=swap");
-
 /* ============================================================================
-   ITEM LISTING CARD
+   ITEM LISTING — Borderless gallery style
+   No card chrome. Image tile + text beneath. Whitespace does the work.
+   Imports: Tokens.css → this file
+   Prefix: item-listing-*
    ============================================================================ */
 
-.list-item {
-  font-family: "Lato", -apple-system, sans-serif;
-  width: 100%;
-  margin: 0 auto;
-  border-radius: 10px;
-  transition: all 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+.item-listing-list-item {
+  font-family: var(--font-sans);
   cursor: pointer;
-  background: linear-gradient(160deg, #fdf8f0 0%, #f9f1e4 100%);
-  border: 1.5px solid #d9c2a3;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  background: var(--color-surface-warm-solid);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.item-listing-list-item:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================================
+   IMAGE TILE — 1:1 ratio, rounded, subtle warm background
+   Image fits inside without cropping or stretching
+   ============================================================================ */
+
+.item-listing-image-container {
+  width: 100%;
+  padding-bottom: 100%;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(120, 80, 30, 0.07);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-chip);
+  transition: background 0.3s ease;
 }
 
-.list-item::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(160deg, rgba(201, 169, 122, 0.08) 0%, transparent 60%);
-  pointer-events: none;
-  border-radius: 10px;
+.item-listing-list-item:hover .item-listing-image-container {
+  background: var(--color-surface-hover-mid);
 }
 
-.list-item:hover {
-  box-shadow: 0 12px 32px rgba(117, 58, 30, 0.18), 0 2px 8px rgba(117, 58, 30, 0.08);
-  transform: translateY(-5px);
-  border-color: #c9a97a;
-  background: linear-gradient(160deg, #fdf8f0 0%, #f5ede0 100%);
-}
-
-/* ============================================================================
-   WISHLIST ICON
-   ============================================================================ */
-
-.wishlist-icon-container {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-  background-color: rgba(253, 248, 240, 0.88);
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.25s ease, transform 0.2s ease, background-color 0.2s ease;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(117, 58, 30, 0.15);
-  border: 1px solid rgba(201, 169, 122, 0.4);
-}
-
-.list-item:hover .wishlist-icon-container {
-  opacity: 1;
-}
-
-.wishlist-icon-container:has(.wishlist-icon.filled) {
-  opacity: 1;
-  background-color: rgba(253, 248, 240, 0.96);
-}
-
-.wishlist-icon {
-  font-size: 16px;
-  color: #9b7d56;
-  transition: transform 0.2s ease, color 0.2s ease;
-}
-
-.wishlist-icon.filled {
-  color: #c0392b;
-}
-
-.wishlist-icon-container:hover {
-  background-color: rgba(253, 248, 240, 1);
-  transform: scale(1.1);
-}
-
-.wishlist-icon-container:hover .wishlist-icon {
-  transform: scale(1.15);
-}
-
-/* ============================================================================
-   BADGES
-   ============================================================================ */
-
-.discount-badge-corner {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
-  background: linear-gradient(135deg, #b5341e 0%, #8c2515 100%);
-  color: #fff;
-  padding: 4px 9px;
-  border-radius: 5px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(140, 37, 21, 0.32);
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  font-family: "Lato", sans-serif;
-}
-
-.free-shipping-badge-corner {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-  background: linear-gradient(135deg, #2e7d52 0%, #1e5c3a 100%);
-  color: white;
-  padding: 4px 9px;
-  border-radius: 5px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(30, 92, 58, 0.3);
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-  font-family: "Lato", sans-serif;
-}
-
-/* ============================================================================
-   IMAGE
-   ============================================================================ */
-
-.image-container {
-  width: 100%;
-  height: 0;
-  padding-bottom: 85%;
-  position: relative;
-  overflow: hidden;
-  margin-top: 0.5rem;
-  margin-bottom: 0.4rem;
-}
-
-.image-container img {
+.item-listing-image-container img {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: 90%;
-  max-height: 96%;
+  max-width: 82%;
+  max-height: 82%;
   width: auto;
   height: auto;
   object-fit: contain;
   transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.list-item:hover .image-container img {
-  transform: translate(-50%, -52%) scale(1.045);
+.item-listing-list-item:hover .item-listing-image-container img {
+  transform: translate(-50%, -52%) scale(1.04);
 }
 
 /* ============================================================================
-   TYPOGRAPHY
+   BADGES — inside the image tile
    ============================================================================ */
 
-.list-item .item-title {
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #3d2b0e;
-  margin: 0 0.6rem 0.25rem;
-  line-height: 1.35;
-  letter-spacing: 0.01em;
-  text-align: center;
+.item-listing-discount-badge {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  z-index: 10;
+  background: var(--color-danger);
+  color: var(--color-text-on-primary-alt);
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.item-listing-free-shipping-badge {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 10;
+  background: var(--color-success);
+  color: var(--color-text-on-primary-alt);
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 /* ============================================================================
-   PRICE
+   WISHLIST BUTTON — inside image tile, top right
    ============================================================================ */
 
-.list-item .item-price-container {
+.item-listing-wishlist-btn {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 20;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-surface-warm-solid);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  margin-bottom: 0.7rem;
-  flex-wrap: wrap;
-  padding: 0 0.5rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.18s ease, background 0.18s ease;
+  border: 1px solid var(--color-primary-border-light);
 }
 
-.list-item .item-price {
-  font-family: "Lato", sans-serif;
+/* Shift down when free shipping badge occupies top-right */
+.item-listing-wishlist-btn-shifted {
+  top: 42px;
+}
+
+.item-listing-list-item:hover .item-listing-wishlist-btn {
+  opacity: 1;
+}
+
+/* Always visible when already wishlisted */
+.item-listing-wishlist-btn:has(.item-listing-wishlist-icon-filled) {
+  opacity: 1;
+}
+
+.item-listing-wishlist-btn:hover {
+  background: var(--color-surface-solid);
+  transform: scale(1.1);
+}
+
+.item-listing-wishlist-icon {
+  font-size: 13px;
+  color: var(--color-primary);
+  transition: color 0.15s ease;
+}
+
+.item-listing-wishlist-icon-filled {
+  font-size: 13px;
+  color: var(--color-danger);
+}
+
+/* ============================================================================
+   TEXT BLOCK — below image tile, left-aligned
+   ============================================================================ */
+
+.item-listing-text-block {
+  padding: 9px 3px 0;
+}
+
+/* Small colored label line for coupon info — replaces badge in text area */
+.item-listing-coupon-label {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-danger);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 4px;
+  line-height: 1;
+}
+
+.item-listing-item-name {
+  font-family: var(--font-serif);
   font-size: 1.15rem;
-  font-weight: 700;
-  color: #5a3a14;
-  margin: 0;
-  letter-spacing: 0.01em;
-}
-
-.list-item .item-price-original {
-  font-size: 0.92rem;
-  font-weight: 400;
-  color: #000000;
-  text-decoration: line-through;
-  margin: 0;
-}
-
-.list-item .item-price-discounted {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #b5341e;
-  margin: 0;
+  font-weight: 600;
+  color: var(--color-text-strongest);
+  margin: 0 0 5px;
+  line-height: 1.35;
   letter-spacing: 0.01em;
 }
 
 /* ============================================================================
-   VERIFICATION ICON
+   PRICE ROW
    ============================================================================ */
 
-.list-item .verification-required-icon {
+.item-listing-price-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.item-listing-price {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-primary-deep);
+  letter-spacing: 0.01em;
+}
+
+.item-listing-price-original {
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.item-listing-price-discounted {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-danger);
+  letter-spacing: 0.01em;
+}
+
+.item-listing-lock-icon {
   display: inline-flex;
   align-items: center;
-  color: #c9a030;
+  color: var(--color-primary-vivid);
   cursor: help;
 }
 
 /* ============================================================================
-   WISHLIST REPOSITIONING WITH FREE SHIPPING BADGE
+   LEGACY / EXTERNAL STYLES (referenced outside this component)
    ============================================================================ */
 
-.list-item .wishlist-icon-container {
-  top: 10px;
-  right: 10px;
-  opacity: 0;
-}
-
-.list-item:hover .wishlist-icon-container {
-  opacity: 1;
-}
-
-.list-item:has(.free-shipping-badge-corner):hover .wishlist-icon-container {
-  top: 52px;
-}
-
-.wishlist-icon-container:has(.wishlist-icon.filled) {
-  opacity: 1;
-}
-
-.list-item:has(.free-shipping-badge-corner) .wishlist-icon-container:has(.wishlist-icon.filled) {
-  top: 52px;
-}
-
-/* ============================================================================
-   LEGACY BADGE STYLES (used elsewhere)
-   ============================================================================ */
-
-.category-coupon-badge {
+.item-listing-category-coupon-badge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
-.discount-badge {
-  background: linear-gradient(135deg, #b5341e 0%, #8c2515 100%);
-  color: white;
+.item-listing-discount-badge-legacy {
+  background: var(--gradient-badge-danger);
+  color: var(--color-text-on-primary-alt);
   padding: 5px 12px;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-badge);
   letter-spacing: 0.5px;
 }
 
-.free-shipping-badge-small {
-  background: linear-gradient(135deg, #2e7d52 0%, #1e5c3a 100%);
-  color: white;
+.item-listing-free-shipping-badge-small {
+  background: var(--gradient-badge-success);
+  color: var(--color-text-on-primary-alt);
   padding: 5px 12px;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   font-size: 0.82rem;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-badge);
 }
 
-.verification-required-badge {
-  background-color: #c9a030;
-  color: #fff;
+.item-listing-verification-required-badge {
+  background-color: var(--color-primary-vivid);
+  color: var(--color-text-on-primary-alt);
   padding: 5px 12px;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   font-size: 0.82rem;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-badge);
 }
 
 /* ============================================================================
-   GRID (legacy — used outside Items.css)
+   LEGACY GRID (used outside Items page)
    ============================================================================ */
 
-.listings-grid {
+.item-listing-listings-grid {
   display: grid;
   gap: 1rem;
   padding: 1rem;
@@ -301,13 +272,13 @@
 }
 
 @media (min-width: 576px) {
-  .listings-grid { grid-template-columns: repeat(2, 1fr); }
+  .item-listing-listings-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (min-width: 768px) {
-  .listings-grid { grid-template-columns: repeat(3, 1fr); }
+  .item-listing-listings-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (min-width: 992px) {
-  .listings-grid { grid-template-columns: repeat(4, 1fr); }
+  .item-listing-listings-grid { grid-template-columns: repeat(4, 1fr); }
 }

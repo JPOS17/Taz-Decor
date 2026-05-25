@@ -1,0 +1,379 @@
+/* ============================================================================
+   MANAGE INVENTORY
+   Imports: tokens.css → components.css → ManagerShared.css → this file
+   Accent: apply .accent-orange to .manager-page wrapper in JSX
+
+   Unique to this page:
+   - Two-column dashboard layout (product list left, details right)
+   - Add-new product card (dashed border CTA)
+   - Product list item (thumbnail, badges, variant border)
+   - Right column details shell
+   - Custom scrollbars
+   - Filter bar with toggle/clear buttons
+   - Warehouse/category dropdowns
+   ============================================================================ */
+
+/* ── Container ── */
+.mi-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 2.5rem;
+}
+
+/* ── Warehouse / category filter dropdowns ── */
+.mi-category-section {
+  background-color: var(--card);
+  padding: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1rem;
+}
+
+.mi-category-label {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  display: block;
+  letter-spacing: 0.01em;
+}
+
+.mi-category-select {
+  width: 100%;
+  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  font-weight: 500;
+  background-color: var(--card);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1em;
+}
+
+.mi-category-select:hover { border-color: var(--accent); }
+.mi-category-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+
+/* ── Inventory filter bar ── */
+.mi-filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.mi-filter-toggle {
+  background-color: var(--card);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  transition: all 0.18s ease;
+}
+
+.mi-filter-toggle--active {
+  background-color: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.mi-filter-clear {
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  transition: all 0.18s ease;
+}
+
+.mi-filter-clear:hover { background-color: #b91c1c; }
+
+.mi-filter-panel {
+  margin-top: 0.75rem;
+  padding: 1.25rem;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.mi-filter-group       { display: flex; flex-direction: column; gap: 0.5rem; }
+.mi-filter-group-label { display: block; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+
+.mi-filter-dropdown-btn {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--card);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: var(--font);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+}
+
+.mi-filter-dropdown-btn:hover { border-color: var(--accent); }
+
+/* ── Two-column layout ── */
+.mi-dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+/* ── Left column — products list ── */
+.mi-products-column {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+.mi-products-column h2 {
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.mi-products-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+/* ── Add new product card — UNIQUE ── */
+.mi-add-new-card {
+  border: 2px dashed var(--accent);
+  background-color: var(--accent-light);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.mi-add-new-card:hover {
+  background-color: #fed7aa;
+  border-color: var(--accent-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(194, 65, 12, 0.15);
+}
+
+.mi-add-new-card.active {
+  background-color: #fdba74;
+  border-color: var(--accent-dark);
+  box-shadow: 0 8px 16px rgba(194, 65, 12, 0.15);
+  border-style: solid;
+}
+
+.mi-add-new-icon { color: var(--accent); margin-bottom: 0.5rem; }
+.mi-add-new-text { color: var(--accent); font-weight: 600; font-size: 1rem; margin: 0; }
+
+/* ── Product list item — UNIQUE ── */
+.mi-product-item {
+  position: relative;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.mi-product-item:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(194, 65, 12, 0.15);
+}
+
+.mi-product-item.active {
+  background-color: var(--accent-light);
+  border-color: var(--accent);
+  box-shadow: 0 8px 16px rgba(194, 65, 12, 0.15);
+}
+
+.mi-product-thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.mi-product-thumbnail-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--accent-light);
+  color: var(--accent);
+}
+
+.mi-product-info { flex: 1; min-width: 0; }
+
+.mi-product-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mi-product-meta { font-size: 0.8125rem; color: var(--text-secondary); margin: 0; }
+
+.mi-variant-badge {
+  display: inline-block;
+  background-color: var(--accent);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 5px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  letter-spacing: 0.03em;
+}
+
+.mi-variant-badge-bottom {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  margin-left: 0;
+}
+
+.mi-variant-info { color: var(--accent); font-weight: 600; font-size: 0.8rem; font-style: italic; }
+
+/* Variant left border indicator */
+.mi-product-item:has(.mi-variant-badge)        { border-left: 3px solid var(--accent); }
+.mi-product-item.active:has(.mi-variant-badge) { border-left: 3px solid var(--accent-dark); }
+
+/* ── Right column details shell ── */
+.mi-details-column {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 0;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* ── Custom scrollbars ── */
+.mi-products-column::-webkit-scrollbar,
+.mi-details-column::-webkit-scrollbar          { width: 6px; }
+.mi-products-column::-webkit-scrollbar-track,
+.mi-details-column::-webkit-scrollbar-track    { background-color: var(--accent-light); border-radius: 4px; }
+.mi-products-column::-webkit-scrollbar-thumb,
+.mi-details-column::-webkit-scrollbar-thumb    { background-color: var(--accent); border-radius: 4px; }
+.mi-products-column::-webkit-scrollbar-thumb:hover,
+.mi-details-column::-webkit-scrollbar-thumb:hover { background-color: var(--accent-dark); }
+
+/* ── Create new product standalone page ── */
+.mi-cnp-content {
+  padding-bottom: 4rem;
+  display: flex;
+  justify-content: center;
+}
+
+.mi-cnp-content .mi-details-column {
+  width: 100%;
+  max-height: none;
+  overflow-y: visible;
+}
+
+/* ── Empty state ── */
+.mi-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+}
+
+.mi-empty-state-icon { color: var(--text-muted); margin-bottom: 1rem; }
+
+.mi-empty-state-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .mi-dashboard-content { grid-template-columns: 350px 1fr; }
+}
+
+@media (max-width: 1024px) {
+  .mi-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+@media (max-width: 992px) {
+  .mi-dashboard-content  { grid-template-columns: 1fr; height: auto; align-items: start; }
+  .mi-products-column    { max-height: 400px; overflow-y: auto; }
+  .mi-details-column     { overflow-y: auto; }
+  .mi-product-item       { padding: 0.5rem; }
+  .mi-product-thumbnail,
+  .mi-product-thumbnail-placeholder { width: 50px; height: 50px; }
+  .mi-product-name       { font-size: 0.8125rem; }
+  .mi-product-meta       { font-size: 0.75rem; }
+  .mi-filter-panel       { grid-template-columns: 1fr 1fr; }
+  .mi-cnp-content        { padding-top: 1.5rem; }
+}
+
+@media (max-width: 768px) {
+  .mi-add-new-card  { padding: 1.5rem; }
+  .mi-filter-panel  { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 576px) {
+  .mi-container          { padding-left: 1rem; padding-right: 1rem; }
+  .mi-category-section   { padding: 0.75rem; }
+  .mi-cnp-content        { padding-bottom: 2.5rem; }
+}

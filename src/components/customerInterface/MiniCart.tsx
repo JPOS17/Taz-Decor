@@ -45,6 +45,8 @@ const MiniCart = ({
 
   const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const removedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const addedNotificationRef = useRef<HTMLDivElement | null>(null);
+  const removedNotificationRef = useRef<HTMLDivElement | null>(null);
 
   const isEmailVerified = user?.isEmailVerified ?? false;
 
@@ -59,8 +61,9 @@ const MiniCart = ({
       if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
 
       addedTimerRef.current = setTimeout(() => {
-        const el = document.querySelector(".mini-cart-notification--added");
-        if (el) el.classList.add("mini-cart-notification--hiding");
+        if (addedNotificationRef.current) {
+          addedNotificationRef.current.classList.add("mc-notification-hiding");
+        }
         setTimeout(() => setShowAddedMessage(false), 300);
       }, 2700);
     }
@@ -244,8 +247,9 @@ const MiniCart = ({
     setJustRemovedItem(true);
     if (removedTimerRef.current) clearTimeout(removedTimerRef.current);
     removedTimerRef.current = setTimeout(() => {
-      const el = document.querySelector(".mini-cart-notification--removed");
-      if (el) el.classList.add("mini-cart-notification--hiding");
+      if (removedNotificationRef.current) {
+        removedNotificationRef.current.classList.add("mc-notification-hiding");
+      }
       setTimeout(() => setJustRemovedItem(false), 300);
     }, 2700);
   };
@@ -256,34 +260,40 @@ const MiniCart = ({
   if (!isOpen) return null;
 
   return (
-    <div className="mini-cart-overlay" onClick={onClose}>
-      <div className="mini-cart-container" onClick={(e) => e.stopPropagation()}>
+    <div className="mc-overlay" onClick={onClose}>
+      <div className="mc-container" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="mini-cart-header">
-          <h4 className="mini-cart-header-title">
-            <FaShoppingCart className="mini-cart-header-icon" />
+        <div className="mc-header">
+          <h4 className="mc-header-title">
+            <FaShoppingCart className="mc-header-icon" />
             Shopping Cart
             {getCartCount() > 0 && (
-              <span className="mini-cart-count">{getCartCount()}</span>
+              <span className="mc-count">{getCartCount()}</span>
             )}
           </h4>
-          <button className="mini-cart-close" onClick={onClose}>
+          <button className="mc-close-btn" onClick={onClose}>
             <FaTimes />
           </button>
         </div>
 
         {/* Notification Messages */}
         {justRemovedItem ? (
-          <div className="mini-cart-notification mini-cart-notification--removed">
-            <FaCheckCircle className="mini-cart-notification-icon" />
-            <span className="mini-cart-notification-text">
+          <div
+            ref={removedNotificationRef}
+            className="mc-notification mc-notification-removed"
+          >
+            <FaCheckCircle className="mc-notification-icon" />
+            <span className="mc-notification-text">
               Item removed from your cart!
             </span>
           </div>
         ) : showAddedMessage && justAddedItem ? (
-          <div className="mini-cart-notification mini-cart-notification--added">
-            <FaCheckCircle className="mini-cart-notification-icon" />
-            <span className="mini-cart-notification-text">
+          <div
+            ref={addedNotificationRef}
+            className="mc-notification mc-notification-added"
+          >
+            <FaCheckCircle className="mc-notification-icon" />
+            <span className="mc-notification-text">
               {isNewItem
                 ? "Item added to your cart!"
                 : "Item already in your cart!"}
@@ -292,9 +302,9 @@ const MiniCart = ({
         ) : null}
 
         {/* Cart Items */}
-        <div className="mini-cart-body">
+        <div className="mc-body">
           {displayItems.length === 0 ? (
-            <p className="mini-cart-empty">Your cart is empty</p>
+            <p className="mc-empty">Your cart is empty</p>
           ) : (
             displayItems.map((item) => {
               const itemCoupon = getCouponForItem(item);
@@ -325,9 +335,9 @@ const MiniCart = ({
               }
 
               return (
-                <div key={item.variant_id} className="mini-cart-item">
+                <div key={item.variant_id} className="mc-item">
                   <button
-                    className="mini-cart-item-remove"
+                    className="mc-item-remove"
                     onClick={(e) => handleRemoveItem(item.variant_id, e)}
                     title="Remove item"
                   >
@@ -336,22 +346,22 @@ const MiniCart = ({
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="mini-cart-item-image"
+                    className="mc-item-image"
                   />
-                  <div className="mini-cart-item-details">
-                    <h5 className="mini-cart-item-name">{item.name}</h5>
+                  <div className="mc-item-details">
+                    <h5 className="mc-item-name">{item.name}</h5>
                     {(item.color || item.size) && (
-                      <p className="mini-cart-item-meta">
+                      <p className="mc-item-meta">
                         {item.color && <span>{item.color}</span>}
                         {item.color && item.size && <span> | </span>}
                         {item.size && <span>{item.size}</span>}
                       </p>
                     )}
-                    <p className="mini-cart-item-meta">Qty: {item.quantity}</p>
+                    <p className="mc-item-meta">Qty: {item.quantity}</p>
 
                     {/* Coupon Display */}
                     {itemCoupon && (
-                      <div className="mini-cart-item-coupon">
+                      <div className="mc-item-coupon">
                         <FaTag size={10} />
                         <span>{itemCoupon.coupon_code}</span>
                       </div>
@@ -359,16 +369,16 @@ const MiniCart = ({
 
                     {/* Price with discount */}
                     {hasDiscount ? (
-                      <div className="mini-cart-item-price-container">
-                        <p className="mini-cart-item-price-original">
+                      <div className="mc-item-price-container">
+                        <p className="mc-item-price-original">
                           ${(item.price * item.quantity).toFixed(2)}
                         </p>
-                        <p className="mini-cart-item-price">
+                        <p className="mc-item-price">
                           ${displayPrice.toFixed(2)}
                         </p>
                       </div>
                     ) : (
-                      <p className="mini-cart-item-price">
+                      <p className="mc-item-price">
                         ${(item.price * item.quantity).toFixed(2)}
                       </p>
                     )}
@@ -382,30 +392,30 @@ const MiniCart = ({
         {/* Subtotal */}
         {displayItems.length > 0 && (
           <>
-            <div className="mini-cart-subtotal">
-              <span className="mini-cart-subtotal-label">Subtotal:</span>
-              <span className="mini-cart-subtotal-amount">
+            <div className="mc-subtotal">
+              <span className="mc-subtotal-label">Subtotal:</span>
+              <span className="mc-subtotal-amount">
                 ${subtotalWithDiscounts.toFixed(2)}
               </span>
             </div>
 
             {/* Action Buttons */}
-            <div className="mini-cart-actions">
+            <div className="mc-actions">
               <button
-                className="mini-cart-btn mini-cart-btn-primary"
+                className="mc-btn mc-btn-primary"
                 onClick={handleCheckout}
               >
                 <FaShoppingCart />
                 Checkout
               </button>
               <button
-                className="mini-cart-btn mini-cart-btn-secondary"
+                className="mc-btn mc-btn-secondary"
                 onClick={handleViewCart}
               >
                 View Cart
               </button>
               <button
-                className="mini-cart-btn mini-cart-btn-outline"
+                className="mc-btn mc-btn-outline"
                 onClick={handleContinueShopping}
               >
                 Continue Shopping

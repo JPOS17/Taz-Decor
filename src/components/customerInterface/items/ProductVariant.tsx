@@ -26,11 +26,9 @@ const VariantSelector = ({
   onVariantChange,
 }: VariantSelectorProps) => {
   if (variants.length <= 1) {
-    // Single variant, no selector needed
     return null;
   }
 
-  // Sort variants by variant_id to maintain consistent numbering
   const sortedVariants = [...variants].sort(
     (a, b) => a.variant_id - b.variant_id,
   );
@@ -43,15 +41,15 @@ const VariantSelector = ({
 
   const formatVariantDetails = (variant: ProductVariant) => {
     const details = [];
-    if (variant.color) details.push(`Color: ${variant.color}`);
-    if (variant.size) details.push(`Size: ${variant.size}`);
+    if (variant.color) details.push(`${variant.color}`);
+    if (variant.size) details.push(`${variant.size}`);
     return details.length > 0 ? details.join("\n") : "Standard";
   };
 
   return (
-    <div className="variant-selector">
-      <div className="variant-section">
-        <div className="variant-grid">
+    <div className="pv-variant-selector">
+      <div className="pv-variant-section">
+        <div className="pv-variant-grid">
           {sortedVariants.map((variant, index) => {
             const isSelected = variant.variant_id === selectedVariantId;
             const isOutOfStock = variant.quantity === 0;
@@ -60,20 +58,25 @@ const VariantSelector = ({
             return (
               <button
                 key={variant.variant_id}
-                className={`variant-card ${
-                  isSelected ? "variant-card-selected" : ""
-                } ${isOutOfStock ? "variant-card-unavailable" : ""}`}
+                className={[
+                  "pv-variant-card",
+                  isSelected ? "pv-variant-card-selected" : "",
+                  isOutOfStock ? "pv-variant-card-unavailable" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={() => handleVariantSelect(variant.variant_id)}
                 disabled={isOutOfStock}
                 aria-label={`Select variant ${variantNumber}: ${formatVariantDetails(variant)}`}
                 aria-pressed={isSelected}
               >
-                <div className="variant-card-number">#{variantNumber}</div>
-                <div className="variant-card-details">
+                <div className="pv-variant-card-details">
                   {formatVariantDetails(variant)}
                 </div>
                 {isOutOfStock && (
-                  <div className="variant-card-stock-badge">Out of Stock</div>
+                  <div className="pv-variant-card-stock-badge">
+                    Out of Stock
+                  </div>
                 )}
               </button>
             );

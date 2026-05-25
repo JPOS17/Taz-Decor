@@ -23,11 +23,11 @@ const AddressForm = ({
   loading,
 }: AddressFormProps) => {
   return (
-    <form className="cp-address-form" onSubmit={onSubmit}>
+    <form className="af-address-form" onSubmit={onSubmit}>
       <h3>{isEditing ? "Edit Address" : "Add New Address"}</h3>
 
-      <div className="cp-form-row">
-        <div className="cp-form-group">
+      <div className="af-form-row">
+        <div className="af-form-group">
           <label>Address Name *</label>
           <input
             type="text"
@@ -39,8 +39,8 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="cp-form-row">
-        <div className="cp-form-group">
+      <div className="af-form-row">
+        <div className="af-form-group">
           <label>Street Address *</label>
           <input
             type="text"
@@ -52,8 +52,8 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="cp-form-row">
-        <div className="cp-form-group">
+      <div className="af-form-row">
+        <div className="af-form-group">
           <label>Apt, Suite, etc. (optional)</label>
           <input
             type="text"
@@ -64,8 +64,8 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="cp-form-row">
-        <div className="cp-form-group">
+      <div className="af-form-row">
+        <div className="af-form-group">
           <label>City *</label>
           <input
             type="text"
@@ -74,7 +74,7 @@ const AddressForm = ({
             required
           />
         </div>
-        <div className="cp-form-group">
+        <div className="af-form-group">
           <label>State *</label>
           <input
             type="text"
@@ -85,7 +85,7 @@ const AddressForm = ({
             required
           />
         </div>
-        <div className="cp-form-group">
+        <div className="af-form-group">
           <label>ZIP Code *</label>
           <input
             type="text"
@@ -96,8 +96,8 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="cp-form-row">
-        <div className="cp-form-group-checkbox">
+      <div className="af-form-row">
+        <div className="af-form-group-checkbox">
           <input
             type="checkbox"
             id="is_default"
@@ -108,11 +108,11 @@ const AddressForm = ({
         </div>
       </div>
 
-      <div className="cp-form-actions">
-        <button type="button" className="cp-btn-cancel" onClick={onCancel}>
+      <div className="af-form-actions">
+        <button type="button" className="af-btn-cancel" onClick={onCancel}>
           Cancel
         </button>
-        <button type="submit" className="cp-btn-save" disabled={loading}>
+        <button type="submit" className="af-btn-save" disabled={loading}>
           {loading
             ? "Saving..."
             : isEditing

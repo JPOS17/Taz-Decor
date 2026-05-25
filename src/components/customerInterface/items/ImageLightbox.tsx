@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import "../../../styles/pages/main/Listing.css";
+
+import "../../../styles/components/customerInterface/items/ImageLightbox.css";
 
 interface LightboxProps {
   isOpen: boolean;
@@ -40,16 +41,25 @@ const Lightbox = ({
 
   return (
     <div className="lightbox-overlay" onClick={onClose}>
-      {/* ── ROW 1: Top bar with close button ── */}
-      <div className="lightbox-row-top" onClick={(e) => e.stopPropagation()}>
-        <button className="lightbox-close" onClick={onClose}>
+      {/* ROW 1: Top bar with close button */}
+      <div className="lightbox-row-top">
+        <button
+          className="lightbox-close"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+        >
           <FaTimes />
         </button>
       </div>
 
-      {/* ── ROW 2: Main image only ── */}
-      <div className="lightbox-row-middle" onClick={(e) => e.stopPropagation()}>
-        <div className="lightbox-main-image-wrap">
+      {/* ROW 2: Main image only */}
+      <div className="lightbox-row-middle">
+        <div
+          className="lightbox-main-image-wrap"
+          onClick={(e) => e.stopPropagation()}
+        >
           <img
             src={images[currentIndex]}
             alt={`${productName} view ${currentIndex + 1}`}
@@ -58,18 +68,18 @@ const Lightbox = ({
         </div>
       </div>
 
-      {/* ── ROW 3: Thumbnail strip (horizontal, below image) ── */}
-      <div
-        className="lightbox-row-thumbnails"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="lightbox-thumbnails-vertical">
+      {/* ROW 3: Thumbnail strip */}
+      <div className="lightbox-row-thumbnails">
+        <div
+          className="lightbox-thumbnails-strip"
+          onClick={(e) => e.stopPropagation()}
+        >
           {images.map((img, index) => (
             <img
               key={index}
               src={img}
               alt={`Thumbnail ${index + 1}`}
-              className={`lightbox-thumbnail ${currentIndex === index ? "active" : ""}`}
+              className={`lightbox-thumbnail${currentIndex === index ? " lightbox-thumbnail-active" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 onSelectIndex(index);
@@ -79,11 +89,11 @@ const Lightbox = ({
         </div>
       </div>
 
-      {/* ── ROW 4: < counter > — centered to main image column width ── */}
-      <div className="lightbox-row-bottom" onClick={(e) => e.stopPropagation()}>
-        <div className="lightbox-controls">
+      {/* ROW 4: < counter > */}
+      <div className="lightbox-row-bottom">
+        <div className="lightbox-controls" onClick={(e) => e.stopPropagation()}>
           <button
-            className="lightbox-nav lightbox-prev"
+            className="lightbox-nav-button"
             onClick={(e) => {
               e.stopPropagation();
               onPrev();
@@ -95,7 +105,7 @@ const Lightbox = ({
             {currentIndex + 1} / {images.length}
           </div>
           <button
-            className="lightbox-nav lightbox-next"
+            className="lightbox-nav-button"
             onClick={(e) => {
               e.stopPropagation();
               onNext();

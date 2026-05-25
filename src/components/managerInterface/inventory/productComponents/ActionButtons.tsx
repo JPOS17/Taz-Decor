@@ -31,9 +31,9 @@ export const ActionButtons = ({
 }: ActionButtonsProps) => {
   if (viewMode === "create-product") {
     return (
-      <div className="action-buttons">
+      <div className="mi-action-buttons">
         <button
-          className="btn btn-save"
+          className="mi-btn-save"
           onClick={(e) => {
             e.preventDefault();
             onSubmitForm?.();
@@ -44,7 +44,7 @@ export const ActionButtons = ({
           Create Product
         </button>
         <button
-          className="btn-cancel-inline"
+          className="mi-btn-cancel-inline"
           onClick={onCancel}
           disabled={loading}
         >
@@ -57,9 +57,9 @@ export const ActionButtons = ({
 
   if (viewMode === "create-variant") {
     return (
-      <div className="action-buttons">
+      <div className="mi-action-buttons">
         <button
-          className="btn btn-save"
+          className="mi-btn-save"
           onClick={(e) => {
             e.preventDefault();
             onSubmitForm?.();
@@ -70,7 +70,7 @@ export const ActionButtons = ({
           Create Variant
         </button>
         <button
-          className="btn-cancel-inline"
+          className="mi-btn-cancel-inline"
           onClick={onCancel}
           disabled={loading}
         >
@@ -82,9 +82,9 @@ export const ActionButtons = ({
   }
 
   return (
-    <div className="action-buttons">
+    <div className="mi-action-buttons">
       <button
-        className="btn btn-new-variant"
+        className="mi-btn-new-variant"
         onClick={onNewVariant}
         disabled={loading || hasUnsavedChanges}
       >
@@ -92,7 +92,7 @@ export const ActionButtons = ({
         New Variant
       </button>
       <button
-        className={`btn ${isActive ? "btn-deactivate" : "btn-activate"}`}
+        className={isActive ? "mi-btn-deactivate" : "mi-btn-activate"}
         onClick={onToggleStatus}
         disabled={loading}
       >
@@ -109,14 +109,14 @@ export const ActionButtons = ({
         )}
       </button>
       <button
-        className="btn btn-save"
+        className="mi-btn-save"
         onClick={onSave}
         disabled={loading || !hasUnsavedChanges || !isFormValid}
       >
         <Save size={18} />
         Save Changes
       </button>
-      <button className="btn btn-delete" onClick={onDelete} disabled={loading}>
+      <button className="mi-btn-delete" onClick={onDelete} disabled={loading}>
         <Trash2 size={18} />
         Delete
       </button>

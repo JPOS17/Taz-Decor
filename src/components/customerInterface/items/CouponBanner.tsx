@@ -18,6 +18,7 @@ import {
   fetchUserCouponUsage,
 } from "../../../api/couponCustomer";
 import { useAuth } from "../../../context/AuthContext";
+
 import "../../../styles/components/customerInterface/items/CouponBanner.css";
 
 interface CouponBannerProps {
@@ -129,8 +130,6 @@ const CouponBanner = ({
     return [...couponsToSort].sort((a, b) => {
       const discountA = calculateDiscount(productPrice, a).discountAmount;
       const discountB = calculateDiscount(productPrice, b).discountAmount;
-
-      // Sort by discount amount descending (best first)
       return discountB - discountA;
     });
   };
@@ -247,7 +246,7 @@ const CouponBanner = ({
     navigate(`/items/${variantId}`);
   };
 
-  // Filter out cart-level coupons (applies_to_type === "all") - these are only selectable at checkout
+  // Filter out cart-level coupons
   const itemLevelCoupons = coupons.filter((c) => c.applies_to_type !== "all");
 
   // Sort item-level coupons by best value
@@ -264,7 +263,13 @@ const CouponBanner = ({
 
       {/* Scrollable Coupons List */}
       <div
-        className={`compact-coupons-list ${sortedCoupons.length > 2 ? "scrollable" : ""} ${expandedCoupons.size > 0 ? "has-expanded" : ""}`}
+        className={[
+          "coupon-banner-list",
+          sortedCoupons.length > 2 ? "coupon-banner-list-scrollable" : "",
+          expandedCoupons.size > 0 ? "coupon-banner-list-has-expanded" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
       >
         {sortedCoupons.map((coupon) => {
           const isExpanded = expandedCoupons.has(coupon.coupon_id);
@@ -280,21 +285,37 @@ const CouponBanner = ({
           return (
             <div
               key={coupon.coupon_id}
-              className={`compact-coupon-item ${isSelected ? "selected" : ""} ${!eligible && isAuthenticated ? "ineligible" : ""}`}
+              className={[
+                "coupon-banner-item",
+                isSelected ? "coupon-banner-item-selected" : "",
+                !eligible && isAuthenticated
+                  ? "coupon-banner-item-ineligible"
+                  : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleCouponExpand(coupon.coupon_id);
               }}
             >
               {/* Compact View */}
-              <div className="compact-coupon-header">
-                <div className="compact-coupon-icon">
+              <div className="coupon-banner-item-header">
+                <div className="coupon-banner-icon">
                   {getCouponIcon(coupon)}
                 </div>
-                <div className="compact-coupon-content">
-                  <div className="compact-coupon-first-line">
+                <div className="coupon-banner-content">
+                  <div className="coupon-banner-first-line">
                     <button
-                      className={`compact-coupon-code ${isSelected ? "selected" : ""} ${!eligible && isAuthenticated ? "ineligible" : ""}`}
+                      className={[
+                        "coupon-banner-code",
+                        isSelected ? "coupon-banner-code-selected" : "",
+                        !eligible && isAuthenticated
+                          ? "coupon-banner-code-ineligible"
+                          : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
                       onClick={(e) => {
                         e.stopPropagation();
                         if (!isAuthenticated) {
@@ -326,19 +347,19 @@ const CouponBanner = ({
                         </>
                       )}
                     </button>
-                    <span className="compact-coupon-deal">
+                    <span className="coupon-banner-deal">
                       {getCouponText(coupon)}
                     </span>
                   </div>
 
                   {coupon.min_purchase_amount && (
-                    <div className="compact-coupon-min-purchase">
+                    <div className="coupon-banner-min-purchase">
                       Minimum purchase: ${coupon.min_purchase_amount.toFixed(2)}
                     </div>
                   )}
 
                   {coupon.valid_until && (
-                    <div className="compact-coupon-expiration">
+                    <div className="coupon-banner-expiration">
                       <FaCalendar size={10} />
                       <span>
                         Expires: {formatExpirationDate(coupon.valid_until)}
@@ -348,24 +369,29 @@ const CouponBanner = ({
                 </div>
                 <FaChevronDown
                   size={10}
-                  className={`compact-expand-icon ${isExpanded ? "expanded" : ""}`}
+                  className={[
+                    "coupon-banner-expand-icon",
+                    isExpanded ? "coupon-banner-expand-icon-expanded" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                 />
               </div>
 
               {/* Expanded Details */}
               {isExpanded && (
                 <div
-                  className="compact-coupon-details"
+                  className="coupon-banner-details"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {/* Guest sign-in notice — replaces all coupon details for unauthenticated users */}
+                  {/* Guest sign-in notice */}
                   {!isAuthenticated ? (
-                    <div className="compact-guest-notice">
+                    <div className="coupon-banner-guest-notice">
                       <FaLock size={13} />
                       <span>
                         Coupons are only applicable for signed-in users.{" "}
                         <button
-                          className="compact-guest-login-link"
+                          className="coupon-banner-guest-login-link"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate("/login");
@@ -378,13 +404,13 @@ const CouponBanner = ({
                   ) : (
                     <>
                       {!eligible && (
-                        <div className="compact-coupon-ineligible-reason">
+                        <div className="coupon-banner-ineligible-reason">
                           {ineligibilityReason}
                         </div>
                       )}
 
                       {coupon.description && (
-                        <p className="compact-coupon-description">
+                        <p className="coupon-banner-description">
                           {coupon.description}
                         </p>
                       )}
@@ -392,7 +418,7 @@ const CouponBanner = ({
                       {/* Max discount info */}
                       {coupon.discount_type === "percentage" &&
                         coupon.max_discount_amount && (
-                          <div className="compact-coupon-info-note">
+                          <div className="coupon-banner-info-note">
                             <FaInfoCircle size={12} />
                             <span>
                               Maximum discount: $
@@ -403,12 +429,12 @@ const CouponBanner = ({
 
                       {/* BOGO Explanation */}
                       {isBogo && (
-                        <div className="compact-bogo-explanation">
-                          <div className="compact-bogo-title">
+                        <div className="coupon-banner-bogo-explanation">
+                          <div className="coupon-banner-bogo-title">
                             <FaInfoCircle size={12} />
                             <span>How this works</span>
                           </div>
-                          <p className="compact-bogo-text">
+                          <p className="coupon-banner-bogo-text">
                             Add the required quantities to your cart. The
                             discount will automatically apply at cart.
                           </p>
@@ -417,9 +443,9 @@ const CouponBanner = ({
 
                       {/* Eligible Products */}
                       {coupon.applies_to_type !== "variant" && (
-                        <div className="compact-eligible-section">
-                          <div className="compact-eligible-header">
-                            <div className="compact-eligible-title">
+                        <div className="coupon-banner-eligible-section">
+                          <div className="coupon-banner-eligible-header">
+                            <div className="coupon-banner-eligible-title">
                               <FaBoxOpen size={12} />
                               <span>
                                 Applies to: {getAppliesDescription(coupon)}
@@ -431,7 +457,7 @@ const CouponBanner = ({
                                   e.stopPropagation();
                                   handleViewAllProducts(coupon);
                                 }}
-                                className="compact-view-all"
+                                className="coupon-banner-view-all"
                               >
                                 View all →
                               </button>
@@ -442,15 +468,13 @@ const CouponBanner = ({
                           {coupon.applies_to_type !== "all" && (
                             <>
                               {isLoading ? (
-                                <div className="compact-loading">
-                                  <div className="spinner-border spinner-border-sm" />
-                                </div>
+                                <div className="coupon-banner-loading" />
                               ) : products.length > 0 ? (
-                                <div className="compact-products-preview">
+                                <div className="coupon-banner-products-preview">
                                   {products.map((product: EligibleProduct) => (
                                     <div
                                       key={product.variant_id}
-                                      className="compact-product-card"
+                                      className="coupon-banner-product-card"
                                       onClick={(e) =>
                                         handleProductClick(
                                           e,
@@ -461,12 +485,12 @@ const CouponBanner = ({
                                       <img
                                         src={product.primary_image}
                                         alt={product.name}
-                                        className="compact-product-image"
+                                        className="coupon-banner-product-image"
                                       />
-                                      <div className="compact-product-name">
+                                      <div className="coupon-banner-product-name">
                                         {product.name}
                                       </div>
-                                      <div className="compact-product-price">
+                                      <div className="coupon-banner-product-price">
                                         ${Number(product.price).toFixed(2)}{" "}
                                       </div>
                                     </div>
@@ -479,7 +503,7 @@ const CouponBanner = ({
                       )}
 
                       {coupon.usage_limit_total && (
-                        <div className="compact-usage-info">
+                        <div className="coupon-banner-usage-info">
                           {coupon.usage_limit_total - coupon.usage_count_total}{" "}
                           uses remaining
                         </div>
@@ -493,7 +517,7 @@ const CouponBanner = ({
         })}
       </div>
 
-      <div className="compact-footer">
+      <div className="coupon-banner-footer">
         <FaTag size={10} /> Codes apply at checkout
       </div>
     </div>

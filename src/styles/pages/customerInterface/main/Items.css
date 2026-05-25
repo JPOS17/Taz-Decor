@@ -1,0 +1,234 @@
+/* ============================================================================
+   ITEMS PAGE
+   Imports: Tokens.css → this file
+   Prefix: items-*
+   ============================================================================ */
+
+.items-page {
+  min-height: 100vh;
+  background-color: var(--color-page-bg);
+  font-family: var(--font-sans);
+}
+
+.items-container {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+}
+
+/* ============================================================================
+   MAIN CONTENT
+   ============================================================================ */
+
+.items-main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ============================================================================
+   MOBILE CATEGORY DROPDOWN
+   ============================================================================ */
+
+.items-category-dropdown-mobile {
+  display: none;
+  padding: 0.85rem 1rem;
+  background: var(--color-surface-alt);
+  border-bottom: 2px solid var(--color-border-accent);
+}
+
+/* ============================================================================
+   HEADER SECTION
+   ============================================================================ */
+
+.items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 2rem 1.1rem 1.75rem;
+  background: var(--color-surface-gradient);
+  border-bottom: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.items-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+.items-category-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+/* ============================================================================
+   CATEGORY COUPON BADGES
+   ============================================================================ */
+
+.items-category-coupon-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.items-discount-badge {
+  background: var(--gradient-badge-danger);
+  color: var(--color-text-on-primary-alt);
+  padding: 5px 11px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-badge);
+  letter-spacing: 0.6px;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+}
+
+.items-free-shipping-badge {
+  background: var(--gradient-badge-success);
+  color: var(--color-text-on-primary-alt);
+  padding: 5px 11px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-badge);
+  font-family: var(--font-sans);
+}
+
+.items-verification-badge {
+  background: var(--gradient-badge-warning);
+  color: var(--color-text-on-primary-alt);
+  padding: 5px 11px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-badge);
+  font-family: var(--font-sans);
+}
+
+/* ============================================================================
+   FILTER WRAPPER
+   ============================================================================ */
+
+.items-filter-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* ============================================================================
+   CONTENT STATES
+   ============================================================================ */
+
+.items-loading-state,
+.items-error-state,
+.items-empty-state {
+  padding: 3rem 2rem;
+  text-align: center;
+  font-family: var(--font-sans);
+}
+
+.items-loading-state {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.items-error-state {
+  color: var(--color-danger);
+  font-size: 1rem;
+}
+
+.items-empty-state {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* ============================================================================
+   PRODUCTS GRID
+   ============================================================================ */
+
+.items-products-grid {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .items-sidebar-hidden {
+    display: none;
+  }
+
+  .items-category-dropdown-mobile {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .items-category-dropdown-mobile {
+    display: block;
+  }
+
+  .items-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 1rem;
+  }
+
+  .items-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  .items-category-title {
+    font-size: 1.55rem;
+    margin-left: 1.4rem;
+  }
+
+  .items-filter-wrapper {
+    width: 100%;
+  }
+
+  .items-category-coupon-badge {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .items-header {
+    padding: 0.85rem;
+  }
+
+  .items-category-title {
+    font-size: 1.3rem;
+  }
+
+  .items-discount-badge,
+  .items-free-shipping-badge,
+  .items-verification-badge {
+    font-size: 0.72rem;
+    padding: 4px 8px;
+  }
+}

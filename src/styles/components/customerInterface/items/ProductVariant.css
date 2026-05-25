@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;600;700&display=swap");
-
 /* ============================================================================
    PRODUCT VARIANT SELECTOR
+   Imports: Tokens.css → this file
+   Prefix: pv-*
    ============================================================================ */
 
-.variant-selector {
+.pv-variant-selector {
   margin-top: 0.5rem;
   width: 100%;
   min-width: 0;
@@ -14,7 +14,7 @@
    VARIANT SECTION
    ============================================================================ */
 
-.variant-section {
+.pv-variant-section {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -25,7 +25,7 @@
    VARIANT GRID
    ============================================================================ */
 
-.variant-grid {
+.pv-variant-grid {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -36,56 +36,56 @@
   padding-bottom: 0.5rem;
   min-width: 0;
   scrollbar-width: thin;
-  scrollbar-color: #c9a97a #f5ede0;
+  scrollbar-color: var(--color-primary-mid) var(--color-surface-image-bg);
 }
 
-.variant-grid::-webkit-scrollbar {
+.pv-variant-grid::-webkit-scrollbar {
   height: 5px;
 }
 
-.variant-grid::-webkit-scrollbar-track {
-  background: #f5ede0;
-  border-radius: 4px;
+.pv-variant-grid::-webkit-scrollbar-track {
+  background: var(--color-surface-image-bg);
+  border-radius: var(--radius-sm);
 }
 
-.variant-grid::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, #c9a97a, #8a6030);
-  border-radius: 4px;
+.pv-variant-grid::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, var(--color-primary-mid), var(--color-primary));
+  border-radius: var(--radius-sm);
 }
 
 /* ============================================================================
    VARIANT CARD
    ============================================================================ */
 
-.variant-card {
+.pv-variant-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  padding: 0.75rem;
-  background: linear-gradient(160deg, #fdf8f0 0%, #f9f1e4 100%);
-  border: 1.5px solid #e8d8c0;
-  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  background: var(--color-surface-gradient);
+  border: 1.5px solid var(--color-border-image);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
-  width: 110px;
-  height: 70px;
+  width: 80px;
+  height: 52px;
   flex-shrink: 0;
   flex-grow: 0;
   text-align: center;
   overflow: hidden;
-  font-family: "Lato", sans-serif;
+  font-family: var(--font-sans);
 }
 
-.variant-card:hover:not(:disabled):not(.variant-card-selected) {
-  border-color: #c9a97a;
-  background: linear-gradient(160deg, #fdf8f0 0%, #f0e3cc 100%);
-  box-shadow: 0 6px 16px rgba(117, 58, 30, 0.15);
+.pv-variant-card:hover:not(:disabled):not(.pv-variant-card-selected) {
+  border-color: var(--color-primary-mid);
+  background: var(--color-surface-alt);
+  box-shadow: var(--shadow-img-hover);
 }
 
-.variant-card:active:not(:disabled) {
+.pv-variant-card:active:not(:disabled) {
   transform: translateY(0);
 }
 
@@ -93,127 +93,125 @@
    SELECTED STATE
    ============================================================================ */
 
-.variant-card-selected {
-  background: linear-gradient(135deg, #8a6030 0%, #6a4820 100%);
-  border-color: #8a6030;
-  color: white;
-  box-shadow: 0 6px 18px rgba(117, 58, 30, 0.28);
+.pv-variant-card-selected {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-color: var(--color-primary);
+  color: var(--color-text-on-primary-alt);
 }
 
-.variant-card-selected:hover {
-  background: linear-gradient(135deg, #9a6e38 0%, #7a5228 100%);
-  border-color: #9a6e38;
+.pv-variant-card-selected:hover {
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary-hover-dark) 100%);
+  border-color: var(--color-primary-hover);
 }
 
-.variant-card-selected::before {
-  content: "✓";
+.pv-variant-card-selected::before {
   position: absolute;
   top: 0.4rem;
   right: 0.4rem;
   width: 20px;
   height: 20px;
-  background: linear-gradient(135deg, #c9a97a, #e8c88a);
-  color: #5a3a14;
+  background: linear-gradient(135deg, var(--color-primary-mid), var(--color-primary-tint));
+  color: var(--color-primary-deep);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
   font-weight: 800;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-xs);
 }
 
 /* ============================================================================
    UNAVAILABLE STATE
    ============================================================================ */
 
-.variant-card-unavailable {
+.pv-variant-card-unavailable {
   opacity: 0.45;
   cursor: not-allowed;
-  background: #f5f0ea;
+  background: var(--color-surface-warm);
 }
 
-.variant-card-unavailable:hover {
-  border-color: #e8d8c0;
+.pv-variant-card-unavailable:hover {
+  border-color: var(--color-border-image);
   transform: none;
   box-shadow: none;
-  background: #f5f0ea;
+  background: var(--color-surface-warm);
 }
 
 /* ============================================================================
    CARD CONTENT
    ============================================================================ */
 
-.variant-card-number {
-  font-family: "Cormorant Garamond", Georgia, serif;
+.pv-variant-card-number {
+  font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 700;
-  color: #5a3a14;
+  color: var(--color-primary-deep);
   line-height: 1;
   margin-bottom: 0.1rem;
 }
 
-.variant-card-selected .variant-card-number {
-  color: #f0d9b0;
+.pv-variant-card-selected .pv-variant-card-number {
+  color: var(--color-primary-tint);
 }
 
-.variant-card-unavailable .variant-card-number {
-  color: #b0a090;
+.pv-variant-card-unavailable .pv-variant-card-number {
+  color: var(--color-text-placeholder);
 }
 
-.variant-card-details {
-  font-family: "Lato", sans-serif;
-  font-size: 0.78rem;
-  color: #7a5c35;
+.pv-variant-card-details {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  color: var(--color-text-accent);
   line-height: 1.3;
   word-wrap: break-word;
   max-width: 100%;
   white-space: pre-line;
 }
 
-.variant-card-selected .variant-card-details {
-  color: #f5e8cc;
+.pv-variant-card-selected .pv-variant-card-details {
+  color: var(--color-primary-tint);
   font-weight: 500;
 }
 
-.variant-card-unavailable .variant-card-details {
-  color: #b0a090;
+.pv-variant-card-unavailable .pv-variant-card-details {
+  color: var(--color-text-placeholder);
 }
 
-.variant-card-price {
-  font-family: "Lato", sans-serif;
+.pv-variant-card-price {
+  font-family: var(--font-sans);
   font-size: 0.85rem;
   font-weight: 700;
-  color: #8a6030;
+  color: var(--color-primary);
   margin-top: 0.1rem;
   letter-spacing: 0.01em;
 }
 
-.variant-card-selected .variant-card-price {
-  color: #f0d9b0;
+.pv-variant-card-selected .pv-variant-card-price {
+  color: var(--color-primary-tint);
 }
 
-.variant-card-unavailable .variant-card-price {
-  color: #b0a090;
+.pv-variant-card-unavailable .pv-variant-card-price {
+  color: var(--color-text-placeholder);
 }
 
 /* ============================================================================
    OUT OF STOCK BADGE
    ============================================================================ */
 
-.variant-card-stock-badge {
+.pv-variant-card-stock-badge {
   position: absolute;
   bottom: 0.45rem;
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.62rem;
-  color: #b5341e;
+  color: var(--color-danger);
   font-weight: 700;
   text-transform: uppercase;
-  background: linear-gradient(160deg, #fdf8f0, #f9f1e4);
+  background: var(--color-surface-gradient);
   padding: 0.2rem 0.45rem;
-  border-radius: 4px;
-  border: 1px solid #e8b8a8;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-danger-border-light);
   white-space: nowrap;
   letter-spacing: 0.04em;
 }
@@ -222,8 +220,8 @@
    ACCESSIBILITY
    ============================================================================ */
 
-.variant-card:focus-visible {
-  outline: 3px solid #c9a97a;
+.pv-variant-card:focus-visible {
+  outline: 3px solid var(--color-primary-mid);
   outline-offset: 2px;
 }
 
@@ -231,34 +229,71 @@
    RESPONSIVE
    ============================================================================ */
 
+@media (max-width: 888px) and (min-width: 560px) {
+  .pv-variant-selector {
+    margin-top: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pv-variant-section {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .pv-variant-grid {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+    padding-bottom: 0;
+    padding-right: 0.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary-mid) var(--color-surface-image-bg);
+  }
+
+  .pv-variant-grid::-webkit-scrollbar {
+    width: 5px;
+    height: auto;
+  }
+
+  .pv-variant-card {
+    width: 100%;
+    height: 52px;
+    flex-shrink: 0;
+  }
+}
+
 @media (max-width: 768px) {
-  .variant-card-number {
+  .pv-variant-card-number {
     font-size: 1.375rem;
   }
 
-  .variant-card-details {
+  .pv-variant-card-details {
     font-size: 0.72rem;
   }
 
-  .variant-card-price {
+  .pv-variant-card-price {
     font-size: 0.8rem;
   }
 }
 
 @media (max-width: 576px) {
-  .variant-card-number {
+  .pv-variant-card-number {
     font-size: 1.25rem;
   }
 
-  .variant-card-details {
+  .pv-variant-card-details {
     font-size: 0.67rem;
   }
 
-  .variant-card-price {
+  .pv-variant-card-price {
     font-size: 0.75rem;
   }
 
-  .variant-card-stock-badge {
+  .pv-variant-card-stock-badge {
     font-size: 0.58rem;
   }
 }

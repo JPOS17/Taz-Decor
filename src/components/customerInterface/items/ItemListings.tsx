@@ -9,6 +9,7 @@ import {
   shouldShowDiscountedPrice,
   formatBogoBadge,
 } from "../../../api/couponCustomer";
+
 import "../../../styles/components/customerInterface/items/ItemListing.css";
 
 interface ListItemProps {
@@ -44,27 +45,22 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
       size: product.size,
     };
 
-    // When adding from list, use the best coupon
     addToWishlist(wishlistItem, coupon?.coupon_id);
   };
 
   const isInWishlistState = isInWishlist(product.variant_id);
 
-  // Check if user needs to verify email for this coupon
   const requiresVerification =
     coupon?.requires_verified_email && !user?.isEmailVerified;
 
-  // Determine how to display the coupon
   const showDiscountedPrice = coupon && shouldShowDiscountedPrice(coupon);
   const isBogo = coupon?.discount_type === "bogo";
 
-  // Calculate discount info if it's a percentage or fixed discount
   const discountInfo = showDiscountedPrice
     ? calculateDiscount(product.price, coupon)
     : null;
   const hasDiscountedPrice = !!discountInfo && discountInfo.discountAmount > 0;
 
-  // Helper to format discount badge text for percentage and fixed
   const getDiscountBadgeText = (coupon: ProductCoupon): string => {
     if (coupon.discount_type === "percentage" && coupon.discount_value) {
       return `${coupon.discount_value}% OFF`;
@@ -76,70 +72,88 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
     return "DISCOUNT";
   };
 
+  // Build coupon label string for text block
+  const getCouponLabelText = (): string | null => {
+    if (!coupon) return null;
+    const parts: string[] = [];
+    if (coupon.discount_value || coupon.discount_type === "bogo") {
+      parts.push(
+        isBogo ? formatBogoBadge(coupon) : getDiscountBadgeText(coupon),
+      );
+    }
+    if (coupon.free_shipping) {
+      parts.push("Free Shipping");
+    }
+    return parts.length > 0 ? parts.join(" · ") : null;
+  };
+
+  const couponLabelText = getCouponLabelText();
+
   return (
-    <div
-      className="list-item"
-      onClick={handleClick}
-      style={{ cursor: "pointer" }}
-    >
-      {/* Wishlist icon */}
-      <div className="wishlist-icon-container" onClick={handleWishlistClick}>
-        {isInWishlistState ? (
-          <FaHeart className="wishlist-icon filled" />
-        ) : (
-          <FaRegHeart className="wishlist-icon" />
-        )}
-      </div>
-
-      {/* Discount badge - Shows for percentage, fixed, OR BOGO (top-left) */}
-      {coupon && (coupon.discount_value || coupon.discount_type === "bogo") && (
-        <div className="discount-badge-corner">
-          {isBogo ? formatBogoBadge(coupon) : getDiscountBadgeText(coupon)}
-        </div>
-      )}
-
-      {/* Free Shipping badge (top-right) - Show whenever free_shipping is true */}
-      {coupon && coupon.free_shipping && (
-        <div className="free-shipping-badge-corner">FREE SHIPPING</div>
-      )}
-
-      <div className="image-container">
+    <div className="item-listing-list-item" onClick={handleClick}>
+      {/* Image tile — rounded background, 1:1 ratio, image fits without cropping */}
+      <div className="item-listing-image-container">
         <img src={product.primary_image} alt={product.name} />
+
+        {/* Discount badge — top left */}
+        {coupon &&
+          (coupon.discount_value || coupon.discount_type === "bogo") && (
+            <div className="item-listing-discount-badge">
+              {isBogo ? formatBogoBadge(coupon) : getDiscountBadgeText(coupon)}
+            </div>
+          )}
+
+        {/* Free shipping badge — top right */}
+        {coupon && coupon.free_shipping && (
+          <div className="item-listing-free-shipping-badge">FREE SHIPPING</div>
+        )}
+
+        {/* Wishlist button — top right, shifts down when free shipping badge present */}
+        <div
+          className={`item-listing-wishlist-btn${coupon?.free_shipping ? " item-listing-wishlist-btn-shifted" : ""}`}
+          onClick={handleWishlistClick}
+        >
+          {isInWishlistState ? (
+            <FaHeart className="item-listing-wishlist-icon-filled" />
+          ) : (
+            <FaRegHeart className="item-listing-wishlist-icon" />
+          )}
+        </div>
       </div>
 
-      <h5 className="item-title">{product.name}</h5>
-
-      {/* Price display - only show discounted price for percentage/fixed */}
-      <div className="item-price-container">
-        {hasDiscountedPrice && discountInfo ? (
-          <>
-            <p className="item-price-original">${product.price.toFixed(2)}</p>
-            <p className="item-price-discounted">
-              ${discountInfo.discountedPrice.toFixed(2)}
-            </p>
-            {requiresVerification && (
-              <div
-                className="verification-required-icon"
-                title="Login or verify email to use this coupon"
-              >
-                <FaLock size={12} />
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            <p className="item-price">${product.price.toFixed(2)}</p>
-            {/* Show lock icon for BOGO if verification required */}
-            {isBogo && requiresVerification && (
-              <div
-                className="verification-required-icon"
-                title="Login or verify email to use this coupon"
-              >
-                <FaLock size={12} />
-              </div>
-            )}
-          </>
+      {/* Text block — below the image tile, no card chrome */}
+      <div className="item-listing-text-block">
+        {couponLabelText && (
+          <p className="item-listing-coupon-label">{couponLabelText}</p>
         )}
+
+        <p className="item-listing-item-name">{product.name}</p>
+
+        <div className="item-listing-price-row">
+          {hasDiscountedPrice && discountInfo ? (
+            <>
+              <span className="item-listing-price-original">
+                ${product.price.toFixed(2)}
+              </span>
+              <span className="item-listing-price-discounted">
+                ${discountInfo.discountedPrice.toFixed(2)}
+              </span>
+            </>
+          ) : (
+            <span className="item-listing-price">
+              ${product.price.toFixed(2)}
+            </span>
+          )}
+
+          {requiresVerification && (
+            <span
+              className="item-listing-lock-icon"
+              title="Login or verify email to use this coupon"
+            >
+              <FaLock size={11} />
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

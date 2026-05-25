@@ -20,30 +20,30 @@ const ImageUploadGrid = ({
   helperText = "You can add images now or later after creating the product",
 }: ImageUploadGridProps) => {
   return (
-    <div className="if-iug-wrapper">
-      <label className="if-iug-label">Product Images</label>
+    <div className="mi-iug-wrapper">
+      <label className="mi-iug-label">Product Images</label>
 
       {images.length > 0 && (
-        <div className="if-iug-grid">
+        <div className="mi-iug-grid">
           {images.map((img, index) => (
             <div
               key={index}
-              className={`if-iug-cell ${primaryImageIndex === index ? "if-iug-cell--primary" : ""}`}
+              className={`mi-iug-cell ${primaryImageIndex === index ? "mi-iug-cell--primary" : ""}`}
             >
               <img
                 src={img}
                 alt={`Product ${index + 1}`}
-                className="if-iug-img"
+                className="mi-iug-img"
               />
 
               {primaryImageIndex === index && (
-                <div className="if-iug-primary-badge">Primary</div>
+                <div className="mi-iug-primary-badge">Primary</div>
               )}
 
-              <div className="if-iug-overlay">
+              <div className="mi-iug-overlay">
                 <button
                   type="button"
-                  className="if-iug-icon-btn"
+                  className="mi-iug-icon-btn"
                   onClick={() => onSetPrimary(index)}
                   title="Set as primary"
                 >
@@ -56,7 +56,7 @@ const ImageUploadGrid = ({
 
                 <button
                   type="button"
-                  className="if-iug-icon-btn"
+                  className="mi-iug-icon-btn"
                   onClick={() => onDeleteImage(index)}
                   title="Delete image"
                 >
@@ -72,13 +72,13 @@ const ImageUploadGrid = ({
         type="button"
         onClick={onUploadClick}
         disabled={uploadDisabled}
-        className="if-iug-upload-btn"
+        className="mi-iug-upload-btn"
       >
         <Upload size={18} />
         {images.length > 0 ? "Add More Images" : "Upload Images"}
       </button>
 
-      <span className="if-iug-helper">{helperText}</span>
+      <span className="mi-iug-helper">{helperText}</span>
     </div>
   );
 };

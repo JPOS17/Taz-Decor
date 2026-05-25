@@ -40,7 +40,6 @@ const SHIPPING_CONFIGS: Record<string, ShippingConfig> = {
     label: "USPS Priority Mail",
     useCalendarDaysForTransit: false,
   },
-
   "usps priority mail express": {
     processingDaysMin: 1,
     processingDaysMax: 1,
@@ -162,18 +161,18 @@ const DeliveryEstimate = ({
   const dayLabel = config.useCalendarDaysForTransit ? "days" : "business days";
 
   return (
-    <div className={`delivery-estimate ${className}`}>
-      <div className="delivery-estimate__icon">
+    <div className={`de-delivery-estimate ${className}`}>
+      <div className="de-icon">
         <FaTruck />
       </div>
-      <div className="delivery-estimate__body">
-        <span className="delivery-estimate__label">Estimated Delivery</span>
-        <span className="delivery-estimate__range">{rangeText}</span>
-        <span className="delivery-estimate__sub">
+      <div className="de-body">
+        <span className="de-label">Estimated Delivery</span>
+        <span className="de-range">{rangeText}</span>
+        <span className="de-sub">
           {totalDaysMin}–{totalDaysMax} {dayLabel}
         </span>
-        <span className="delivery-estimate__sub">{processingNote}</span>
-        <span className="delivery-estimate__disclaimer">
+        <span className="de-sub">{processingNote}</span>
+        <span className="de-disclaimer">
           Based on {config.label} service standards
         </span>
       </div>

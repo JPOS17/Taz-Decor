@@ -1,6 +1,15 @@
-/* ================================
-   ADDRESS VALIDATION MODAL
-   ================================ */
+/* ============================================================================
+   ADDRESS STYLES
+   Three components share this file — each has its own prefix:
+     avm-*  →  AddressValidationModal
+     ac-*   →  AddressCard
+     af-*   →  AddressForm
+   Imports: Tokens.css → this file
+   ============================================================================ */
+
+/* ============================================================================
+   ADDRESS VALIDATION MODAL  (avm-*)
+   ============================================================================ */
 
 .avm-overlay {
   position: fixed;
@@ -8,7 +17,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--color-overlay-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,14 +26,13 @@
 }
 
 .avm-modal {
-  background: white;
-  border-radius: 12px;
+  background: var(--color-surface-solid);
+  border-radius: var(--radius-lg);
   max-width: 700px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-lg);
 }
 
 .avm-header {
@@ -32,7 +40,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .avm-header h3 {
@@ -41,26 +49,34 @@
   gap: 12px;
   margin: 0;
   font-size: 1.25rem;
-  color: #111827;
+  color: var(--color-text-strongest);
+}
+
+.avm-header-icon-success {
+  color: var(--color-success);
+}
+
+.avm-header-icon-warning {
+  color: var(--color-warning-text-dark);
 }
 
 .avm-close {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #6b7280;
+  color: var(--color-text-mid);
   cursor: pointer;
   padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   transition: all 0.2s;
 }
 
 .avm-close:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--color-primary-alpha-06);
+  color: var(--color-text-strongest);
 }
 
 .avm-body {
@@ -74,7 +90,7 @@
 
 .avm-validation-success p {
   font-size: 1.1rem;
-  color: #10b981;
+  color: var(--color-success);
   margin: 0;
 }
 
@@ -86,7 +102,7 @@
 .avm-correction-notice,
 .avm-error-notice {
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-strong);
   margin-bottom: 20px;
 }
 
@@ -106,7 +122,7 @@
 .avm-address-column h4 {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-mid);
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -114,37 +130,37 @@
 
 .avm-address-box {
   padding: 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   border: 2px solid;
   line-height: 1.6;
 }
 
 .avm-address-box p {
   margin: 4px 0;
-  color: #374151;
+  color: var(--color-text-strong);
 }
 
-.avm-address-box.original {
-  border-color: #d1d5db;
-  background: #f9fafb;
+.avm-address-box-original {
+  border-color: var(--color-border);
+  background: var(--color-surface-warm);
 }
 
-.avm-address-box.corrected {
-  border-color: #10b981;
-  background: #f0fdf4;
+.avm-address-box-corrected {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
 }
 
 .avm-validation-messages {
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
-  border-radius: 8px;
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-md);
   padding: 16px;
   margin: 16px 0;
   list-style: none;
 }
 
 .avm-validation-messages li {
-  color: #92400e;
+  color: var(--color-warning-text);
   padding: 4px 0;
   display: flex;
   align-items: flex-start;
@@ -152,14 +168,14 @@
 
 .avm-validation-messages li:before {
   content: "•";
-  color: #f59e0b;
+  color: var(--color-primary-vivid);
   font-weight: bold;
   margin-right: 8px;
 }
 
 .avm-actions {
   padding: 20px 24px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-border-light);
   display: flex;
   gap: 12px;
   justify-content: flex-end;
@@ -167,7 +183,7 @@
 
 .avm-actions button {
   padding: 10px 20px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -176,118 +192,120 @@
 }
 
 .avm-btn-accept {
-  background: #10b981;
-  color: white;
+  background: var(--color-success);
+  color: var(--color-text-on-primary-alt);
 }
 
 .avm-btn-accept:hover {
-  background: #059669;
+  background: var(--color-success-dark);
 }
 
+/* "Use Original" — info/blue family; closest token is --color-info-border */
 .avm-btn-accept-original {
-  background: #3c7dff;
-  color: white;
+  background: var(--color-info-border);
+  color: var(--color-text-on-primary-alt);
 }
 
 .avm-btn-accept-original:hover {
-  background: #37619c;
+  background: var(--color-info-text);
 }
 
 .avm-btn-accept-corrected {
-  background: #10b981;
-  color: white;
+  background: var(--color-success);
+  color: var(--color-text-on-primary-alt);
 }
 
 .avm-btn-accept-corrected:hover {
-  background: #059669;
+  background: var(--color-success-dark);
 }
 
 .avm-btn-cancel {
-  background: #e5e7eb;
-  color: #374151;
+  background: var(--color-border-light);
+  color: var(--color-text-strong);
 }
 
 .avm-btn-cancel:hover {
-  background: #d1d5db;
+  background: var(--color-border);
 }
 
+/* "Save Anyway" — warning/amber family */
 .avm-btn-accept-anyway {
-  background: #f59e0b;
-  color: white;
+  background: var(--color-primary-vivid);
+  color: var(--color-text-on-primary-alt);
 }
 
 .avm-btn-accept-anyway:hover {
-  background: #d97706;
+  background: var(--color-primary);
 }
 
-/* ================================
-   ADDRESS CARD
-   ================================ */
+/* ============================================================================
+   ADDRESS CARD  (ac-*)
+   ============================================================================ */
 
-.cp-address-card {
+.ac-address-card {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 1rem;
   padding: 1.25rem;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #ffffff;
+  background-color: var(--color-surface-solid);
 }
 
-.cp-address-card:hover {
-  border-color: #007bff;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+.ac-address-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-card-hover);
 }
 
-.cp-address-card.selected {
-  border-color: #007bff;
-  background: #e7f3ff;
+.ac-address-card-selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg-light);
 }
 
-.cp-address-radio input[type="radio"] {
+.ac-address-radio input[type="radio"] {
   width: 20px;
   height: 20px;
   cursor: pointer;
 }
 
-.cp-address-info h4 {
+.ac-address-info h4 {
   font-size: 1rem;
   font-weight: 600;
-  color: #212529;
+  color: var(--color-text-strongest);
   margin-bottom: 0.5rem;
 }
 
-.cp-address-info p {
+.ac-address-info p {
   font-size: 0.875rem;
-  color: #495057;
+  color: var(--color-text-mid);
   margin: 0.25rem 0;
 }
 
-.cp-default-badge {
+.ac-default-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: #28a745;
-  color: white;
-  border-radius: 4px;
+  background: var(--color-success);
+  color: var(--color-text-on-primary-alt);
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 600;
   margin-top: 0.5rem;
 }
 
-.cp-address-actions {
+.ac-address-actions {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.cp-btn-icon {
+.ac-btn-icon {
   padding: 0.5rem;
   border: none;
-  background: #f8f9fa;
-  color: #495057;
-  border-radius: 6px;
+  background: var(--color-surface-warm);
+  color: var(--color-text-mid);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -295,145 +313,147 @@
   justify-content: center;
 }
 
-.cp-btn-icon:hover {
-  background: #e9ecef;
-  color: #212529;
+.ac-btn-icon:hover {
+  background: var(--color-primary-bg-hover);
+  color: var(--color-text-strongest);
 }
 
-.cp-btn-icon.cp-btn-delete:hover {
-  background: #dc3545;
-  color: white;
+.ac-btn-delete:hover {
+  background: var(--color-danger);
+  color: var(--color-text-on-primary-alt);
 }
 
-/* ================================
-   ADDRESS FORM
-   ================================ */
+/* ============================================================================
+   ADDRESS FORM  (af-*)
+   ============================================================================ */
 
-.cp-address-form {
-  background: #f8f9fa;
+.af-address-form {
+  background: var(--color-surface-warm);
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   margin-bottom: 2rem;
 }
 
-.cp-form-row {
+.af-form-row {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.cp-form-row:has(.cp-form-group:nth-child(3)) {
+.af-form-row:has(.af-form-group:nth-child(3)) {
   grid-template-columns: 1fr 100px 150px;
 }
 
-.cp-form-row:has(.cp-form-group:nth-child(2)):not(:has(.cp-form-group:nth-child(3))) {
+.af-form-row:has(.af-form-group:nth-child(2)):not(:has(.af-form-group:nth-child(3))) {
   grid-template-columns: 1fr 1fr;
 }
 
-.cp-form-group {
+.af-form-group {
   display: flex;
   flex-direction: column;
 }
 
-.cp-form-group label {
+.af-form-group label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #495057;
+  color: var(--color-text-mid);
   margin-bottom: 0.5rem;
 }
 
-.cp-form-group input {
+.af-form-group input {
   padding: 0.75rem;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: 1rem;
   transition: border-color 0.2s ease;
+  background: var(--color-surface-solid);
+  color: var(--color-text-strongest);
 }
 
-.cp-form-group input:focus {
+.af-form-group input:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-focus-ring);
 }
 
-.cp-form-group-checkbox {
+.af-form-group-checkbox {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.cp-form-group-checkbox input[type="checkbox"] {
+.af-form-group-checkbox input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
 }
 
-.cp-form-group-checkbox label {
+.af-form-group-checkbox label {
   font-size: 0.875rem;
-  color: #495057;
+  color: var(--color-text-mid);
   cursor: pointer;
 }
 
-.cp-form-actions {
+.af-form-actions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
   margin-top: 1.5rem;
 }
 
-.cp-btn-cancel,
-.cp-btn-save {
+.af-btn-cancel,
+.af-btn-save {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.cp-btn-cancel {
-  background: #e9ecef;
-  color: #495057;
+.af-btn-cancel {
+  background: var(--color-border-light);
+  color: var(--color-text-mid);
 }
 
-.cp-btn-cancel:hover {
-  background: #dee2e6;
+.af-btn-cancel:hover {
+  background: var(--color-border);
 }
 
-.cp-btn-save {
-  background: #007bff;
-  color: white;
+.af-btn-save {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary-alt);
 }
 
-.cp-btn-save:hover {
-  background: #0056b3;
+.af-btn-save:hover {
+  background: var(--color-primary-dark);
 }
 
-.cp-btn-save:disabled {
-  background: #6c757d;
+.af-btn-save:disabled {
+  background: var(--color-primary-disabled-end);
   cursor: not-allowed;
 }
 
-/* ================================
-   RESPONSIVE DESIGN
-   ================================ */
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
 
 @media (max-width: 768px) {
-  .cp-address-card {
+  .ac-address-card {
     grid-template-columns: 1fr;
   }
 
-  .cp-address-actions {
+  .ac-address-actions {
     flex-direction: row;
     justify-content: flex-end;
   }
 
-  .cp-form-row:has(.cp-form-group:nth-child(3)) {
+  .af-form-row:has(.af-form-group:nth-child(3)) {
     grid-template-columns: 1fr;
   }
 
-  .cp-form-row:has(.cp-form-group:nth-child(2)):not(:has(.cp-form-group:nth-child(3))) {
+  .af-form-row:has(.af-form-group:nth-child(2)):not(:has(.af-form-group:nth-child(3))) {
     grid-template-columns: 1fr;
   }
 }

@@ -27,7 +27,7 @@ export const CouponFilters = ({
     <div className="coupon-filters-container">
       <div className="coupon-filters-grid">
         <div className="coupon-filter-item">
-          <label className="coupon-form-label">
+          <label className="mgr-form-label">
             <Search size={16} className="coupon-label-icon" />
             Search
           </label>
@@ -36,19 +36,19 @@ export const CouponFilters = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by code or description"
-            className="coupon-form-input"
+            className="mgr-form-input"
           />
         </div>
 
         <div className="coupon-filter-item-narrow">
-          <label className="coupon-form-label">
+          <label className="mgr-form-label">
             <Filter size={16} className="coupon-label-icon" />
             Status
           </label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="coupon-form-select"
+            className="mgr-form-select"
           >
             <option value="all">All</option>
             <option value="active">Active</option>
@@ -59,14 +59,14 @@ export const CouponFilters = ({
 
         {/* Location Filter */}
         <div className="coupon-filter-item-narrow">
-          <label className="coupon-form-label">
+          <label className="mgr-form-label">
             <MapPin size={16} className="coupon-label-icon" />
             Store Location
           </label>
           <select
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
-            className="coupon-form-select"
+            className="mgr-form-select"
           >
             <option value="all">All Stores</option>
             {locations.map((location) => (
@@ -78,14 +78,14 @@ export const CouponFilters = ({
         </div>
 
         <div className="coupon-filter-item-narrow">
-          <label className="coupon-form-label">
+          <label className="mgr-form-label">
             <Tag size={16} className="coupon-label-icon" />
             Applies To
           </label>
           <select
             value={appliesToFilter}
             onChange={(e) => setAppliesToFilter(e.target.value)}
-            className="coupon-form-select"
+            className="mgr-form-select"
           >
             <option value="all">All Types</option>
             <option value="all_products">Store-Wide</option>

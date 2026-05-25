@@ -1,0 +1,528 @@
+/* ============================================================================
+   ORDERS PAGE
+   Imports: Tokens.css → this file
+   Prefix: orders-*
+   ============================================================================ */
+
+.orders-page {
+  min-height: 100vh;
+  background-color: var(--color-page-bg);
+  font-family: var(--font-sans);
+}
+
+.orders-layout {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 2rem;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+/* ============================================================================
+   ERROR STATE
+   ============================================================================ */
+
+.orders-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--color-surface-gradient);
+  border: 1.5px solid var(--color-border-accent);
+  border-radius: var(--radius-2xl);
+}
+
+.orders-error-state-title {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  color: var(--color-danger-dark);
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.orders-error-state-text {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+}
+
+/* ============================================================================
+   MAIN CONTENT
+   ============================================================================ */
+
+.orders-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+
+.orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.orders-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.orders-header-title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.orders-header-count {
+  background: var(--color-primary-mid);
+  color: var(--color-text-on-primary-alt);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.3rem 0.9rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+
+.orders-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: var(--color-surface-gradient);
+  border: 1.5px solid var(--color-border-accent);
+  border-radius: var(--radius-2xl);
+  text-align: center;
+}
+
+.orders-empty-icon {
+  width: 72px;
+  height: 72px;
+  color: var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+.orders-empty-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  margin: 0 0 0.75rem;
+}
+
+.orders-empty-text {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin: 0 0 2rem;
+  font-weight: 500;
+}
+
+/* ============================================================================
+   SHARED BUTTON - PRIMARY
+   ============================================================================ */
+
+.orders-btn-primary {
+  padding: 13px 2rem;
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  color: var(--color-text-on-primary-alt);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-btn);
+}
+
+.orders-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-hover);
+}
+
+.orders-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   ORDERS LIST — SINGLE CARD
+   ============================================================================ */
+
+.orders-list-card {
+  background: var(--color-surface-gradient);
+  border: 1.5px solid var(--color-border-accent);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.orders-row {
+  border-bottom: 1px solid var(--color-border-accent);
+  transition: background 0.2s ease;
+}
+
+.orders-row:last-child {
+  border-bottom: none;
+}
+
+.orders-row:hover {
+  background: var(--color-primary-alpha-03);
+}
+
+/* ============================================================================
+   ORDER ROW HEADER
+   ============================================================================ */
+
+.orders-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2rem;
+  background: var(--color-primary-bg-light);
+}
+
+.orders-row-header-with-tracking {
+  padding-bottom: 0.25rem;
+}
+
+.orders-number-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.orders-status-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  display: block;
+  background: none;
+  border: none;
+}
+
+.orders-status-icon-pending   { color: var(--color-primary-mid); }
+.orders-status-icon-shipped   { color: var(--color-status-shipped); }
+.orders-status-icon-delivered { color: var(--color-success); }
+
+.orders-id-label {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-strongest);
+  margin: 0;
+  letter-spacing: 0.01em;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.orders-date {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0.2rem 0 0;
+  font-weight: 400;
+}
+
+/* ============================================================================
+   STATUS BADGES
+   ============================================================================ */
+
+.orders-status-badge {
+  padding: 0.375rem 1rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.orders-status-badge-pending {
+  background: var(--color-primary-bg-light);
+  color: var(--color-primary-text);
+  border: 1px solid var(--color-border);
+}
+
+.orders-status-badge-shipped {
+  background: var(--color-status-shipped-bg);
+  color: var(--color-status-shipped-dark);
+  border: 1px solid var(--color-status-shipped-border);
+}
+
+.orders-status-badge-delivered {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
+}
+
+/* ============================================================================
+   ORDER ROW BODY
+   ============================================================================ */
+
+.orders-row-body {
+  padding: 1.25rem 2rem;
+}
+
+.orders-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+}
+
+.orders-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.orders-info-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.orders-info-value {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-strongest);
+}
+
+.orders-tracking-number {
+  font-family: var(--font-mono, "Courier New", monospace);
+  font-size: 0.9375rem;
+  color: var(--color-primary-deep);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.orders-tracking-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 2rem;
+  background: var(--color-primary-mid-alpha-06);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.orders-shipping-date,
+.orders-delivery-date {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--color-primary-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-top: 0rem;
+  font-size: 0.9375rem;
+  color: var(--color-primary-deep);
+  font-weight: 500;
+}
+
+.orders-shipping-date svg { color: var(--color-text-muted); }
+.orders-delivery-date svg { color: var(--color-success); }
+
+/* ============================================================================
+   ORDER ROW FOOTER
+   ============================================================================ */
+
+.orders-row-footer {
+  padding: 1rem 2rem;
+  background: var(--color-primary-mid-alpha-06);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.orders-footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.orders-btn-view-details {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  background: linear-gradient(135deg, var(--color-primary-deep) 0%, var(--color-primary-deepest) 100%);
+  color: var(--color-primary-tint);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: var(--shadow-btn-deep);
+}
+
+.orders-btn-view-details:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-deep-hover);
+  background: linear-gradient(135deg, var(--color-primary-text) 0%, var(--color-primary-deep) 100%);
+}
+
+/* ============================================================================
+   DROPDOWN (mobile only)
+   ============================================================================ */
+
+.orders-row-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.orders-dropdown-chevron {
+  display: none;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+.orders-dropdown-chevron-open {
+  transform: rotate(180deg);
+}
+
+/* ============================================================================
+   LOADING STATE
+   ============================================================================ */
+
+.orders-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 1024px) {
+  .orders-layout {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    min-height: unset;
+    gap: 2rem;
+    align-items: start;
+  }
+}
+
+@media (max-width: 568px) {
+  .orders-row-header-clickable {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .orders-dropdown-chevron {
+    display: block;
+  }
+
+  .orders-collapsible {
+    display: none;
+  }
+
+  .orders-collapsible-open {
+    display: block;
+  }
+
+  .orders-header-title {
+    font-size: 1.75rem;
+  }
+
+  .orders-row-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .orders-number-section {
+    width: 100%;
+  }
+
+  .orders-row-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .orders-status-badge {
+    align-self: flex-start;
+  }
+
+  .orders-info-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .orders-row-body {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .orders-row-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+  }
+
+  .orders-footer-left {
+    width: 100%;
+  }
+
+  .orders-btn-view-details {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 440px) {
+  .orders-row-body {
+    padding: 1rem 1.25rem;
+  }
+
+  .orders-row-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .orders-row-footer {
+    padding: 1rem 1.25rem;
+  }
+
+  .orders-tracking-row {
+    padding: 0.625rem 1.25rem;
+  }
+
+  .orders-id-label {
+    font-size: 1rem;
+  }
+
+  .orders-status-icon {
+    font-size: 1.5rem;
+  }
+}

@@ -1,0 +1,531 @@
+/* ============================================================================
+   GUEST ORDER LOOKUP PAGE
+   Imports: Tokens.css → this file
+   Prefix: guest-lookup-*
+   ============================================================================ */
+
+.guest-lookup-page {
+  min-height: 100vh;
+  background-color: var(--color-page-bg);
+  font-family: var(--font-sans);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+.guest-lookup-container {
+  background: var(--color-surface-gradient);
+  border: 1.5px solid var(--color-border-accent);
+  border-radius: var(--radius-2xl);
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 560px;
+}
+
+.guest-lookup-result {
+  max-width: 900px;
+}
+
+.guest-lookup-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.guest-lookup-icon {
+  color: var(--color-primary-mid);
+  margin-bottom: 0.75rem;
+}
+
+.guest-lookup-header h1 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--color-text-strongest);
+  letter-spacing: 0.01em;
+}
+
+.guest-lookup-header p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.guest-lookup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.guest-lookup-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.guest-lookup-form-group label {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.guest-lookup-form-group input {
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+  color: var(--color-text-strongest);
+  background: var(--color-surface-solid);
+}
+
+.guest-lookup-form-group input:focus {
+  border-color: var(--color-primary-mid);
+  box-shadow: 0 0 0 3px var(--color-primary-mid-alpha-18);
+}
+
+.guest-lookup-input-error {
+  border-color: var(--color-danger-dark) !important;
+}
+
+.guest-lookup-field-error {
+  font-size: 0.8rem;
+  color: var(--color-danger-dark);
+  font-weight: 500;
+}
+
+.guest-lookup-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  color: var(--color-danger-dark);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.guest-lookup-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  background: linear-gradient(135deg, var(--color-primary-deep) 0%, var(--color-primary-deepest) 100%);
+  color: var(--color-primary-tint);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: var(--shadow-btn-deep);
+  margin-top: 0.25rem;
+}
+
+.guest-lookup-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-deep-hover);
+  background: linear-gradient(135deg, var(--color-primary-text) 0%, var(--color-primary-deep) 100%);
+}
+
+.guest-lookup-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.guest-lookup-spin {
+  animation: guest-lookup-spin 1s linear infinite;
+}
+
+@keyframes guest-lookup-spin {
+  to { transform: rotate(360deg); }
+}
+
+.guest-lookup-help-text {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.guest-lookup-help-text a {
+  color: var(--color-primary-deep);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.guest-lookup-help-text a:hover {
+  color: var(--color-text-strongest);
+}
+
+/* ============================================================================
+   ORDER RESULT
+   ============================================================================ */
+
+.guest-lookup-result-header {
+  margin-bottom: 1.5rem;
+}
+
+.guest-lookup-btn-back {
+  background: none;
+  border: none;
+  color: var(--color-primary-text);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.15s;
+}
+
+.guest-lookup-btn-back:hover {
+  color: var(--color-text-strongest);
+  text-decoration: underline;
+}
+
+.guest-lookup-result-header h1 {
+  font-family: var(--font-serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  color: var(--color-text-strongest);
+  letter-spacing: 0.01em;
+}
+
+.guest-lookup-placed-date {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.guest-lookup-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.02em;
+}
+
+.guest-lookup-status-pending {
+  background: var(--color-primary-bg-light);
+  color: var(--color-primary-text);
+  border: 1px solid var(--color-border);
+}
+
+.guest-lookup-status-shipped {
+  background: var(--color-status-shipped-bg);
+  color: var(--color-status-shipped-dark);
+  border: 1px solid var(--color-status-shipped-border);
+}
+
+.guest-lookup-status-delivered {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
+}
+
+.guest-lookup-status-cancelled {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-dark);
+  border: 1px solid var(--color-danger-border);
+}
+
+.guest-lookup-tracking-section {
+  background: var(--color-surface-solid);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.guest-lookup-tracking-section h3 {
+  font-family: var(--font-serif);
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.guest-lookup-tracking-section p {
+  margin: 0.35rem 0;
+  font-size: 0.9rem;
+  color: var(--color-primary-deep);
+}
+
+.guest-lookup-tracking-section strong {
+  color: var(--color-text-strongest);
+}
+
+.guest-lookup-tracking-number {
+  font-family: var(--font-mono, "Courier New", monospace);
+  background: var(--color-primary-bg-light);
+  border: 1px solid var(--color-border);
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  color: var(--color-primary-deep);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.guest-lookup-result-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.guest-lookup-items-section h3,
+.guest-lookup-price-summary h3,
+.guest-lookup-address-summary h3 {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.guest-lookup-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.guest-lookup-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-surface-solid);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: all 0.22s ease;
+}
+
+.guest-lookup-item-row:hover {
+  border-color: var(--color-primary-mid);
+  box-shadow: 0 6px 20px var(--color-primary-mid-alpha-20);
+  transform: translateY(-2px);
+}
+
+.guest-lookup-item-img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
+  flex-shrink: 0;
+  background: var(--color-surface-warm-solid);
+}
+
+.guest-lookup-item-info {
+  flex: 1;
+}
+
+.guest-lookup-item-name {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0 0 0.2rem;
+  color: var(--color-text-strongest);
+}
+
+.guest-lookup-item-variant {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.15rem;
+  font-weight: 500;
+}
+
+.guest-lookup-item-qty {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  font-weight: 500;
+}
+
+.guest-lookup-item-price {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text-strongest);
+  white-space: nowrap;
+}
+
+.guest-lookup-summary-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.guest-lookup-price-summary,
+.guest-lookup-address-summary {
+  background: var(--color-surface-solid);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  transition: all 0.22s ease;
+}
+
+.guest-lookup-price-summary:hover,
+.guest-lookup-address-summary:hover {
+  border-color: var(--color-primary-mid);
+  box-shadow: 0 6px 20px var(--color-primary-mid-alpha-20);
+}
+
+.guest-lookup-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  padding: 0.3rem 0;
+  color: var(--color-text-accent);
+  font-weight: 500;
+}
+
+.guest-lookup-summary-discount span:last-child {
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.guest-lookup-summary-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0.5rem 0;
+}
+
+.guest-lookup-summary-total {
+  color: var(--color-text-strongest);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.guest-lookup-address-summary p {
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  color: var(--color-primary-deep);
+  line-height: 1.6;
+}
+
+.guest-lookup-address-summary strong {
+  color: var(--color-text-strongest);
+  font-weight: 600;
+}
+
+.guest-lookup-result-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.guest-lookup-result-header-estimate {
+  flex-shrink: 0;
+}
+
+.guest-lookup-header-delivery-estimate {
+  width: 100%;
+}
+
+.guest-lookup-delivered-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-md);
+  color: var(--color-success-text);
+}
+
+.guest-lookup-delivered-badge svg {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.guest-lookup-delivered-badge div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.guest-lookup-delivered-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-success);
+}
+
+.guest-lookup-delivered-date {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-success-dark);
+}
+
+.guest-lookup-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .guest-lookup-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .guest-lookup-container {
+    padding: 2rem 1.25rem;
+  }
+
+  .guest-lookup-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .guest-lookup-result-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .guest-lookup-result-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .guest-lookup-result-header-row {
+    flex-direction: column;
+  }
+
+  .guest-lookup-result-header-estimate {
+    width: 100%;
+  }
+}

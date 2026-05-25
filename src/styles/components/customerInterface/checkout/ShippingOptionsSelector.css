@@ -1,0 +1,193 @@
+/* ============================================================================
+   SHIPPING OPTIONS SELECTOR
+   Imports: Tokens.css → this file
+   Prefix: sos-*
+   ============================================================================ */
+
+.sos-container {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1.5px solid var(--color-border);
+}
+
+.sos-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-text-strongest);
+  margin: 0 0 0.875rem 0;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================================================
+   OPTIONS LIST
+   ============================================================================ */
+
+.sos-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.sos-option {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  background: var(--color-surface-solid);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sos-option:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.sos-option--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-alpha-04);
+  box-shadow: 0 0 0 3px var(--color-primary-alpha-10);
+}
+
+.sos-radio {
+  accent-color: var(--color-primary);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.sos-option-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.sos-option-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sos-carrier-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-strongest);
+  margin: 0;
+}
+
+.sos-price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary-text);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.sos-estimate {
+  font-size: 0.8125rem;
+  color: var(--color-text-faint);
+  margin: 0.2rem 0 0 0;
+}
+
+/* ============================================================================
+   ERROR & PLACEHOLDER STATES
+   ============================================================================ */
+
+.sos-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: var(--color-danger-bg);
+  border: 1.5px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  color: var(--color-danger);
+  text-align: center;
+  font-size: 0.9375rem;
+}
+
+.sos-placeholder {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--color-text-faint);
+  font-style: italic;
+  font-size: 0.9375rem;
+  background: var(--color-primary-alpha-04);
+  border: 1.5px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.sos-btn-retry {
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  border: 1.5px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  color: var(--color-danger);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sos-btn-retry:hover {
+  background: var(--color-danger-bg-hover);
+  border-color: var(--color-danger);
+}
+
+/* ============================================================================
+   FREE SHIPPING COUPON NOTICE
+   ============================================================================ */
+
+.sos-free-shipping-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--color-success-bg) 0%, var(--color-primary-vivid-alpha-06) 100%);
+  border: 1.5px solid var(--color-success-border);
+  border-radius: var(--radius-md);
+}
+
+.sos-free-shipping-icon-wrap {
+  position: relative;
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+.sos-check-overlay {
+  position: absolute;
+  bottom: -2px;
+  right: -4px;
+  background: var(--color-surface-solid);
+  border-radius: 50%;
+  color: var(--color-success);
+}
+
+.sos-free-shipping-message h4 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-success);
+  margin: 0 0 0.25rem 0;
+}
+
+.sos-free-shipping-message p {
+  font-size: 0.875rem;
+  color: var(--color-success-text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sos-free-shipping-text {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-success);
+  font-weight: 700;
+  font-size: 0.9375rem;
+}

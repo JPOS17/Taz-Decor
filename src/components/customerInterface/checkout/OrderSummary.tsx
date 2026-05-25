@@ -1,8 +1,9 @@
 import { FaTag, FaShippingFast } from "react-icons/fa";
 import type { CartItem } from "../../../context/CartContext";
 import type { ProductCoupon } from "../../../api/couponCustomer";
-
 import CartLevelCouponSelector from "../checkout/CartLevelCouponSelector";
+
+import "../../../styles/components/customerInterface/checkout/OrderSummary.css";
 
 interface OrderSummaryProps {
   cartItems: CartItem[];
@@ -41,29 +42,12 @@ const OrderSummary = ({
   getCouponForItem,
   couponValidation,
 }: OrderSummaryProps) => {
-  // Helper function to get discount display text for a coupon
-  const getDiscountDisplay = (coupon: ProductCoupon) => {
-    if (coupon.discount_type === "percentage") {
-      return `${coupon.discount_value}% OFF`;
-    } else if (coupon.discount_type === "fixed") {
-      return `$${coupon.discount_value} OFF`;
-    } else if (coupon.discount_type === "bogo") {
-      if (coupon.bogo_discount_percentage === 100) {
-        return `Buy ${coupon.bogo_buy_quantity || 1} Get ${coupon.bogo_get_quantity || 1} FREE`;
-      } else {
-        return `Buy ${coupon.bogo_buy_quantity || 1} Get ${coupon.bogo_get_quantity || 1} ${coupon.bogo_discount_percentage}% OFF`;
-      }
-    }
-    return "";
-  };
-
   return (
-    <div className="cp-checkout-order-summary">
-      <h3 className="cp-summary-title">Order Summary</h3>
+    <div className="os-checkout-order-summary">
+      <h3 className="os-summary-title">Order Summary</h3>
 
-      <div className="cp-summary-items">
+      <div className="os-summary-items">
         {cartItems.map((item) => {
-          // Find validated discount for SPECIFIC item
           const validatedDiscount = couponValidation?.validated_discounts?.find(
             (d: any) => d.variant_id === item.variant_id,
           );
@@ -76,52 +60,52 @@ const OrderSummary = ({
               : itemOriginalPrice;
 
           return (
-            <div key={item.variant_id} className="cp-summary-item">
+            <div key={item.variant_id} className="os-summary-item">
               <img
                 src={item.image}
                 alt={item.name}
-                className="cp-summary-item-image"
+                className="os-summary-item-image"
               />
-              <div className="cp-summary-item-details">
+              <div className="os-summary-item-details">
                 <h4>{item.name}</h4>
-                <p className="cp-summary-item-variant">
+                <p className="os-summary-item-variant">
                   {item.color} {item.color && item.size && "•"} {item.size}
                 </p>
-                <p className="cp-summary-item-quantity">Qty: {item.quantity}</p>
+                <p className="os-summary-item-quantity">Qty: {item.quantity}</p>
                 {itemCoupon && (
-                  <div className="cp-summary-item-coupon-display">
-                    <div className="cp-summary-coupon-code-badge">
+                  <div className="os-summary-item-coupon-display">
+                    <div className="os-summary-coupon-code-badge">
                       <FaTag size={10} />
                       <span>{itemCoupon.coupon_code}</span>
                     </div>
                     {itemCoupon.discount_type !== "bogo" && (
-                      <div className="cp-summary-coupon-savings">
+                      <div className="os-summary-coupon-savings">
                         {itemCoupon.discount_type === "percentage" && (
-                          <span className="cp-savings-badge">
+                          <span className="os-savings-badge">
                             {itemCoupon.discount_value}% OFF
                           </span>
                         )}
                         {itemCoupon.discount_type === "fixed" && (
-                          <span className="cp-savings-badge">
+                          <span className="os-savings-badge">
                             ${itemCoupon.discount_value} OFF
                           </span>
                         )}
                         {itemCoupon.free_shipping && (
-                          <span className="cp-savings-badge shipping">
+                          <span className="os-savings-badge os-shipping">
                             Free Shipping
                           </span>
                         )}
                       </div>
                     )}
                     {itemCoupon.discount_type === "bogo" && (
-                      <div className="cp-summary-coupon-savings">
-                        <span className="cp-savings-badge bogo">
+                      <div className="os-summary-coupon-savings">
+                        <span className="os-savings-badge os-bogo">
                           {itemCoupon.bogo_discount_percentage === 100
                             ? `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} FREE`
                             : `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} ${itemCoupon.bogo_discount_percentage}% OFF`}
                         </span>
                         {itemCoupon.free_shipping && (
-                          <span className="cp-savings-badge shipping">
+                          <span className="os-savings-badge os-shipping">
                             + Free Shipping
                           </span>
                         )}
@@ -130,19 +114,18 @@ const OrderSummary = ({
                   </div>
                 )}
               </div>
-              <div className="cp-summary-item-price">
-                {/* Show only final price - discounts shown in Review Cart */}
+              <div className="os-summary-item-price">
                 {itemDiscountAmount > 0 ? (
                   <>
-                    <div className="cp-price-original-summary">
+                    <div className="os-price-original-summary">
                       ${itemOriginalPrice.toFixed(2)}
                     </div>
-                    <div className="cp-price-final-summary">
+                    <div className="os-price-final-summary">
                       ${itemFinalPrice.toFixed(2)}
                     </div>
                   </>
                 ) : (
-                  <div className="cp-price-final-summary">
+                  <div className="os-price-final-summary">
                     ${itemOriginalPrice.toFixed(2)}
                   </div>
                 )}
@@ -152,60 +135,57 @@ const OrderSummary = ({
         })}
       </div>
 
-      <div className="cp-summary-totals">
-        <div className="cp-summary-row">
+      <div className="os-summary-totals">
+        <div className="os-summary-row">
           <span>Subtotal:</span>
           <span>${subtotal.toFixed(2)}</span>
         </div>
 
         {discountAmount > 0 && (
-          <div className="cp-summary-row discount">
+          <div className="os-summary-row os-discount">
             <span>Discount:</span>
             <span>-${discountAmount.toFixed(2)}</span>
           </div>
         )}
 
-        {/* Shipping row with free shipping icon */}
-        <div className="cp-summary-row">
+        <div className="os-summary-row">
           <span>Shipping:</span>
           <span>
             {isFreeShipping ? (
-              <span className="cp-free-shipping-text">
+              <span className="os-free-shipping-text">
                 <FaShippingFast size={14} style={{ marginRight: "4px" }} />
                 FREE
               </span>
             ) : currentStep === "cart" ? (
-              <span className="cp-summary-value-muted">
+              <span className="os-summary-value-muted">
                 Calculated at checkout
               </span>
             ) : shippingCost > 0 ? (
               `$${shippingCost.toFixed(2)}`
             ) : (
-              <span className="cp-summary-value-muted">
+              <span className="os-summary-value-muted">
                 Calculated at checkout
               </span>
             )}
           </span>
         </div>
 
-        {/* Only show tax row after cart step */}
         {currentStep !== "cart" && (
-          <div className="cp-summary-row">
+          <div className="os-summary-row">
             <span>Tax:</span>
             <span>${taxAmount.toFixed(2)}</span>
           </div>
         )}
 
-        <div className="cp-summary-row summary-total">
+        <div className="os-summary-row os-summary-total">
           <strong>Total:</strong>
-          <strong className="cp-summary-value-total">
+          <strong className="os-summary-value-total">
             ${total.toFixed(2)}
           </strong>
         </div>
 
-        <div className="cp-summary-divider"></div>
+        <div className="os-summary-divider"></div>
 
-        {/* Cart-Level Coupon Selector — locked after shipping step */}
         {coupons && (
           <>
             {currentStep === "cart" || currentStep === "shipping" ? (

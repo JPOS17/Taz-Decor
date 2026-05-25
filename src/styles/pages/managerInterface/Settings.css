@@ -1,0 +1,123 @@
+/* ============================================================================
+   SETTINGS PAGE
+   Imports: tokens.css → components.css → ManagerShared.css → this file
+   Accent: apply .accent-settings to .manager-page wrapper in JSX
+
+   Only styles unique to this page live here.
+   All buttons, tabs, badges, tables, modals, and form fields
+   use mgr-* classes from Components.css directly.
+   ============================================================================ */
+
+/* ── Actions bar (filter row + add button) ── */
+.settings-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.settings-filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.settings-filter-select {
+  padding: 0.5rem 2.25rem 0.5rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  font-weight: 600;
+  background-color: var(--card);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  background-size: 0.9em;
+}
+
+.settings-filter-select:hover:not(:disabled) { border-color: var(--accent); }
+.settings-filter-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.settings-filter-select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── UNIQUE: Icon-rich table cells ── */
+.settings-location-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settings-address-cell { line-height: 1.5; font-size: 0.875rem; }
+
+.settings-city-state { color: var(--text-secondary); font-size: 0.8125rem; margin-top: 0.15rem; }
+
+.settings-contact-cell { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.settings-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.settings-dimensions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.settings-location-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.settings-no-location { font-size: 0.8125rem; color: var(--text-muted); font-style: italic; }
+
+/* ── UNIQUE: Box name with drag handle + order badge ── */
+.settings-box-name-with-handle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-box-name-with-handle .drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.settings-box-name-with-handle .drag-handle:active { cursor: grabbing; }
+
+.box-order-badge {
+  background-color: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  padding: 0.1rem 0.45rem;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .settings-actions-bar { flex-direction: column; align-items: stretch; }
+  .settings-filters { flex-direction: column; }
+  .settings-filter-select { width: 100%; }
+}

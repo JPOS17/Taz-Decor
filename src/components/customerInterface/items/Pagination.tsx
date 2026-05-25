@@ -28,14 +28,12 @@ const Pagination = ({
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    // Always show first page
     pages.push(1);
 
     if (currentPage > 3) {
       pages.push("...");
     }
 
-    // Show pages around current
     const rangeStart = Math.max(2, currentPage - 1);
     const rangeEnd = Math.min(totalPages - 1, currentPage + 1);
 
@@ -47,7 +45,6 @@ const Pagination = ({
       pages.push("...");
     }
 
-    // Always show last page
     pages.push(totalPages);
 
     return pages;
@@ -61,16 +58,16 @@ const Pagination = ({
   };
 
   return (
-    <div className="pagination-wrapper">
+    <div className="pg-pagination-wrapper">
       {/* Item count summary */}
-      <span className="pagination-summary">
+      <span className="pg-pagination-summary">
         Showing {startItem}–{endItem} of {totalItems} items
       </span>
 
-      <div className="pagination-controls">
+      <div className="pg-pagination-controls">
         {/* Prev button */}
         <button
-          className="pagination-btn pagination-btn--nav"
+          className="pg-pagination-btn pg-pagination-btn-nav"
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           aria-label="Previous page"
@@ -87,22 +84,26 @@ const Pagination = ({
           >
             <polyline points="9 2 4 7 9 12" />
           </svg>
-          <span className="pagination-btn--nav-label">Prev</span>
+          <span className="pg-pagination-btn-nav-label">Prev</span>
         </button>
 
-        {/* Page numbers (hidden on mobile, replaced by indicator below) */}
-        <div className="pagination-pages">
+        {/* Page numbers */}
+        <div className="pg-pagination-pages">
           {pageNumbers.map((page, idx) =>
             page === "..." ? (
-              <span key={`ellipsis-${idx}`} className="pagination-ellipsis">
+              <span key={`ellipsis-${idx}`} className="pg-pagination-ellipsis">
                 …
               </span>
             ) : (
               <button
                 key={page}
-                className={`pagination-btn pagination-btn--page ${
-                  page === currentPage ? "pagination-btn--active" : ""
-                }`}
+                className={[
+                  "pg-pagination-btn",
+                  "pg-pagination-btn-page",
+                  page === currentPage ? "pg-pagination-btn-active" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 onClick={() => handlePageChange(page as number)}
                 aria-label={`Page ${page}`}
                 aria-current={page === currentPage ? "page" : undefined}
@@ -114,18 +115,18 @@ const Pagination = ({
         </div>
 
         {/* Mobile-only: Page X of Y sits between < and > */}
-        <span className="pagination-mobile-indicator">
+        <span className="pg-pagination-mobile-indicator">
           Page {currentPage} of {totalPages}
         </span>
 
         {/* Next button */}
         <button
-          className="pagination-btn pagination-btn--nav"
+          className="pg-pagination-btn pg-pagination-btn-nav"
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           aria-label="Next page"
         >
-          <span className="pagination-btn--nav-label">Next</span>
+          <span className="pg-pagination-btn-nav-label">Next</span>
           <svg
             width="14"
             height="14"

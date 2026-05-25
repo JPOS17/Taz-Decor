@@ -99,9 +99,9 @@ const ManagerFilterBar = ({
 
   return (
     <div>
-      <div className="if-filter-bar">
+      <div className="mi-filter-bar">
         <button
-          className={`if-filter-toggle ${hasActiveFilters ? "if-filter-toggle--active" : ""}`}
+          className={`mi-filter-toggle ${hasActiveFilters ? "mi-filter-toggle--active" : ""}`}
           onClick={() => setShowFilters(!showFilters)}
         >
           <Filter size={16} />
@@ -109,7 +109,7 @@ const ManagerFilterBar = ({
         </button>
 
         {hasActiveFilters && (
-          <button className="if-filter-clear" onClick={onClearFilters}>
+          <button className="mi-filter-clear" onClick={onClearFilters}>
             <X size={16} />
             Clear All
           </button>
@@ -117,13 +117,13 @@ const ManagerFilterBar = ({
       </div>
 
       {showFilters && (
-        <div className="if-filter-panel">
+        <div className="mi-filter-panel">
           {/* Product Status */}
-          <div className="if-filter-group">
-            <span className="if-filter-group-label">Product Status</span>
+          <div className="mi-filter-group">
+            <span className="mi-filter-group-label">Product Status</span>
             <div className="dropdown">
               <button
-                className="if-filter-dropdown-btn dropdown-toggle"
+                className="mi-filter-dropdown-btn dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
@@ -163,11 +163,11 @@ const ManagerFilterBar = ({
           </div>
 
           {/* Stock Level */}
-          <div className="if-filter-group">
-            <span className="if-filter-group-label">Stock Level</span>
+          <div className="mi-filter-group">
+            <span className="mi-filter-group-label">Stock Level</span>
             <div className="dropdown">
               <button
-                className="if-filter-dropdown-btn dropdown-toggle"
+                className="mi-filter-dropdown-btn dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
@@ -207,11 +207,11 @@ const ManagerFilterBar = ({
           </div>
 
           {/* Category Status */}
-          <div className="if-filter-group">
-            <span className="if-filter-group-label">Category Status</span>
+          <div className="mi-filter-group">
+            <span className="mi-filter-group-label">Category Status</span>
             <div className="dropdown">
               <button
-                className="if-filter-dropdown-btn dropdown-toggle"
+                className="mi-filter-dropdown-btn dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
@@ -262,11 +262,11 @@ const ManagerFilterBar = ({
           </div>
 
           {/* Sort By */}
-          <div className="if-filter-group">
-            <span className="if-filter-group-label">Sort By</span>
+          <div className="mi-filter-group">
+            <span className="mi-filter-group-label">Sort By</span>
             <div className="dropdown">
               <button
-                className="if-filter-dropdown-btn dropdown-toggle"
+                className="mi-filter-dropdown-btn dropdown-toggle"
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"

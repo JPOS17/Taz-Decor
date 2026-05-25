@@ -1,0 +1,139 @@
+/* ============================================================================
+   REVIEWS PAGE
+   Imports: Tokens.css → this file
+   Prefix: reviews-*
+   ============================================================================ */
+
+/* ============================================================================
+   PAGE CONTAINER
+   ============================================================================ */
+
+.reviews-page {
+  min-height: 100vh;
+  background-color: var(--color-page-bg);
+  padding: 1rem 0;
+}
+
+.reviews-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ============================================================================
+   PAGE HEADER
+   ============================================================================ */
+
+.reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.reviews-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  margin: 0;
+}
+
+/* ============================================================================
+   COMING SOON STATE
+   ============================================================================ */
+
+.reviews-coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  background-color: var(--color-surface-solid);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+
+.reviews-coming-soon-icon {
+  font-size: 4rem;
+  color: var(--color-text-mid);
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.reviews-coming-soon-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  margin: 0 0 0.75rem 0;
+}
+
+.reviews-coming-soon-text {
+  font-size: 1rem;
+  color: var(--color-text-mid);
+  margin: 0 0 2rem 0;
+  max-width: 420px;
+  line-height: 1.6;
+}
+
+.reviews-coming-soon-badge {
+  padding: 0.875rem 2rem;
+  background: var(--gradient-header-dark);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-on-primary-alt);
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-btn);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 576px) {
+  .reviews-page {
+    padding: 1rem 0;
+  }
+
+  .reviews-container {
+    padding: 0 0.75rem;
+  }
+
+  .reviews-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .reviews-title {
+    font-size: 1.5rem;
+  }
+
+  .reviews-coming-soon {
+    padding: 3rem 1rem;
+  }
+
+  .reviews-coming-soon-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .reviews-coming-soon-title {
+    font-size: 1.375rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .reviews-coming-soon-text {
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .reviews-coming-soon-badge {
+    padding: 0.75rem 1.75rem;
+    font-size: 0.9375rem;
+  }
+}

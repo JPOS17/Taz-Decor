@@ -1,38 +1,38 @@
 import { Routes, Route, Navigate, useLocation } from "react-router";
 
-import Home from "../pages/main/Home";
-import About from "../pages/main/About";
-import Reviews from "../pages/main/Reviews";
-import Items from "../pages/main/Items";
-import Listing from "../pages/main/Listing";
-import Profile from "../pages/main/Profile";
+import Home from "../pages/mainInterface/main/Home";
+import About from "../pages/mainInterface/main/About";
+import Reviews from "../pages/mainInterface/main/Reviews";
+import Items from "../pages/mainInterface/main/Items";
+import Listing from "../pages/mainInterface/main/Listing";
+import Profile from "../pages/mainInterface/main/Profile";
 
-import Login from "../pages/signin/Login";
-import Register from "../pages/signin/Register";
-import VerifyEmail from "../pages/signin/VerifyEmail";
-import ForgotPassword from "../pages/signin/ForgotPassword";
-import ResetPassword from "../pages/signin/ResetPassword";
+import Login from "../pages/mainInterface/signin/Login";
+import Register from "../pages/mainInterface/signin/Register";
+import VerifyEmail from "../pages/mainInterface/signin/VerifyEmail";
+import ForgotPassword from "../pages/mainInterface/signin/ForgotPassword";
+import ResetPassword from "../pages/mainInterface/signin/ResetPassword";
 
-import Cart from "../pages/customer/Cart";
-import WishList from "../pages/customer/Saved";
-import CheckoutPage from "../pages/customer/CheckoutPage";
+import Cart from "../pages/mainInterface/customer/Cart";
+import WishList from "../pages/mainInterface/customer/Saved";
+import CheckoutPage from "../pages/mainInterface/customer/CheckoutPage";
 import GuestOrderLookup, {
   GuestOrderResult,
-} from "../pages/customer/GuestOrderLookup";
-import OrderConfirmation from "../pages/customer/OrderConfirmation";
-import Orders from "../pages/customer/Orders";
+} from "../pages/mainInterface/customer/GuestOrderLookup";
+import OrderConfirmation from "../pages/mainInterface/customer/OrderConfirmation";
+import Orders from "../pages/mainInterface/customer/Orders";
 
-import ManagerDashboard from "../pages/manager/ManagerDashboard";
-import InventoryDashboard from "../pages/manager/Inventory/InventoryDashboard";
-import CreateProduct from "../pages/manager/Inventory/CreateNewProduct";
-import ManageProducts from "../pages/manager/Inventory/ManageInventory";
-import ManageCategories from "../pages/manager/Inventory/ManageCategories";
-import ManageProductTypes from "../pages/manager/Inventory/MangeProductTypes";
-import CouponsPage from "../pages/manager/CouponsPage";
-import OrderStatusPage from "../pages/manager/OrderStatus";
-import Settings from "../pages/manager/Settings";
+import ManagerDashboard from "../pages/managerInterface/ManagerDashboard";
+import InventoryDashboard from "../pages/managerInterface/Inventory/InventoryDashboard";
+import CreateProduct from "../pages/managerInterface/Inventory/CreateNewProduct";
+import ManageProducts from "../pages/managerInterface/Inventory/ManageInventory";
+import ManageCategories from "../pages/managerInterface/Inventory/ManageCategories";
+import ManageProductTypes from "../pages/managerInterface/Inventory/MangeProductTypes";
+import CouponsPage from "../pages/managerInterface/CouponsPage";
+import OrderStatusPage from "../pages/managerInterface/OrderStatus";
+import Settings from "../pages/managerInterface/Settings";
 
-import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminDashboard from "../pages/adminInterface/AdminDashboard";
 
 import ProtectedRoute from "./ProtectedRoute";
 

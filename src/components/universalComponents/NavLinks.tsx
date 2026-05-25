@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import "../../styles/components/universal/TopBar.css";
 
 const links = [
   { to: "/home", label: "Home" },
@@ -15,7 +16,7 @@ export const NavLinks = () => {
           key={to}
           to={to}
           className={({ isActive }) =>
-            isActive ? "nav-link active" : "nav-link"
+            isActive ? "tb-nav-link tb-nav-link-active" : "tb-nav-link"
           }
         >
           {label}

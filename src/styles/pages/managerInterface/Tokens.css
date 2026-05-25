@@ -1,0 +1,102 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+/* ============================================================================
+   DESIGN TOKENS
+   Single source of truth for all manager pages.
+   Import this FIRST before any other manager CSS file.
+
+   Per-page accent colors are set by overriding --accent, --accent-dark,
+   --accent-light, and --accent-ring on the page's root element or wrapper.
+   ============================================================================ */
+
+:root {
+  /* ── Typography ── */
+  --font: "Inter", sans-serif;
+
+  /* ── Neutral palette ── */
+  --bg:              #f0f2f5;
+  --card:            #ffffff;
+  --header-bg:       #1c1c1e;
+  --border:          #e4e7ec;
+  --text-primary:    #111827;
+  --text-secondary:  #6b7280;
+  --text-muted:      #9ca3af;
+
+  /* ── Shadows ── */
+  --shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md:    0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+  /* ── Shape ── */
+  --radius: 12px;
+
+  /* ── Semantic status colors ── */
+  --color-success:      #16a34a;
+  --color-success-bg:   #dcfce7;
+  --color-success-text: #166534;
+
+  --color-danger:       #dc2626;
+  --color-danger-bg:    #fee2e2;
+  --color-danger-text:  #991b1b;
+
+  --color-warning:      #d97706;
+  --color-warning-bg:   #fef9c3;
+  --color-warning-text: #854d0e;
+
+  --color-info:         #1d4ed8;
+  --color-info-bg:      #dbeafe;
+  --color-info-text:    #1e40af;
+
+  --color-arrow: #d1d5db;
+
+  /* ── Default accent (neutral gray — overridden per page) ── */
+  --accent:       #6b7280;
+  --accent-dark:  #4b5563;
+  --accent-light: #f9fafb;
+  --accent-ring:  rgba(107, 114, 128, 0.12);
+}
+
+/* ============================================================================
+   PER-PAGE ACCENT OVERRIDES
+   Apply to the page wrapper element (e.g. .manager-dashboard, .md-page).
+   ============================================================================ */
+
+/* Inventory */
+.accent-inventory {
+  --accent:       #c2410c;
+  --accent-dark:  #9a3412;
+  --accent-light: #fff7ed;
+  --accent-ring:  rgba(194, 65, 12, 0.12);
+}
+
+/* Analytics */
+.accent-analytics {
+  --accent:       #16a34a;
+  --accent-dark:  #15803d;
+  --accent-light: #f0fdf4;
+  --accent-ring:  rgba(22, 163, 74, 0.12);
+}
+
+/* Orders */
+.accent-orders {
+  --accent:       #1d4ed8;
+  --accent-dark:  #1e40af;
+  --accent-light: #eff6ff;
+  --accent-ring:  rgba(29, 78, 216, 0.12);
+}
+
+/* Coupons */
+.accent-coupons {
+  --accent:       #b45309;
+  --accent-dark:  #92400e;
+  --accent-light: #fffbeb;
+  --accent-ring:  rgba(180, 83, 9, 0.15);
+}
+
+/* Settings */
+.accent-settings {
+  --accent:       #4b5563;
+  --accent-dark:  #374151;
+  --accent-light: #f9fafb;
+  --accent-ring:  rgba(75, 85, 99, 0.12);
+}
