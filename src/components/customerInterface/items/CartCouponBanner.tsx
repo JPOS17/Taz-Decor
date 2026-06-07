@@ -137,7 +137,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
         </div>
       </div>
 
-      {/* Floating pill — fixed bottom-left, always visible as a secondary entry point */}
+      {/* Floating pill */}
       <button
         className="ccb-floating-pill"
         onClick={() => setIsModalOpen(true)}

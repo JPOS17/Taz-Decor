@@ -111,7 +111,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
       <div className="item-listing-image-container">
         <img src={product.primary_image} alt={product.name} />
 
-        {/* Discount badge — top left overlay */}
+        {/* Discount badge */}
         {coupon &&
           (coupon.discount_value || coupon.discount_type === "bogo") && (
             <div className="item-listing-discount-badge">
@@ -119,7 +119,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
             </div>
           )}
 
-        {/* Free shipping badge — top right overlay */}
+        {/* Free shipping badge */}
         {coupon && coupon.free_shipping && (
           <div className="item-listing-free-shipping-badge">FREE SHIPPING</div>
         )}
@@ -137,7 +137,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
         </div>
       </div>
 
-      {/* Text block — name, coupon label, and price below the image tile */}
+      {/* Text block */}
       <div className="item-listing-text-block">
         {couponLabelText && (
           <p className="item-listing-coupon-label">{couponLabelText}</p>
@@ -145,7 +145,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
 
         <p className="item-listing-item-name">{product.name}</p>
 
-        {/* Price row — shows original and discounted price when a discount applies */}
+        {/* Price row */}
         <div className="item-listing-price-row">
           {hasDiscountedPrice && discountInfo ? (
             <>
@@ -162,7 +162,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
             </span>
           )}
 
-          {/* Lock icon — signals that email verification is required to use the coupon */}
+          {/* Lock icon */}
           {requiresVerification && (
             <span
               className="item-listing-lock-icon"

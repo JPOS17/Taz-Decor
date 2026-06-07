@@ -100,7 +100,7 @@ const Login = () => {
             />
           </div>
 
-          {/* Password input — forgot password link sits inline with the label */}
+          {/* Password input */}
           <div className="login-form-group">
             <div className="login-password-header">
               <label htmlFor="password" className="login-label">

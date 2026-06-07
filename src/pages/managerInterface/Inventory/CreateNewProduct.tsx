@@ -168,7 +168,7 @@ const CreateProduct = () => {
       <div className="mi-container">
         <div className="mi-cnp-content">
           <div className="mi-details-column">
-            {/* Action bar — cancel and submit buttons */}
+            {/* Action bar */}
             <HeaderFormatter
               viewMode="create-product"
               loading={loading}

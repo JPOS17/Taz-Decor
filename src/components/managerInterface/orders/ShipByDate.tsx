@@ -94,6 +94,7 @@ const businessDaysUntil = (shipByDate: Date): number => {
   return count;
 };
 
+// Renders a "Ship By" badge with dynamic styling and copy based on how close the ship-by date is
 const ShipByDate = ({
   orderCreatedAt,
   orderStatus,

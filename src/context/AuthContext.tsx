@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // AUTH ACTIONS
   // ============================================================================
 
-  // Re-fetches the current user from the API to update the user state with any changes.
+  // Re-fetches the current user from the API to update the user state with any changes
   const refreshUser = async () => {
     const token = localStorage.getItem("token");
     if (token) {

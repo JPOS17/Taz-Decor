@@ -103,7 +103,7 @@ const VerifyEmail = () => {
         <p className="verify-help">
           This could happen if the link has expired or was already used.
         </p>
-        {/* Recovery actions — go to profile or back to login */}
+        {/* Recovery actions */}
         <div className="verify-actions">
           <Link to="/profile" className="verify-btn-primary">
             Go to Profile

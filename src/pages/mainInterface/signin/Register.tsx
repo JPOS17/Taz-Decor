@@ -142,7 +142,7 @@ const Register = () => {
           {/* Inline error message */}
           {error && <div className="register-error-message">{error}</div>}
 
-          {/* First and last name — side by side */}
+          {/* First and last name */}
           <div className="register-form-row">
             <div className="register-form-group">
               <label htmlFor="first_name" className="register-label">
@@ -194,7 +194,7 @@ const Register = () => {
             />
           </div>
 
-          {/* Phone input — optional */}
+          {/* Phone input */}
           <div className="register-form-group">
             <label htmlFor="phone" className="register-label">
               Phone (Optional)
@@ -223,7 +223,7 @@ const Register = () => {
               placeholder="At least 8 characters"
               required
             />
-            {/* Strength bar and unmet requirements — only shown once the user starts typing */}
+            {/* Strength bar and unmet requirements */}
             {formData.password && (
               <div className="register-password-strength">
                 <div className="register-strength-bar">

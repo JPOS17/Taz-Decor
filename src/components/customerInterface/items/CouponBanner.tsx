@@ -331,7 +331,7 @@ const CouponBanner = ({
                 </div>
                 <div className="coupon-banner-content">
                   <div className="coupon-banner-first-line">
-                    {/* Coupon code button — selects coupon and copies code for authenticated eligible users */}
+                    {/* Coupon code button */}
                     <button
                       className={[
                         "coupon-banner-code",
@@ -405,7 +405,7 @@ const CouponBanner = ({
                 />
               </div>
 
-              {/* Expanded details — shows eligibility, description, BOGO explanation, and eligible products */}
+              {/* Expanded details */}
               {isExpanded && (
                 <div
                   className="coupon-banner-details"
@@ -452,7 +452,7 @@ const CouponBanner = ({
                           </div>
                         )}
 
-                      {/* BOGO explanation — shown only for buy-one-get-one type coupons */}
+                      {/* BOGO explanation */}
                       {isBogo && (
                         <div className="coupon-banner-bogo-explanation">
                           <div className="coupon-banner-bogo-title">
@@ -466,7 +466,7 @@ const CouponBanner = ({
                         </div>
                       )}
 
-                      {/* Eligible product preview — lazy loaded on first expand */}
+                      {/* Eligible product preview */}
                       {coupon.applies_to_type !== "variant" && (
                         <div className="coupon-banner-eligible-section">
                           <div className="coupon-banner-eligible-header">

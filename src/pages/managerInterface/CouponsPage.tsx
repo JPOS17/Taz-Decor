@@ -502,7 +502,7 @@ const CouponsPage = () => {
             </button>
           </div>
 
-          {/* Filter bar — search, status, applies-to, and location filters */}
+          {/* Filter bar */}
           <CouponFilters
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -515,7 +515,7 @@ const CouponsPage = () => {
             locations={locations}
           />
 
-          {/* Coupons table — preview, toggle, edit, delete, copy code */}
+          {/* Coupons table */}
           <CouponsTable
             coupons={coupons}
             loading={loading}
@@ -528,7 +528,7 @@ const CouponsPage = () => {
         </div>
       </div>
 
-      {/* Create/Edit Wizard Modal — shown when creating or editing a coupon */}
+      {/* Create/Edit Wizard Modal */}
       {(showCreateModal || editingCoupon) && (
         <CouponWizard
           editingCoupon={editingCoupon}
@@ -553,7 +553,7 @@ const CouponsPage = () => {
         />
       )}
 
-      {/* Preview Modal — read-only coupon details */}
+      {/* Preview Modal */}
       {showPreviewModal && previewCoupon && (
         <div className="mgr-modal-overlay">
           <div className="mgr-modal-content coupon-preview-modal">
@@ -572,7 +572,7 @@ const CouponsPage = () => {
               }}
             />
 
-            {/* Preview modal footer — close button */}
+            {/* Preview modal footer */}
             <div className="coupon-preview-modal-footer">
               <button
                 onClick={() => {

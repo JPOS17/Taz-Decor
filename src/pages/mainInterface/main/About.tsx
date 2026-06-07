@@ -125,7 +125,7 @@ const About = () => {
           <div className="about-section-label">Our Mission</div>
           <h2 className="about-section-heading centered">What We Stand For</h2>
 
-          {/* Mission cards — Faith First, Made for You, Quality & Care */}
+          {/* Mission cards */}
           <div className="about-mission-cards">
             <div className="about-mission-card">
               <div className="about-mission-icon">
@@ -187,7 +187,7 @@ const About = () => {
             answer.
           </p>
 
-          {/* Contact cards — email copy button and shop link */}
+          {/* Contact cards */}
           <div className="about-contact-cards">
             <button onClick={handleEmailCopy} className="about-contact-card">
               <div className="about-contact-icon">

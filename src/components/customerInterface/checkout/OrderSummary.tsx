@@ -80,7 +80,7 @@ const OrderSummary = ({
                 </p>
                 <p className="os-summary-item-quantity">Qty: {item.quantity}</p>
 
-                {/* Applied coupon badge — shown per item when a coupon is active */}
+                {/* Applied coupon badge */}
                 {itemCoupon && (
                   <div className="os-summary-item-coupon-display">
                     <div className="os-summary-coupon-code-badge">
@@ -162,7 +162,7 @@ const OrderSummary = ({
           </div>
         )}
 
-        {/* Shipping row — label varies by step and free shipping status */}
+        {/* Shipping row */}
         <div className="os-summary-row">
           <span>Shipping:</span>
           <span>
@@ -201,7 +201,7 @@ const OrderSummary = ({
 
         <div className="os-summary-divider"></div>
 
-        {/* Cart-level coupon — interactive selector on cart/shipping steps, read-only display on later steps */}
+        {/* Cart-level coupon */}
         {coupons && (
           <>
             {currentStep === "cart" || currentStep === "shipping" ? (

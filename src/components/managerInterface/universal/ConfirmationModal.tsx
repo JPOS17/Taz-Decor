@@ -22,7 +22,7 @@ const ConfirmationModal = ({
         <h3>{title}</h3>
         <p>{message}</p>
 
-        {/* Action buttons — cancel always appears first (left) */}
+        {/* Action buttons */}
         <div className="confirmation-modal-buttons">
           <button className="btn-cancel" onClick={onCancel}>
             {cancelText}

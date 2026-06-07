@@ -79,7 +79,7 @@ const ManagerDashboard = () => {
         <div className="mgr-body">
           <p className="mgr-section-label">Management Areas</p>
 
-          {/* Navigation card grid — each card routes to a management sub-section */}
+          {/* Navigation card grid */}
           <div className="mgr-grid">
             {dashboardCards.map((card) => {
               const Icon = card.icon;

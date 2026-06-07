@@ -366,7 +366,7 @@ const IndividualListing = () => {
                 <div className="listing-zoom-hint">Click to view full size</div>
               </div>
 
-              {/* Thumbnail strip — only shown when there are multiple images */}
+              {/* Thumbnail strip */}
               {product.images.length > 1 && (
                 <div className="listing-thumbnail-gallery">
                   {product.images.map((img, index) => (
@@ -406,7 +406,7 @@ const IndividualListing = () => {
                   {/* Product Title */}
                   <h1 className="listing-product-title">{product.name}</h1>
 
-                  {/* Price — shows original crossed out alongside discounted price when a coupon is active */}
+                  {/* Price */}
                   {hasDiscount ? (
                     <div className="listing-product-price listing-product-price-discounted">
                       <span className="listing-price-original">
@@ -477,7 +477,7 @@ const IndividualListing = () => {
                     )}
                 </div>
 
-                {/* Coupons Section — only rendered when coupons are available */}
+                {/* Coupons Section */}
                 {coupons.length > 0 && (
                   <div className="listing-header-coupons">
                     <CouponBanner
@@ -492,7 +492,7 @@ const IndividualListing = () => {
                 )}
               </div>
 
-              {/* Action Buttons — add to cart and wishlist toggle */}
+              {/* Action Buttons */}
               <div className="listing-product-actions">
                 <button
                   className="listing-btn-add-to-cart"

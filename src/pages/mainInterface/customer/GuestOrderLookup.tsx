@@ -192,7 +192,7 @@ const LookupForm = () => {
             )}
           </div>
 
-          {/* Error banner — shown when lookup fails */}
+          {/* Error banner */}
           {error && (
             <div className={"guest-lookup-error"}>
               <FaTimesCircle />

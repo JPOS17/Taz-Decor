@@ -35,7 +35,7 @@ const PasswordInput = ({
         required={required}
       />
 
-      {/* Toggle button — swaps between the eye-off and eye SVG icons */}
+      {/* Toggle button */}
       <button
         type="button"
         className="pwd-input-toggle"

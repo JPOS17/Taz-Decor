@@ -46,7 +46,7 @@ const ConfirmModal = ({
         <h3 className="confirm-modal-title">{title}</h3>
         <p className="confirm-modal-message">{message}</p>
 
-        {/* Action buttons — cancel always on the left, confirm on the right */}
+        {/* Action buttons */}
         <div className="confirm-modal-actions">
           <button className="confirm-modal-btn-cancel" onClick={onCancel}>
             {cancelLabel}

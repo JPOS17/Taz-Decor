@@ -39,7 +39,7 @@ const AddressValidationModal = ({
   return (
     <div className="avm-overlay">
       <div className="avm-modal">
-        {/* Header — icon and title reflect validation outcome */}
+        {/* Header */}
         <div className="avm-header">
           <h3>
             {is_valid ? (
@@ -129,7 +129,7 @@ const AddressValidationModal = ({
           )}
         </div>
 
-        {/* Actions — buttons rendered conditionally based on validation state */}
+        {/* Actions */}
         <div className="avm-actions">
           {/* Valid, no corrections — single continue button */}
           {is_valid && !hasCorrections && (

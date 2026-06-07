@@ -128,7 +128,7 @@ const ReviewSection = ({
                       </span>
                     )}
                   </div>
-                  {/* Review title — optional, only shown when present */}
+                  {/* Review title */}
                   {review.review_title && (
                     <h6 className="mb-1">{review.review_title}</h6>
                   )}
@@ -138,7 +138,7 @@ const ReviewSection = ({
                 </small>
               </div>
 
-              {/* Review body text — optional, only shown when present */}
+              {/* Review body text */}
               {review.review_text && (
                 <p className="mb-2">{review.review_text}</p>
               )}
@@ -151,7 +151,7 @@ const ReviewSection = ({
                     {review.variant_details && ` • ${review.variant_details}`}
                   </small>
                 </div>
-                {/* Helpful count — only shown when at least one person found it helpful */}
+                {/* Helpful count */}
                 {review.helpful_count > 0 && (
                   <small className="text-muted">
                     {review.helpful_count}{" "}

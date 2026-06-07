@@ -83,7 +83,7 @@ const Cart = () => {
   // ============================================================================
 
   // Fetch coupons once when auth resolves
-  // Custom group membership is re-checked separately when variant IDs change.
+  // Custom group membership is re-checked separately when variant IDs change
   useEffect(() => {
     if (isLoading) return;
     if (cartItems.length === 0) return;
@@ -945,7 +945,7 @@ const Cart = () => {
         </div>
       </div>
 
-      {/* Coupon modal — shown when user clicks Add/Change Coupon on an item */}
+      {/* Coupon modal */}
       {selectedCartItem && (
         <CouponModal
           isOpen={isCouponModalOpen}
@@ -967,7 +967,7 @@ const Cart = () => {
         />
       )}
 
-      {/* Removal warning modal — shown when quantity would drop to zero */}
+      {/* Removal warning modal */}
       <ConfirmModal
         isOpen={showRemovalWarning}
         title="Remove Item from Cart?"

@@ -23,7 +23,7 @@ const AddressCard = ({
       className={`ac-address-card ${isSelected ? "ac-address-card-selected" : ""}`}
       onClick={onSelect}
     >
-      {/* Radio indicator — reflects selected state */}
+      {/* Radio indicator */}
       <div className="ac-address-radio">
         <input
           type="radio"
@@ -33,7 +33,7 @@ const AddressCard = ({
         />
       </div>
 
-      {/* Address details — name, street lines, city/state/zip, and default badge */}
+      {/* Address details */}
       <div className="ac-address-info">
         <h4>{address.address_name}</h4>
         <p>{address.address_line1}</p>

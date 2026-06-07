@@ -45,7 +45,7 @@ const NavIcons = () => {
         >
           <span className="tb-topbar-icon-wrapper">
             {icon}
-            {/* Badge — only rendered when the count is non-zero */}
+            {/* Badge */}
             {count > 0 && <span className="tb-topbar-icon-badge">{count}</span>}
           </span>
         </Link>

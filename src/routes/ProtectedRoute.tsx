@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
   requiredRoles?: UserRole[];
 }
 
-// A component that protects routes based on authentication and user roles.
+// A component that protects routes based on authentication and user roles
 const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading, user } = useAuth();
 

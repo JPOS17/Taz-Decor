@@ -115,7 +115,7 @@ const SortableRow = ({
       {...(!isDragDisabled ? { ...attributes, ...listeners } : {})}
     >
       <div className="mc-row-left">
-        {/* Drag handle — hidden when dragging is disabled */}
+        {/* Drag handle */}
         {!isDragDisabled && (
           <div className="mc-drag-handle">
             <GripVertical size={20} />
@@ -124,7 +124,7 @@ const SortableRow = ({
         <div className="mc-row-info">
           <div className="mc-row-name-row">
             <h4 className="mc-row-name">{category.category_name}</h4>
-            {/* Disabled badge — only shown for inactive categories */}
+            {/* Disabled badge  */}
             {!category.is_active && (
               <span className="mc-badge-disabled">Disabled</span>
             )}
@@ -135,7 +135,7 @@ const SortableRow = ({
         </div>
       </div>
 
-      {/* Row actions — disable/enable, edit, delete */}
+      {/* Row actions */}
       <div className="mc-row-actions">
         <button
           className={`mc-btn ${category.is_active ? "mc-btn-warning" : "mc-btn-success"}`}
@@ -464,7 +464,7 @@ const ManageCategories = () => {
       <div className="mgr-container">
         <div className="mgr-body">
           <div className="mc-panel">
-            {/* Panel header — shows order save/cancel actions when order has changed, or New Category button otherwise */}
+            {/* Panel header */}
             <div className="mc-panel-header">
               <h2 className="mc-panel-title">Categories</h2>
               <div className="mc-header-actions">
@@ -501,7 +501,7 @@ const ManageCategories = () => {
               </div>
             </div>
 
-            {/* Create / Edit form — only visible when editMode is active */}
+            {/* Create / Edit form */}
             {editMode !== "none" && (
               <div className="mc-form">
                 <h3 className="mc-form-title">
@@ -523,7 +523,7 @@ const ManageCategories = () => {
                       else if (e.key === "Escape") handleCancelEdit();
                     }}
                   />
-                  {/* Formatted name preview — only shown when the name differs from its formatted version */}
+                  {/* Formatted name preview */}
                   {categoryName.trim() &&
                     categoryName.trim() !== formatName(categoryName) && (
                       <div className="mc-name-preview">
@@ -558,7 +558,7 @@ const ManageCategories = () => {
               </div>
             )}
 
-            {/* Loading spinner — only shown on initial load before any categories exist */}
+            {/* Loading spinner */}
             {loading && categories.length === 0 ? (
               <LoadingSpinner message="Loading categories..." />
             ) : (

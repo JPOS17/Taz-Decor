@@ -407,7 +407,7 @@ const Profile = () => {
   return (
     <div className={"profile-page"}>
       <div className={"profile-layout"}>
-        {/* Sidebar — displays name, role, and navigation links */}
+        {/* Sidebar */}
         <ProfileSidebar
           firstName={profileData.first_name}
           lastName={profileData.last_name}
@@ -456,7 +456,7 @@ const Profile = () => {
             </div>
           )}
 
-          {/* Email verification banner — only shown when email is unverified */}
+          {/* Email verification banner */}
           {!profileData.is_email_verified && (
             <div className={"profile-verification-banner"}>
               <div className={"profile-verification-content"}>
@@ -533,7 +533,7 @@ const Profile = () => {
               )}
             </div>
 
-            {/* Editable fields — toggle between input and read-only display */}
+            {/* Editable fields */}
             <div className={"profile-info-grid"}>
               <div className={"profile-info-field"}>
                 <label className={"profile-field-label"}>First Name</label>
@@ -608,7 +608,7 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Delete Account — separated from editable fields by a border */}
+            {/* Delete Account */}
             <div
               style={{
                 marginTop: "1.5rem",

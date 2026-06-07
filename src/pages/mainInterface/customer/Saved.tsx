@@ -427,7 +427,7 @@ const Saved = () => {
             })}
         </div>
 
-        {/* Mini cart — slides in after adding an item from the wishlist */}
+        {/* Mini cart */}
         <MiniCart
           isOpen={isMiniCartOpen}
           onClose={() => {

@@ -29,7 +29,7 @@ export const ToastNotification = ({
     <div className={`toast-notification ${type}`}>
       {getIcon()}
 
-      {/* Render each line as its own <p> — subsequent lines get a top margin for spacing */}
+      {/* Render each line as its own <p> */}
       <div className="toast-content">
         {messageLines.map((line, index) => (
           <p

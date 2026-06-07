@@ -25,7 +25,7 @@ export function SelectInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
     >
-      {/* Empty-value placeholder — always rendered as the first option */}
+      {/* Empty-value placeholder */}
       <option value="">{placeholder}</option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>

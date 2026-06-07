@@ -1021,7 +1021,7 @@ const ManageProducts = () => {
           onClearFilters={handleClearFilters}
         />
 
-        {/* Main Content — loading spinner shown while initial product list loads */}
+        {/* Main Content */}
         {loading && !variantDetails && viewMode === "edit" ? (
           <LoadingSpinner message="Loading products..." />
         ) : (
@@ -1030,7 +1030,7 @@ const ManageProducts = () => {
             <div className="mi-products-column">
               <h2>Products</h2>
               <div className="mi-products-list">
-                {/* Create New Product Card — highlighted when create-product mode is active */}
+                {/* Create New Product Card */}
                 <div
                   className={`mi-add-new-card ${
                     viewMode === "create-product" ? "active" : ""
@@ -1079,7 +1079,7 @@ const ManageProducts = () => {
                 </>
               )}
 
-              {/* Create Variant View — requires a parent variant and its full details to pre-populate fields */}
+              {/* Create Variant View */}
               {viewMode === "create-variant" &&
                 parentVariantForNewVariant &&
                 variantDetails && (
@@ -1113,7 +1113,7 @@ const ManageProducts = () => {
               {/* Edit View */}
               {viewMode === "edit" && variantDetails && (
                 <>
-                  {/* Action bar — save, delete, toggle status, new variant */}
+                  {/* Action bar */}
                   <HeaderFormatter
                     viewMode={viewMode}
                     loading={loading}
@@ -1126,7 +1126,7 @@ const ManageProducts = () => {
                     onDelete={handleDeleteVariant}
                   />
 
-                  {/* Variant switcher — only shown when the product has more than one variant */}
+                  {/* Variant switcher */}
                   {availableVariants.length > 1 && (
                     <VariantSelector
                       variants={availableVariants}
@@ -1136,7 +1136,7 @@ const ManageProducts = () => {
                     />
                   )}
 
-                  {/* Image manager — reorder, set primary, delete, upload */}
+                  {/* Image manager */}
                   <ImageManager
                     images={variantDetails.images}
                     onReorder={handleImageReorder}
@@ -1159,7 +1159,7 @@ const ManageProducts = () => {
                 </>
               )}
 
-              {/* Empty State — shown when no variant is selected in edit mode */}
+              {/* Empty State */}
               {viewMode === "edit" && !variantDetails && (
                 <div className="mi-empty-state">
                   <Package className="mi-empty-state-icon" size={80} />
@@ -1178,7 +1178,7 @@ const ManageProducts = () => {
         <ToastNotification message={message.text} type={message.type} />
       )}
 
-      {/* Unsaved Changes Modal — title and message vary by current view mode */}
+      {/* Unsaved Changes Modal */}
       {unsavedChanges.showModal && (
         <ConfirmationModal
           title={

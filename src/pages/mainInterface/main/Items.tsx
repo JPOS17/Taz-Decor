@@ -410,7 +410,7 @@ const Items = () => {
             <div className="items-header-left">
               <h3 className="items-category-title">{activeCategoryName}</h3>
 
-              {/* Category-level coupon badge — discount amount and verification requirement */}
+              {/* Category-level coupon badge */}
               {categoryCoupon && (
                 <div className="items-category-coupon-badge">
                   {getCategoryBadgeText(categoryCoupon) && (
@@ -429,7 +429,7 @@ const Items = () => {
             </div>
           </div>
 
-          {/* Content states — error, empty, or product grid */}
+          {/* Content states */}
           {error ? (
             <div className="items-error-state">
               <p>Error: {error}</p>

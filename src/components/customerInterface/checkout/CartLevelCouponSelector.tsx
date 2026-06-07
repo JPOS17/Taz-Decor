@@ -126,7 +126,7 @@ const CartLevelCouponSelector = ({
           <FaTag /> Cart Discount
         </h3>
 
-        {/* Header right — shows selected coupon details or an add button */}
+        {/* Selected coupon details or an add button */}
         {selectedCoupon ? (
           <div className="clcs-selected-coupon">
             <div className="clcs-selected-coupon-details">

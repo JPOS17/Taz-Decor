@@ -156,7 +156,7 @@ const ResetPassword = () => {
               placeholder="Enter new password"
               required
             />
-            {/* Strength bar and unmet requirements — only shown once the user starts typing */}
+            {/* Strength bar and unmet requirements */}
             {formData.newPassword && (
               <div className="reset-password-strength">
                 <div className="reset-strength-bar">

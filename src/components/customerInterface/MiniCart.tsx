@@ -332,7 +332,7 @@ const MiniCart = ({
           </button>
         </div>
 
-        {/* Notification area — removed and added banners are mutually exclusive */}
+        {/* Notification area */}
         {justRemovedItem ? (
           <div
             ref={removedNotificationRef}
@@ -358,7 +358,7 @@ const MiniCart = ({
           </div>
         ) : null}
 
-        {/* Cart Body — empty state or item list */}
+        {/* Cart Body */}
         <div className="mc-body">
           {displayItems.length === 0 ? (
             <p className="mc-empty">Your cart is empty</p>
@@ -409,7 +409,7 @@ const MiniCart = ({
                   />
                   <div className="mc-item-details">
                     <h5 className="mc-item-name">{item.name}</h5>
-                    {/* Variant attributes — color and/or size, rendered when present */}
+                    {/* Variant attributes */}
                     {(item.color || item.size) && (
                       <p className="mc-item-meta">
                         {item.color && <span>{item.color}</span>}
@@ -427,7 +427,7 @@ const MiniCart = ({
                       </div>
                     )}
 
-                    {/* Price display — shows original crossed out alongside discounted when a coupon applies */}
+                    {/* Price display */}
                     {hasDiscount ? (
                       <div className="mc-item-price-container">
                         <p className="mc-item-price-original">

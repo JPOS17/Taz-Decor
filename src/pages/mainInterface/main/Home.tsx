@@ -39,7 +39,7 @@ const Home = () => {
 
           <p className="home-tagline">Thank you for your visit. God bless.</p>
 
-          {/* Call to action — links to the shop */}
+          {/* Call to action */}
           <div className="home-cta">
             <a href="/items" className="home-shop-btn">
               Browse Our Collection

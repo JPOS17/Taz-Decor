@@ -152,7 +152,7 @@ const CouponModal = ({
         </div>
 
         <div className="coupon-modal-body">
-          {/* Sign-in notice — shown when the user's email is not verified */}
+          {/* Sign-in notice */}
           {!isEmailVerified && (
             <div className="coupon-modal-guest-notice">
               <FaLock className="coupon-modal-guest-icon" />
@@ -183,7 +183,7 @@ const CouponModal = ({
             </div>
           ) : (
             <>
-              {/* Coupon list — pointer events disabled for unverified users */}
+              {/* Coupon list */}
               <div
                 style={
                   !isEmailVerified
@@ -204,7 +204,7 @@ const CouponModal = ({
                 />
               </div>
 
-              {/* "No Coupon" option — only shown to verified users */}
+              {/* "No Coupon" option */}
               {isEmailVerified && (
                 <div className="coupon-modal-remove-option">
                   <button

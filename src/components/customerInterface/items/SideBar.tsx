@@ -97,7 +97,7 @@ const SideBar = ({
     <nav className="sb-sidebar">
       {/* FILTERS */}
       <div className="sb-sidebar-filters">
-        {/* Price filter — collapsible radio list */}
+        {/* Price filter */}
         <div className="sb-sidebar-filter-section">
           <button
             className="sb-sidebar-filter-heading"
@@ -130,7 +130,7 @@ const SideBar = ({
           )}
         </div>
 
-        {/* Sort filter — collapsible radio list */}
+        {/* Sort filter */}
         <div className="sb-sidebar-filter-section">
           <button
             className="sb-sidebar-filter-heading"
@@ -172,7 +172,7 @@ const SideBar = ({
           On Sale Only
         </button>
 
-        {/* Reset — only shown when at least one filter is active */}
+        {/* Reset  */}
         {hasActiveFilters && (
           <button className="sb-sidebar-reset-btn" onClick={onReset}>
             Reset Filters

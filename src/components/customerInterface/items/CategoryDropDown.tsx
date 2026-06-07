@@ -55,10 +55,7 @@ const CategoryDropDown = ({
     setIsOpen(false);
   };
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
-
+  // Renders the dropdown button and menu
   return (
     <div className="cdd-container">
       <div className="cdd-wrapper" ref={dropdownRef}>

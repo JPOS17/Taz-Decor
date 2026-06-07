@@ -220,7 +220,7 @@ const ManageProductTypes = () => {
       <div className="mgr-container">
         <div className="mgr-body">
           <div className="mpt-panel">
-            {/* Actions bar — New Product Type button hidden while form is open */}
+            {/* Actions bar */}
             <div className="mpt-actions-bar">
               <h2 className="mpt-section-title">Product Types</h2>
               {editMode === "none" && (
@@ -235,7 +235,7 @@ const ManageProductTypes = () => {
               )}
             </div>
 
-            {/* Create / Edit form — only visible when editMode is active */}
+            {/* Create / Edit form */}
             {editMode !== "none" && (
               <div className="mpt-form">
                 <h3 className="mpt-form-title">
@@ -244,7 +244,7 @@ const ManageProductTypes = () => {
                     : "Edit Product Type"}
                 </h3>
 
-                {/* SKU Prefix — read-only when editing an existing type */}
+                {/* SKU Prefix */}
                 <div className="mpt-form-group">
                   <label className="mpt-form-label">
                     SKU Prefix * {editMode === "edit" && "(Read-only)"}
@@ -266,7 +266,7 @@ const ManageProductTypes = () => {
                   </p>
                 </div>
 
-                {/* Type Name — read-only when editing an existing type */}
+                {/* Type Name */}
                 <div className="mpt-form-group">
                   <label className="mpt-form-label">
                     Type Name * {editMode === "edit" && "(Read-only)"}
@@ -281,7 +281,7 @@ const ManageProductTypes = () => {
                     placeholder="Enter type name"
                     disabled={loading || editMode === "edit"}
                   />
-                  {/* Formatted name preview — only shown in create mode when name differs from formatted version */}
+                  {/* Formatted name preview */}
                   {editMode === "create" &&
                     formData.type_name.trim() &&
                     formData.type_name.trim() !==
@@ -293,7 +293,7 @@ const ManageProductTypes = () => {
                     )}
                 </div>
 
-                {/* Description — editable in both create and edit modes */}
+                {/* Description */}
                 <div className="mpt-form-group">
                   <label className="mpt-form-label">Description *</label>
                   <textarea
@@ -306,7 +306,7 @@ const ManageProductTypes = () => {
                     disabled={loading}
                     rows={3}
                   />
-                  {/* Formatted description preview — only shown when it differs from the formatted version */}
+                  {/* Formatted description preview */}
                   {formData.description.trim() &&
                     formData.description.trim() !==
                       formatName(formData.description) && (
@@ -350,7 +350,7 @@ const ManageProductTypes = () => {
               </div>
             )}
 
-            {/* Loading spinner — only shown on initial load before any types exist */}
+            {/* Loading spinner */}
             {loading && productTypes.length === 0 ? (
               <LoadingSpinner message="Loading product types..." />
             ) : (
@@ -392,7 +392,7 @@ const ManageProductTypes = () => {
                           {productType.description}
                         </td>
                         <td className="mpt-actions-cell" data-label="Actions">
-                          {/* Edit opens the form in edit mode — only description is modifiable */}
+                          {/* Edit opens the form in edit mode */}
                           <button
                             className="mpt-btn mpt-btn-primary mpt-btn-sm"
                             onClick={() => handleEdit(productType)}

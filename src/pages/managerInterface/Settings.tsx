@@ -532,7 +532,7 @@ const Settings = () => {
         ) : locations.length === 0 ? (
           <div className="mgr-empty">No locations found.</div>
         ) : (
-          /* Locations table — name, address, contact, status, and actions */
+          /* Locations table */
           <div className="mgr-table-wrapper">
             <table className="mgr-table">
               <thead>
@@ -556,7 +556,7 @@ const Settings = () => {
                     <td>
                       <div className="settings-address-cell">
                         {location.address_line1}
-                        {/* address_line2 is optional — only rendered when present */}
+                        {/* address_line2 is optional */}
                         {location.address_line2 && (
                           <>
                             <br />
@@ -570,7 +570,7 @@ const Settings = () => {
                     </td>
                     <td>
                       <div className="settings-contact-cell">
-                        {/* Contact name and phone — each only rendered when present */}
+                        {/* Contact name and phone */}
                         {location.contact_name && (
                           <div className="settings-contact-item">
                             <User size={14} />
@@ -593,7 +593,7 @@ const Settings = () => {
                       </span>
                     </td>
                     <td>
-                      {/* Row actions — toggle status and edit */}
+                      {/* Row actions */}
                       <div className="mgr-table-actions">
                         <button
                           onClick={() =>
@@ -635,10 +635,10 @@ const Settings = () => {
     const isLocationSelected = boxLocationFilter !== "all";
     return (
       <>
-        {/* Filter bar and Add Box button — Add button disabled until a location is selected */}
+        {/* Filter bar and Add Box button */}
         <div className="settings-actions-bar">
           <div className="settings-filters">
-            {/* Location filter — required before any other filters are usable */}
+            {/* Location filter */}
             <select
               className="settings-filter-select"
               value={boxLocationFilter}
@@ -653,7 +653,7 @@ const Settings = () => {
                   </option>
                 ))}
             </select>
-            {/* Type and status filters — disabled until a location is selected */}
+            {/* Type and status filters */}
             <select
               className="settings-filter-select"
               value={boxTypeFilter}
@@ -686,7 +686,7 @@ const Settings = () => {
           </button>
         </div>
 
-        {/* Content states — prompt to select location, loading spinner, empty state, or table */}
+        {/* Content states */}
         {!isLocationSelected ? (
           <div className="mgr-empty">
             Please select a location to view shipping boxes.
@@ -699,7 +699,7 @@ const Settings = () => {
             get started.
           </div>
         ) : (
-          /* Shipping boxes table — rows are draggable to reorder box_size_order */
+          /* Shipping boxes table */
           <div className="mgr-table-wrapper">
             <table className="mgr-table">
               <thead>
@@ -778,7 +778,7 @@ const Settings = () => {
                       </span>
                     </td>
                     <td>
-                      {/* Row actions — toggle status, edit, delete */}
+                      {/* Row actions */}
                       <div className="mgr-table-actions">
                         <button
                           onClick={() =>
@@ -843,7 +843,7 @@ const Settings = () => {
       {/* Main Content */}
       <div className="mgr-container">
         <div className="mgr-body">
-          {/* Tab navigation — Seller Locations and Shipping Boxes */}
+          {/* Tab navigation  */}
           <div className="mgr-tabs">
             <button
               onClick={() => setActiveTab("locations")}
@@ -861,7 +861,7 @@ const Settings = () => {
             </button>
           </div>
 
-          {/* Tab Content — renders the active tab's panel */}
+          {/* Tab Content */}
           <div className="mgr-tab-content">
             {activeTab === "locations" && renderLocationsTab()}
             {activeTab === "shipping" && renderShippingTab()}
@@ -874,7 +874,7 @@ const Settings = () => {
         <ToastNotification message={message.text} type={message.type} />
       )}
 
-      {/* Location Modal — create or edit */}
+      {/* Location Modal */}
       {showLocationModal && (
         <div className="mgr-modal-overlay" onClick={handleCloseLocationModal}>
           <div
@@ -884,7 +884,7 @@ const Settings = () => {
             <h2>{editingLocation ? "Edit Location" : "Add New Location"}</h2>
             <form onSubmit={handleLocationSubmit}>
               <div className="mgr-form-grid">
-                {/* Location name — full width */}
+                {/* Location name */}
                 <div className="mgr-form-group mgr-form-group-full">
                   <label className="mgr-form-label">Location Name *</label>
                   <input
@@ -1012,7 +1012,7 @@ const Settings = () => {
                   />
                 </div>
 
-                {/* Active toggle — full width */}
+                {/* Active toggle */}
                 <div className="mgr-form-group mgr-form-group-full">
                   <label className="mgr-checkbox-label">
                     <input
@@ -1030,7 +1030,7 @@ const Settings = () => {
                 </div>
               </div>
 
-              {/* Modal footer — cancel and submit */}
+              {/* Modal footer */}
               <div className="mgr-modal-footer">
                 <button
                   type="button"
@@ -1048,7 +1048,7 @@ const Settings = () => {
         </div>
       )}
 
-      {/* Shipping Box Modal — create or edit */}
+      {/* Shipping Box Modal */}
       {showBoxModal && (
         <div className="mgr-modal-overlay" onClick={handleCloseBoxModal}>
           <div
@@ -1144,7 +1144,7 @@ const Settings = () => {
                   />
                 </div>
 
-                {/* Location assignment — only active locations are listed */}
+                {/* Location assignment */}
                 <div className="mgr-form-group">
                   <label className="mgr-form-label">Location *</label>
                   <select
@@ -1172,7 +1172,7 @@ const Settings = () => {
                   </select>
                 </div>
 
-                {/* Active toggle — full width */}
+                {/* Active toggle */}
                 <div className="mgr-form-group mgr-form-group-full">
                   <label className="mgr-checkbox-label">
                     <input
@@ -1190,7 +1190,7 @@ const Settings = () => {
                 </div>
               </div>
 
-              {/* Modal footer — cancel and submit */}
+              {/* Modal footer */}
               <div className="mgr-modal-footer">
                 <button
                   type="button"
@@ -1208,7 +1208,7 @@ const Settings = () => {
         </div>
       )}
 
-      {/* Address Validation Modal — shown after location form submission */}
+      {/* Address Validation Modal */}
       {validationResult && (
         <AddressValidationModal
           validationResult={validationResult}

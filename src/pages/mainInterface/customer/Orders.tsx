@@ -150,7 +150,7 @@ const Orders = () => {
   return (
     <div className="orders-page">
       <div className="orders-layout">
-        {/* Sidebar — user data sourced directly from AuthContext */}
+        {/* Sidebar */}
         <ProfileSidebar
           firstName={user?.firstName ?? ""}
           lastName={user?.lastName ?? ""}

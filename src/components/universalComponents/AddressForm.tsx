@@ -28,7 +28,7 @@ const AddressForm = ({
       {/* Title changes based on whether we're creating or editing */}
       <h3>{isEditing ? "Edit Address" : "Add New Address"}</h3>
 
-      {/* Address name — e.g. "Home", "Work" */}
+      {/* Address name */}
       <div className="af-form-row">
         <div className="af-form-group">
           <label>Address Name *</label>
@@ -56,7 +56,7 @@ const AddressForm = ({
         </div>
       </div>
 
-      {/* Optional secondary line — apt, suite, unit, etc. */}
+      {/* Optional secondary line */}
       <div className="af-form-row">
         <div className="af-form-group">
           <label>Apt, Suite, etc. (optional)</label>
@@ -115,7 +115,7 @@ const AddressForm = ({
         </div>
       </div>
 
-      {/* Form actions — cancel dismisses, submit label reflects edit vs. create */}
+      {/* Form actions */}
       <div className="af-form-actions">
         <button type="button" className="af-btn-cancel" onClick={onCancel}>
           Cancel

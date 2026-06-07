@@ -18,7 +18,7 @@ export function FormField({
 }: FormFieldProps) {
   return (
     <div className="form-group">
-      {/* Label — appends "required" class when field is mandatory */}
+      {/* Label */}
       <label className={`form-label ${required ? "required" : ""}`}>
         {label}
       </label>

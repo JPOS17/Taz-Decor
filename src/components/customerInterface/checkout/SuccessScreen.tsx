@@ -18,6 +18,7 @@ interface SuccessScreenProps {
   shippingMethodName?: string;
 }
 
+// This component is shown after a successful order placement
 const SuccessScreen = ({
   orderResult,
   userEmail,
@@ -27,10 +28,6 @@ const SuccessScreen = ({
   const navigate = useNavigate();
 
   if (!orderResult) return null;
-
-  // ============================================================================
-  // RENDER
-  // ============================================================================
 
   return (
     <div className="ss-checkout-success">
@@ -92,7 +89,7 @@ const SuccessScreen = ({
           </button>
         </div>
 
-        {/* Guest order number reminder — guests have no order history page to fall back on */}
+        {/* Guest order number reminder */}
         {isGuest && (
           <div className="ss-guest-note">
             <p>

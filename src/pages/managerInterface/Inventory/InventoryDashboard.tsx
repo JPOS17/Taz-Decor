@@ -69,7 +69,7 @@ const ProductManagementDirectory = () => {
         <div className="mgr-body">
           <p className="mgr-section-label">Inventory Dashboard</p>
 
-          {/* Navigation card grid — each card routes to a management sub-page */}
+          {/* Navigation card grid */}
           <div className="mgr-grid">
             {directoryCards.map((card) => {
               const Icon = card.icon;

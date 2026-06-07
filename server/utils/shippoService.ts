@@ -5,7 +5,7 @@ const shippoClient = new shippo.Shippo({
   apiKeyHeader: process.env.SHIPPO_API_KEY || "",
 });
 
-// Origin address for all outbound shipments (location_id = 1)
+// Origin address for all outbound shipments (location_id = 1) THIS INFO SHOULD NOT BE HARDCODED IN PRODUCTION - THIS IS JUST FOR DEMO PURPOSES
 const ORIGIN_ADDRESS = {
   name: "Martha Salas",
   company: "Texas Shop",
