@@ -4,6 +4,7 @@ import { Folder, Plus, ArrowLeft, Edit, Tag, ArrowRight } from "lucide-react";
 import "../../../styles/pages/managerInterface/Tokens.css";
 import "../../../styles/pages/managerInterface/Components.css";
 
+// Each card in the directory grid — icon, title, description, path, and CTA label
 const directoryCards = [
   {
     title: "Edit Products",
@@ -38,6 +39,10 @@ const directoryCards = [
 const ProductManagementDirectory = () => {
   const navigate = useNavigate();
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div className="manager-page accent-inventory">
       {/* Header */}
@@ -63,6 +68,8 @@ const ProductManagementDirectory = () => {
       <div className="mgr-container">
         <div className="mgr-body">
           <p className="mgr-section-label">Inventory Dashboard</p>
+
+          {/* Navigation card grid — each card routes to a management sub-page */}
           <div className="mgr-grid">
             {directoryCards.map((card) => {
               const Icon = card.icon;
@@ -82,6 +89,7 @@ const ProductManagementDirectory = () => {
                     <h3 className="mgr-card-title">{card.title}</h3>
                     <p className="mgr-card-description">{card.description}</p>
                   </div>
+                  {/* CTA footer with inline arrow */}
                   <div className="mgr-card-footer">
                     <span>{card.cta}</span>
                     <ArrowRight size={13} />

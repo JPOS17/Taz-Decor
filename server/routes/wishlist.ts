@@ -1,19 +1,18 @@
 import express from "express";
-import { 
+import {
   getWishlist,
   syncWishlist,
   addToWishlist,
-  removeFromWishlist
+  removeFromWishlist,
 } from "../controllers/wishlistController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 export const wishlistRouter = express.Router();
 
 // ============================================================================
-// MIDDLEWARE
+// MIDDLEWARE — Authentication required for all wishlist routes
 // ============================================================================
 
-// All wishlist routes require authentication
 wishlistRouter.use(authenticateToken);
 
 // ============================================================================
@@ -23,7 +22,7 @@ wishlistRouter.use(authenticateToken);
 // GET user's wishlist from database
 wishlistRouter.get("/", getWishlist);
 
-// POST sync localStorage wishlist to database
+// POST sync localStorage wishlist to database on login
 wishlistRouter.post("/sync", syncWishlist);
 
 // POST add item to wishlist

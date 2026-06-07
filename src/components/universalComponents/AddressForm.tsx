@@ -14,6 +14,7 @@ interface AddressFormProps {
   loading: boolean;
 }
 
+// Controlled form for creating or editing a saved address
 const AddressForm = ({
   addressForm,
   onFormChange,
@@ -24,8 +25,10 @@ const AddressForm = ({
 }: AddressFormProps) => {
   return (
     <form className="af-address-form" onSubmit={onSubmit}>
+      {/* Title changes based on whether we're creating or editing */}
       <h3>{isEditing ? "Edit Address" : "Add New Address"}</h3>
 
+      {/* Address name — e.g. "Home", "Work" */}
       <div className="af-form-row">
         <div className="af-form-group">
           <label>Address Name *</label>
@@ -39,6 +42,7 @@ const AddressForm = ({
         </div>
       </div>
 
+      {/* Primary street address */}
       <div className="af-form-row">
         <div className="af-form-group">
           <label>Street Address *</label>
@@ -52,6 +56,7 @@ const AddressForm = ({
         </div>
       </div>
 
+      {/* Optional secondary line — apt, suite, unit, etc. */}
       <div className="af-form-row">
         <div className="af-form-group">
           <label>Apt, Suite, etc. (optional)</label>
@@ -64,6 +69,7 @@ const AddressForm = ({
         </div>
       </div>
 
+      {/* City, state, and ZIP on a single row */}
       <div className="af-form-row">
         <div className="af-form-group">
           <label>City *</label>
@@ -96,6 +102,7 @@ const AddressForm = ({
         </div>
       </div>
 
+      {/* Default address checkbox */}
       <div className="af-form-row">
         <div className="af-form-group-checkbox">
           <input
@@ -108,6 +115,7 @@ const AddressForm = ({
         </div>
       </div>
 
+      {/* Form actions — cancel dismisses, submit label reflects edit vs. create */}
       <div className="af-form-actions">
         <button type="button" className="af-btn-cancel" onClick={onCancel}>
           Cancel

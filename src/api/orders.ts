@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// Helper function to get auth headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
   return {
@@ -8,12 +9,13 @@ const getAuthHeaders = () => {
   };
 };
 
+// Helper function to get public headers (no auth)
 const getPublicHeaders = () => ({
   "Content-Type": "application/json",
 });
 
 // ============================================================================
-// SHARED ORDER INTERFACES
+// INTERFACES
 // ============================================================================
 
 export interface Order {
@@ -178,7 +180,7 @@ export const fetchGuestOrderByNumber = async (
 // API FUNCTIONS - ORDER STATUS
 // ============================================================================
 
-// PUT update order status (admin only)
+// PUT update order status
 export const updateOrderStatus = async (
   orderId: number,
   payload: UpdateOrderStatusPayload

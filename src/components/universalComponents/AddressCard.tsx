@@ -10,6 +10,7 @@ interface AddressCardProps {
   onDelete: () => void;
 }
 
+// Displays a single saved address as a selectable card with edit and delete actions
 const AddressCard = ({
   address,
   isSelected,
@@ -22,6 +23,7 @@ const AddressCard = ({
       className={`ac-address-card ${isSelected ? "ac-address-card-selected" : ""}`}
       onClick={onSelect}
     >
+      {/* Radio indicator — reflects selected state */}
       <div className="ac-address-radio">
         <input
           type="radio"
@@ -30,6 +32,8 @@ const AddressCard = ({
           onChange={onSelect}
         />
       </div>
+
+      {/* Address details — name, street lines, city/state/zip, and default badge */}
       <div className="ac-address-info">
         <h4>{address.address_name}</h4>
         <p>{address.address_line1}</p>
@@ -41,6 +45,8 @@ const AddressCard = ({
           <span className="ac-default-badge">Default</span>
         )}
       </div>
+
+      {/* Edit and delete action buttons */}
       <div className="ac-address-actions">
         <button
           className="ac-btn-icon"

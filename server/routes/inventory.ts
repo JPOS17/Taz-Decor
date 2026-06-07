@@ -14,50 +14,53 @@ import {
   getProductVariants,
   toggleVariantStatus,
   previewProductSKUByType,
-  previewVariantSKU
+  previewVariantSKU,
 } from "../controllers/inventoryController";
 
 export const inventoryRouter = express.Router();
 
-// Protect all product management routes - only managers and admins
+// ============================================================================
+// MIDDLEWARE — Manager/admin only for all inventory routes
+// ============================================================================
+
 inventoryRouter.use(requireManagerOrAdmin);
 
 // ============================================================================
 // PRODUCT ROUTES
 // ============================================================================
 
-// GET all products for management with optional category filter
+// GET all products for management with optional filters
 inventoryRouter.get("/", getAllProductsForManagement);
 
-// GET all variants for a specific product - MUST BE BEFORE /:variantId
+// GET all variants for a specific product — MUST BE BEFORE /:variantId
 inventoryRouter.get("/by-product/:productId/variants", getProductVariants);
 
-// GET preview SKU for new product (based on product_type_id)
+// GET SKU preview for new product by product type
 inventoryRouter.get("/preview-sku/product-type/:productTypeId", previewProductSKUByType);
 
-// GET preview SKU for new variant
+// GET SKU preview for new variant on an existing product
 inventoryRouter.get("/preview-sku/product/:productId", previewVariantSKU);
 
-// CREATE new product
+// POST create new product
 inventoryRouter.post("/", createProduct);
 
+// POST create new variant for an existing product
+inventoryRouter.post("/by-product/:productId/variants", createVariant);
+
 // ============================================================================
-// VARIANT ROUTES
+// VARIANT ROUTES — MUST BE AFTER STATIC ROUTES
 // ============================================================================
 
 // GET specific variant for editing
 inventoryRouter.get("/:variantId", getVariantForEdit);
 
-// CREATE new variant for existing product
-inventoryRouter.post("/by-product/:productId/variants", createVariant);
-
-// UPDATE variant details
+// PUT update variant details
 inventoryRouter.put("/:variantId", updateVariant);
 
-// TOGGLE variant status
+// PUT toggle variant active status
 inventoryRouter.put("/:variantId/status", toggleVariantStatus);
 
-// DELETE variant
+// DELETE variant (and product if last variant)
 inventoryRouter.delete("/:variantId", deleteVariant);
 
 // ============================================================================
@@ -67,7 +70,7 @@ inventoryRouter.delete("/:variantId", deleteVariant);
 // POST add image to variant
 inventoryRouter.post("/:variantId/images", addImageToVariant);
 
-// PUT reorder images for variant
+// PUT reorder images for a variant
 inventoryRouter.put("/:variantId/images/reorder", updateImageOrder);
 
 // PUT set image as primary

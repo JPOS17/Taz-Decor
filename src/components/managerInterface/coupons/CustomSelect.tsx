@@ -29,7 +29,11 @@ export const CustomSelect = ({
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // Closes the dropdown and clears search when clicking outside the component
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -45,25 +49,41 @@ export const CustomSelect = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ============================================================================
+  // DERIVED VALUES
+  // ============================================================================
+
+  // Resolves the display label for the currently selected value
   const selectedOption = options.find((opt) => opt.value === value);
 
+  // Filters options against the search term; bypassed entirely when searchable=false
   const filteredOptions = searchable
     ? options.filter((option) =>
         option.label.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     : options;
 
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  // Selects an option, fires the onChange callback, and closes the dropdown
   const handleSelect = (optionValue: string | number) => {
     onChange(optionValue);
     setIsOpen(false);
     setSearchTerm("");
   };
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div
       ref={dropdownRef}
       className={`custom-select-container ${className} ${disabled ? "custom-select-disabled" : ""}`}
     >
+      {/* Trigger button */}
       <div
         className={`custom-select-trigger ${isOpen ? "custom-select-open" : ""}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
@@ -77,8 +97,10 @@ export const CustomSelect = ({
         />
       </div>
 
+      {/* Dropdown */}
       {isOpen && !disabled && (
         <div className="custom-select-dropdown">
+          {/* Search input */}
           {searchable && options.length > 5 && (
             <div className="custom-select-search">
               <Search size={16} className="custom-select-search-icon" />

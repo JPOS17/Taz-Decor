@@ -24,6 +24,7 @@ const Lightbox = ({
   onPrev,
   onSelectIndex,
 }: LightboxProps) => {
+  // Keyboard navigation — Escape closes, arrow keys step through images
   useEffect(() => {
     if (!isOpen) return;
 
@@ -39,9 +40,13 @@ const Lightbox = ({
 
   if (!isOpen) return null;
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div className="lightbox-overlay" onClick={onClose}>
-      {/* ROW 1: Top bar with close button */}
+      {/* Row 1 — close button */}
       <div className="lightbox-row-top">
         <button
           className="lightbox-close"
@@ -54,7 +59,7 @@ const Lightbox = ({
         </button>
       </div>
 
-      {/* ROW 2: Main image only */}
+      {/* Row 2 — main image */}
       <div className="lightbox-row-middle">
         <div
           className="lightbox-main-image-wrap"
@@ -68,7 +73,7 @@ const Lightbox = ({
         </div>
       </div>
 
-      {/* ROW 3: Thumbnail strip */}
+      {/* Row 3 — thumbnail strip */}
       <div className="lightbox-row-thumbnails">
         <div
           className="lightbox-thumbnails-strip"
@@ -89,7 +94,7 @@ const Lightbox = ({
         </div>
       </div>
 
-      {/* ROW 4: < counter > */}
+      {/* Row 4 — prev / counter / next */}
       <div className="lightbox-row-bottom">
         <div className="lightbox-controls" onClick={(e) => e.stopPropagation()}>
           <button

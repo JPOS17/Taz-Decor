@@ -46,6 +46,10 @@ const SideBar = ({
   onSaleFilterChange,
   onReset,
 }: SideBarProps) => {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
   const [priceOpen, setPriceOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -54,10 +58,15 @@ const SideBar = ({
   const hasActiveFilters =
     isPriceActive || !!currentSortBy || currentOnSaleOnly;
 
+  // Returns true when the given price range matches the currently active filter
   const matchesPrice = (min: number | null, max: number | null) =>
     min === currentMinPrice && max === currentMaxPrice;
 
-  // Prevent body scroll when drawer is open
+  // ============================================================================
+  // SIDE EFFECTS
+  // ============================================================================
+
+  // Prevent body scroll while the mobile drawer is open
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
@@ -69,16 +78,26 @@ const SideBar = ({
     };
   }, [mobileOpen]);
 
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  // Selects a category and closes the mobile drawer
   const handleSelectCategory = (id: number | null, name: string) => {
     onSelectCategory(id, name);
     setMobileOpen(false);
   };
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
+  // Shared sidebar content rendered in both desktop and mobile drawer contexts
   const sidebarContent = (
     <nav className="sb-sidebar">
       {/* FILTERS */}
       <div className="sb-sidebar-filters">
-        {/* Price */}
+        {/* Price filter — collapsible radio list */}
         <div className="sb-sidebar-filter-section">
           <button
             className="sb-sidebar-filter-heading"
@@ -111,7 +130,7 @@ const SideBar = ({
           )}
         </div>
 
-        {/* Sort */}
+        {/* Sort filter — collapsible radio list */}
         <div className="sb-sidebar-filter-section">
           <button
             className="sb-sidebar-filter-heading"
@@ -153,7 +172,7 @@ const SideBar = ({
           On Sale Only
         </button>
 
-        {/* Reset filters */}
+        {/* Reset — only shown when at least one filter is active */}
         {hasActiveFilters && (
           <button className="sb-sidebar-reset-btn" onClick={onReset}>
             Reset Filters
@@ -161,7 +180,6 @@ const SideBar = ({
         )}
       </div>
 
-      {/* DIVIDER */}
       <div className="sb-sidebar-divider" />
 
       {/* CATEGORIES */}
@@ -197,10 +215,10 @@ const SideBar = ({
 
   return (
     <>
-      {/* DESKTOP: normal sidebar */}
+      {/* Desktop — static sidebar */}
       <div className="sb-sidebar-desktop">{sidebarContent}</div>
 
-      {/* MOBILE: floating FAB button */}
+      {/* Mobile — floating FAB that opens the drawer */}
       <button
         className={`sb-sidebar-fab${hasActiveFilters ? " sb-has-filters" : ""}`}
         onClick={() => setMobileOpen(true)}
@@ -227,14 +245,14 @@ const SideBar = ({
         {hasActiveFilters && <span className="sb-sidebar-fab-badge" />}
       </button>
 
-      {/* MOBILE: backdrop */}
+      {/* Mobile — backdrop that dismisses the drawer on click */}
       <div
         className={`sb-sidebar-backdrop${mobileOpen ? " sb-open" : ""}`}
         onClick={() => setMobileOpen(false)}
         aria-hidden="true"
       />
 
-      {/* MOBILE: slide-in drawer */}
+      {/* Mobile — slide-in drawer */}
       <div className={`sb-sidebar-drawer${mobileOpen ? " sb-open" : ""}`}>
         <div className="sb-sidebar-drawer-header">
           <span className="sb-sidebar-drawer-title">Browse & Filter</span>

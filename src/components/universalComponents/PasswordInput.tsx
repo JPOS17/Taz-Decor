@@ -10,6 +10,7 @@ interface PasswordInputProps {
   required?: boolean;
 }
 
+// Controlled password field with an inline show/hide toggle button
 const PasswordInput = ({
   id,
   name,
@@ -18,6 +19,7 @@ const PasswordInput = ({
   placeholder,
   required = false,
 }: PasswordInputProps) => {
+  // Tracks whether the password is currently visible as plain text
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -32,6 +34,8 @@ const PasswordInput = ({
         placeholder={placeholder}
         required={required}
       />
+
+      {/* Toggle button — swaps between the eye-off and eye SVG icons */}
       <button
         type="button"
         className="pwd-input-toggle"
@@ -39,6 +43,7 @@ const PasswordInput = ({
         aria-label={showPassword ? "Hide password" : "Show password"}
       >
         {showPassword ? (
+          // Eye-off icon — shown when password is visible
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -54,6 +59,7 @@ const PasswordInput = ({
             <line x1="1" y1="1" x2="23" y2="23"></line>
           </svg>
         ) : (
+          // Eye icon — shown when password is hidden
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"

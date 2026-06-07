@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { type ProductCoupon } from "../../../api/couponCustomer";
 import { useAuth } from "../../../context/AuthContext";
+import { formatDate } from "../../../utils/formatDate";
 
 import "../../../styles/components/customerInterface/items/CartCouponBanner.css";
 
@@ -27,8 +28,14 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  // Only show coupons that apply to the entire cart
   const cartCoupons = coupons.filter((c) => c.applies_to_type === "all");
 
+  // ============================================================================
+  // SIDE EFFECTS
+  // ============================================================================
+
+  // Close modal on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsModalOpen(false);
@@ -37,7 +44,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isModalOpen]);
 
-  // Prevent body scroll when modal is open
+  // Prevent body scroll while modal is open
   useEffect(() => {
     document.body.style.overflow = isModalOpen ? "hidden" : "";
     return () => {
@@ -47,6 +54,11 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
 
   if (cartCoupons.length === 0) return null;
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Handles copying codeto clipboard
   const copyCode = (code: string, e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(code);
@@ -54,6 +66,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  // Returns the appropriate icon for a coupon based on its discount type
   const getCouponIcon = (coupon: ProductCoupon) => {
     if (coupon.discount_type === "free_shipping_only")
       return <FaTruck size={18} />;
@@ -62,6 +75,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
     return <FaTag size={18} />;
   };
 
+  // Returns a full sentence describing the coupon's discount
   const getDiscountLabel = (coupon: ProductCoupon): string => {
     if (coupon.discount_type === "percentage" && coupon.discount_value !== null)
       return `${coupon.discount_value}% off your entire order`;
@@ -79,6 +93,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
     return "Special discount on your order";
   };
 
+  // Returns the compact badge text shown in the header bar and mini badges
   const getBadgeText = (coupon: ProductCoupon): string => {
     if (coupon.discount_type === "percentage" && coupon.discount_value)
       return `${coupon.discount_value}% OFF`;
@@ -93,16 +108,13 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
     return "DEAL";
   };
 
-  const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <>
-      {/* Top header bar — always visible, opens modal on click */}
+      {/* Header bar */}
       <div
         className="ccb-header-bar"
         onClick={() => setIsModalOpen(true)}
@@ -125,7 +137,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
         </div>
       </div>
 
-      {/* Floating pill — always visible, bottom-left */}
+      {/* Floating pill — fixed bottom-left, always visible as a secondary entry point */}
       <button
         className="ccb-floating-pill"
         onClick={() => setIsModalOpen(true)}
@@ -167,12 +179,11 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
               </button>
             </div>
 
-            {/* Subtitle */}
             <p className="ccb-modal-subtitle">
               These codes apply to your entire cart at checkout.
             </p>
 
-            {/* Guest sign-in notice */}
+            {/* Sign-in notice — only shown to unauthenticated users */}
             {!isAuthenticated && (
               <div className="ccb-guest-notice">
                 <FaLock size={13} />
@@ -198,7 +209,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
                   <div className="ccb-card-strip" />
 
                   <div className="ccb-card-inner">
-                    {/* Top: icon + info */}
+                    {/* Card top — icon, badge, description */}
                     <div className="ccb-card-top">
                       <div className="ccb-card-icon-wrap">
                         {getCouponIcon(coupon)}
@@ -218,7 +229,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
                       </div>
                     </div>
 
-                    {/* Meta chips */}
+                    {/* Meta chips — min purchase and expiry when present */}
                     <div className="ccb-card-meta">
                       {coupon.min_purchase_amount && (
                         <span className="ccb-meta-item">
@@ -229,12 +240,13 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
                       {coupon.valid_until && (
                         <span className="ccb-meta-item">
                           <FaCalendarAlt size={10} />
-                          Expires {formatDate(coupon.valid_until)}
+                          Expires{" "}
+                          {formatDate(coupon.valid_until, false, "short")}
                         </span>
                       )}
                     </div>
 
-                    {/* Copy code button */}
+                    {/* Copy code button — currently commented out pending design review */}
                     {/* <button
                       className={[
                         "ccb-code-btn",

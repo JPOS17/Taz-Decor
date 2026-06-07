@@ -1,12 +1,10 @@
 import { FaTruck } from "react-icons/fa";
 import "../../../styles/components/customerInterface/checkout/DeliveryEstimate.css";
 
-// ============================================================================
-// What the customer experiences = processing + transit combined.
-//   Ground Advantage : 1–2 + 2–5 = 3–7 business days total
-//   Priority Mail    : 1–2 + 1–3 = 2–5 business days total
-//   Priority Express : 1   + 1–2 = 2–3 business days total
-// ============================================================================
+// Total delivery = processing + transit time per method:
+//   Ground Advantage    : 1–2 + 2–5 = 3–7 business days
+//   Priority Mail       : 1–2 + 1–3 = 2–5 business days
+//   Priority Mail Express: 1  + 1–2 = 2–3 calendar days
 
 interface DeliveryEstimateProps {
   shippingMethodName: string;
@@ -23,6 +21,7 @@ interface ShippingConfig {
   useCalendarDaysForTransit: boolean;
 }
 
+// Per-method timing config — transit strategy varies (business vs calendar days)
 const SHIPPING_CONFIGS: Record<string, ShippingConfig> = {
   "usps ground advantage": {
     processingDaysMin: 1,
@@ -50,6 +49,7 @@ const SHIPPING_CONFIGS: Record<string, ShippingConfig> = {
   },
 };
 
+// Maps DB snake_case keys to human-readable config keys
 const DB_KEY_MAP: Record<string, string> = {
   usps_ground_advantage: "usps ground advantage",
   usps_priority: "usps priority mail",
@@ -65,7 +65,7 @@ const isWeekend = (date: Date): boolean => {
   return day === 0 || day === 6;
 };
 
-// Adds n BUSINESS days (Mon–Fri) — weekends are skipped entirely
+// Advances a date by n business days, skipping Saturdays and Sundays
 const addBusinessDays = (startDate: Date, n: number): Date => {
   const result = new Date(startDate);
   let added = 0;
@@ -76,7 +76,7 @@ const addBusinessDays = (startDate: Date, n: number): Date => {
   return result;
 };
 
-// Adds n CALENDAR days — used for Express transit since USPS delivers weekends
+// Advances a date by n calendar days — used for Express since USPS delivers on weekends
 const addCalendarDays = (startDate: Date, n: number): Date => {
   const result = new Date(startDate);
   result.setDate(result.getDate() + n);
@@ -92,19 +92,17 @@ const FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
 const formatDate = (date: Date): string =>
   date.toLocaleDateString("en-US", FORMAT_OPTIONS);
 
+// Resolves a shipping method name to its config via DB key, exact match, or partial fallback
 const resolveConfig = (methodName: string): ShippingConfig | null => {
   const normalized = methodName.toLowerCase().trim();
 
-  // 1. DB key match
   const mappedKey =
     DB_KEY_MAP[normalized.replace(/ /g, "_")] ?? DB_KEY_MAP[normalized];
   if (mappedKey && SHIPPING_CONFIGS[mappedKey])
     return SHIPPING_CONFIGS[mappedKey];
 
-  // 2. Exact human-readable match
   if (SHIPPING_CONFIGS[normalized]) return SHIPPING_CONFIGS[normalized];
 
-  // 3. Partial match fallback
   const key = Object.keys(SHIPPING_CONFIGS).find(
     (k) => normalized.includes(k) || k.includes(normalized),
   );
@@ -122,7 +120,7 @@ const DeliveryEstimate = ({
 }: DeliveryEstimateProps) => {
   const config = resolveConfig(shippingMethodName);
 
-  // If we don't recognise the method, render nothing — fail silently
+  // Unrecognized shipping method — render nothing rather than showing bad data
   if (!config) return null;
 
   const base = orderDate ? new Date(orderDate) : new Date();
@@ -130,14 +128,14 @@ const DeliveryEstimate = ({
     ? addCalendarDays
     : addBusinessDays;
 
-  // Earliest possible delivery: processing min + transit min
+  // Earliest delivery: processing min + transit min
   const earliestShipDate = addBusinessDays(base, config.processingDaysMin);
   const earliestDelivery = addTransitDays(
     earliestShipDate,
     config.transitDaysMin,
   );
 
-  // Latest possible delivery: processing max + transit max
+  // Latest delivery: processing max + transit max
   const latestShipDate = addBusinessDays(base, config.processingDaysMax);
   const latestDelivery = addTransitDays(latestShipDate, config.transitDaysMax);
 
@@ -148,11 +146,10 @@ const DeliveryEstimate = ({
     ? formatDate(earliestDelivery)
     : `${formatDate(earliestDelivery)} – ${formatDate(latestDelivery)}`;
 
-  // Total days shown in the subtext
   const totalDaysMin = config.processingDaysMin + config.transitDaysMin;
   const totalDaysMax = config.processingDaysMax + config.transitDaysMax;
 
-  // Processing note varies by method
+  // Processing note varies by whether the method has a 1 or 1–2 day window
   const processingNote =
     config.processingDaysMax === 1
       ? "Includes 1 day processing"

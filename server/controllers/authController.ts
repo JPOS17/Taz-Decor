@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { pool } from "../db";
 import { sendVerificationEmail, sendPasswordResetEmail } from "../utils/emailService";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 const JWT_EXPIRES_IN = "7d";
@@ -21,7 +22,7 @@ export const register = async (req: Request, res: Response) => {
 
     // Check if user already exists
     const existingUser = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
+      "SELECT user_id FROM users WHERE email = $1",
       [email]
     );
 
@@ -175,28 +176,13 @@ export const login = async (req: Request, res: Response) => {
 /**
  * GET current authenticated user
  */
-export const getCurrentUser = async (req: Request, res: Response) => {
+export const getCurrentUser = async (req: AuthRequest, res: Response) => {
   try {
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({ message: "No token provided" });
-      return;
-    }
-
-    const token = authHeader.substring(7);
-    
-    const decoded = jwt.verify(token, JWT_SECRET) as {
-      userId: number;
-      email: string;
-      role: string;
-    };
-
     const result = await pool.query(
-      `SELECT user_id, email, first_name, last_name, phone, role, 
+      `SELECT user_id, email, first_name, last_name, phone, role,
               is_email_verified, is_active, created_at, last_login
        FROM users WHERE user_id = $1`,
-      [decoded.userId]
+      [req.user!.userId]
     );
 
     if (result.rows.length === 0) {
@@ -220,7 +206,7 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error getting current user:", error);
-    res.status(401).json({ message: "Invalid token" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -235,42 +221,17 @@ export const verifyEmail = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
 
-    console.log("=== EMAIL VERIFICATION ATTEMPT ===");
-    console.log("Received token:", token);
-    console.log("Token length:", token.length);
-
-    const result = await pool.query(
-      `SELECT * FROM email_verification_tokens WHERE token = $1`,
-      [token]
-    );
-
-    console.log("Tokens in database:", result.rows.length);
-    
-    if (result.rows.length > 0) {
-      console.log("Token found in database");
-      console.log("Token expires at:", result.rows[0].expires_at);
-      console.log("Current time:", new Date());
-      console.log("Is expired?", new Date(result.rows[0].expires_at) < new Date());
-    } else {
-      console.log("Token NOT found in database");
-    }
-
     const validResult = await pool.query(
       `SELECT * FROM email_verification_tokens WHERE token = $1 AND expires_at > NOW()`,
       [token]
     );
 
-    console.log("Valid (non-expired) tokens found:", validResult.rows.length);
-
     if (validResult.rows.length === 0) {
-      console.log("Returning error: Invalid or expired token");
       res.status(400).json({ message: "Invalid or expired verification token" });
       return;
     }
 
     const { user_id } = validResult.rows[0];
-
-    console.log("Updating user:", user_id);
 
     // Update user as verified
     await pool.query(
@@ -283,9 +244,6 @@ export const verifyEmail = async (req: Request, res: Response) => {
       `DELETE FROM email_verification_tokens WHERE token = $1`,
       [token]
     );
-
-    console.log("Email verification successful for user:", user_id);
-    console.log("=== VERIFICATION COMPLETE ===");
 
     res.json({ message: "Email verified successfully" });
   } catch (error) {
@@ -310,7 +268,7 @@ export const resendVerification = async (req: Request, res: Response) => {
     const decoded = jwt.verify(jwtToken, JWT_SECRET) as { userId: number };
 
     const userResult = await pool.query(
-      `SELECT * FROM users WHERE user_id = $1`,
+      `SELECT user_id, email, first_name, is_email_verified FROM users WHERE user_id = $1`,
       [decoded.userId]
     );
 
@@ -361,7 +319,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     const { email } = req.body;
 
     const userResult = await pool.query(
-      `SELECT * FROM users WHERE email = $1`,
+      `SELECT user_id, email, first_name FROM users WHERE email = $1`,
       [email]
     );
 

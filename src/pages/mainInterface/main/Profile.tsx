@@ -22,6 +22,7 @@ import {
 } from "../../../api/checkout";
 
 import AddressForm from "../../../components/universalComponents/AddressForm";
+import AddressCard from "../../../components/universalComponents/AddressCard";
 import PasswordInput from "../../../components/universalComponents/PasswordInput";
 import AddressValidationModal from "../../../components/universalComponents/AddressValidationModal";
 
@@ -33,6 +34,7 @@ import LoadingSpinner from "../../../components/universalComponents/LoadingSpinn
 import "../../../styles/pages/customerInterface/Tokens.css";
 import "../../../styles/pages/customerInterface/main/Profile.css";
 
+// Types for the inline profile edit form
 interface EditingProfile {
   first_name: string;
   last_name: string;
@@ -86,15 +88,15 @@ const Profile = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Email Verification
+  // Email verification
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
 
-  // Delete Address Confirmation
+  // Delete address confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<number | null>(null);
 
-  // Delete Account
+  // Delete account — two-step: confirm modal then password modal
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] =
     useState(false);
   const [showDeletePasswordModal, setShowDeletePasswordModal] = useState(false);
@@ -108,10 +110,12 @@ const Profile = () => {
   // EFFECTS
   // ============================================================================
 
+  // Load profile data
   useEffect(() => {
     loadProfileData();
   }, []);
 
+  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -120,6 +124,7 @@ const Profile = () => {
   // DATA LOADING
   // ============================================================================
 
+  // Fetches the user's profile and saved addresses in parallel
   const loadProfileData = async () => {
     try {
       setLoading(true);
@@ -146,6 +151,7 @@ const Profile = () => {
   // PROFILE HANDLERS
   // ============================================================================
 
+  // Saves name and phone changes, refreshes the auth context, and shows a success toast
   const handleUpdateProfile = async () => {
     try {
       setSaving(true);
@@ -167,6 +173,7 @@ const Profile = () => {
   // ADDRESS HANDLERS
   // ============================================================================
 
+  // Updates a single field in the address form
   const handleAddressFormChange = (
     field: keyof CreateAddressPayload,
     value: string | boolean,
@@ -174,6 +181,7 @@ const Profile = () => {
     setAddressForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Validates US addresses before saving; skips validation for non-US addresses
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -201,6 +209,7 @@ const Profile = () => {
     }
   };
 
+  // Creates or updates the address, reloads the list, and resets form state
   const saveAddress = async (addressData: CreateAddressPayload) => {
     setSaving(true);
     try {
@@ -227,10 +236,12 @@ const Profile = () => {
     }
   };
 
+  // Saves the address as originally entered without applying any corrections
   const handleAcceptOriginalAddress = () => {
     if (pendingAddressData) saveAddress(pendingAddressData);
   };
 
+  // Saves the USPS-corrected address returned by the validation API
   const handleAcceptCorrectedAddress = () => {
     if (validationResult?.validated_address && pendingAddressData) {
       const correctedAddress: CreateAddressPayload = {
@@ -245,6 +256,7 @@ const Profile = () => {
     }
   };
 
+  // Closes the validation modal and discards the pending address data
   const handleCancelValidation = () => {
     setShowValidationModal(false);
     setValidationResult(null);
@@ -252,11 +264,13 @@ const Profile = () => {
     setSaving(false);
   };
 
+  // Stores the address ID and opens the delete confirmation modal
   const handleDeleteAddress = (addressId: number) => {
     setAddressToDelete(addressId);
     setShowDeleteConfirm(true);
   };
 
+  // Deletes the stored address ID and reloads the address list
   const handleConfirmDelete = async () => {
     if (addressToDelete === null) return;
     try {
@@ -272,11 +286,13 @@ const Profile = () => {
     }
   };
 
+  // Closes the delete confirmation modal without making any changes
   const handleCancelDelete = () => {
     setShowDeleteConfirm(false);
     setAddressToDelete(null);
   };
 
+  // Opens the address modal, pre-populating fields if editing an existing address
   const openAddressModal = (address?: Address) => {
     if (address) {
       setEditingAddressId(address.address_id);
@@ -297,6 +313,7 @@ const Profile = () => {
     setShowAddressModal(true);
   };
 
+  // Resets the address form to its blank default values
   const resetAddressForm = () => {
     setAddressForm({
       address_name: "",
@@ -314,6 +331,7 @@ const Profile = () => {
   // EMAIL VERIFICATION HANDLERS
   // ============================================================================
 
+  // Triggers a new verification email and displays the API response message
   const handleResendVerification = async () => {
     setIsResending(true);
     setResendMessage("");
@@ -334,6 +352,7 @@ const Profile = () => {
   // DELETE ACCOUNT HANDLERS
   // ============================================================================
 
+  // Advances from the "are you sure?" modal to the password confirmation modal
   const handleDeleteAccountConfirmed = () => {
     setShowDeleteAccountConfirm(false);
     setDeletePassword("");
@@ -341,12 +360,14 @@ const Profile = () => {
     setShowDeletePasswordModal(true);
   };
 
+  // Closes the password modal and clears all delete account state
   const handleCloseDeletePasswordModal = () => {
     setShowDeletePasswordModal(false);
     setDeletePassword("");
     setDeleteAccountError(null);
   };
 
+  // Verifies the password, deletes the account, clears session, and redirects to login
   const handleConfirmDeleteAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!deletePassword) {
@@ -386,7 +407,7 @@ const Profile = () => {
   return (
     <div className={"profile-page"}>
       <div className={"profile-layout"}>
-        {/* Sidebar */}
+        {/* Sidebar — displays name, role, and navigation links */}
         <ProfileSidebar
           firstName={profileData.first_name}
           lastName={profileData.last_name}
@@ -395,6 +416,7 @@ const Profile = () => {
 
         {/* Main Content */}
         <main className={"profile-main"}>
+          {/* Error alert */}
           {error && (
             <div className={"profile-alert profile-alert-error"}>
               <svg
@@ -414,6 +436,7 @@ const Profile = () => {
             </div>
           )}
 
+          {/* Success alert */}
           {success && (
             <div className={"profile-alert profile-alert-success"}>
               <svg
@@ -433,6 +456,7 @@ const Profile = () => {
             </div>
           )}
 
+          {/* Email verification banner — only shown when email is unverified */}
           {!profileData.is_email_verified && (
             <div className={"profile-verification-banner"}>
               <div className={"profile-verification-content"}>
@@ -475,6 +499,7 @@ const Profile = () => {
           <section className={"profile-section"}>
             <div className={"profile-section-header"}>
               <h3 className={"profile-section-title"}>Personal Information</h3>
+              {/* Edit / Cancel + Save actions */}
               {!isEditingProfile ? (
                 <button
                   className={"profile-btn-edit"}
@@ -508,6 +533,7 @@ const Profile = () => {
               )}
             </div>
 
+            {/* Editable fields — toggle between input and read-only display */}
             <div className={"profile-info-grid"}>
               <div className={"profile-info-field"}>
                 <label className={"profile-field-label"}>First Name</label>
@@ -582,7 +608,7 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Delete Account */}
+            {/* Delete Account — separated from editable fields by a border */}
             <div
               style={{
                 marginTop: "1.5rem",
@@ -611,6 +637,7 @@ const Profile = () => {
               </button>
             </div>
 
+            {/* Empty state or address card grid */}
             {allAddresses.length === 0 ? (
               <div className={"profile-empty-state"}>
                 <svg
@@ -643,46 +670,14 @@ const Profile = () => {
             ) : (
               <div className={"profile-addresses-grid"}>
                 {allAddresses.map((address) => (
-                  <div
+                  <AddressCard
                     key={address.address_id}
-                    className={"profile-address-card"}
-                  >
-                    <div className={"profile-address-header"}>
-                      <h4 className={"profile-address-name"}>
-                        {address.address_name}
-                      </h4>
-                      {address.is_default && (
-                        <span className={"profile-default-badge"}>Default</span>
-                      )}
-                    </div>
-                    <p className={"profile-address-line"}>
-                      {address.address_line1}
-                    </p>
-                    {address.address_line2 && (
-                      <p className={"profile-address-line"}>
-                        {address.address_line2}
-                      </p>
-                    )}
-                    <p className={"profile-address-line"}>
-                      {address.city}, {address.state} {address.zip}
-                    </p>
-                    <div className={"profile-address-actions"}>
-                      <button
-                        className={"profile-action-btn"}
-                        onClick={() => openAddressModal(address)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className={
-                          "profile-action-btn profile-action-btn-delete"
-                        }
-                        onClick={() => handleDeleteAddress(address.address_id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
+                    address={address}
+                    isSelected={false}
+                    onSelect={() => {}}
+                    onEdit={() => openAddressModal(address)}
+                    onDelete={() => handleDeleteAddress(address.address_id)}
+                  />
                 ))}
               </div>
             )}
@@ -736,7 +731,7 @@ const Profile = () => {
         onCancel={handleCancelDelete}
       />
 
-      {/* Step 1 - Delete Account: "Are you sure?" */}
+      {/* Step 1 — Delete Account: initial "are you sure?" confirmation */}
       <ConfirmModal
         isOpen={showDeleteAccountConfirm}
         title="Delete Your Account?"
@@ -748,7 +743,7 @@ const Profile = () => {
         onCancel={() => setShowDeleteAccountConfirm(false)}
       />
 
-      {/* Step 2 - Delete Account: Password confirmation */}
+      {/* Step 2 — Delete Account: password confirmation before final deletion */}
       {showDeletePasswordModal && (
         <div
           className={"profile-dap-overlay"}
@@ -764,6 +759,7 @@ const Profile = () => {
             </p>
 
             <form onSubmit={handleConfirmDeleteAccount}>
+              {/* Inline error message for wrong password */}
               {deleteAccountError && (
                 <p className={"profile-dap-error"}>{deleteAccountError}</p>
               )}
@@ -780,6 +776,7 @@ const Profile = () => {
                 />
               </div>
 
+              {/* Cancel and confirm buttons */}
               <div className={"profile-dap-actions"}>
                 <button
                   type="button"

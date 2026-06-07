@@ -6,6 +6,7 @@ import { fetchProductTypes, type ProductType } from "../../../api/productTypes";
 import { createNewProduct } from "../../../api/inventory";
 
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
+import { useToastMessage } from "../../../hooks/useToastMessage";
 import CreateNewProductForm from "../../../components/managerInterface/inventory/forms/CreateNewProductForm";
 
 import { ToastNotification } from "../../../components/managerInterface/universal/ToastNotifications";
@@ -15,15 +16,6 @@ import { HeaderFormatter } from "../../../components/managerInterface/inventory/
 
 import "../../../styles/pages/managerInterface/ManageInventory.css";
 import "../../../styles/components/managerInterface/ProductForms.css";
-
-interface Message {
-  text: string;
-  type: "success" | "error" | "warning";
-}
-
-// ============================================================================
-// CREATE PRODUCT COMPONENT
-// ============================================================================
 
 const CreateProduct = () => {
   const navigate = useNavigate();
@@ -35,7 +27,7 @@ const CreateProduct = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<Message | null>(null);
+  const { message, showMessage } = useToastMessage();
   const [isFormDirty, setIsFormDirty] = useState(false);
 
   const createConfirmation = useConfirmationModal();
@@ -45,11 +37,13 @@ const CreateProduct = () => {
   // DATA LOADING
   // ============================================================================
 
+  // On component mount, load categories and product types
   useEffect(() => {
     loadCategories();
     loadProductTypes();
   }, []);
 
+  // Fetches all categories (including inactive) for the product form dropdown
   const loadCategories = async () => {
     try {
       const data = await fetchCategories(true);
@@ -60,6 +54,7 @@ const CreateProduct = () => {
     }
   };
 
+  // Fetches all product types for the product form dropdown
   const loadProductTypes = async () => {
     try {
       const data = await fetchProductTypes();
@@ -71,18 +66,10 @@ const CreateProduct = () => {
   };
 
   // ============================================================================
-  // UTILITY FUNCTIONS
-  // ============================================================================
-
-  const showMessage = (text: string, type: "success" | "error" | "warning") => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
-
-  // ============================================================================
   // EVENT HANDLERS
   // ============================================================================
 
+  // Opens the create confirmation modal before submitting the form
   const handleRequestCreateProduct = () => {
     createConfirmation.showConfirmation({
       title: "Confirm Create Product",
@@ -94,12 +81,14 @@ const CreateProduct = () => {
     });
   };
 
+  // Triggers the form submit by calling the global submit handler registered by the form component
   const confirmCreateProduct = async () => {
     if ((window as any).__executeProductFormSubmit) {
       (window as any).__executeProductFormSubmit();
     }
   };
 
+  // Calls the API to create the product, shows the generated SKU, then redirects to the edit page
   const handleCreateProduct = async (productData: any) => {
     setLoading(true);
     try {
@@ -119,6 +108,7 @@ const CreateProduct = () => {
     }
   };
 
+  // If the form has unsaved changes, prompts the user before discarding; otherwise cancels immediately
   const handleCancel = () => {
     if (isFormDirty) {
       cancelConfirmation.showConfirmation({
@@ -134,6 +124,7 @@ const CreateProduct = () => {
     }
   };
 
+  // Programmatically dispatches a submit event on the product form element
   const handleSubmitForm = () => {
     const form = document.querySelector(".product-form") as HTMLFormElement;
     if (form) {
@@ -143,6 +134,7 @@ const CreateProduct = () => {
     }
   };
 
+  // Surfaces form-level validation errors as a warning toast
   const handleValidationError = (errorMessage: string) => {
     showMessage(errorMessage, "warning");
   };
@@ -176,12 +168,14 @@ const CreateProduct = () => {
       <div className="mi-container">
         <div className="mi-cnp-content">
           <div className="mi-details-column">
+            {/* Action bar — cancel and submit buttons */}
             <HeaderFormatter
               viewMode="create-product"
               loading={loading}
               onCancel={handleCancel}
               onSubmitForm={handleSubmitForm}
             />
+            {/* Product creation form */}
             <CreateNewProductForm
               categoryId={0}
               categories={categories}

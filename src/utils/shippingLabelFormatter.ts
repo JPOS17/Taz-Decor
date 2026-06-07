@@ -1,7 +1,7 @@
 import type { OrderDetails } from '../api/orders';
 import type { Location } from '../api/sellerLocation';
 
-// Pirate Ship CSV row interface - customer shipping info and package details
+// Shape of a single Pirate Ship CSV row — customer shipping info and package dimensions
 interface PirateShipRow {
   'Name': string;
   'Address': string;

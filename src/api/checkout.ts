@@ -1,7 +1,6 @@
-export { fetchUserProfile } from './user';
-
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// Helper function to get auth headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
   return {
@@ -10,58 +9,16 @@ const getAuthHeaders = () => {
   };
 };
 
+// Helper function to get public headers (no auth)
 const getPublicHeaders = () => ({
   "Content-Type": "application/json",
 });
 
 // ============================================================================
-// INTERFACES - ADDRESS VALIDATION
+// INTERFACES 
 // ============================================================================
 
-export interface AddressValidationInput {
-  address_name?: string;
-  address_line1: string;
-  address_line2?: string;
-  city: string;
-  state: string;
-  zip: string;
-  country?: string;
-}
-
-export interface AddressValidationResult {
-  is_valid: boolean;
-  validation_results: {
-    is_valid: boolean;
-    messages: Array<{
-      source?: string;
-      code?: string;
-      type?: string;
-      text?: string;
-    }>;
-  };
-  original_address: {
-    name: string;
-    street1: string;
-    street2?: string;
-    city: string;
-    state: string;
-    zip: string;
-    country: string;
-  };
-  validated_address?: {
-    street1: string;
-    street2?: string;
-    city: string;
-    state: string;
-    zip: string;
-    country: string;
-  };
-}
-
-// ============================================================================
-// INTERFACES - CART & VALIDATION
-// ============================================================================
-
+// CART & VALIDATION
 export interface CartValidationResult {
   valid: boolean;
   has_price_changes: boolean;
@@ -76,10 +33,42 @@ export interface CartValidationResult {
   }>;
 }
 
-// ============================================================================
-// INTERFACES - SHIPPING
-// ============================================================================
+// COUPON VALIDATION
+export interface CouponValidationRequest {
+  cart_items: Array<{
+    variant_id: number;
+    quantity: number;
+    price: number;
+    selected_coupon_id?: number | null;
+  }>;
+  cart_level_coupon_id?: number | null;
+}
 
+export interface CouponValidationResult {
+  valid: boolean;
+  errors: Array<{
+    variant_id: number;
+    coupon_id: number;
+    error: string;
+  }>;
+  validated_discounts: Array<{
+    variant_id: number;
+    coupon_id: number | null;
+    original_price: number;
+    discount_amount: number;
+    final_price: number;
+  }>;
+  item_level_discount: number;
+  total_discount: number;
+  cart_level_discount?: {
+    coupon_id: number;
+    discount_amount: number;
+    free_shipping?: boolean;
+    error?: string;
+  } | null;
+}
+
+// Shipping
 export interface ShippingOption {
   carrier: string;
   service: string;
@@ -102,10 +91,7 @@ export interface ShippingCalculationWithRates {
   } | null;
 }
 
-// ============================================================================
-// INTERFACES - GUEST
-// ============================================================================
-
+// GUEST
 export interface GuestInfo {
   email: string;
   first_name: string;
@@ -125,10 +111,7 @@ export interface GuestShippingAddress {
   last_name?: string;
 }
 
-// ============================================================================
-// INTERFACES - ORDER CREATION
-// ============================================================================
-
+// ORDER CREATION
 export interface CreateOrderPayload {
   shipping_address_id: number;
   cart_items: Array<{
@@ -170,43 +153,52 @@ export interface CreateGuestOrderPayload {
   shipping_service?: string;
 }
 
-// ============================================================================
-// SHARED ORDER INTERFACES
-// ============================================================================
-
-export interface Order {
-  order_id: number;
-  order_number: string;
-  subtotal: number;
-  discount_amount: number;
-  shipping_cost: number;
-  tax_amount: number;
-  total_price: number;
-  total_weight_oz?: number;
-  status: string;
-  tracking_number?: string;
-  shipping_carrier?: string;
-  shipping_service?: string;
-  shipped_at?: string;
-  delivered_at?: string;
-  created_at: string;
-  first_name?: string;
-  last_name?: string;
-  address_line1?: string;
+// ADDRESS VALIDATION
+export interface AddressValidationInput {
+  address_name?: string;
+  address_line1: string;
   address_line2?: string;
-  city?: string;
-  state?: string;
-  zip?: string;
+  city: string;
+  state: string;
+  zip: string;
   country?: string;
-  customer_email?: string;
-  item_count?: number;
+}
+
+export interface AddressValidationResult {
+  is_valid: boolean;
+  validation_results: {
+    is_valid: boolean;
+    messages: Array<{
+      source?: string;
+      code?: string;
+      type?: string;
+      text?: string;
+    }>;
+  };
+  original_address: {
+    name: string;
+    street1: string;
+    street2?: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+  };
+  validated_address?: {
+    street1: string;
+    street2?: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+  };
 }
 
 // ============================================================================
 // API FUNCTIONS - ADDRESS VALIDATION
 // ============================================================================
 
-// POST validate address for authenticated users (saved address flow)
+// POST validate address (authenticated)
 export const validateAddress = async (
   payload: AddressValidationInput
 ): Promise<AddressValidationResult> => {
@@ -223,7 +215,7 @@ export const validateAddress = async (
   return response.json();
 };
 
-// POST validate address for guests (no token)
+// POST validate address (guest)
 export const validateAddressGuest = async (
   payload: AddressValidationInput
 ): Promise<AddressValidationResult> => {
@@ -275,10 +267,31 @@ export const validateCartGuest = async (cartItems: any[]): Promise<CartValidatio
 };
 
 // ============================================================================
+// API FUNCTIONS - COUPON VALIDATION
+// ============================================================================
+
+// POST validate coupons before order creation (item-level and cart-level)
+export const validateCoupons = async (
+  payload: CouponValidationRequest
+): Promise<CouponValidationResult> => {
+  const response = await fetch(`${API_URL}/api/checkout/validate-coupons`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to validate coupons');
+  }
+  return response.json();
+};
+
+// ============================================================================
 // API FUNCTIONS - SHIPPING
 // ============================================================================
 
-// POST calculate shipping cost (authenticated — uses saved address ID)
+// POST calculate shipping cost (authenticated)
 export const calculateShipping = async (
   cartItems: any[],
   addressId: number
@@ -296,7 +309,7 @@ export const calculateShipping = async (
   return response.json();
 };
 
-// POST calculate shipping cost (guest — address passed inline)
+// POST calculate shipping cost (guest)
 export const calculateShippingGuest = async (
   cartItems: any[],
   address: GuestShippingAddress
@@ -342,7 +355,7 @@ export const createOrder = async (payload: CreateOrderPayload): Promise<{
   return response.json();
 };
 
-// POST create guest order (no auth)
+// POST create order (guest)
 export const createGuestOrder = async (payload: CreateGuestOrderPayload): Promise<{
   message: string;
   order: {

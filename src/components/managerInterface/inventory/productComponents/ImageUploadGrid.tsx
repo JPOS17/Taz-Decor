@@ -10,6 +10,7 @@ interface ImageUploadGridProps {
   helperText?: string;
 }
 
+// Lightweight image grid for creation forms
 const ImageUploadGrid = ({
   images,
   primaryImageIndex,
@@ -23,6 +24,7 @@ const ImageUploadGrid = ({
     <div className="mi-iug-wrapper">
       <label className="mi-iug-label">Product Images</label>
 
+      {/* Image grid */}
       {images.length > 0 && (
         <div className="mi-iug-grid">
           {images.map((img, index) => (
@@ -36,10 +38,12 @@ const ImageUploadGrid = ({
                 className="mi-iug-img"
               />
 
+              {/* Primary badge */}
               {primaryImageIndex === index && (
                 <div className="mi-iug-primary-badge">Primary</div>
               )}
 
+              {/* Overlay actions */}
               <div className="mi-iug-overlay">
                 <button
                   type="button"
@@ -68,6 +72,7 @@ const ImageUploadGrid = ({
         </div>
       )}
 
+      {/* Upload button label updates once images exist */}
       <button
         type="button"
         onClick={onUploadClick}

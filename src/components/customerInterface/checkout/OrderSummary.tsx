@@ -2,6 +2,7 @@ import { FaTag, FaShippingFast } from "react-icons/fa";
 import type { CartItem } from "../../../context/CartContext";
 import type { ProductCoupon } from "../../../api/couponCustomer";
 import CartLevelCouponSelector from "../checkout/CartLevelCouponSelector";
+import { getBOGOLabel } from "../../../utils/couponUtils";
 
 import "../../../styles/components/customerInterface/checkout/OrderSummary.css";
 
@@ -22,6 +23,9 @@ interface OrderSummaryProps {
   isEmailVerified: boolean;
   getCouponForItem: (item: CartItem) => ProductCoupon | null;
   couponValidation: any;
+  // Pre-fetched by CheckoutPage so CartLevelCouponSelector doesn't fetch independently
+  userCouponUsage: Record<number, number>;
+  isGuest: boolean;
 }
 
 const OrderSummary = ({
@@ -41,11 +45,14 @@ const OrderSummary = ({
   isEmailVerified,
   getCouponForItem,
   couponValidation,
+  userCouponUsage,
+  isGuest,
 }: OrderSummaryProps) => {
   return (
     <div className="os-checkout-order-summary">
       <h3 className="os-summary-title">Order Summary</h3>
 
+      {/* Cart item list */}
       <div className="os-summary-items">
         {cartItems.map((item) => {
           const validatedDiscount = couponValidation?.validated_discounts?.find(
@@ -72,6 +79,8 @@ const OrderSummary = ({
                   {item.color} {item.color && item.size && "•"} {item.size}
                 </p>
                 <p className="os-summary-item-quantity">Qty: {item.quantity}</p>
+
+                {/* Applied coupon badge — shown per item when a coupon is active */}
                 {itemCoupon && (
                   <div className="os-summary-item-coupon-display">
                     <div className="os-summary-coupon-code-badge">
@@ -100,9 +109,11 @@ const OrderSummary = ({
                     {itemCoupon.discount_type === "bogo" && (
                       <div className="os-summary-coupon-savings">
                         <span className="os-savings-badge os-bogo">
-                          {itemCoupon.bogo_discount_percentage === 100
-                            ? `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} FREE`
-                            : `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} ${itemCoupon.bogo_discount_percentage}% OFF`}
+                          {getBOGOLabel(
+                            itemCoupon.bogo_buy_quantity,
+                            itemCoupon.bogo_get_quantity,
+                            itemCoupon.bogo_discount_percentage,
+                          )}
                         </span>
                         {itemCoupon.free_shipping && (
                           <span className="os-savings-badge os-shipping">
@@ -114,6 +125,8 @@ const OrderSummary = ({
                   </div>
                 )}
               </div>
+
+              {/* Item price — shows original and discounted price when a discount applies */}
               <div className="os-summary-item-price">
                 {itemDiscountAmount > 0 ? (
                   <>
@@ -135,6 +148,7 @@ const OrderSummary = ({
         })}
       </div>
 
+      {/* Totals breakdown */}
       <div className="os-summary-totals">
         <div className="os-summary-row">
           <span>Subtotal:</span>
@@ -148,6 +162,7 @@ const OrderSummary = ({
           </div>
         )}
 
+        {/* Shipping row — label varies by step and free shipping status */}
         <div className="os-summary-row">
           <span>Shipping:</span>
           <span>
@@ -186,6 +201,7 @@ const OrderSummary = ({
 
         <div className="os-summary-divider"></div>
 
+        {/* Cart-level coupon — interactive selector on cart/shipping steps, read-only display on later steps */}
         {coupons && (
           <>
             {currentStep === "cart" || currentStep === "shipping" ? (
@@ -195,7 +211,8 @@ const OrderSummary = ({
                 onCouponSelect={onCartLevelCouponSelect}
                 subtotalAfterItemDiscounts={subtotal - itemLevelDiscount}
                 isEmailVerified={isEmailVerified}
-                isGuest={!isEmailVerified}
+                isGuest={isGuest}
+                userCouponUsage={userCouponUsage}
               />
             ) : selectedCartLevelCoupon ? (
               <div className="cart-level-coupon-section">

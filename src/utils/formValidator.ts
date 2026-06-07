@@ -2,6 +2,7 @@ export interface ValidationErrors {
   [key: string]: string;
 }
 
+// Price must be a positive number
 export const validatePrice = (price: string): string | null => {
   const priceNum = parseFloat(price);
   if (!price || isNaN(priceNum) || priceNum <= 0) {
@@ -10,6 +11,7 @@ export const validatePrice = (price: string): string | null => {
   return null;
 };
 
+// Stock quantity must be a non-negative integer (0 is valid for out-of-stock products)
 export const validateStockQuantity = (quantity: string): string | null => {
   const quantityNum = parseInt(quantity);
   if (!quantity || isNaN(quantityNum) || quantityNum < 0) {
@@ -18,6 +20,7 @@ export const validateStockQuantity = (quantity: string): string | null => {
   return null;
 };
 
+// Generic required field — trims the value before checking
 export const validateRequiredField = (
   value: string,
   fieldName: string
@@ -28,6 +31,7 @@ export const validateRequiredField = (
   return null;
 };
 
+// Categories — requires at least one assigned, and exactly one marked as primary
 export const validateCategories = (
   productCategories?: Array<{ category_id: number; is_primary: boolean }>
 ): string | null => {
@@ -43,6 +47,7 @@ export const validateCategories = (
   return null;
 };
 
+// Product type must be selected (non-empty, positive integer)
 export const validateProductTypeId = (productTypeId: string): string | null => {
   if (!productTypeId || productTypeId === "" || parseInt(productTypeId) <= 0) {
     return "Product type is required";
@@ -50,6 +55,7 @@ export const validateProductTypeId = (productTypeId: string): string | null => {
   return null;
 };
 
+// Warehouse location must be selected (positive integer)
 export const validateLocationId = (locationId: string): string | null => {
   if (!locationId || parseInt(locationId) <= 0) {
     return "Warehouse location is required";
@@ -57,9 +63,10 @@ export const validateLocationId = (locationId: string): string | null => {
   return null;
 };
 
+// Weight must be present, numeric, and greater than 0
 export const validateWeight = (value: string): string | null => {
   if (!value || value.trim() === "") {
-    return "Weight must be greate than 0";
+    return "Weight must be greater than 0";
   }
   
   const numValue = parseFloat(value);
@@ -75,6 +82,7 @@ export const validateWeight = (value: string): string | null => {
   return null;
 };
 
+// Individual shipping dimension — must be numeric and non-negative (0 is allowed)
 export const validateShippingDimension = (
   value: string,
   fieldName: string
@@ -96,6 +104,7 @@ export const validateShippingDimension = (
   return null;
 };
 
+// Group validation for product dimensions — at least two must be greater than 0 to prevent invalid entries
 export const validateProductDimensions = (dimensions: {
   length_in: string;
   width_in: string;
@@ -105,7 +114,6 @@ export const validateProductDimensions = (dimensions: {
   const width = parseFloat(dimensions.width_in);
   const height = parseFloat(dimensions.height_in);
 
-  // At least two dimensions must be greater than 0
   const positiveCount = [length > 0, width > 0, height > 0].filter(Boolean).length;
 
   if (positiveCount < 2) {
@@ -115,7 +123,7 @@ export const validateProductDimensions = (dimensions: {
   return null;
 };
 
-// Single validation function for all forms
+// Unified validation function for product forms, validating all fields at once
 export const validateProductForm = (formData: {
   name?: string;
   product_type_id?: string;
@@ -205,8 +213,6 @@ export const validateProductForm = (formData: {
   return errors;
 };
 
-// variant form (same validation, just clearer naming)
+// Aliases — same validation logic, clearer naming for each form context
 export const validateVariantForm = validateProductForm;
-
-// manager form (same validation, just clearer naming)
 export const validateManagerForm = validateProductForm;

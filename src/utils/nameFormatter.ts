@@ -1,25 +1,15 @@
-/**
- * List of words that should remain lowercase in formatted names
- */
 const LOWERCASE_WORDS = ['of', 'in', 'on', 'the', 'and', 'a', 'an'];
 
-/**
- * Formats a name with proper capitalization rules:
- * - Capitalizes the first letter of each word
- * - Keeps certain words lowercase (of, in, on, the, and, a, an)
- * - Always capitalizes the first and last words regardless
- * 
- * Works for both category names and product names.
- */
+// Formats a name string according to specific rules:
+// - Always capitalize the first and last words
+// - Lowercase certain conjunctions/prepositions unless they are the first or last word
+// - Normalize whitespace and trim
 export function formatName(input: string): string {
   if (!input || !input.trim()) {
     return '';
   }
 
-  // Trim and normalize whitespace
   const normalized = input.trim().replace(/\s+/g, ' ');
-  
-  // Split into words
   const words = normalized.split(' ');
   
   // Format each word
@@ -33,12 +23,11 @@ export function formatName(input: string): string {
       return capitalizeWord(word);
     }
     
-    // Check if word should remain lowercase
+    // Keep articles and prepositions lowercase in the middle of the string
     if (LOWERCASE_WORDS.includes(lowerWord)) {
       return lowerWord;
     }
     
-    // Capitalize all other words
     return capitalizeWord(word);
   });
   
@@ -51,7 +40,7 @@ function capitalizeWord(word: string): string {
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
-// Validates if a name is properly formatted Returns true if the name matches the expected format
+// Returns true if the name is already in the expected formatted form
 export function isNameFormatted(name: string): boolean {
   return name === formatName(name);
 }

@@ -1,23 +1,11 @@
 import * as shippo from "shippo";
 
-// ============================================================================
-// SHIPPO CLIENT INITIALIZATION
-// ============================================================================
-
-/**
- * Initialize Shippo client for SDK v2
- */
+// Shippo SDK v2 client initialized with the API key from environment
 const shippoClient = new shippo.Shippo({
   apiKeyHeader: process.env.SHIPPO_API_KEY || "",
 });
 
-// ============================================================================
-// CONSTANTS - ORIGIN ADDRESS
-// ============================================================================
-
-/**
- * Your Texas shop address (location_id = 1)
- */
+// Origin address for all outbound shipments (location_id = 1)
 const ORIGIN_ADDRESS = {
   name: "Martha Salas",
   company: "Texas Shop",
@@ -28,10 +16,6 @@ const ORIGIN_ADDRESS = {
   country: "US",
   phone: "2812483393",
 };
-
-// ============================================================================
-// INTERFACES
-// ============================================================================
 
 interface ShippingItem {
   weight_oz: number;
@@ -94,9 +78,7 @@ export interface AddressValidationResult {
   };
 }
 
-/**
- * Box dimensions for shipping rate calculation
- */
+// Box dimensions passed in from the packing algorithm for accurate dimensional weight calculation
 export interface BoxDimensions {
   length_in: number;
   width_in: number;
@@ -104,25 +86,17 @@ export interface BoxDimensions {
   box_name?: string;
 }
 
-// ============================================================================
-// ADDRESS VALIDATION
-// ============================================================================
-
-/**
- * Validate a U.S. address using Shippo (FREE for U.S. addresses)
- */
+// Validates a U.S. shipping address via Shippo and returns both the result and a normalized corrected address if valid
 export const validateAddress = async (
   address: AddressValidationInput
 ): Promise<AddressValidationResult> => {
   try {
     console.log("🔍 Validating address:", JSON.stringify(address, null, 2));
 
-    // Only validate U.S. addresses
     if (address.country !== "US" && address.country !== "USA") {
       throw new Error("Address validation is only available for U.S. addresses");
     }
 
-    // Create address validation request
     const validationResponse = await shippoClient.addresses.create({
       name: address.name,
       street1: address.street1,
@@ -145,7 +119,6 @@ export const validateAddress = async (
         is_valid: isValid,
         messages: validationResults?.messages || [],
       },
-      // Return original address in the same format it was sent
       original_address: {
         name: address.name,
         street1: address.street1,
@@ -157,7 +130,6 @@ export const validateAddress = async (
       },
     };
 
-    // If valid, include the validated/corrected address
     if (isValid && validationResponse) {
       result.validated_address = {
         street1: validationResponse.street1 || address.street1,
@@ -172,20 +144,12 @@ export const validateAddress = async (
     return result;
   } catch (error: any) {
     console.error("❌ Address validation error:", error);
-    throw new Error(
-      `Failed to validate address: ${error.message || "Unknown error"}`
-    );
+    throw new Error(`Failed to validate address: ${error.message || "Unknown error"}`);
   }
 };
 
-// ============================================================================
-// SHIPPING RATES
-// ============================================================================
-
-/**
- * Get real-time shipping rates from multiple carriers
- * Now accepts optional box dimensions from the packing algorithm
- */
+// Fetches real-time USPS rates from Shippo for the given items and destination
+// Accepts optional box dimensions from the packing algorithm — falls back to default dimensions if none provided
 export const getRealTimeShippingRates = async (
   items: ShippingItem[],
   destinationAddress: DestinationAddress,
@@ -199,19 +163,16 @@ export const getRealTimeShippingRates = async (
       console.log("📦 Using selected box:", JSON.stringify(selectedBox, null, 2));
     }
 
-    // Calculate total weight and determine if we need dimensional weight
     const totalWeightOz = items.reduce((sum, item) => sum + item.weight_oz, 0);
     const totalWeightLbs = totalWeightOz / 16;
 
     console.log(`⚖️ Total weight: ${totalWeightOz}oz (${totalWeightLbs.toFixed(2)}lbs)`);
 
-    // Create parcel object
     let parcel: any = {
       weight: totalWeightLbs.toFixed(2),
       massUnit: "lb",
     };
 
-    // Use the selected box dimensions (from packing algorithm)
     if (selectedBox) {
       parcel = {
         ...parcel,
@@ -222,7 +183,6 @@ export const getRealTimeShippingRates = async (
       };
       console.log(`📦 Using box: ${selectedBox.box_name || 'Custom box'} (${selectedBox.length_in}×${selectedBox.width_in}×${selectedBox.height_in})`);
     } else {
-      // Fallback to default dimensions if no box selected
       parcel = {
         ...parcel,
         length: "12",
@@ -235,7 +195,6 @@ export const getRealTimeShippingRates = async (
 
     console.log("📦 Parcel config:", JSON.stringify(parcel, null, 2));
 
-    // Create shipment to get rates
     console.log("🌐 Calling Shippo API...");
     const shipment = await shippoClient.shipments.create({
       addressFrom: ORIGIN_ADDRESS,
@@ -250,38 +209,34 @@ export const getRealTimeShippingRates = async (
         phone: destinationAddress.phone || "",
       },
       parcels: [parcel],
-      async: false, // Get rates synchronously
+      async: false, 
     });
 
     console.log("✅ Shippo API response received");
     console.log("📊 Number of rates returned:", shipment.rates?.length || 0);
-
     console.log("🔍 Raw rates:", JSON.stringify(shipment.rates?.map((r: any) => ({
       provider: r.provider,
       token: r.servicelevel?.token,
       amount: r.amount
     })), null, 2));
 
-    // Filter and format rates
+    // Filter to USPS-only and the three allowed service levels, then sort cheapest-first
     const rates: ShippingRate[] = (shipment.rates || [])
       .filter((rate: any) => {
-        // Filter out rates with errors or missing required fields
         if (!rate.amount || !rate.provider || !rate.objectId) {
           return false;
         }
-        
-        // Only show USPS carriers
+
         if (rate.provider !== "USPS") {
           return false;
         }
-        
-        // Show only affordable USPS options
+
         const allowedServices = [
           "usps_ground_advantage",
           "usps_priority",
           "usps_priority_express"
         ];
-        
+
         return allowedServices.includes(rate.servicelevel?.token);
       })
       .map((rate: any) => ({
@@ -303,8 +258,6 @@ export const getRealTimeShippingRates = async (
   } catch (error: any) {
     console.error("❌ Shippo API Error:", error);
     console.error("Error details:", JSON.stringify(error, null, 2));
-    throw new Error(
-      `Failed to get shipping rates: ${error.message || "Unknown error"}`
-    );
+    throw new Error(`Failed to get shipping rates: ${error.message || "Unknown error"}`);
   }
 };

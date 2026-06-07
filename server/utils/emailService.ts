@@ -1,9 +1,6 @@
 import { google } from "googleapis";
 
-// ============================================================================
-// GMAIL API CONFIGURATION 
-// ============================================================================
-
+// OAuth2 client configured with Gmail credentials from environment
 const oauth2Client = new google.auth.OAuth2(
   process.env.GMAIL_CLIENT_ID,
   process.env.GMAIL_CLIENT_SECRET,
@@ -16,9 +13,7 @@ oauth2Client.setCredentials({
 
 const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
-/**
- * Encode email to base64url format required by Gmail API
- */
+// Encodes an HTML email into base64url format as required by the Gmail API messages.send endpoint
 const encodeEmail = (to: string, from: string, subject: string, html: string): string => {
   const emailLines = [
     `From: ${from}`,
@@ -37,9 +32,7 @@ const encodeEmail = (to: string, from: string, subject: string, html: string): s
     .replace(/=+$/, "");
 };
 
-/**
- * Send email using Gmail API 
- */
+// Sends an HTML email via the Gmail API using the configured OAuth2 client
 const sendEmail = async (to: string, subject: string, html: string): Promise<void> => {
   const from = process.env.EMAIL_FROM || process.env.EMAIL_USER || "";
   const encoded = encodeEmail(to, from, subject, html);
@@ -49,10 +42,7 @@ const sendEmail = async (to: string, subject: string, html: string): Promise<voi
   });
 };
 
-// ============================================================================
-// EMAIL - VERIFICATION
-// ============================================================================
-
+// Sends an email verification link to a newly registered user — link expires in 24 hours
 export const sendVerificationEmail = async (
   email: string,
   token: string,
@@ -116,10 +106,7 @@ export const sendVerificationEmail = async (
   }
 };
 
-// ============================================================================
-// EMAIL - PASSWORD RESET
-// ============================================================================
-
+// Sends a password reset link to the requesting user — link expires in 1 hour
 export const sendPasswordResetEmail = async (
   email: string,
   token: string,
@@ -181,10 +168,7 @@ export const sendPasswordResetEmail = async (
   }
 };
 
-// ============================================================================
-// EMAIL - ORDER CONFIRMATION
-// ============================================================================
-
+// Sends an order confirmation email 
 export const sendOrderConfirmationEmail = async (
   email: string,
   firstName: string,
@@ -327,10 +311,8 @@ export const sendOrderConfirmationEmail = async (
   }
 };
 
-// ============================================================================
-// EMAIL - SHIPPING NOTIFICATION
-// ============================================================================
-
+// Sends a shipping notification with USPS tracking number and a direct link to the USPS tracking page
+// Guest orders include an additional order lookup link since they have no account to log into
 export const sendShippingNotificationEmail = async (
   email: string,
   firstName: string,
@@ -421,10 +403,7 @@ export const sendShippingNotificationEmail = async (
   }
 };
 
-// ============================================================================
-// EMAIL - ADMIN MESSAGE
-// ============================================================================
-
+// Sends a freeform admin-authored message to any customer — subject and body are passed in directly
 export const sendAdminEmail = async (
   email: string,
   firstName: string,

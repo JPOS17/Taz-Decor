@@ -1,14 +1,15 @@
 import express from "express";
 import { body } from "express-validator";
-import { 
-  register, 
-  login, 
+import {
+  register,
+  login,
   getCurrentUser,
   verifyEmail,
   resendVerification,
   forgotPassword,
-  resetPassword
+  resetPassword,
 } from "../controllers/authController";
+import { authenticateToken } from "../middleware/authMiddleware";
 
 export const authRouter = express.Router();
 
@@ -42,7 +43,7 @@ const resetPasswordValidation = [
 ];
 
 // ============================================================================
-// AUTHENTICATION ROUTES
+// PUBLIC ROUTES
 // ============================================================================
 
 // POST register new user
@@ -51,25 +52,21 @@ authRouter.post("/register", registerValidation, register);
 // POST login
 authRouter.post("/login", loginValidation, login);
 
-// GET current authenticated user
-authRouter.get("/me", getCurrentUser);
-
-// ============================================================================
-// EMAIL VERIFICATION ROUTES
-// ============================================================================
-
 // GET verify email with token
 authRouter.get("/verify-email/:token", verifyEmail);
 
-// POST resend verification email
-authRouter.post("/resend-verification", resendVerification);
-
-// ============================================================================
-// PASSWORD RESET ROUTES
-// ============================================================================
-
-// POST request password reset
+// POST request password reset email
 authRouter.post("/forgot-password", forgotPassword);
 
 // POST reset password with token
 authRouter.post("/reset-password", resetPasswordValidation, resetPassword);
+
+// ============================================================================
+// AUTHENTICATED ROUTES
+// ============================================================================
+
+// GET current authenticated user
+authRouter.get("/me", authenticateToken, getCurrentUser);
+
+// POST resend verification email
+authRouter.post("/resend-verification", resendVerification);

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 import { FaArrowLeft, FaShoppingBag, FaPrint, FaHome } from "react-icons/fa";
 import { fetchOrderByNumber, type OrderDetails } from "../../../api/orders";
-import { fetchUserProfile } from "../../../api/user";
 
 import DeliveryEstimate from "../../../components/customerInterface/checkout/DeliveryEstimate";
 
@@ -15,26 +15,37 @@ const OrderConfirmation = () => {
   const { orderNumber } = useParams<{ orderNumber: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  // User profile data sourced from AuthContext
+  const { user } = useAuth();
 
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Order data
   const [order, setOrder] = useState<OrderDetails | null>(null);
-  const [userProfile, setUserProfile] = useState<{
-    first_name: string;
-    last_name: string;
-    role: string;
-  } | null>(null);
+
+  // UI state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Fetch order whenever the order number changes
   useEffect(() => {
     if (orderNumber) {
       loadData();
     }
   }, [orderNumber]);
 
+  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  // Fetches the order by number, redirecting to login if the token is missing or expired
   const loadData = async () => {
     try {
       setLoading(true);
@@ -51,19 +62,11 @@ const OrderConfirmation = () => {
         return;
       }
 
-      const [orderData, profileData] = await Promise.all([
-        fetchOrderByNumber(orderNumber!),
-        fetchUserProfile(),
-      ]);
-
+      const orderData = await fetchOrderByNumber(orderNumber!);
       setOrder(orderData);
-      setUserProfile({
-        first_name: profileData.user.first_name,
-        last_name: profileData.user.last_name,
-        role: profileData.user.role,
-      });
       setLoading(false);
     } catch (err) {
+      // Clear expired token and redirect to login
       if (err instanceof Error && err.message.includes("401")) {
         localStorage.removeItem("token");
         const returnUrl = location.pathname;
@@ -81,13 +84,23 @@ const OrderConfirmation = () => {
     }
   };
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Triggers the browser print dialog
   const handlePrint = () => {
     window.print();
   };
 
+  // Converts a snake_case status string to Title Case for display
   const formatStatus = (status: string) => {
     return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (loading) {
     return (
@@ -97,7 +110,7 @@ const OrderConfirmation = () => {
     );
   }
 
-  if (error || !order || !userProfile) {
+  if (error || !order) {
     return (
       <div className="order-confirm-page">
         <div className="order-confirm-error">
@@ -117,7 +130,7 @@ const OrderConfirmation = () => {
   return (
     <div className="order-confirm-page">
       <main className="order-confirm-main">
-        {/* Back to Orders */}
+        {/* Back to orders nav */}
         <div className="order-confirm-back-nav">
           <button
             className="order-confirm-back-link"
@@ -128,7 +141,7 @@ const OrderConfirmation = () => {
         </div>
 
         <div className="order-confirm-container">
-          {/* Success Header */}
+          {/* Success header */}
           <div className="order-confirm-header">
             <h1>Order Confirmed!</h1>
             <p className="order-confirm-message">
@@ -141,10 +154,10 @@ const OrderConfirmation = () => {
             </div>
           </div>
 
-          {/* Order Details */}
+          {/* Order detail cards — shipping address, delivery info, and summary */}
           <div className="order-confirm-details-section">
             <div className="order-confirm-details-grid">
-              {/* Shipping Address */}
+              {/* Shipping address */}
               <div className="order-confirm-detail-card">
                 <h3>Shipping Address</h3>
                 <div className="order-confirm-address-info">
@@ -162,7 +175,7 @@ const OrderConfirmation = () => {
                 </div>
               </div>
 
-              {/* Delivery Info */}
+              {/* Delivery info */}
               <div className="order-confirm-detail-card">
                 <h3>Delivery Information</h3>
                 <div className="order-confirm-delivery-info">
@@ -191,7 +204,7 @@ const OrderConfirmation = () => {
                 </div>
               </div>
 
-              {/* Order Summary */}
+              {/* Order summary */}
               <div className="order-confirm-detail-card">
                 <h3>Order Summary</h3>
                 <div className="order-confirm-summary-info">
@@ -227,7 +240,7 @@ const OrderConfirmation = () => {
             </div>
           </div>
 
-          {/* Order Items */}
+          {/* Order items list */}
           <div className="order-confirm-items-section">
             <h3>Order Items</h3>
             <div className="order-confirm-items-list">
@@ -259,7 +272,7 @@ const OrderConfirmation = () => {
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Action buttons — print, view orders, continue shopping */}
           <div className="order-confirm-actions">
             <button
               className="order-confirm-btn-secondary"

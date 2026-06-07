@@ -13,16 +13,19 @@ import {
   updateShippingBox,
   deleteShippingBox,
   toggleShippingBoxStatus,
-  reorderShippingBoxes
+  reorderShippingBoxes,
 } from "../controllers/settingsController";
 
 export const settingsRouter = express.Router();
 
-// Protect all settings routes - only managers and admins
+// ============================================================================
+// MIDDLEWARE — Manager/admin only for all settings routes
+// ============================================================================
+
 settingsRouter.use(requireManagerOrAdmin);
 
 // ============================================================================
-// SELLER LOCATIONS ROUTES
+// SELLER LOCATION ROUTES
 // ============================================================================
 
 // GET all locations with optional filters
@@ -31,39 +34,39 @@ settingsRouter.get("/locations", getAllLocations);
 // GET single location by ID
 settingsRouter.get("/locations/:locationId", getLocationById);
 
-// CREATE new location
+// POST create new location
 settingsRouter.post("/locations", createLocation);
 
-// UPDATE location
+// PUT update location details
 settingsRouter.put("/locations/:locationId", updateLocation);
+
+// PUT toggle location active status
+settingsRouter.put("/locations/:locationId/status", toggleLocationStatus);
 
 // DELETE location
 settingsRouter.delete("/locations/:locationId", deleteLocation);
 
-// TOGGLE location status
-settingsRouter.put("/locations/:locationId/status", toggleLocationStatus);
-
 // ============================================================================
-// SHIPPING BOXES ROUTES
+// SHIPPING BOX ROUTES
 // ============================================================================
 
 // GET all shipping boxes with optional filters
 settingsRouter.get("/shipping-boxes", getAllShippingBoxes);
 
-// REORDER shipping boxes (drag and drop) - MUST BE BEFORE :boxId routes
+// PUT reorder shipping boxes — MUST BE BEFORE /:boxId
 settingsRouter.put("/shipping-boxes/reorder", reorderShippingBoxes);
 
 // GET single shipping box by ID
 settingsRouter.get("/shipping-boxes/:boxId", getShippingBoxById);
 
-// CREATE new shipping box
+// POST create new shipping box
 settingsRouter.post("/shipping-boxes", createShippingBox);
 
-// UPDATE shipping box
+// PUT update shipping box details
 settingsRouter.put("/shipping-boxes/:boxId", updateShippingBox);
+
+// PUT toggle shipping box active status
+settingsRouter.put("/shipping-boxes/:boxId/status", toggleShippingBoxStatus);
 
 // DELETE shipping box
 settingsRouter.delete("/shipping-boxes/:boxId", deleteShippingBox);
-
-// TOGGLE shipping box status
-settingsRouter.put("/shipping-boxes/:boxId/status", toggleShippingBoxStatus);

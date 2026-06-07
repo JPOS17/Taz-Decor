@@ -39,21 +39,37 @@ const MiniCart = ({
   const { user } = useAuth();
   const { cartItems, getCartCount, removeFromCart } = useCart();
 
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Notification state
   const [justRemovedItem, setJustRemovedItem] = useState(false);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+
+  // Coupon data
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
 
+  // Ref to track whether coupons have been fetched for the current open session of the mini cart
+  const hasFetchedRef = useRef(false);
+
+  // Refs for notification auto-dismiss timers
   const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const removedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Refs for notification DOM elements — used to add the fade-out class before unmounting
   const addedNotificationRef = useRef<HTMLDivElement | null>(null);
   const removedNotificationRef = useRef<HTMLDivElement | null>(null);
 
   const isEmailVerified = user?.isEmailVerified ?? false;
 
-  // Show added message for 3 seconds when justAddedItem changes
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // When justAddedItem changes, show the "added" notification and set a timer to auto-dismiss
   useEffect(() => {
     if (justAddedItem) {
-      // Hide removed message if showing
       setJustRemovedItem(false);
       if (removedTimerRef.current) clearTimeout(removedTimerRef.current);
 
@@ -73,20 +89,32 @@ const MiniCart = ({
     };
   }, [justAddedItem]);
 
-  // Cleanup removed timer on unmount
+  // Cleanup the removed-item timer on unmount to prevent state updates on an unmounted component
   useEffect(() => {
     return () => {
       if (removedTimerRef.current) clearTimeout(removedTimerRef.current);
     };
   }, []);
 
-  // Load coupons when mini cart opens or cart items change
+  // Fetches coupons once when the mini cart opens (if the cart is non-empty),
+  // and resets the fetch flag when it closes so the next open gets fresh data
   useEffect(() => {
-    if (isOpen && cartItems.length > 0) {
+    if (!isOpen) {
+      hasFetchedRef.current = false;
+      return;
+    }
+
+    if (cartItems.length > 0 && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       loadCoupons();
     }
-  }, [isOpen, cartItems]);
+  }, [isOpen, cartItems.length]);
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Fetches all applicable coupon previews and stores them in state
   const loadCoupons = async () => {
     try {
       const couponsData = await fetchProductCouponsPreview();
@@ -96,7 +124,11 @@ const MiniCart = ({
     }
   };
 
-  // Get the coupon for a cart item
+  // ============================================================================
+  // COUPON HELPERS
+  // ============================================================================
+
+  // Returns the selected coupon for a cart item if it exists and is an item-level coupon
   const getCouponForItem = (item: CartItem): ProductCoupon | null => {
     if (!coupons || !item.selected_coupon_id) return null;
 
@@ -120,12 +152,13 @@ const MiniCart = ({
     return null;
   };
 
-  // Calculate BOGO discounts across multiple items
+  // Calculates the BOGO discount amount for each variant_id across the cart
   const calculateBogoDiscounts = (): Map<number, number> => {
     const bogoDiscounts = new Map<number, number>();
 
     if (!isEmailVerified) return bogoDiscounts;
 
+    // Group cart items by BOGO coupon ID so sets can be counted per coupon
     const bogoCouponGroups = new Map<number, CartItem[]>();
 
     cartItems.forEach((item) => {
@@ -154,6 +187,7 @@ const MiniCart = ({
 
       if (itemsToDiscount === 0) return;
 
+      // Expand each cart item into individual units for cheapest-first sorting
       const individualItems: Array<{ variant_id: number; price: number }> = [];
       for (const item of items) {
         for (let i = 0; i < item.quantity; i++) {
@@ -164,6 +198,7 @@ const MiniCart = ({
         }
       }
 
+      // Apply discounts to the cheapest units first (standard BOGO convention)
       individualItems.sort((a, b) => a.price - b.price);
 
       let totalDiscount = 0;
@@ -175,6 +210,7 @@ const MiniCart = ({
         totalDiscount += itemDiscount;
       }
 
+      // Scale all discounts proportionally if the total exceeds max_discount_amount
       if (maxDiscountAmount && totalDiscount > maxDiscountAmount) {
         const ratio = maxDiscountAmount / totalDiscount;
         for (const [variantId, discount] of bogoDiscounts.entries()) {
@@ -186,27 +222,31 @@ const MiniCart = ({
     return bogoDiscounts;
   };
 
-  // Calculate subtotal with item-level discounts applied
+  // Returns the subtotal after applying all item-level coupon discounts
   const calculateSubtotalWithDiscounts = (): number => {
     const bogoDiscounts = calculateBogoDiscounts();
 
     return cartItems.reduce((total, item) => {
       const itemCoupon = getCouponForItem(item);
 
+      // No coupon or unverified email — full price
       if (!itemCoupon || !isEmailVerified) {
         return total + item.price * item.quantity;
       }
 
+      // BOGO — use the pre-calculated per-variant discount
       if (itemCoupon.discount_type === "bogo") {
         const bogoDiscount = bogoDiscounts.get(item.variant_id) || 0;
         const itemTotal = item.price * item.quantity - bogoDiscount;
         return total + itemTotal;
       }
 
+      // Non-BOGO coupons that don't alter the displayed price (e.g. free shipping)
       if (!shouldShowDiscountedPrice(itemCoupon)) {
         return total + item.price * item.quantity;
       }
 
+      // Percentage or fixed discount
       const discountInfo = calculateDiscount(
         item.price,
         itemCoupon,
@@ -216,34 +256,36 @@ const MiniCart = ({
     }, 0);
   };
 
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
+  // Closes the mini cart and navigates to the full cart page
   const handleViewCart = () => {
     onClose();
     navigate("/cart");
   };
 
+  // Closes the mini cart and navigates to checkout
   const handleCheckout = () => {
     onClose();
     navigate("/checkout");
   };
 
+  // Closes the mini cart and returns the user to wherever they were browsing
   const handleContinueShopping = () => {
     onClose();
     navigate(fromPath);
   };
 
-  const displayItems: CartItem[] = [...cartItems].sort(
-    (a, b) => b.addedAt - a.addedAt,
-  );
-
+  // Removes the item from the cart, shows the "removed" notification
   const handleRemoveItem = (variantId: number, e: React.MouseEvent) => {
     e.stopPropagation();
     removeFromCart(variantId);
 
-    // Hide added message if showing
     setShowAddedMessage(false);
     if (addedTimerRef.current) clearTimeout(addedTimerRef.current);
 
-    // Show removed message for 3 seconds with slide-out animation
     setJustRemovedItem(true);
     if (removedTimerRef.current) clearTimeout(removedTimerRef.current);
     removedTimerRef.current = setTimeout(() => {
@@ -254,8 +296,22 @@ const MiniCart = ({
     }, 2700);
   };
 
+  // ============================================================================
+  // DERIVED VALUES
+  // ============================================================================
+
+  // Sort items newest-first so the most recently added item appears at the top
+  const displayItems: CartItem[] = [...cartItems].sort(
+    (a, b) => b.addedAt - a.addedAt,
+  );
+
   const subtotalWithDiscounts = calculateSubtotalWithDiscounts();
+  // Pre-calculated here to avoid re-computing it once per item in the render loop
   const bogoDiscounts = calculateBogoDiscounts();
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (!isOpen) return null;
 
@@ -276,7 +332,7 @@ const MiniCart = ({
           </button>
         </div>
 
-        {/* Notification Messages */}
+        {/* Notification area — removed and added banners are mutually exclusive */}
         {justRemovedItem ? (
           <div
             ref={removedNotificationRef}
@@ -293,6 +349,7 @@ const MiniCart = ({
             className="mc-notification mc-notification-added"
           >
             <FaCheckCircle className="mc-notification-icon" />
+            {/* Message differs based on whether this was a new add or a duplicate */}
             <span className="mc-notification-text">
               {isNewItem
                 ? "Item added to your cart!"
@@ -301,7 +358,7 @@ const MiniCart = ({
           </div>
         ) : null}
 
-        {/* Cart Items */}
+        {/* Cart Body — empty state or item list */}
         <div className="mc-body">
           {displayItems.length === 0 ? (
             <p className="mc-empty">Your cart is empty</p>
@@ -313,6 +370,7 @@ const MiniCart = ({
               let hasDiscount = false;
               let displayPrice = item.price * item.quantity;
 
+              // Compute the discounted price to display — only when email is verified
               if (itemCoupon && isEmailVerified) {
                 if (isBogo) {
                   const bogoDiscount = bogoDiscounts.get(item.variant_id) || 0;
@@ -336,6 +394,7 @@ const MiniCart = ({
 
               return (
                 <div key={item.variant_id} className="mc-item">
+                  {/* Remove button */}
                   <button
                     className="mc-item-remove"
                     onClick={(e) => handleRemoveItem(item.variant_id, e)}
@@ -350,6 +409,7 @@ const MiniCart = ({
                   />
                   <div className="mc-item-details">
                     <h5 className="mc-item-name">{item.name}</h5>
+                    {/* Variant attributes — color and/or size, rendered when present */}
                     {(item.color || item.size) && (
                       <p className="mc-item-meta">
                         {item.color && <span>{item.color}</span>}
@@ -359,7 +419,7 @@ const MiniCart = ({
                     )}
                     <p className="mc-item-meta">Qty: {item.quantity}</p>
 
-                    {/* Coupon Display */}
+                    {/* Applied coupon badge for item-level */}
                     {itemCoupon && (
                       <div className="mc-item-coupon">
                         <FaTag size={10} />
@@ -367,7 +427,7 @@ const MiniCart = ({
                       </div>
                     )}
 
-                    {/* Price with discount */}
+                    {/* Price display — shows original crossed out alongside discounted when a coupon applies */}
                     {hasDiscount ? (
                       <div className="mc-item-price-container">
                         <p className="mc-item-price-original">
@@ -389,7 +449,7 @@ const MiniCart = ({
           )}
         </div>
 
-        {/* Subtotal */}
+        {/* Footer — subtotal and action buttons, only shown when cart is non-empty */}
         {displayItems.length > 0 && (
           <>
             <div className="mc-subtotal">
@@ -399,7 +459,7 @@ const MiniCart = ({
               </span>
             </div>
 
-            {/* Action Buttons */}
+            {/* Action buttons — checkout, view cart, and continue shopping */}
             <div className="mc-actions">
               <button
                 className="mc-btn mc-btn-primary"

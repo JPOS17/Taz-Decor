@@ -12,7 +12,6 @@ export const getProductPreview = async (req: Request, res: Response): Promise<vo
   try {
     const { categoryId, minPrice, maxPrice, sortBy, onSaleOnly, freeShippingOnly } = req.query;
     
-    // Base query to get all products
     const result = await pool.query(`
       SELECT 
           pv.variant_id,
@@ -227,27 +226,31 @@ export const getProductDetail = async (req: Request, res: Response): Promise<voi
         ORDER BY pv.color, pv.size
       `, [productId]);
 
-      // Get images for each variant
-      variantsWithImages = await Promise.all(
-        variantsResult.rows.map(async (variant) => {
-          const imagesResult = await pool.query(`
-            SELECT img_url
-            FROM product_images
-            WHERE variant_id = $1
-            ORDER BY display_order ASC, image_id ASC
-          `, [variant.variant_id]);
+      const variantIds = variantsResult.rows.map(v => v.variant_id);
 
-          return {
-            ...variant,
-            price: parseFloat(variant.price),
-            weight_oz: variant.weight_oz ? parseFloat(variant.weight_oz) : null,
-            length_in: variant.length_in ? parseFloat(variant.length_in) : null,
-            width_in: variant.width_in ? parseFloat(variant.width_in) : null,
-            height_in: variant.height_in ? parseFloat(variant.height_in) : null,
-            images: imagesResult.rows.map(row => row.img_url)
-          };
-        })
-      );
+      // Fetch all variant images in one query then group client-side
+      const allImagesResult = await pool.query(`
+        SELECT variant_id, img_url
+        FROM product_images
+        WHERE variant_id = ANY($1)
+        ORDER BY display_order ASC, image_id ASC
+      `, [variantIds]);
+
+      const imagesByVariant: Record<number, string[]> = {};
+      for (const row of allImagesResult.rows) {
+        if (!imagesByVariant[row.variant_id]) imagesByVariant[row.variant_id] = [];
+        imagesByVariant[row.variant_id].push(row.img_url);
+      }
+
+      variantsWithImages = variantsResult.rows.map((variant) => ({
+        ...variant,
+        price: parseFloat(variant.price),
+        weight_oz: variant.weight_oz ? parseFloat(variant.weight_oz) : null,
+        length_in: variant.length_in ? parseFloat(variant.length_in) : null,
+        width_in: variant.width_in ? parseFloat(variant.width_in) : null,
+        height_in: variant.height_in ? parseFloat(variant.height_in) : null,
+        images: imagesByVariant[variant.variant_id] || [],
+      }));
     }
 
     // Get images for current variant

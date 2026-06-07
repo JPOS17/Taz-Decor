@@ -11,6 +11,7 @@ import {
 import "../../styles/pages/managerInterface/Tokens.css";
 import "../../styles/pages/managerInterface/Components.css";
 
+// Each card in the dashboard grid — icon, title, description, route path, accent class, and CTA label
 const dashboardCards = [
   {
     title: "Inventory Management",
@@ -57,6 +58,10 @@ const dashboardCards = [
 const ManagerDashboard = () => {
   const navigate = useNavigate();
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div className="manager-page">
       {/* Header */}
@@ -73,6 +78,8 @@ const ManagerDashboard = () => {
       <div className="mgr-container">
         <div className="mgr-body">
           <p className="mgr-section-label">Management Areas</p>
+
+          {/* Navigation card grid — each card routes to a management sub-section */}
           <div className="mgr-grid">
             {dashboardCards.map((card) => {
               const Icon = card.icon;
@@ -83,6 +90,7 @@ const ManagerDashboard = () => {
                   onClick={() => navigate(card.path)}
                 >
                   <div className="mgr-card-top">
+                    {/* Accent-colored section icon */}
                     <div className="mgr-card-icon">
                       <Icon
                         size={20}
@@ -96,6 +104,7 @@ const ManagerDashboard = () => {
                     <h3 className="mgr-card-title">{card.title}</h3>
                     <p className="mgr-card-description">{card.description}</p>
                   </div>
+                  {/* CTA footer with inline arrow */}
                   <div className="mgr-card-footer">
                     <span>{card.cta}</span>
                     <ArrowRight size={13} />

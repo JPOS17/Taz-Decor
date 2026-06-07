@@ -16,6 +16,7 @@ interface ActionButtonsProps {
   onSubmitForm?: () => void;
 }
 
+// Renders the correct set of action buttons based on the current view mode
 export const ActionButtons = ({
   viewMode,
   loading,
@@ -29,6 +30,7 @@ export const ActionButtons = ({
   onCancel,
   onSubmitForm,
 }: ActionButtonsProps) => {
+  // Create modes each return their own minimal button set
   if (viewMode === "create-product") {
     return (
       <div className="mi-action-buttons">
@@ -81,8 +83,10 @@ export const ActionButtons = ({
     );
   }
 
+  // Default edit mode
   return (
     <div className="mi-action-buttons">
+      {/* New Variant */}
       <button
         className="mi-btn-new-variant"
         onClick={onNewVariant}
@@ -91,6 +95,8 @@ export const ActionButtons = ({
         <Plus size={18} />
         New Variant
       </button>
+
+      {/* Toggle button label and style swap based on current active state */}
       <button
         className={isActive ? "mi-btn-deactivate" : "mi-btn-activate"}
         onClick={onToggleStatus}
@@ -108,6 +114,8 @@ export const ActionButtons = ({
           </>
         )}
       </button>
+
+      {/* Save */}
       <button
         className="mi-btn-save"
         onClick={onSave}
@@ -116,6 +124,7 @@ export const ActionButtons = ({
         <Save size={18} />
         Save Changes
       </button>
+
       <button className="mi-btn-delete" onClick={onDelete} disabled={loading}>
         <Trash2 size={18} />
         Delete

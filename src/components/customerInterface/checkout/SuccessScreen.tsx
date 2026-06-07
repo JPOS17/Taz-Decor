@@ -28,6 +28,10 @@ const SuccessScreen = ({
 
   if (!orderResult) return null;
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div className="ss-checkout-success">
       <div className="ss-content">
@@ -40,6 +44,7 @@ const SuccessScreen = ({
           <strong>{userEmail}</strong>.
         </p>
 
+        {/* Order summary — number, total, and current status */}
         <div className="ss-order-info">
           <div className="ss-order-info-item">
             <span className="ss-info-label">Order Number</span>
@@ -59,6 +64,7 @@ const SuccessScreen = ({
           </div>
         </div>
 
+        {/* CTAs — guest users see order lookup; authenticated users see order history */}
         <div className="ss-actions">
           <button
             className="ss-btn-primary ss-btn-large"
@@ -86,6 +92,7 @@ const SuccessScreen = ({
           </button>
         </div>
 
+        {/* Guest order number reminder — guests have no order history page to fall back on */}
         {isGuest && (
           <div className="ss-guest-note">
             <p>

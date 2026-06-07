@@ -7,47 +7,46 @@ import {
   getUserAddresses,
   createAddress,
   updateAddress,
-  deleteAddress
+  deleteAddress,
 } from "../controllers/userController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 export const userRouter = express.Router();
 
 // ============================================================================
-// MIDDLEWARE
+// MIDDLEWARE — Authentication required for all user routes
 // ============================================================================
 
-// All user routes require authentication
 userRouter.use(authenticateToken);
 
 // ============================================================================
-// USER PROFILE ROUTES
+// PROFILE ROUTES
 // ============================================================================
 
 // GET user profile with default address
 userRouter.get("/profile", getUserProfile);
 
-// UPDATE user profile (first name, last name, phone)
+// PUT update profile (first name, last name, phone)
 userRouter.put("/profile", updateUserProfile);
 
 // DELETE account (requires password confirmation)
 userRouter.delete("/profile", deleteAccount);
 
 // ============================================================================
-// ADDRESS MANAGEMENT ROUTES
+// ADDRESS ROUTES
 // ============================================================================
 
-// GET all user addresses
+// GET all saved addresses
 userRouter.get("/addresses", getUserAddresses);
 
-// CREATE new address
+// POST create new address
 userRouter.post("/addresses", createAddress);
 
-// UPDATE address
+// PUT update address — MUST BE BEFORE /addresses/:addressId/set-default
 userRouter.put("/addresses/:addressId", updateAddress);
+
+// PUT set address as default
+userRouter.put("/addresses/:addressId/set-default", setDefaultAddress);
 
 // DELETE address
 userRouter.delete("/addresses/:addressId", deleteAddress);
-
-// SET default address
-userRouter.put("/addresses/:addressId/set-default", setDefaultAddress);

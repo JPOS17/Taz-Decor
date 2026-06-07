@@ -8,6 +8,7 @@ interface VariantSelectorProps {
   disabled?: boolean;
 }
 
+// Dropdown for switching between variants of the same product in the edit panel
 const VariantSelector = ({
   variants,
   currentVariantId,
@@ -18,6 +19,11 @@ const VariantSelector = ({
     return null;
   }
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Builds a human-readable label from color and size — falls back to SKU when neither is set
   const getVariantLabel = (variant: VariantOption) => {
     const parts = [];
     if (variant.color) parts.push(variant.color);
@@ -26,10 +32,15 @@ const VariantSelector = ({
     return parts.join(" • ");
   };
 
+  // Normalizes price to a fixed-decimal string regardless of whether it arrives as string or number
   const formatPrice = (price: number | string): string => {
     const numPrice = typeof price === "string" ? parseFloat(price) : price;
     return numPrice.toFixed(2);
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="mi-variant-selector-container">

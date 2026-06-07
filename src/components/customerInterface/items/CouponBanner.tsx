@@ -18,6 +18,7 @@ import {
   fetchUserCouponUsage,
 } from "../../../api/couponCustomer";
 import { useAuth } from "../../../context/AuthContext";
+import { formatDate } from "../../../utils/formatDate";
 
 import "../../../styles/components/customerInterface/items/CouponBanner.css";
 
@@ -30,6 +31,8 @@ interface CouponBannerProps {
   currentProductId?: number;
   onCouponSelect?: (coupon: ProductCoupon | null) => void;
   selectedCoupon?: ProductCoupon | null;
+  // When provided by a parent (e.g. CouponModal), skips the internal fetch entirely
+  userCouponUsage?: Record<number, number>;
 }
 
 interface EligibleProduct {
@@ -45,33 +48,19 @@ const CouponBanner = ({
   productPrice,
   onCouponSelect,
   selectedCoupon,
+  userCouponUsage: userCouponUsageProp,
 }: CouponBannerProps) => {
   const navigate = useNavigate();
   const { isAuthenticated, user, isLoading } = useAuth();
 
-  // Per-user usage map — fetched internally so no parent needs to manage it
-  const [userCouponUsage, setUserCouponUsage] = useState<
-    Record<number, number>
-  >({});
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
 
-  useEffect(() => {
-    if (isLoading) return;
-    if (!user) {
-      setUserCouponUsage({});
-      return;
-    }
-
-    const loadUserUsage = async () => {
-      try {
-        const usage = await fetchUserCouponUsage(user.userId);
-        setUserCouponUsage(usage);
-      } catch (error) {
-        console.error("Error loading user coupon usage:", error);
-      }
-    };
-
-    loadUserUsage();
-  }, [user?.userId, isLoading]);
+  // Internal usage map — only populated when the parent has not passed one down
+  const [internalUsage, setInternalUsage] = useState<Record<number, number>>(
+    {},
+  );
 
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [clickedCode, setClickedCode] = useState<string | null>(null);
@@ -85,6 +74,39 @@ const CouponBanner = ({
     new Set(),
   );
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Fetch usage internally only when the parent hasn't provided it
+  useEffect(() => {
+    if (userCouponUsageProp !== undefined) return;
+    if (isLoading) return;
+    if (!user) {
+      setInternalUsage({});
+      return;
+    }
+
+    const loadUserUsage = async () => {
+      try {
+        const usage = await fetchUserCouponUsage();
+        setInternalUsage(usage);
+      } catch (error) {
+        console.error("Error loading user coupon usage:", error);
+      }
+    };
+
+    loadUserUsage();
+  }, [user?.userId, isLoading, userCouponUsageProp]);
+
+  // Prop takes precedence; fall back to internally fetched data
+  const userCouponUsage = userCouponUsageProp ?? internalUsage;
+
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Returns the appropriate icon for a coupon based on its discount type
   const getCouponIcon = (coupon: ProductCoupon) => {
     if (coupon.discount_type === "bogo") {
       return <FaGift className="text-warning" size={14} />;
@@ -94,6 +116,7 @@ const CouponBanner = ({
     return <FaTag className="text-primary" size={14} />;
   };
 
+  // Returns the human-readable discount description for a coupon row
   const getCouponText = (coupon: ProductCoupon) => {
     const { discountAmount } = calculateDiscount(productPrice, coupon);
 
@@ -119,13 +142,14 @@ const CouponBanner = ({
     return text;
   };
 
+  // Handles copying code to clipboard and showing temporary feedback
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  // Sort coupons by best value (highest discount first)
+  // Sorts coupons descending by computed discount value against the current product price
   const sortCouponsByValue = (couponsToSort: ProductCoupon[]) => {
     return [...couponsToSort].sort((a, b) => {
       const discountA = calculateDiscount(productPrice, a).discountAmount;
@@ -134,16 +158,7 @@ const CouponBanner = ({
     });
   };
 
-  // Format expiration date
-  const formatExpirationDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
+  // Expands a coupon row and lazily fetches its eligible products on first open
   const toggleCouponExpand = async (couponId: number) => {
     const newExpanded = new Set(expandedCoupons);
 
@@ -152,7 +167,6 @@ const CouponBanner = ({
     } else {
       newExpanded.add(couponId);
 
-      // Fetch eligible products if not already loaded
       const coupon = coupons.find((c) => c.coupon_id === couponId);
       if (coupon && !eligibleProducts[couponId]) {
         await fetchEligibleProducts(coupon);
@@ -162,6 +176,7 @@ const CouponBanner = ({
     setExpandedCoupons(newExpanded);
   };
 
+  // Fetches up to 10 eligible products for a coupon and caches them in state
   const fetchEligibleProducts = async (coupon: ProductCoupon) => {
     setLoadingProducts((prev: Set<number>) =>
       new Set(prev).add(coupon.coupon_id),
@@ -183,6 +198,7 @@ const CouponBanner = ({
     }
   };
 
+  // Returns a human-readable scope label for a coupon's applies_to_type
   const getAppliesDescription = (coupon: ProductCoupon) => {
     switch (coupon.applies_to_type) {
       case "all":
@@ -202,6 +218,7 @@ const CouponBanner = ({
     }
   };
 
+  // Returns false if the user is unauthenticated or has exceeded their per-user usage limit
   const isEligible = (coupon: ProductCoupon) => {
     if (!isAuthenticated) return false;
     if (coupon.usage_limit_per_user != null) {
@@ -211,6 +228,7 @@ const CouponBanner = ({
     return true;
   };
 
+  // Returns the user-facing explanation for why a coupon is not eligible
   const getIneligibilityReason = (coupon: ProductCoupon) => {
     if (!isAuthenticated) return "Sign in to redeem";
     if (coupon.usage_limit_per_user != null) {
@@ -221,6 +239,11 @@ const CouponBanner = ({
     return "";
   };
 
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  // Handles selecting coupon
   const handleCouponClick = (coupon: ProductCoupon) => {
     if (onCouponSelect) {
       onCouponSelect(coupon);
@@ -228,6 +251,7 @@ const CouponBanner = ({
     }
   };
 
+  // Navigates to the relevant product listing filtered by the coupon's scope
   const handleViewAllProducts = (coupon: ProductCoupon) => {
     if (coupon.applies_to_type === "category") {
       navigate(
@@ -240,16 +264,19 @@ const CouponBanner = ({
     }
   };
 
+  // Navigates to a product page
   const handleProductClick = (e: React.MouseEvent, variantId: number) => {
     e.preventDefault();
     e.stopPropagation();
     navigate(`/items/${variantId}`);
   };
 
-  // Filter out cart-level coupons
-  const itemLevelCoupons = coupons.filter((c) => c.applies_to_type !== "all");
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
-  // Sort item-level coupons by best value
+  // Only show item-level coupons — cart-wide coupons are handled by CartCouponBanner
+  const itemLevelCoupons = coupons.filter((c) => c.applies_to_type !== "all");
   const sortedCoupons = sortCouponsByValue(itemLevelCoupons);
 
   if (sortedCoupons.length === 0) return null;
@@ -261,7 +288,6 @@ const CouponBanner = ({
         <span>Offers ({sortedCoupons.length})</span>
       </div>
 
-      {/* Scrollable Coupons List */}
       <div
         className={[
           "coupon-banner-list",
@@ -299,13 +325,13 @@ const CouponBanner = ({
                 toggleCouponExpand(coupon.coupon_id);
               }}
             >
-              {/* Compact View */}
               <div className="coupon-banner-item-header">
                 <div className="coupon-banner-icon">
                   {getCouponIcon(coupon)}
                 </div>
                 <div className="coupon-banner-content">
                   <div className="coupon-banner-first-line">
+                    {/* Coupon code button — selects coupon and copies code for authenticated eligible users */}
                     <button
                       className={[
                         "coupon-banner-code",
@@ -362,7 +388,8 @@ const CouponBanner = ({
                     <div className="coupon-banner-expiration">
                       <FaCalendar size={10} />
                       <span>
-                        Expires: {formatExpirationDate(coupon.valid_until)}
+                        Expires:{" "}
+                        {formatDate(coupon.valid_until, false, "short")}
                       </span>
                     </div>
                   )}
@@ -378,13 +405,12 @@ const CouponBanner = ({
                 />
               </div>
 
-              {/* Expanded Details */}
+              {/* Expanded details — shows eligibility, description, BOGO explanation, and eligible products */}
               {isExpanded && (
                 <div
                   className="coupon-banner-details"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {/* Guest sign-in notice */}
                   {!isAuthenticated ? (
                     <div className="coupon-banner-guest-notice">
                       <FaLock size={13} />
@@ -415,7 +441,6 @@ const CouponBanner = ({
                         </p>
                       )}
 
-                      {/* Max discount info */}
                       {coupon.discount_type === "percentage" &&
                         coupon.max_discount_amount && (
                           <div className="coupon-banner-info-note">
@@ -427,7 +452,7 @@ const CouponBanner = ({
                           </div>
                         )}
 
-                      {/* BOGO Explanation */}
+                      {/* BOGO explanation — shown only for buy-one-get-one type coupons */}
                       {isBogo && (
                         <div className="coupon-banner-bogo-explanation">
                           <div className="coupon-banner-bogo-title">
@@ -441,7 +466,7 @@ const CouponBanner = ({
                         </div>
                       )}
 
-                      {/* Eligible Products */}
+                      {/* Eligible product preview — lazy loaded on first expand */}
                       {coupon.applies_to_type !== "variant" && (
                         <div className="coupon-banner-eligible-section">
                           <div className="coupon-banner-eligible-header">
@@ -464,7 +489,6 @@ const CouponBanner = ({
                             )}
                           </div>
 
-                          {/* Only show products if NOT "all" */}
                           {coupon.applies_to_type !== "all" && (
                             <>
                               {isLoading ? (

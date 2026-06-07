@@ -8,7 +8,7 @@ export interface ProductCoupon {
   coupon_id: number;
   coupon_code: string;
   discount_type: 'percentage' | 'fixed' | 'bogo' | 'free_shipping_only';
-  discount_value: number | null; 
+  discount_value: number | null;
   min_purchase_amount?: number | null;
   max_discount_amount?: number | null;
   free_shipping: boolean;
@@ -17,15 +17,15 @@ export interface ProductCoupon {
   requires_verified_email: boolean;
   usage_limit_total?: number | null;
   usage_count_total: number;
-  usage_limit_per_user: number | null;  
-  user_usage_count: number;             
+  usage_limit_per_user: number | null;
+  user_usage_count: number;
   applies_to_name: string;
   description?: string | null;
   bogo_buy_quantity?: number | null;
   bogo_get_quantity?: number | null;
   bogo_discount_percentage?: number | null;
   valid_until?: string | null;
-  location_ids?: number[]; 
+  location_ids?: number[];
 }
 
 export interface GroupedCoupons {
@@ -55,7 +55,7 @@ export const fetchProductCouponsPreview = async (
     : `${API_URL}/api/products/coupons/preview`;
 
   const response = await fetch(url);
-  
+
   if (!response.ok) {
     throw new Error('Failed to fetch product coupons');
   }
@@ -81,25 +81,9 @@ export const fetchApplicableCouponsForVariant = async (
   const response = await fetch(
     `${API_URL}/api/products/coupons/applicable?${params.toString()}`
   );
-  
+
   if (!response.ok) {
     throw new Error('Failed to fetch applicable coupons');
-  }
-  return response.json();
-};
-
-// GET per-user coupon usage counts for a logged-in user
-export const fetchUserCouponUsage = async (
-  userId: number
-): Promise<Record<number, number>> => {
-  const params = new URLSearchParams({ userId: userId.toString() });
-
-  const response = await fetch(
-    `${API_URL}/api/products/coupons/user-usage?${params.toString()}`
-  );
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch user coupon usage');
   }
   return response.json();
 };
@@ -129,9 +113,35 @@ export const checkCustomGroupCoupons = async (
   const response = await fetch(
     `${API_URL}/api/products/coupons/check-custom-groups?${params.toString()}`
   );
-  
+
   if (!response.ok) {
     throw new Error('Failed to check custom group coupons');
+  }
+  return response.json();
+};
+
+// ============================================================================
+// API FUNCTIONS - COUPON USAGE
+// ============================================================================
+
+// GET per-user coupon usage counts — reads userId from the verified JWT server-side
+export const fetchUserCouponUsage = async (): Promise<Record<number, number>> => {
+  const token = localStorage.getItem("token");
+
+  if (!token) return {};
+
+  const response = await fetch(
+    `${API_URL}/api/products/coupons/usage`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch user coupon usage');
   }
   return response.json();
 };
@@ -179,17 +189,17 @@ export const calculateBogoDiscount = (
   price: number,
   quantity: number,
   coupon: ProductCoupon
-): { 
-  discountedPrice: number; 
-  discountAmount: number; 
-  discountPercentage: number; 
-  totalPrice: number; 
-  qualifiesForBogo: boolean 
+): {
+  discountedPrice: number;
+  discountAmount: number;
+  discountPercentage: number;
+  totalPrice: number;
+  qualifiesForBogo: boolean
 } => {
   const buyQty = coupon.bogo_buy_quantity || 1;
   const getQty = coupon.bogo_get_quantity || 1;
   const discountPercentage = coupon.bogo_discount_percentage || 100;
-  
+
   // Check if quantity meets minimum requirement
   const minimumRequired = buyQty + getQty;
   if (quantity < minimumRequired) {
@@ -219,15 +229,15 @@ export const calculateBogoDiscount = (
   }
 
   const totalDiscount = totalDiscountFromSets + remainingDiscount;
-  
+
   // Apply max discount cap if set
-  const finalDiscount = coupon.max_discount_amount && totalDiscount > coupon.max_discount_amount 
-    ? coupon.max_discount_amount 
+  const finalDiscount = coupon.max_discount_amount && totalDiscount > coupon.max_discount_amount
+    ? coupon.max_discount_amount
     : totalDiscount;
 
   const totalPrice = Math.max(0, (price * quantity) - finalDiscount);
   const discountedPrice = quantity > 0 ? totalPrice / quantity : price;
-  const effectiveDiscountPercentage = (price * quantity) > 0 
+  const effectiveDiscountPercentage = (price * quantity) > 0
     ? parseFloat(((finalDiscount / (price * quantity)) * 100).toFixed(0))
     : 0;
 
@@ -245,12 +255,12 @@ export const calculateDiscount = (
   price: number,
   coupon: ProductCoupon,
   quantity: number = 1
-): { 
-  discountedPrice: number; 
-  discountAmount: number; 
-  discountPercentage: number; 
-  totalPrice?: number; 
-  qualifiesForBogo?: boolean 
+): {
+  discountedPrice: number;
+  discountAmount: number;
+  discountPercentage: number;
+  totalPrice?: number;
+  qualifiesForBogo?: boolean
 } => {
   if (
     coupon.discount_type === 'free_shipping_only' ||
@@ -266,7 +276,7 @@ export const calculateDiscount = (
 
   if (coupon.discount_type === 'percentage' && coupon.discount_value !== null) {
     let discountAmount = (price * coupon.discount_value) / 100;
-    
+
     if (coupon.max_discount_amount && discountAmount > coupon.max_discount_amount) {
       discountAmount = coupon.max_discount_amount;
     }
@@ -274,7 +284,7 @@ export const calculateDiscount = (
     const discountedPrice = Math.max(0, price - discountAmount);
     const totalDiscount = discountAmount * quantity;
     const totalPrice = discountedPrice * quantity;
-    
+
     return {
       discountedPrice: parseFloat(discountedPrice.toFixed(2)),
       discountAmount: parseFloat(totalDiscount.toFixed(2)),
@@ -293,15 +303,7 @@ export const calculateDiscount = (
   };
 };
 
-/**
- * Calculate the discount a cart-level coupon gives against the subtotal
- * (after item-level discounts have already been applied)
- *
- * Returns:
- *   discountAmount  – monetary savings (0 for free_shipping_only)
- *   isFreeShipping  – true when discount_type === 'free_shipping_only'
- *   isEligible      – false when min_purchase_amount is not met
- */
+// Calculate the discount a cart level coupon gives against the subtotal after item-level discounts
 export const calculateCartLevelDiscount = (
   coupon: ProductCoupon,
   subtotalAfterItemDiscounts: number,
@@ -369,12 +371,12 @@ export const findBestCoupon = (
   for (const coupon of itemLevelCoupons) {
     const discountInfo = calculateDiscount(price, coupon, quantity);
     const discountAmount = discountInfo.discountAmount;
-    
+
     // If this coupon saves more money
     if (discountAmount > maxSavings) {
       maxSavings = discountAmount;
       bestCoupon = coupon;
-    } 
+    }
     // If savings are very close (within $2), prefer BOGO
     else if (Math.abs(discountAmount - maxSavings) <= 2 && coupon.discount_type === 'bogo') {
       bestCoupon = coupon;

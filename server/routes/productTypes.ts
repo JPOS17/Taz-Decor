@@ -1,15 +1,18 @@
-import express from 'express';
-import { 
-  getAllProductTypes, 
+import express from "express";
+import {
+  getAllProductTypes,
   getProductTypeById,
   createProductType,
-  updateProductTypeDescription 
-} from '../controllers/productTypesController';
-import { requireManagerOrAdmin } from '../middleware/authMiddleware';
+  updateProductTypeDescription,
+} from "../controllers/productTypesController";
+import { requireManagerOrAdmin } from "../middleware/authMiddleware";
 
 export const productTypesRouter = express.Router();
 
-// Protect all product type routes - only managers and admins
+// ============================================================================
+// MIDDLEWARE — Manager/admin only for all product type routes
+// ============================================================================
+
 productTypesRouter.use(requireManagerOrAdmin);
 
 // ============================================================================
@@ -17,13 +20,13 @@ productTypesRouter.use(requireManagerOrAdmin);
 // ============================================================================
 
 // GET all active product types (for dropdowns)
-productTypesRouter.get('/', getAllProductTypes);
+productTypesRouter.get("/", getAllProductTypes);
 
 // GET single product type by ID
-productTypesRouter.get('/:id', getProductTypeById);
+productTypesRouter.get("/:id", getProductTypeById);
 
 // POST create new product type
-productTypesRouter.post('/', createProductType);
+productTypesRouter.post("/", createProductType);
 
 // PATCH update product type description
-productTypesRouter.patch('/:id', updateProductTypeDescription);
+productTypesRouter.patch("/:id", updateProductTypeDescription);

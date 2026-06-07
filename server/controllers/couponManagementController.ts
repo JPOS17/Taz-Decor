@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { pool } from "../db";
 
 // ============================================================================
-// COUPONS - GET ALL
+// COUPONS - GET
 // ============================================================================
 
 /**
@@ -121,10 +121,6 @@ export const getAllCoupons = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-// ============================================================================
-// COUPONS - GET BY ID
-// ============================================================================
-
 /**
  * GET single coupon by ID
  */
@@ -197,7 +193,7 @@ export const getCouponById = async (req: Request, res: Response): Promise<void> 
 };
 
 // ============================================================================
-// COUPONS - CREATE
+// COUPONS - FUNCTIONS
 // ============================================================================
 
 /**
@@ -255,7 +251,6 @@ export const createCoupon = async (req: Request, res: Response): Promise<void> =
         res.status(400).json({ message: "BOGO discount percentage must be between 1 and 100" });
         return;
       }
-      // BOGO cannot have free shipping
       if (free_shipping) {
         await client.query('ROLLBACK');
         res.status(400).json({ message: "BOGO coupons cannot include free shipping" });
@@ -453,10 +448,6 @@ export const createCoupon = async (req: Request, res: Response): Promise<void> =
     client.release();
   }
 };
-
-// ============================================================================
-// COUPONS - UPDATE
-// ============================================================================
 
 /**
  * UPDATE existing coupon
@@ -766,10 +757,6 @@ export const updateCoupon = async (req: Request, res: Response): Promise<void> =
   }
 };
 
-// ============================================================================
-// COUPONS - DELETE
-// ============================================================================
-
 /**
  * DELETE coupon
  */
@@ -824,7 +811,7 @@ export const toggleCouponStatus = async (req: Request, res: Response): Promise<v
 };
 
 // ============================================================================
-// DROPDOWN DATA - CATEGORIES
+// DROPDOWN DATA - FETCH
 // ============================================================================
 
 /**
@@ -845,10 +832,6 @@ export const getCategoriesForCoupons = async (req: Request, res: Response): Prom
   }
 };
 
-// ============================================================================
-// DROPDOWN DATA - PRODUCT TYPES
-// ============================================================================
-
 /**
  * GET product types for coupon dropdown
  */
@@ -867,10 +850,6 @@ export const getProductTypesForCoupons = async (req: Request, res: Response): Pr
   }
 };
 
-// ============================================================================
-// DROPDOWN DATA - PRODUCTS
-// ============================================================================
-
 /**
  * GET products for coupon dropdown
  */
@@ -888,10 +867,6 @@ export const getProductsForCoupons = async (req: Request, res: Response): Promis
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// ============================================================================
-// DROPDOWN DATA - LOCATIONS
-// ============================================================================
 
 /**
  * GET locations for coupon dropdown
@@ -913,7 +888,7 @@ export const getLocationsForCoupons = async (req: Request, res: Response): Promi
 };
 
 // ============================================================================
-// PREVIEW - EXISTING COUPON
+// PREVIEW - EXISTING/DRAFT STAGES
 // ============================================================================
 
 /**
@@ -1118,10 +1093,6 @@ export const previewCouponProducts = async (req: Request, res: Response): Promis
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// ============================================================================
-// PREVIEW - DRAFT COUPON
-// ============================================================================
 
 /**
  * GET preview of products for draft coupon (before creation)

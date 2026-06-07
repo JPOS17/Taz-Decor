@@ -25,6 +25,7 @@
     "cloudinary": "^2.8.0",
     "googleapis": "^171.4.0",
     "lucide-react": "^0.556.0",
+    "nanoid": "^5.1.11",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",

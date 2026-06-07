@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// Helper function to get auth headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
   return {
@@ -9,9 +10,10 @@ const getAuthHeaders = () => {
 };
 
 // ============================================================================
-// INTERFACES - COUPON DATA
+// INTERFACES
 // ============================================================================
 
+// COUPON DATA
 export interface Coupon {
   coupon_id: number;
   coupon_code: string;
@@ -80,10 +82,7 @@ export interface UpdateCouponPayload {
   location_ids?: number[];
 }
 
-// ============================================================================
-// INTERFACES - DROPDOWN OPTIONS
-// ============================================================================
-
+// DROPDOWN OPTIONS
 export interface CategoryOption {
   category_id: number;
   category_name: string;

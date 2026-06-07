@@ -12,6 +12,7 @@ interface ConfirmModalProps {
   onCancel: () => void;
 }
 
+// Generic confirmation dialog
 const ConfirmModal = ({
   isOpen,
   title,
@@ -22,8 +23,10 @@ const ConfirmModal = ({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) => {
+  // Render nothing when the modal is closed
   if (!isOpen) return null;
 
+  // Maps variant to the corresponding confirm button modifier class
   const confirmBtnVariantClass = {
     danger: "confirm-modal-btn-confirm--danger",
     warning: "confirm-modal-btn-confirm--warning",
@@ -32,6 +35,7 @@ const ConfirmModal = ({
 
   return (
     <div className="confirm-modal-overlay" onClick={onCancel}>
+      {/* Stop propagation so clicking inside the modal doesn't close it */}
       <div
         className={`confirm-modal confirm-modal--${variant}`}
         onClick={(e) => e.stopPropagation()}
@@ -41,6 +45,8 @@ const ConfirmModal = ({
         </div>
         <h3 className="confirm-modal-title">{title}</h3>
         <p className="confirm-modal-message">{message}</p>
+
+        {/* Action buttons — cancel always on the left, confirm on the right */}
         <div className="confirm-modal-actions">
           <button className="confirm-modal-btn-cancel" onClick={onCancel}>
             {cancelLabel}

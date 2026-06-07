@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import "../../styles/components/universal/TopBar.css";
 
+// Top-level navigation destinations rendered in the TopBar
 const links = [
   { to: "/home", label: "Home" },
   { to: "/items", label: "Items" },
@@ -8,6 +9,7 @@ const links = [
   { to: "/about", label: "About" },
 ];
 
+// Renders each nav link; applies active class when the route matches
 export const NavLinks = () => {
   return (
     <>

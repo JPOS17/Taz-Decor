@@ -3,7 +3,7 @@ import { pool } from "../db";
 import { generateProductSKU, generateVariantSKU } from "../utils/skuGenerator"; 
 
 // ============================================================================
-// PRODUCTS - GET ALL FOR MANAGEMENT
+// PRODUCTS - GET
 // ============================================================================
 
 /**
@@ -135,8 +135,38 @@ export const getAllProductsForManagement = async (req: Request, res: Response): 
   }
 };
 
+/**
+ * GET all variants for a specific product
+ */
+export const getProductVariants = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { productId } = req.params;
+    
+    const result = await pool.query(`
+      SELECT 
+        pv.variant_id,
+        pv.product_id,
+        pv.price,
+        pv.color,
+        pv.size,
+        pv.quantity AS stock_quantity,
+        pv.sku,
+        pi.img_url AS primary_image
+      FROM product_variants pv
+      LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id AND pi.is_primary = TRUE
+      WHERE pv.product_id = $1
+      ORDER BY pv.variant_id
+    `, [productId]);
+    
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching product variants:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // ============================================================================
-// PRODUCTS - CREATE
+// PRODUCTS - CREATE 
 // ============================================================================
 
 /**
@@ -264,44 +294,6 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-// ============================================================================
-// PRODUCTS - GET VARIANTS
-// ============================================================================
-
-/**
- * GET all variants for a specific product
- */
-export const getProductVariants = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { productId } = req.params;
-    
-    const result = await pool.query(`
-      SELECT 
-        pv.variant_id,
-        pv.product_id,
-        pv.price,
-        pv.color,
-        pv.size,
-        pv.quantity AS stock_quantity,
-        pv.sku,
-        pi.img_url AS primary_image
-      FROM product_variants pv
-      LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id AND pi.is_primary = TRUE
-      WHERE pv.product_id = $1
-      ORDER BY pv.variant_id
-    `, [productId]);
-    
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching product variants:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// ============================================================================
-// VARIANTS - CREATE
-// ============================================================================
-
 /**
  * POST create new variant for existing product
  */
@@ -395,7 +387,7 @@ export const createVariant = async (req: Request, res: Response): Promise<void> 
 };
 
 // ============================================================================
-// VARIANTS - GET FOR EDIT
+// VARIANTS - FUNCTIONS
 // ============================================================================
 
 /**
@@ -471,14 +463,11 @@ export const getVariantForEdit = async (req: Request, res: Response): Promise<vo
   }
 };
 
-// ============================================================================
-// VARIANTS - UPDATE
-// ============================================================================
-
 /**
  * PUT update variant
  */
 export const updateVariant = async (req: Request, res: Response): Promise<void> => {
+  const client = await pool.connect();
   try {
     const { variantId } = req.params;
     const {
@@ -491,11 +480,13 @@ export const updateVariant = async (req: Request, res: Response): Promise<void> 
       width_in,
       height_in,
       name,
-      description
+      description,
+      location_id,
+      category_id,
     } = req.body;
 
     // Check if variant exists
-    const variantCheck = await pool.query(
+    const variantCheck = await client.query(
       "SELECT product_id FROM product_variants WHERE variant_id = $1",
       [variantId]
     );
@@ -507,7 +498,9 @@ export const updateVariant = async (req: Request, res: Response): Promise<void> 
 
     const productId = variantCheck.rows[0].product_id;
 
-    // Update product details
+    await client.query("BEGIN");
+
+    // Update product name / description
     if (name !== undefined || description !== undefined) {
       const productUpdates: string[] = [];
       const productValues: any[] = [];
@@ -527,9 +520,29 @@ export const updateVariant = async (req: Request, res: Response): Promise<void> 
 
       if (productUpdates.length > 0) {
         productValues.push(productId);
-        await pool.query(
-          `UPDATE products SET ${productUpdates.join(', ')} WHERE product_id = $${productParamCount}`,
+        await client.query(
+          `UPDATE products SET ${productUpdates.join(", ")} WHERE product_id = $${productParamCount}`,
           productValues
+        );
+      }
+    }
+
+    // Update category assignment
+    if (category_id !== undefined) {
+      const existingCategory = await client.query(
+        "SELECT product_category_id FROM product_categories WHERE product_id = $1 AND is_primary = true",
+        [productId]
+      );
+
+      if (existingCategory.rows.length > 0) {
+        await client.query(
+          "UPDATE product_categories SET category_id = $1 WHERE product_id = $2 AND is_primary = true",
+          [category_id, productId]
+        );
+      } else {
+        await client.query(
+          "INSERT INTO product_categories (product_id, category_id, is_primary) VALUES ($1, $2, true)",
+          [productId, category_id]
         );
       }
     }
@@ -587,31 +600,33 @@ export const updateVariant = async (req: Request, res: Response): Promise<void> 
       variantParamCount++;
     }
 
-    if (variantUpdates.length === 0) {
-      res.status(400).json({ message: "No fields to update" });
-      return;
+    if (location_id !== undefined) {
+      variantUpdates.push(`location_id = $${variantParamCount}`);
+      variantValues.push(location_id);
+      variantParamCount++;
     }
 
-    variantValues.push(variantId);
+    if (variantUpdates.length > 0) {
+      variantValues.push(variantId);
+      await client.query(
+        `UPDATE product_variants 
+         SET ${variantUpdates.join(", ")}, updated_at = NOW()
+         WHERE variant_id = $${variantParamCount}`,
+        variantValues
+      );
+    }
 
-    await pool.query(
-      `UPDATE product_variants 
-       SET ${variantUpdates.join(', ')} 
-       WHERE variant_id = $${variantParamCount}`,
-      variantValues
-    );
-
+    await client.query("COMMIT");
     res.json({ message: "Variant updated successfully" });
 
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error updating variant:", error);
     res.status(500).json({ message: "Server error" });
+  } finally {
+    client.release();
   }
 };
-
-// ============================================================================
-// VARIANTS - DELETE
-// ============================================================================
 
 /**
  * DELETE variant
@@ -643,55 +658,101 @@ export const deleteVariant = async (req: Request, res: Response): Promise<void> 
     const isLastVariant = parseInt(variant_count) === 1;
 
     if (isLastVariant) {
-      // This is the last variant - delete the entire product
-      // 1. Delete product images (CASCADE should handle this, but being explicit)
+      // This is the last variant — delete the entire product
+
+      // 1. Null out historical references (preserve order/review history)
+      await client.query(
+        "UPDATE manager_activity_log SET related_variant_id = NULL WHERE related_variant_id = $1",
+        [variantId]
+      );
+
+      // 2. Remove from live user data
+      await client.query(
+        "DELETE FROM shopping_cart_items WHERE variant_id = $1",
+        [variantId]
+      );
+      await client.query(
+        "DELETE FROM wishlist_items WHERE variant_id = $1",
+        [variantId]
+      );
+
+      // 3. Remove coupon variant group associations
+      await client.query(
+        "DELETE FROM coupon_variant_groups WHERE variant_id = $1",
+        [variantId]
+      );
+
+      // 4. Delete product images
       await client.query(
         "DELETE FROM product_images WHERE variant_id = $1",
         [variantId]
       );
 
-      // 2. Delete the variant
+      // 5. Delete the variant
       await client.query(
         "DELETE FROM product_variants WHERE variant_id = $1",
         [variantId]
       );
 
-      // 3. Delete product categories
+      // 6. Delete product categories
       await client.query(
         "DELETE FROM product_categories WHERE product_id = $1",
         [product_id]
       );
 
-      // 4. Delete the product itself
+      // 7. Delete the product itself
       await client.query(
         "DELETE FROM products WHERE product_id = $1",
         [product_id]
       );
 
       await client.query('COMMIT');
-      res.json({ 
+      res.json({
         message: "Product and all associated data deleted successfully",
-        deleted_entire_product: true 
+        deleted_entire_product: true
       });
 
     } else {
-      // Product has multiple variants - delete only this variant
-      // 1. Delete product images for this variant (CASCADE should handle this, but being explicit)
+      // Product has multiple variants — delete only this variant
+
+      // 1. Null out historical references (preserve order/review history)
+      await client.query(
+        "UPDATE manager_activity_log SET related_variant_id = NULL WHERE related_variant_id = $1",
+        [variantId]
+      );
+
+      // 2. Remove from live user data
+      await client.query(
+        "DELETE FROM shopping_cart_items WHERE variant_id = $1",
+        [variantId]
+      );
+      await client.query(
+        "DELETE FROM wishlist_items WHERE variant_id = $1",
+        [variantId]
+      );
+
+      // 3. Remove coupon variant group associations
+      await client.query(
+        "DELETE FROM coupon_variant_groups WHERE variant_id = $1",
+        [variantId]
+      );
+
+      // 4. Delete product images for this variant
       await client.query(
         "DELETE FROM product_images WHERE variant_id = $1",
         [variantId]
       );
 
-      // 2. Delete the variant
+      // 5. Delete the variant
       await client.query(
         "DELETE FROM product_variants WHERE variant_id = $1",
         [variantId]
       );
 
       await client.query('COMMIT');
-      res.json({ 
+      res.json({
         message: "Variant deleted successfully",
-        deleted_entire_product: false 
+        deleted_entire_product: false
       });
     }
 
@@ -739,7 +800,7 @@ export const toggleVariantStatus = async (req: Request, res: Response): Promise<
 };
 
 // ============================================================================
-// IMAGES - ADD
+// IMAGES - FUNCTIONS
 // ============================================================================
 
 /**
@@ -774,10 +835,6 @@ export const addImageToVariant = async (req: Request, res: Response): Promise<vo
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// ============================================================================
-// IMAGES - DELETE
-// ============================================================================
 
 /**
  * DELETE image
@@ -835,10 +892,6 @@ export const deleteImage = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-// ============================================================================
-// IMAGES - UPDATE ORDER
-// ============================================================================
-
 /**
  * PUT update image display order
  */
@@ -866,10 +919,6 @@ export const updateImageOrder = async (req: Request, res: Response): Promise<voi
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// ============================================================================
-// IMAGES - SET PRIMARY
-// ============================================================================
 
 /**
  * PUT set primary image

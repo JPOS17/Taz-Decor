@@ -20,6 +20,7 @@ const Home = () => {
       {/* Welcome Section */}
       <div className="home-content">
         <div className="home-content-inner">
+          {/* Cross divider icon */}
           <div className="home-cross-divider">
             <span className="home-cross-symbol">
               <FaCross />
@@ -38,6 +39,7 @@ const Home = () => {
 
           <p className="home-tagline">Thank you for your visit. God bless.</p>
 
+          {/* Call to action — links to the shop */}
           <div className="home-cta">
             <a href="/items" className="home-shop-btn">
               Browse Our Collection

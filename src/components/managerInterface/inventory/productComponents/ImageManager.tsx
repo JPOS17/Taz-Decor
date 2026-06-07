@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Star, X, Upload } from "lucide-react";
 import type { VariantImage } from "../../../../api/inventory";
-
 import {
   DndContext,
   closestCenter,
@@ -29,10 +28,6 @@ interface ImageManagerProps {
   onUpload: () => void;
 }
 
-// ============================================================================
-// SORTABLE THUMBNAIL — individual draggable image tile
-// ============================================================================
-
 interface SortableThumbnailProps {
   image: VariantImage;
   index: number;
@@ -42,6 +37,7 @@ interface SortableThumbnailProps {
   onDelete: (e: React.MouseEvent, imageId: number) => void;
 }
 
+// Individual draggable image tile — used inside the DndContext grid
 const SortableThumbnail = ({
   image,
   index,
@@ -64,6 +60,7 @@ const SortableThumbnail = ({
     transition,
   };
 
+  // Combines base, dragging, and selected classes — filters empty strings before joining
   const classes = [
     "mi-thumbnail-item",
     isDragging ? "dragging" : "",
@@ -115,10 +112,7 @@ const SortableThumbnail = ({
   );
 };
 
-// ============================================================================
-// IMAGE MANAGER
-// ============================================================================
-
+// Full image management panel for an existing variant
 const ImageManager = ({
   images,
   onReorder,
@@ -147,9 +141,10 @@ const ImageManager = ({
   );
 
   // ============================================================================
-  // DRAG END
+  // EVENT HANDLERS
   // ============================================================================
 
+  // Computes new display_order values after a drag and passes the reordered array up
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -165,17 +160,15 @@ const ImageManager = ({
     onReorder(reordered);
   };
 
-  // ============================================================================
-  // OTHER HANDLERS
-  // ============================================================================
-
   const handleThumbnailClick = (image: VariantImage) => setSelectedImage(image);
 
+  // stopPropagation prevents the thumbnail click (preview) from firing alongside the action
   const handleSetPrimary = (e: React.MouseEvent, imageId: number) => {
     e.stopPropagation();
     onSetPrimary(imageId);
   };
 
+  // Confirms before deleting
   const handleDeleteImage = (e: React.MouseEvent, imageId: number) => {
     e.stopPropagation();
     if (

@@ -4,6 +4,7 @@ interface SKUPreviewProps {
   type?: "product" | "variant";
 }
 
+// Displays the auto-generated SKU that will be assigned on form submission
 const SKUPreview = ({ sku, loading, type = "product" }: SKUPreviewProps) => {
   return (
     <div className="sku-preview-container">

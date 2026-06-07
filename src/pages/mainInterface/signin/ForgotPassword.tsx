@@ -2,6 +2,8 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { forgotPassword } from "../../../api/auth";
 
+import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+
 import "../../../styles/pages/customerInterface/Tokens.css";
 import "../../../styles/pages/customerInterface/signin/ForgotPassword.css";
 
@@ -19,6 +21,7 @@ const ForgotPassword = () => {
   // HANDLERS
   // ============================================================================
 
+  // Submits the email to trigger a password reset link and switches to the success view
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -44,6 +47,7 @@ const ForgotPassword = () => {
     return (
       <div className="forgot-container">
         <div className="forgot-card">
+          {/* Success confirmation — shown after the reset email is sent */}
           <div className="forgot-success-icon">✓</div>
           <h1 className="forgot-title">Check Your Email</h1>
           <p className="forgot-subtitle">
@@ -65,6 +69,7 @@ const ForgotPassword = () => {
   return (
     <div className="forgot-container">
       <div className="forgot-card">
+        {/* Page header */}
         <div className="forgot-header">
           <h1 className="forgot-title">Forgot Password?</h1>
           <p className="forgot-subtitle">
@@ -74,8 +79,10 @@ const ForgotPassword = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="forgot-form">
+          {/* Inline error message */}
           {error && <div className="forgot-error-message">{error}</div>}
 
+          {/* Email input */}
           <div className="forgot-form-group">
             <label htmlFor="email" className="forgot-label">
               Email Address
@@ -91,6 +98,8 @@ const ForgotPassword = () => {
             />
           </div>
 
+          {isLoading && <LoadingSpinner message="Sending reset link..." />}
+
           <button
             type="submit"
             className="forgot-submit-btn"
@@ -99,6 +108,7 @@ const ForgotPassword = () => {
             {isLoading ? "Sending..." : "Send Reset Link"}
           </button>
 
+          {/* Back to login link */}
           <div className="forgot-form-footer">
             <Link to="/login" className="forgot-back-link">
               ← Back to Login

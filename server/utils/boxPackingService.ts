@@ -1,30 +1,17 @@
 import { pool } from "../db";
 
-// ============================================================================
-// INTERFACES
-// ============================================================================
-
-/**
- * Represents the dimensions of an item or box
- */
 interface Dimensions {
   length_in: number;
   width_in: number;
   height_in: number;
 }
 
-/**
- * Represents an item to be packed
- */
 interface PackingItem extends Dimensions {
   variant_id: number;
   quantity: number;
   product_name?: string;
 }
 
-/**
- * Represents a shipping box from the database
- */
 export interface ShippingBox {
   box_id: number;
   box_name: string;
@@ -37,25 +24,12 @@ export interface ShippingBox {
   is_active: boolean;
 }
 
-// ============================================================================
-// HELPER FUNCTIONS - DIMENSIONS
-// ============================================================================
-
-/**
- * Sort dimensions in descending order (largest to smallest)
- */
+// Sorts all three dimensions largest-first so orientation comparisons are consistent
 const sortDimensions = (dims: Dimensions): [number, number, number] => {
   return [dims.length_in, dims.width_in, dims.height_in].sort((a, b) => b - a) as [number, number, number];
 };
 
-/**
- * Check if an item can fit in a container
- * Both item and container dimensions are sorted before comparison
- * 
- * @param itemDims - Item dimensions
- * @param containerDims - Container dimensions
- * @param safetyMargin - Safety margin in inches (default 0.25)
- */
+// Returns true if the item fits inside the container after subtracting a safety margin (default 0.25in)
 const canFitIn = (
   itemDims: Dimensions,
   containerDims: Dimensions,
@@ -64,45 +38,33 @@ const canFitIn = (
   const [iL, iW, iH] = sortDimensions(itemDims);
   const [cL, cW, cH] = sortDimensions(containerDims);
 
-  // Apply safety margin to container dimensions
   const effectiveLength = cL - safetyMargin;
   const effectiveWidth = cW - safetyMargin;
   const effectiveHeight = cH - safetyMargin;
 
-  // Check if item fits when both are oriented optimally
   return iL <= effectiveLength && iW <= effectiveWidth && iH <= effectiveHeight;
 };
 
-// ============================================================================
-// HELPER FUNCTIONS - ITEM CLASSIFICATION
-// ============================================================================
-
-/**
- * Check if order contains only flat items
- */
+// Returns true if every item in the cart qualifies for envelope shipping (height ≤ 0.5in and within flat mail dimensions)
 const isEnvelopeEligible = (items: PackingItem[]): boolean => {
-  
-  // Envelope items should have a height 0.5 or smaller
   const ENVELOPE_MAX_HEIGHT = 0.5;
-  
+
   return items.every(item => {
     return (
       item.length_in === 0 ||
       item.width_in === 0 ||
       item.height_in === 0 ||
-      (item.height_in <= ENVELOPE_MAX_HEIGHT && 
-       item.length_in <= 12 && 
-       item.width_in <= 9)
+      (item.height_in <= ENVELOPE_MAX_HEIGHT &&
+        item.length_in <= 12 &&
+        item.width_in <= 9)
     );
   });
 };
 
-/**
- * Check if items contain a mix of flat and non-flat items
- */
+// Returns true if the cart contains both flat (envelope-eligible) and 3D items — used to force box selection
 const hasMixedItems = (items: PackingItem[]): boolean => {
   const ENVELOPE_MAX_HEIGHT = 0.5;
-  
+
   let hasFlatItems = false;
   let hasNonFlatItems = false;
 
@@ -122,16 +84,7 @@ const hasMixedItems = (items: PackingItem[]): boolean => {
   return hasFlatItems && hasNonFlatItems;
 };
 
-// ============================================================================
-// PACKING ALGORITHMS - STACKING CALCULATION
-// ============================================================================
-
-/**
- * Calculate bounding box for a specific stacking orientation
- * 
- * @param items - Array of items to pack
- * @param stackDimension - Which dimension to stack along ('height', 'width', or 'length')
- */
+// Computes the bounding box for a list of items stacked along a single axis (height, width, or length)
 const calculateStackingOrientation = (
   items: Dimensions[],
   stackDimension: 'height' | 'width' | 'length'
@@ -142,65 +95,41 @@ const calculateStackingOrientation = (
   let totalStack = 0;
 
   for (const item of items) {
-    // Sort each item's dimensions to get [largest, middle, smallest]
     const [dim1, dim2, dim3] = sortDimensions(item);
 
     if (stackDimension === 'height') {
-      // Stack vertically: sum the smallest dimension, max of others
-      maxLength = Math.max(maxLength, dim1);  // Largest
-      maxWidth = Math.max(maxWidth, dim2);    // Middle
-      totalStack += dim3;                      // Sum smallest (height)
+      // Stack vertically: sum the smallest dimension, max of the other two
+      maxLength = Math.max(maxLength, dim1);
+      maxWidth = Math.max(maxWidth, dim2);
+      totalStack += dim3;
     } else if (stackDimension === 'width') {
       // Stack side-by-side: sum the middle dimension
-      maxLength = Math.max(maxLength, dim1);  // Largest
-      totalStack += dim2;                      // Sum middle (width)
-      maxHeight = Math.max(maxHeight, dim3);  // Smallest
+      maxLength = Math.max(maxLength, dim1);
+      totalStack += dim2;
+      maxHeight = Math.max(maxHeight, dim3);
     } else {
       // Stack end-to-end: sum the largest dimension
-      totalStack += dim1;                      // Sum largest (length)
-      maxWidth = Math.max(maxWidth, dim2);    // Middle
-      maxHeight = Math.max(maxHeight, dim3);  // Smallest
+      totalStack += dim1;
+      maxWidth = Math.max(maxWidth, dim2);
+      maxHeight = Math.max(maxHeight, dim3);
     }
   }
 
-  // Build result based on stacking dimension
   if (stackDimension === 'height') {
-    return {
-      length_in: maxLength,
-      width_in: maxWidth,
-      height_in: totalStack,
-    };
+    return { length_in: maxLength, width_in: maxWidth, height_in: totalStack };
   } else if (stackDimension === 'width') {
-    return {
-      length_in: maxLength,
-      width_in: totalStack,
-      height_in: maxHeight,
-    };
+    return { length_in: maxLength, width_in: totalStack, height_in: maxHeight };
   } else {
-    return {
-      length_in: totalStack,
-      width_in: maxWidth,
-      height_in: maxHeight,
-    };
+    return { length_in: totalStack, width_in: maxWidth, height_in: maxHeight };
   }
 };
 
-/**
- * Try multiple stacking orientations to find the most efficient packing
- * 
- * 1. Stack by height (tallest dimension)
- * 2. Stack by width (middle dimension)
- * 3. Stack by length (longest dimension)
- * 
- * Returns the orientation that produces the smallest bounding box
- */
+// Expands items by quantity, tries all 3 stacking orientations, and returns the one with the smallest volume
 const calculateBoundingBox = (items: PackingItem[]): Dimensions => {
- 
   if (items.length === 0) {
     return { length_in: 0, width_in: 0, height_in: 0 };
   }
 
-  // For single item, just return its dimensions
   if (items.length === 1 && items[0].quantity === 1) {
     return {
       length_in: items[0].length_in,
@@ -209,7 +138,7 @@ const calculateBoundingBox = (items: PackingItem[]): Dimensions => {
     };
   }
 
-  // Expand items by quantity (treat each as separate)
+  // Flatten quantities into individual items for accurate packing simulation
   const expandedItems: Dimensions[] = [];
   for (const item of items) {
     for (let i = 0; i < item.quantity; i++) {
@@ -221,21 +150,19 @@ const calculateBoundingBox = (items: PackingItem[]): Dimensions => {
     }
   }
 
-  // Sort all items by volume (largest first) for better packing
+  // Sort largest-first so the dominant items establish the base dimensions before smaller ones stack
   expandedItems.sort((a, b) => {
     const volA = a.length_in * a.width_in * a.height_in;
     const volB = b.length_in * b.width_in * b.height_in;
     return volB - volA;
   });
 
-  // Try all 3 stacking orientations and pick the best one
   const orientations = [
-    calculateStackingOrientation(expandedItems, 'height'),  // Stack vertically (sum heights)
-    calculateStackingOrientation(expandedItems, 'width'),   // Stack side-by-side (sum widths)
-    calculateStackingOrientation(expandedItems, 'length'),  // Stack end-to-end (sum lengths)
+    calculateStackingOrientation(expandedItems, 'height'),
+    calculateStackingOrientation(expandedItems, 'width'),
+    calculateStackingOrientation(expandedItems, 'length'),
   ];
 
-  // Find the orientation with the smallest volume
   const bestOrientation = orientations.reduce((best, current) => {
     const bestVol = best.length_in * best.width_in * best.height_in;
     const currentVol = current.length_in * current.width_in * current.height_in;
@@ -243,27 +170,11 @@ const calculateBoundingBox = (items: PackingItem[]): Dimensions => {
   });
 
   console.log(`📐 Tested 3 orientations, best: ${bestOrientation.length_in}×${bestOrientation.width_in}×${bestOrientation.height_in}`);
-  
+
   return bestOrientation;
 };
 
-// ============================================================================
-// BOX SELECTION - MAIN ALGORITHM
-// ============================================================================
-
-/**
- * Select the optimal shipping box for the given items
- * 
- * Algorithm:
- * 1. If all items are flat (cards/stickers), use envelope
- * 2. If mixed items, use smallest box that fits
- * 3. Otherwise, calculate bounding box and find smallest fitting box
- * 4. If no box fits, use default large box
- * 
- * @param items - Array of items with dimensions and quantities
- * @param locationId - Seller location ID
- * @returns Selected shipping box or null if none found
- */
+// Selects the smallest active shipping box for a given location that fits all items — returns null if no boxes exist
 export const selectShippingBox = async (
   items: PackingItem[],
   locationId: number
@@ -273,7 +184,6 @@ export const selectShippingBox = async (
     console.log(`📍 Location ID: ${locationId}`);
     console.log(`📋 Items to pack: ${JSON.stringify(items, null, 2)}`);
 
-    // Fetch available boxes for this location, ordered by box_size_order
     const boxesResult = await pool.query<ShippingBox>(
       `SELECT 
         box_id,
@@ -300,7 +210,7 @@ export const selectShippingBox = async (
       return null;
     }
 
-    // Check if all items are envelope-eligible
+    // Prefer envelope if all items are flat
     if (isEnvelopeEligible(items)) {
       console.log("✉️ All items are flat - envelope eligible");
       const envelope = availableBoxes.find(box => box.box_type === "envelope");
@@ -310,27 +220,25 @@ export const selectShippingBox = async (
       }
     }
 
-    // If mixed items, must use a box
+    // Mixed flat and 3D items must ship in a box regardless of individual item sizes
     if (hasMixedItems(items)) {
       console.log("📦 Mixed items detected - must use box (not envelope)");
     }
 
-    // Filter to only boxes for 3D items
     const boxes = availableBoxes.filter(box => box.box_type === "box");
-    
+
     if (boxes.length === 0) {
       console.error("❌ No boxes available (only envelopes)");
-      return availableBoxes[0]; // Fallback to envelope if that's all we have
+      return availableBoxes[0]; // Fallback to envelope if that's all available at this location
     }
 
-    // Calculate the bounding box needed for all items
     const boundingBox = calculateBoundingBox(items);
     console.log(`📐 Calculated bounding box: ${JSON.stringify(boundingBox, null, 2)}`);
 
-    // Find the smallest box that can fit the bounding box
+    // Walk boxes in ascending size order and return the first one that fits
     for (const box of boxes) {
       console.log(`🔍 Testing box: ${box.box_name} (${box.length_in}×${box.width_in}×${box.height_in})`);
-      
+
       if (canFitIn(boundingBox, box)) {
         console.log(`✅ Items fit in ${box.box_name}`);
         return box;
@@ -339,8 +247,8 @@ export const selectShippingBox = async (
       }
     }
 
-    // If nothing fits, use the largest box as default
-    const largestBox = boxes[boxes.length - 1]; 
+    // Nothing fit — return the largest box rather than failing the shipment
+    const largestBox = boxes[boxes.length - 1];
     console.log(`⚠️ No box fits perfectly, using largest box: ${largestBox.box_name}`);
     return largestBox;
 
@@ -350,13 +258,7 @@ export const selectShippingBox = async (
   }
 };
 
-// ============================================================================
-// BOX RETRIEVAL - GET BY ID
-// ============================================================================
-
-/**
- * Get a specific shipping box by ID
- */
+// Fetches a single shipping box record by ID
 export const getShippingBoxById = async (boxId: number): Promise<ShippingBox | null> => {
   try {
     const result = await pool.query<ShippingBox>(

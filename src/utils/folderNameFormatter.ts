@@ -1,14 +1,4 @@
-/**
- * Sanitizes a string to be used as a Cloudinary folder name
- * 
- * Rules:
- * - Converts to lowercase
- * - Replaces & with "and"
- * - Removes invalid characters (keeps only alphanumeric, spaces, underscores, hyphens)
- * - Replaces spaces with underscores
- * - Removes multiple consecutive underscores
- * - Removes leading/trailing underscores
- */
+// Utility function to sanitize folder names for URL slugs or file paths
 export const sanitizeFolderName = (name: string): string => {
   if (!name || name.trim() === '') {
     return 'uncategorized';

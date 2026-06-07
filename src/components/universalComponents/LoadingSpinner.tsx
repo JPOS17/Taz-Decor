@@ -4,6 +4,7 @@ interface LoadingSpinnerProps {
   message?: string;
 }
 
+// Shared full-page loading indicator; message defaults to "Loading..." if omitted
 const LoadingSpinner = ({ message = "Loading..." }: LoadingSpinnerProps) => {
   return (
     <div className="spinner-wrapper">

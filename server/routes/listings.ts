@@ -1,5 +1,5 @@
 import express from "express";
-import { requireManagerOrAdmin } from "../middleware/authMiddleware";
+import { requireManagerOrAdmin, authenticateToken } from "../middleware/authMiddleware";
 import { getProductDetail, getProductPreview } from "../controllers/listingsController";
 import { getProductStats } from "../controllers/statisticsController";
 import {
@@ -8,67 +8,72 @@ import {
   updateProductCategory,
   removeProductCategory,
 } from "../controllers/categoriesAssignments";
-import { 
-  getProductCouponsPreview, 
-  getApplicableCouponsForVariant, 
+import {
+  getProductCouponsPreview,
+  getApplicableCouponsForVariant,
   checkCustomGroupCoupons,
   getCouponEligibleProducts,
-  getUserCouponUsage
+  getUserCouponUsage,
 } from "../controllers/couponCustomerController";
+import { getProductReviews } from "../controllers/reviewsController";
 
 export const listingsRouter = express.Router();
 
 // ============================================================================
-// PRODUCT LISTINGS
+// PUBLIC ROUTES
 // ============================================================================
 
-// GET /api/products - Get product preview with filters
+// GET all products with filters (listings page)
 listingsRouter.get("/", getProductPreview);
 
 // ============================================================================
-// PRODUCT COUPONS
+// COUPON ROUTES — MUST BE BEFORE /:variantId
 // ============================================================================
 
-// GET /api/products/coupons/preview - Get all active coupons for listings page
+// GET all active coupons for listings page banners
 listingsRouter.get("/coupons/preview", getProductCouponsPreview);
 
-// GET /api/products/coupons/applicable - Get applicable coupons for a variant
+// GET applicable coupons for a specific variant
 listingsRouter.get("/coupons/applicable", getApplicableCouponsForVariant);
 
-// GET /api/products/coupons/check-custom-groups - Check custom group coupons
+// GET custom group coupon eligibility check
 listingsRouter.get("/coupons/check-custom-groups", checkCustomGroupCoupons);
 
-// GET /api/products/coupons/:couponId/eligible-products - Get eligible products for a coupon
+// GET per-user coupon usage counts — authentication required
+listingsRouter.get("/coupons/usage", authenticateToken, getUserCouponUsage);
+
+// GET eligible products for a specific coupon — MUST BE BEFORE /:variantId
 listingsRouter.get("/coupons/:couponId/eligible-products", getCouponEligibleProducts);
 
-listingsRouter.get('/coupons/user-usage', getUserCouponUsage);
-
 // ============================================================================
-// PRODUCT STATS
+// STATS ROUTE — MUST BE BEFORE /:variantId
 // ============================================================================
 
-// GET /api/products/:variantId/stats - Get popularity stats
+// GET popularity stats (wishlist count, cart count, review count, average rating)
 listingsRouter.get("/:variantId/stats", getProductStats);
 
 // ============================================================================
-// PRODUCT CATEGORIES (Manager/Admin Only)
+// CATEGORY ROUTES — MUST BE BEFORE /:variantId
 // ============================================================================
 
-// GET /api/products/:productId/categories - Get all categories for a product
+// GET all categories for a product
 listingsRouter.get("/:productId/categories", getProductCategories);
 
-// POST /api/products/:productId/categories - Add category to product
+// POST add category to product — manager/admin only
 listingsRouter.post("/:productId/categories", requireManagerOrAdmin, addProductCategory);
 
-// PUT /api/products/:productId/categories/:categoryId - Update product-category relationship
+// PUT update product-category relationship — manager/admin only
 listingsRouter.put("/:productId/categories/:categoryId", requireManagerOrAdmin, updateProductCategory);
 
-// DELETE /api/products/:productId/categories/:categoryId - Remove category from product
+// DELETE remove category from product — manager/admin only
 listingsRouter.delete("/:productId/categories/:categoryId", requireManagerOrAdmin, removeProductCategory);
 
 // ============================================================================
-// PRODUCT DETAIL
+// PRODUCT DETAIL — MUST BE LAST (catches all remaining /:id patterns)
 // ============================================================================
 
-// GET /api/products/:variantId - Get product detail (MUST be last to avoid route conflicts)
+// GET product reviews
+listingsRouter.get("/:productId/reviews", getProductReviews);
+
+// GET product detail by variant ID
 listingsRouter.get("/:variantId", getProductDetail);

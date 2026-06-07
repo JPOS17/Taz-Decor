@@ -1,19 +1,17 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // ============================================================================
-// INTERFACES - BASE
+// INTERFACES
 // ============================================================================
 
+// BASE
 export interface BaseProduct {
   variant_id: number;
   name: string;
   price: number;
 }
 
-// ============================================================================
-// INTERFACES - PRODUCT PREVIEW
-// ============================================================================
-
+// PRODUCT PREVIEW
 export interface ProductPreview extends BaseProduct {
   product_id: number;
   primary_image: string;
@@ -34,10 +32,7 @@ export interface ProductFilters {
   freeShippingOnly?: boolean;
 }
 
-// ============================================================================
-// INTERFACES - PRODUCT DETAIL
-// ============================================================================
-
+// PRODUCT DETAIL
 export interface ProductDetail extends BaseProduct {
   product_id: number;
   images: string[];

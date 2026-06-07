@@ -80,7 +80,7 @@ const Items = () => {
   // DATA LOADING
   // ============================================================================
 
-  // Fetch products and coupons
+  // Fetches products, coupons, and categories in parallel; builds custom group coupon map if needed
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -138,7 +138,7 @@ const Items = () => {
   // COUPON LOGIC
   // ============================================================================
 
-  // Get the get best coupon for a product
+  // Returns the best applicable coupon for a given product across all coupon types
   const getBestCouponForProduct = (
     product: ProductPreview,
   ): ProductCoupon | null => {
@@ -146,7 +146,7 @@ const Items = () => {
 
     const applicableCoupons: ProductCoupon[] = [];
 
-    // Helper function to check if coupon applies to this product's location
+    // Helper that checks if a coupon applies to the product's location
     const couponMatchesLocation = (coupon: ProductCoupon): boolean => {
       if (
         !coupon.location_ids ||
@@ -209,7 +209,7 @@ const Items = () => {
     return findBestCoupon(applicableCoupons, product.price);
   };
 
-  // Format the category badge text
+  // Formats the category-level coupon badge text based on discount type
   const getCategoryBadgeText = (coupon: ProductCoupon): string | null => {
     if (coupon.discount_type === "percentage" && coupon.discount_value) {
       return `${coupon.discount_value}% OFF`;
@@ -225,7 +225,7 @@ const Items = () => {
   // PRICE CALCULATIONS
   // ============================================================================
 
-  // Sort products by effective (post-discount) price when price sort is active
+  // Sorts products by effective (post-discount) price when a price sort is active
   const sortedProducts = useMemo(() => {
     if (sortBy !== "price-asc" && sortBy !== "price-desc") {
       return products;
@@ -268,6 +268,7 @@ const Items = () => {
   // EVENT HANDLERS
   // ============================================================================
 
+  // Updates the category filter and resets to page 1
   const handleSelectCategory = (
     categoryId: number | null,
     categoryName: string,
@@ -287,6 +288,7 @@ const Items = () => {
     setSearchParams(newParams);
   };
 
+  // Updates the price range filter and resets to page 1
   const handlePriceChange = (min: number | null, max: number | null) => {
     const newParams = new URLSearchParams(searchParams);
 
@@ -307,6 +309,7 @@ const Items = () => {
     setSearchParams(newParams);
   };
 
+  // Updates the sort order and resets to page 1
   const handleSortChange = (sort: string | null) => {
     const newParams = new URLSearchParams(searchParams);
 
@@ -321,6 +324,7 @@ const Items = () => {
     setSearchParams(newParams);
   };
 
+  // Toggles the on-sale filter and resets to page 1
   const handleSaleFilterChange = (onSale: boolean) => {
     const newParams = new URLSearchParams(searchParams);
 
@@ -335,6 +339,7 @@ const Items = () => {
     setSearchParams(newParams);
   };
 
+  // Navigates to a specific page without touching other params
   const handlePageChange = (page: number) => {
     const newParams = new URLSearchParams(searchParams);
     if (page === 1) {
@@ -345,6 +350,7 @@ const Items = () => {
     setSearchParams(newParams);
   };
 
+  // Clears all filters and sort params, returning to the default view
   const handleReset = () => {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete("minPrice");
@@ -370,7 +376,7 @@ const Items = () => {
   return (
     <div className="items-page">
       <div className="items-container">
-        {/* Sidebar - Hidden on small screens, visible on medium+ */}
+        {/* Sidebar — hidden on small screens, visible on medium+ */}
         <SideBar
           activeCategoryId={activeCategoryId}
           onSelectCategory={handleSelectCategory}
@@ -386,22 +392,25 @@ const Items = () => {
         />
 
         <div className="items-main-content">
-          {/* Category dropdown - Only visible on small screens */}
+          {/* Category dropdown — only visible on small screens */}
           <div className="items-category-dropdown-mobile">
             <CategoryDropDown
               activeCategoryId={activeCategoryId}
               activeCategoryName={activeCategoryName}
               onSelectCategory={handleSelectCategory}
+              categories={categories}
             />
           </div>
+
+          {/* Site-wide cart coupon banner */}
           <CartCouponBanner coupons={coupons ? coupons.all : []} />
 
-          {/* Header with category name and filters */}
+          {/* Header with active category name and coupon badge */}
           <div className="items-header">
             <div className="items-header-left">
               <h3 className="items-category-title">{activeCategoryName}</h3>
 
-              {/* Category Coupon Badge */}
+              {/* Category-level coupon badge — discount amount and verification requirement */}
               {categoryCoupon && (
                 <div className="items-category-coupon-badge">
                   {getCategoryBadgeText(categoryCoupon) && (
@@ -420,7 +429,7 @@ const Items = () => {
             </div>
           </div>
 
-          {/* Content States */}
+          {/* Content states — error, empty, or product grid */}
           {error ? (
             <div className="items-error-state">
               <p>Error: {error}</p>
@@ -431,6 +440,7 @@ const Items = () => {
             </div>
           ) : (
             <>
+              {/* Product grid */}
               <div className="items-products-grid">
                 {paginatedProducts.map((product) => {
                   const bestCoupon = getBestCouponForProduct(product);
@@ -445,6 +455,7 @@ const Items = () => {
                 })}
               </div>
 
+              {/* Pagination controls */}
               <Pagination
                 currentPage={safePage}
                 totalPages={totalPages}

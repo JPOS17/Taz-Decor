@@ -25,26 +25,34 @@ const VariantSelector = ({
   selectedVariantId,
   onVariantChange,
 }: VariantSelectorProps) => {
+  // Single-variant products don't need a selector
   if (variants.length <= 1) {
     return null;
   }
 
+  // Stable display order regardless of fetch order
   const sortedVariants = [...variants].sort(
     (a, b) => a.variant_id - b.variant_id,
   );
 
+  // No-op when the selected variant is clicked again
   const handleVariantSelect = (variantId: number) => {
     if (variantId !== selectedVariantId) {
       onVariantChange(variantId);
     }
   };
 
+  // Returns "Color", "Size", or "Standard" for the card label
   const formatVariantDetails = (variant: ProductVariant) => {
     const details = [];
     if (variant.color) details.push(`${variant.color}`);
     if (variant.size) details.push(`${variant.size}`);
     return details.length > 0 ? details.join("\n") : "Standard";
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="pv-variant-selector">

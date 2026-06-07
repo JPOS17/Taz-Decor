@@ -15,15 +15,17 @@ const Pagination = ({
   totalItems,
   itemsPerPage,
 }: PaginationProps) => {
+  // No pagination needed for a single page
   if (totalPages <= 1) return null;
 
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
-  // Build the page number array with ellipsis logic
+  // Builds the page number array with ellipsis placeholders for large page counts
   const getPageNumbers = (): (number | "...")[] => {
     const pages: (number | "...")[] = [];
 
+    // Show all pages when there are 7 or fewer — no ellipsis needed
     if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
@@ -52,10 +54,15 @@ const Pagination = ({
 
   const pageNumbers = getPageNumbers();
 
+  // No-op when clicking the current page or an out-of-range page
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
     onPageChange(page);
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <div className="pg-pagination-wrapper">
@@ -87,7 +94,7 @@ const Pagination = ({
           <span className="pg-pagination-btn-nav-label">Prev</span>
         </button>
 
-        {/* Page numbers */}
+        {/* Page number buttons with ellipsis */}
         <div className="pg-pagination-pages">
           {pageNumbers.map((page, idx) =>
             page === "..." ? (
@@ -114,7 +121,7 @@ const Pagination = ({
           )}
         </div>
 
-        {/* Mobile-only: Page X of Y sits between < and > */}
+        {/* Mobile page indicator */}
         <span className="pg-pagination-mobile-indicator">
           Page {currentPage} of {totalPages}
         </span>

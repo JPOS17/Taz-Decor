@@ -5,10 +5,12 @@ interface ToastNotificationProps {
   type: "success" | "error" | "warning";
 }
 
+// Displays a dismissible toast banner with an icon and message, styled by type
 export const ToastNotification = ({
   message,
   type,
 }: ToastNotificationProps) => {
+  // Returns the appropriate icon based on toast type
   const getIcon = () => {
     switch (type) {
       case "success":
@@ -26,6 +28,8 @@ export const ToastNotification = ({
   return (
     <div className={`toast-notification ${type}`}>
       {getIcon()}
+
+      {/* Render each line as its own <p> — subsequent lines get a top margin for spacing */}
       <div className="toast-content">
         {messageLines.map((line, index) => (
           <p

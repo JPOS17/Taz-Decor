@@ -23,12 +23,18 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
   const { addToWishlist, isInWishlist } = useCart();
   const { user } = useAuth();
 
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  // Navigates to the items page
   const handleClick = () => {
     navigate(`/items/${product.variant_id}`, {
       state: { from: fromPath || "/items" },
     });
   };
 
+  // Stops card click propagation so the wishlist toggle doesn't also navigate
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -48,8 +54,13 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
     addToWishlist(wishlistItem, coupon?.coupon_id);
   };
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
   const isInWishlistState = isInWishlist(product.variant_id);
 
+  // Coupon requires verified email but the current user hasn't verified
   const requiresVerification =
     coupon?.requires_verified_email && !user?.isEmailVerified;
 
@@ -61,6 +72,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
     : null;
   const hasDiscountedPrice = !!discountInfo && discountInfo.discountAmount > 0;
 
+  // Returns the short badge string shown in the top-left image overlay
   const getDiscountBadgeText = (coupon: ProductCoupon): string => {
     if (coupon.discount_type === "percentage" && coupon.discount_value) {
       return `${coupon.discount_value}% OFF`;
@@ -72,7 +84,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
     return "DISCOUNT";
   };
 
-  // Build coupon label string for text block
+  // Builds the combined coupon label shown in the text block (e.g. "10% OFF · Free Shipping")
   const getCouponLabelText = (): string | null => {
     if (!coupon) return null;
     const parts: string[] = [];
@@ -89,13 +101,17 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
 
   const couponLabelText = getCouponLabelText();
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div className="item-listing-list-item" onClick={handleClick}>
-      {/* Image tile — rounded background, 1:1 ratio, image fits without cropping */}
+      {/* Image tile */}
       <div className="item-listing-image-container">
         <img src={product.primary_image} alt={product.name} />
 
-        {/* Discount badge — top left */}
+        {/* Discount badge — top left overlay */}
         {coupon &&
           (coupon.discount_value || coupon.discount_type === "bogo") && (
             <div className="item-listing-discount-badge">
@@ -103,12 +119,12 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
             </div>
           )}
 
-        {/* Free shipping badge — top right */}
+        {/* Free shipping badge — top right overlay */}
         {coupon && coupon.free_shipping && (
           <div className="item-listing-free-shipping-badge">FREE SHIPPING</div>
         )}
 
-        {/* Wishlist button — top right, shifts down when free shipping badge present */}
+        {/* Wishlist button */}
         <div
           className={`item-listing-wishlist-btn${coupon?.free_shipping ? " item-listing-wishlist-btn-shifted" : ""}`}
           onClick={handleWishlistClick}
@@ -121,7 +137,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
         </div>
       </div>
 
-      {/* Text block — below the image tile, no card chrome */}
+      {/* Text block — name, coupon label, and price below the image tile */}
       <div className="item-listing-text-block">
         {couponLabelText && (
           <p className="item-listing-coupon-label">{couponLabelText}</p>
@@ -129,6 +145,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
 
         <p className="item-listing-item-name">{product.name}</p>
 
+        {/* Price row — shows original and discounted price when a discount applies */}
         <div className="item-listing-price-row">
           {hasDiscountedPrice && discountInfo ? (
             <>
@@ -145,6 +162,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
             </span>
           )}
 
+          {/* Lock icon — signals that email verification is required to use the coupon */}
           {requiresVerification && (
             <span
               className="item-listing-lock-icon"

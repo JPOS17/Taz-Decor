@@ -38,6 +38,9 @@ import {
 import AddressValidationModal from "../../components/universalComponents/AddressValidationModal";
 import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import { ToastNotification } from "../../components/managerInterface/universal/ToastNotifications";
+import ConfirmationModal from "../../components/managerInterface/universal/ConfirmationModal";
+import { useConfirmationModal } from "../../hooks/useConfirmationModal";
+import { useToastMessage } from "../../hooks/useToastMessage";
 
 import "../../styles/pages/managerInterface/Tokens.css";
 import "../../styles/pages/managerInterface/Components.css";
@@ -46,6 +49,7 @@ import "../../styles/pages/managerInterface/Settings.css";
 
 type TabType = "locations" | "shipping";
 
+// Types for the location create/edit form fields
 interface LocationFormData {
   location_name: string;
   state: string;
@@ -58,6 +62,7 @@ interface LocationFormData {
   is_active: boolean;
 }
 
+// Types for the shipping box create/edit form fields
 interface ShippingBoxFormData {
   box_name: string;
   length_in: string;
@@ -68,17 +73,12 @@ interface ShippingBoxFormData {
   is_active: boolean;
 }
 
-interface Message {
-  text: string;
-  type: "success" | "error" | "warning";
-}
-
 const Settings = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>("locations");
 
-  // Toast notification state
-  const [message, setMessage] = useState<Message | null>(null);
+  // Toast notification
+  const { message, showMessage } = useToastMessage();
 
   // Address validation state
   const [validationResult, setValidationResult] =
@@ -86,7 +86,10 @@ const Settings = () => {
   const [pendingLocationData, setPendingLocationData] =
     useState<CreateLocationPayload | null>(null);
 
-  // Locations state
+  // ============================================================================
+  // STATE MANAGEMENT — LOCATIONS
+  // ============================================================================
+
   const [locations, setLocations] = useState<SellerLocation[]>([]);
   const [loadingLocations, setLoadingLocations] = useState(true);
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -105,7 +108,10 @@ const Settings = () => {
     is_active: true,
   });
 
-  // Shipping boxes state
+  // ============================================================================
+  // STATE MANAGEMENT — SHIPPING BOXES
+  // ============================================================================
+
   const [shippingBoxes, setShippingBoxes] = useState<ShippingBox[]>([]);
   const [loadingBoxes, setLoadingBoxes] = useState(true);
   const [showBoxModal, setShowBoxModal] = useState(false);
@@ -120,29 +126,36 @@ const Settings = () => {
     is_active: true,
   });
 
+  // Drag state — tracks which box is being dragged
   const [draggedBox, setDraggedBox] = useState<ShippingBox | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Filters
+  // ============================================================================
+  // STATE MANAGEMENT — FILTERS
+  // ============================================================================
+
   const [boxStatusFilter, setBoxStatusFilter] = useState<string>("all");
   const [boxTypeFilter, setBoxTypeFilter] = useState<string>("all");
   const [boxLocationFilter, setBoxLocationFilter] = useState<string>("all");
 
-  // Load locations
+  // Confirmation modal
+  const deleteConfirmation = useConfirmationModal();
+
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Load locations once on mount
   useEffect(() => {
     loadLocations();
   }, []);
 
-  // Load shipping boxes
+  // Reload shipping boxes whenever any box filter changes
   useEffect(() => {
     loadShippingBoxes();
   }, [boxStatusFilter, boxTypeFilter, boxLocationFilter]);
 
-  const showMessage = (text: string, type: "success" | "error" | "warning") => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
-
+  // Fetches all locations (active and inactive)
   const loadLocations = async () => {
     try {
       setLoadingLocations(true);
@@ -156,6 +169,7 @@ const Settings = () => {
     }
   };
 
+  // Fetches shipping boxes applying the active status, type, and location filters
   const loadShippingBoxes = async () => {
     try {
       setLoadingBoxes(true);
@@ -180,6 +194,7 @@ const Settings = () => {
   // LOCATION HANDLERS
   // ============================================================================
 
+  // Opens the location modal, pre-populating the form when editing an existing location
   const handleOpenLocationModal = (location?: SellerLocation) => {
     if (location) {
       setEditingLocation(location);
@@ -211,11 +226,13 @@ const Settings = () => {
     setShowLocationModal(true);
   };
 
+  // Closes the location modal and clears the editing state
   const handleCloseLocationModal = () => {
     setShowLocationModal(false);
     setEditingLocation(null);
   };
 
+  // Validates the address with Shippo before saving; stores pending data and shows the validation modal
   const handleLocationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -232,7 +249,7 @@ const Settings = () => {
         is_active: locationFormData.is_active,
       };
 
-      // Validate the address with Shippo
+      // Run address validation before persisting to the database
       const validation = await validateAddress({
         address_name: payload.location_name,
         address_line1: payload.address_line1,
@@ -243,7 +260,7 @@ const Settings = () => {
         country: "US",
       });
 
-      // Store the pending data and show validation modal
+      // Hold the payload until the user accepts or corrects the validated address
       setPendingLocationData(payload);
       setValidationResult(validation);
     } catch (error: any) {
@@ -251,7 +268,7 @@ const Settings = () => {
     }
   };
 
-  // Actually save the location to the database
+  // Creates or updates the location in the database after address validation is accepted
   const saveLocation = async (locationData: CreateLocationPayload) => {
     try {
       if (editingLocation) {
@@ -271,13 +288,14 @@ const Settings = () => {
     }
   };
 
-  // Validation modal handlers
+  // Saves the address exactly as the user entered it, bypassing the USPS suggestion
   const handleAcceptOriginalAddress = () => {
     if (pendingLocationData) {
       saveLocation(pendingLocationData);
     }
   };
 
+  // Saves the USPS-corrected address returned by the validation API
   const handleAcceptCorrectedAddress = () => {
     if (validationResult?.validated_address && pendingLocationData) {
       const correctedLocation: CreateLocationPayload = {
@@ -292,11 +310,13 @@ const Settings = () => {
     }
   };
 
+  // Closes the validation modal and discards the pending location data
   const handleCancelValidation = () => {
     setValidationResult(null);
     setPendingLocationData(null);
   };
 
+  // Flips the location's active state and reloads the list
   const handleToggleLocationStatus = async (
     locationId: number,
     currentStatus: boolean,
@@ -317,6 +337,8 @@ const Settings = () => {
   // SHIPPING BOX HANDLERS
   // ============================================================================
 
+  // Opens the box modal, pre-populating the form when editing an existing box;
+  // defaults location_id to the active filter when creating a new box
   const handleOpenBoxModal = (box?: ShippingBox) => {
     if (box) {
       setEditingBox(box);
@@ -337,6 +359,7 @@ const Settings = () => {
         width_in: "",
         height_in: "",
         box_type: "box",
+        // Pre-select the active location filter to save a step for the user
         location_id: boxLocationFilter !== "all" ? boxLocationFilter : "",
         is_active: true,
       });
@@ -344,15 +367,16 @@ const Settings = () => {
     setShowBoxModal(true);
   };
 
+  // Closes the box modal and clears the editing state
   const handleCloseBoxModal = () => {
     setShowBoxModal(false);
     setEditingBox(null);
   };
 
+  // Creates or updates the shipping box after validating that a location is selected
   const handleBoxSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate that location is selected
     if (!boxFormData.location_id || boxFormData.location_id === "") {
       showMessage("Please select a location", "error");
       return;
@@ -384,18 +408,30 @@ const Settings = () => {
     }
   };
 
-  const handleDeleteBox = async (boxId: number) => {
-    if (!window.confirm("Are you sure you want to delete this box?")) return;
-
-    try {
-      await deleteShippingBox(boxId);
-      showMessage("Shipping box deleted successfully!", "success");
-      loadShippingBoxes();
-    } catch (error: any) {
-      showMessage(error.message || "Failed to delete shipping box", "error");
-    }
+  // Opens the delete confirmation modal; deletes on confirm and reloads the list
+  const handleDeleteBox = (boxId: number) => {
+    deleteConfirmation.showConfirmation({
+      title: "Delete Shipping Box?",
+      message:
+        "This shipping box will be permanently deleted. This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      onConfirm: async () => {
+        try {
+          await deleteShippingBox(boxId);
+          showMessage("Shipping box deleted successfully!", "success");
+          loadShippingBoxes();
+        } catch (error: any) {
+          showMessage(
+            error.message || "Failed to delete shipping box",
+            "error",
+          );
+        }
+      },
+    });
   };
 
+  // Flips the box's active state and reloads the list
   const handleToggleBoxStatus = async (
     boxId: number,
     currentStatus: boolean,
@@ -412,17 +448,25 @@ const Settings = () => {
     }
   };
 
+  // ============================================================================
+  // DRAG AND DROP HANDLERS (native HTML drag API)
+  // ============================================================================
+
+  // Records the dragged box and sets the drag effect
   const handleDragStart = (e: React.DragEvent, box: ShippingBox) => {
     setDraggedBox(box);
     setIsDragging(true);
     e.dataTransfer.effectAllowed = "move";
   };
 
+  // Allows the drop by preventing the default browser behaviour
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
   };
 
+  // Reorders the box array, updates box_size_order for all affected rows,
+  // optimistically updates the UI, then persists the new order to the API
   const handleDrop = async (e: React.DragEvent, targetBox: ShippingBox) => {
     e.preventDefault();
 
@@ -432,7 +476,6 @@ const Settings = () => {
       return;
     }
 
-    // Reorder the boxes array
     const reorderedBoxes = [...shippingBoxes];
     const draggedIndex = reorderedBoxes.findIndex(
       (b) => b.box_id === draggedBox.box_id,
@@ -441,22 +484,21 @@ const Settings = () => {
       (b) => b.box_id === targetBox.box_id,
     );
 
-    // Remove dragged box and insert at target position
+    // Remove dragged box and insert it at the drop target's position
     const [removed] = reorderedBoxes.splice(draggedIndex, 1);
     reorderedBoxes.splice(targetIndex, 0, removed);
 
-    // Update box_size_order for all affected boxes
+    // Recalculate display order for every box after the move
     const updatedBoxes = reorderedBoxes.map((box, index) => ({
       ...box,
       box_size_order: index + 1,
     }));
 
-    // Optimistically update UI
+    // Optimistically update the UI before the API responds
     setShippingBoxes(updatedBoxes);
     setDraggedBox(null);
     setIsDragging(false);
 
-    // Save to backend
     try {
       await reorderShippingBoxes(
         updatedBoxes.map((box) => ({
@@ -467,11 +509,12 @@ const Settings = () => {
       showMessage("Box order updated successfully", "success");
     } catch (error) {
       showMessage("Failed to update box order", "error");
-
+      // Reload from server to discard the optimistic update on failure
       loadShippingBoxes();
     }
   };
 
+  // Clears drag state when the drag operation ends without a valid drop
   const handleDragEnd = () => {
     setDraggedBox(null);
     setIsDragging(false);
@@ -489,6 +532,7 @@ const Settings = () => {
         ) : locations.length === 0 ? (
           <div className="mgr-empty">No locations found.</div>
         ) : (
+          /* Locations table — name, address, contact, status, and actions */
           <div className="mgr-table-wrapper">
             <table className="mgr-table">
               <thead>
@@ -512,6 +556,7 @@ const Settings = () => {
                     <td>
                       <div className="settings-address-cell">
                         {location.address_line1}
+                        {/* address_line2 is optional — only rendered when present */}
                         {location.address_line2 && (
                           <>
                             <br />
@@ -525,6 +570,7 @@ const Settings = () => {
                     </td>
                     <td>
                       <div className="settings-contact-cell">
+                        {/* Contact name and phone — each only rendered when present */}
                         {location.contact_name && (
                           <div className="settings-contact-item">
                             <User size={14} />
@@ -547,6 +593,7 @@ const Settings = () => {
                       </span>
                     </td>
                     <td>
+                      {/* Row actions — toggle status and edit */}
                       <div className="mgr-table-actions">
                         <button
                           onClick={() =>
@@ -584,11 +631,14 @@ const Settings = () => {
   };
 
   const renderShippingTab = () => {
+    // A location must be selected before boxes can be viewed or created
     const isLocationSelected = boxLocationFilter !== "all";
     return (
       <>
+        {/* Filter bar and Add Box button — Add button disabled until a location is selected */}
         <div className="settings-actions-bar">
           <div className="settings-filters">
+            {/* Location filter — required before any other filters are usable */}
             <select
               className="settings-filter-select"
               value={boxLocationFilter}
@@ -603,6 +653,7 @@ const Settings = () => {
                   </option>
                 ))}
             </select>
+            {/* Type and status filters — disabled until a location is selected */}
             <select
               className="settings-filter-select"
               value={boxTypeFilter}
@@ -635,6 +686,7 @@ const Settings = () => {
           </button>
         </div>
 
+        {/* Content states — prompt to select location, loading spinner, empty state, or table */}
         {!isLocationSelected ? (
           <div className="mgr-empty">
             Please select a location to view shipping boxes.
@@ -647,6 +699,7 @@ const Settings = () => {
             get started.
           </div>
         ) : (
+          /* Shipping boxes table — rows are draggable to reorder box_size_order */
           <div className="mgr-table-wrapper">
             <table className="mgr-table">
               <thead>
@@ -668,6 +721,7 @@ const Settings = () => {
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, box)}
                     onDragEnd={handleDragEnd}
+                    // Dims the row while it is being dragged
                     className={
                       isDragging && draggedBox?.box_id === box.box_id
                         ? "dragging"
@@ -676,6 +730,7 @@ const Settings = () => {
                     style={{ cursor: "grab" }}
                   >
                     <td>
+                      {/* Drag handle, box icon, name, and sort order badge */}
                       <div className="settings-box-name-with-handle">
                         <GripVertical size={18} className="drag-handle" />
                         <Package size={18} />
@@ -700,6 +755,7 @@ const Settings = () => {
                     </td>
                     <td>
                       {box.location_id ? (
+                        /* Resolve location_id to its display name */
                         <div className="settings-location-badge">
                           <MapPin size={14} />
                           {
@@ -722,6 +778,7 @@ const Settings = () => {
                       </span>
                     </td>
                     <td>
+                      {/* Row actions — toggle status, edit, delete */}
                       <div className="mgr-table-actions">
                         <button
                           onClick={() =>
@@ -760,6 +817,10 @@ const Settings = () => {
     );
   };
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div className="manager-page accent-settings">
       {/* Header */}
@@ -782,7 +843,7 @@ const Settings = () => {
       {/* Main Content */}
       <div className="mgr-container">
         <div className="mgr-body">
-          {/* Tabs */}
+          {/* Tab navigation — Seller Locations and Shipping Boxes */}
           <div className="mgr-tabs">
             <button
               onClick={() => setActiveTab("locations")}
@@ -800,7 +861,7 @@ const Settings = () => {
             </button>
           </div>
 
-          {/* Tab Content */}
+          {/* Tab Content — renders the active tab's panel */}
           <div className="mgr-tab-content">
             {activeTab === "locations" && renderLocationsTab()}
             {activeTab === "shipping" && renderShippingTab()}
@@ -813,7 +874,7 @@ const Settings = () => {
         <ToastNotification message={message.text} type={message.type} />
       )}
 
-      {/* Location Modal */}
+      {/* Location Modal — create or edit */}
       {showLocationModal && (
         <div className="mgr-modal-overlay" onClick={handleCloseLocationModal}>
           <div
@@ -823,6 +884,7 @@ const Settings = () => {
             <h2>{editingLocation ? "Edit Location" : "Add New Location"}</h2>
             <form onSubmit={handleLocationSubmit}>
               <div className="mgr-form-grid">
+                {/* Location name — full width */}
                 <div className="mgr-form-group mgr-form-group-full">
                   <label className="mgr-form-label">Location Name *</label>
                   <input
@@ -839,6 +901,7 @@ const Settings = () => {
                   />
                 </div>
 
+                {/* Address fields */}
                 <div className="mgr-form-group">
                   <label className="mgr-form-label">Address Line 1 *</label>
                   <input
@@ -918,6 +981,7 @@ const Settings = () => {
                   />
                 </div>
 
+                {/* Optional contact fields */}
                 <div className="mgr-form-group">
                   <label className="mgr-form-label">Phone</label>
                   <input
@@ -948,6 +1012,7 @@ const Settings = () => {
                   />
                 </div>
 
+                {/* Active toggle — full width */}
                 <div className="mgr-form-group mgr-form-group-full">
                   <label className="mgr-checkbox-label">
                     <input
@@ -965,6 +1030,7 @@ const Settings = () => {
                 </div>
               </div>
 
+              {/* Modal footer — cancel and submit */}
               <div className="mgr-modal-footer">
                 <button
                   type="button"
@@ -982,7 +1048,7 @@ const Settings = () => {
         </div>
       )}
 
-      {/* Shipping Box Modal */}
+      {/* Shipping Box Modal — create or edit */}
       {showBoxModal && (
         <div className="mgr-modal-overlay" onClick={handleCloseBoxModal}>
           <div
@@ -1026,6 +1092,7 @@ const Settings = () => {
                   </select>
                 </div>
 
+                {/* Dimension inputs */}
                 <div className="mgr-form-group">
                   <label className="mgr-form-label">Length (inches) *</label>
                   <input
@@ -1077,6 +1144,7 @@ const Settings = () => {
                   />
                 </div>
 
+                {/* Location assignment — only active locations are listed */}
                 <div className="mgr-form-group">
                   <label className="mgr-form-label">Location *</label>
                   <select
@@ -1104,6 +1172,7 @@ const Settings = () => {
                   </select>
                 </div>
 
+                {/* Active toggle — full width */}
                 <div className="mgr-form-group mgr-form-group-full">
                   <label className="mgr-checkbox-label">
                     <input
@@ -1121,6 +1190,7 @@ const Settings = () => {
                 </div>
               </div>
 
+              {/* Modal footer — cancel and submit */}
               <div className="mgr-modal-footer">
                 <button
                   type="button"
@@ -1138,13 +1208,25 @@ const Settings = () => {
         </div>
       )}
 
-      {/* Address Validation Modal */}
+      {/* Address Validation Modal — shown after location form submission */}
       {validationResult && (
         <AddressValidationModal
           validationResult={validationResult}
           onAcceptOriginal={handleAcceptOriginalAddress}
           onAcceptCorrected={handleAcceptCorrectedAddress}
           onCancel={handleCancelValidation}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmation.isOpen && deleteConfirmation.config && (
+        <ConfirmationModal
+          title={deleteConfirmation.config.title}
+          message={deleteConfirmation.config.message}
+          confirmText={deleteConfirmation.config.confirmText}
+          cancelText={deleteConfirmation.config.cancelText}
+          onConfirm={deleteConfirmation.handleConfirm}
+          onCancel={deleteConfirmation.handleCancel}
         />
       )}
     </div>

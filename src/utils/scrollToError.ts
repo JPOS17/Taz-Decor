@@ -7,13 +7,14 @@ const FIELD_ORDER = {
   shippingInfo: ['weight_oz', 'length_in', 'width_in', 'height_in', 'package_dimensions']
 };
 
+// Scrolls to the first section that contains an error based on the defined field order
 export const scrollToFirstErrorSection = (errors: ValidationErrors) => {
+
   if (Object.keys(errors).length === 0) return;
 
-  // Determine which section has the first error
   let targetSection: string | null = null;
 
-  // Check product info fields first
+  // Walk each section in order and stop at the first one that has an error
   for (const field of FIELD_ORDER.productInfo) {
     if (errors[field]) {
       targetSection = 'product-info';
@@ -21,7 +22,6 @@ export const scrollToFirstErrorSection = (errors: ValidationErrors) => {
     }
   }
 
-  // If no error in product info, check attributes
   if (!targetSection) {
     for (const field of FIELD_ORDER.productAttributes) {
       if (errors[field]) {
@@ -31,7 +31,6 @@ export const scrollToFirstErrorSection = (errors: ValidationErrors) => {
     }
   }
 
-  // If no error in attributes, check shipping
   if (!targetSection) {
     for (const field of FIELD_ORDER.shippingInfo) {
       if (errors[field]) {
@@ -41,13 +40,13 @@ export const scrollToFirstErrorSection = (errors: ValidationErrors) => {
     }
   }
 
-  // Scroll to the section
+  // Scroll to the target section, accounting for a fixed header offset
   if (targetSection) {
     setTimeout(() => {
       const sectionElement = document.querySelector(`[data-section="${targetSection}"]`);
       
       if (sectionElement) {
-        const headerOffset = 120; // Account for sticky header
+        const headerOffset = 120; 
         const elementPosition = sectionElement.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 

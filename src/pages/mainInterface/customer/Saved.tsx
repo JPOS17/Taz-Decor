@@ -16,25 +16,44 @@ import {
 
 import MiniCart from "../../../components/customerInterface/MiniCart";
 
+import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
+import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import { getBOGOLabel } from "../../../utils/couponUtils";
+
 import "../../../styles/pages/customerInterface/Tokens.css";
 import "../../../styles/pages/customerInterface/customer/Saved.css";
 
 const Saved = () => {
   const { wishlistItems, removeFromWishlist, addToCart } = useCart();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Coupon data
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
   const [customGroupMap, setCustomGroupMap] = useState<
     Record<number, number[]>
   >({});
 
+  // Mini cart state
   const [isMiniCartOpen, setIsMiniCartOpen] = useState(false);
   const [justAddedItem, setJustAddedItem] = useState<any>(null);
   const [isNewItem, setIsNewItem] = useState(false);
 
+  // Removal confirmation state
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<number | null>(null);
+
   const isEmailVerified = user?.isEmailVerified ?? false;
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Fetch coupons once on mount
   useEffect(() => {
     const loadCoupons = async () => {
       try {
@@ -52,8 +71,13 @@ const Saved = () => {
     };
 
     loadCoupons();
-  }, [wishlistItems]);
+  }, []);
 
+  // ============================================================================
+  // COUPON LOGIC
+  // ============================================================================
+
+  // Returns all applicable coupons for a given wishlist item, filtered by scope
   const getApplicableCouponsForItem = (
     item: (typeof wishlistItems)[0],
   ): ProductCoupon[] => {
@@ -61,45 +85,38 @@ const Saved = () => {
 
     const applicableCoupons: ProductCoupon[] = [];
 
-    const couponMatchesLocation = (coupon: ProductCoupon): boolean => {
-      return true;
-    };
-
-    const allCoupons = coupons.all.filter((c) => couponMatchesLocation(c));
-    applicableCoupons.push(...allCoupons);
+    applicableCoupons.push(...coupons.all);
 
     if (item.category_id) {
       const categoryCoupons = coupons.category.filter(
-        (c) => c.applies_to_id === item.category_id && couponMatchesLocation(c),
+        (c) => c.applies_to_id === item.category_id,
       );
       applicableCoupons.push(...categoryCoupons);
     }
 
     if (item.product_type_id) {
       const productTypeCoupons = coupons.product_type.filter(
-        (c) =>
-          c.applies_to_id === item.product_type_id && couponMatchesLocation(c),
+        (c) => c.applies_to_id === item.product_type_id,
       );
       applicableCoupons.push(...productTypeCoupons);
     }
 
     if (item.product_id) {
       const productCoupons = coupons.product.filter(
-        (c) => c.applies_to_id === item.product_id && couponMatchesLocation(c),
+        (c) => c.applies_to_id === item.product_id,
       );
       applicableCoupons.push(...productCoupons);
     }
 
     const variantCoupons = coupons.variant.filter(
-      (c) => c.applies_to_id === item.variant_id && couponMatchesLocation(c),
+      (c) => c.applies_to_id === item.variant_id,
     );
     applicableCoupons.push(...variantCoupons);
 
     if (customGroupMap[item.variant_id]) {
       const applicableCouponIds = customGroupMap[item.variant_id];
-      const customGroupCoupons = coupons.custom_group.filter(
-        (c) =>
-          applicableCouponIds.includes(c.coupon_id) && couponMatchesLocation(c),
+      const customGroupCoupons = coupons.custom_group.filter((c) =>
+        applicableCouponIds.includes(c.coupon_id),
       );
       applicableCoupons.push(...customGroupCoupons);
     }
@@ -107,6 +124,7 @@ const Saved = () => {
     return applicableCoupons;
   };
 
+  // Resolves the active coupon for a wishlist item, handling expiry and fallback to best available
   const getCouponForItem = (
     item: (typeof wishlistItems)[0],
   ): {
@@ -133,6 +151,7 @@ const Saved = () => {
             fallbackToBest: false,
           };
         } else {
+          // Coupon expired — fall back to best available
           const bestCoupon = findBestCoupon(applicableCoupons, item.price);
           return {
             itemCoupon: bestCoupon,
@@ -141,6 +160,7 @@ const Saved = () => {
           };
         }
       } else {
+        // Selected coupon no longer applicable — fall back to best available
         const bestCoupon = findBestCoupon(applicableCoupons, item.price);
         return {
           itemCoupon: bestCoupon,
@@ -153,6 +173,11 @@ const Saved = () => {
     return { itemCoupon: null, isExpired: false, fallbackToBest: false };
   };
 
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
+  // Adds the wishlist item to the cart (with its best coupon) and opens the mini cart
   const handleAddToCart = (item: (typeof wishlistItems)[0]) => {
     const cartItem = {
       variant_id: item.variant_id,
@@ -174,6 +199,39 @@ const Saved = () => {
     setIsNewItem(wasNewlyAdded);
     setIsMiniCartOpen(true);
   };
+
+  // Queues an item for removal and shows the confirmation modal
+  const handleRemoveFromWishlist = (variantId: number) => {
+    setItemToRemove(variantId);
+    setShowRemoveConfirm(true);
+  };
+
+  // Confirms removal and clears the pending item
+  const handleConfirmRemove = () => {
+    if (itemToRemove !== null) {
+      removeFromWishlist(itemToRemove);
+    }
+    setShowRemoveConfirm(false);
+    setItemToRemove(null);
+  };
+
+  // Cancels removal and dismisses the confirmation modal
+  const handleCancelRemove = () => {
+    setShowRemoveConfirm(false);
+    setItemToRemove(null);
+  };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
+  if (isLoading) {
+    return (
+      <div className="saved-page saved-loading-state">
+        <LoadingSpinner message="Loading your wishlist..." />
+      </div>
+    );
+  }
 
   if (wishlistItems.length === 0) {
     return (
@@ -261,7 +319,7 @@ const Saved = () => {
                       </p>
                     )}
 
-                    {/* Price with discount */}
+                    {/* Price — shows strikethrough original and discounted price when a coupon applies */}
                     <div className="saved-card-price-container">
                       {hasDiscount && discountInfo ? (
                         <>
@@ -300,9 +358,11 @@ const Saved = () => {
                             <div className="saved-card-deal-badges">
                               {itemCoupon.discount_type === "bogo" && (
                                 <span className="saved-deal-badge saved-deal-badge-bogo">
-                                  {itemCoupon.bogo_discount_percentage === 100
-                                    ? `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} FREE`
-                                    : `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} ${itemCoupon.bogo_discount_percentage}% OFF`}
+                                  {getBOGOLabel(
+                                    itemCoupon.bogo_buy_quantity,
+                                    itemCoupon.bogo_get_quantity,
+                                    itemCoupon.bogo_discount_percentage,
+                                  )}
                                 </span>
                               )}
                               {itemCoupon.free_shipping && (
@@ -316,7 +376,7 @@ const Saved = () => {
                       )}
                     </div>
 
-                    {/* Coupon info */}
+                    {/* Coupon info — expiry notices and coupon code badge */}
                     {itemCoupon && (
                       <div className="saved-card-coupon-info">
                         {isExpired && (
@@ -354,7 +414,9 @@ const Saved = () => {
 
                       <button
                         className="saved-btn-remove"
-                        onClick={() => removeFromWishlist(item.variant_id)}
+                        onClick={() =>
+                          handleRemoveFromWishlist(item.variant_id)
+                        }
                       >
                         Remove
                       </button>
@@ -365,7 +427,7 @@ const Saved = () => {
             })}
         </div>
 
-        {/* Mini Cart Modal */}
+        {/* Mini cart — slides in after adding an item from the wishlist */}
         <MiniCart
           isOpen={isMiniCartOpen}
           onClose={() => {
@@ -375,6 +437,18 @@ const Saved = () => {
           justAddedItem={justAddedItem}
           isNewItem={isNewItem}
           fromPath="/saved"
+        />
+
+        {/* Remove confirmation modal */}
+        <ConfirmModal
+          isOpen={showRemoveConfirm}
+          title="Remove from Wishlist?"
+          message="This item will be removed from your wishlist. Are you sure?"
+          confirmLabel="Yes, Remove"
+          cancelLabel="Cancel"
+          variant="danger"
+          onConfirm={handleConfirmRemove}
+          onCancel={handleCancelRemove}
         />
       </div>
     </div>

@@ -9,10 +9,10 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 import { fetchUserOrders, type Order } from "../../../api/orders";
-import { fetchUserProfile } from "../../../api/user";
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 import ProfileSidebar from "../../../components/universalComponents/ProfileSideBar";
+import { formatDate } from "../../../utils/formatDate";
 
 import "../../../styles/pages/customerInterface/Tokens.css";
 import "../../../styles/pages/customerInterface/customer/Orders.css";
@@ -21,38 +21,39 @@ const Orders = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [userProfile, setUserProfile] = useState<{
-    first_name: string;
-    last_name: string;
-    role: string;
-  } | null>(null);
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
 
+  // Order data
+  // user profile fields (first_name, last_name, role) come from useAuth() — no separate fetch needed
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  // UI state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  // Fetch orders once on mount
   useEffect(() => {
     loadData();
   }, []);
 
+  // Loads all orders for the authenticated user
   const loadData = async () => {
     try {
       setLoading(true);
-      const [ordersData, profileData] = await Promise.all([
-        fetchUserOrders(),
-        fetchUserProfile(),
-      ]);
+      const ordersData = await fetchUserOrders();
       setOrders(ordersData);
-      setUserProfile({
-        first_name: profileData.user.first_name,
-        last_name: profileData.user.last_name,
-        role: profileData.user.role,
-      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load data");
     } finally {
@@ -60,6 +61,11 @@ const Orders = () => {
     }
   };
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Toggles the expanded state of a given order row
   const toggleOrder = (orderId: number) => {
     setExpandedOrders((prev) => {
       const next = new Set(prev);
@@ -72,10 +78,12 @@ const Orders = () => {
     });
   };
 
+  // Converts a snake_case status string to Title Case for display
   const formatStatus = (status: string) => {
     return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
+  // Returns the appropriate status icon based on order status
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case "delivered":
@@ -96,6 +104,7 @@ const Orders = () => {
     }
   };
 
+  // Returns the CSS class for the status badge based on order status
   const getStatusBadgeClass = (status: string) => {
     switch (status.toLowerCase()) {
       case "delivered":
@@ -110,14 +119,9 @@ const Orders = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (loading) {
     return (
@@ -143,21 +147,17 @@ const Orders = () => {
     );
   }
 
-  if (!userProfile) {
-    return null;
-  }
-
   return (
     <div className="orders-page">
       <div className="orders-layout">
-        {/* Sidebar */}
+        {/* Sidebar — user data sourced directly from AuthContext */}
         <ProfileSidebar
-          firstName={userProfile.first_name}
-          lastName={userProfile.last_name}
-          role={userProfile.role}
+          firstName={user?.firstName ?? ""}
+          lastName={user?.lastName ?? ""}
+          role={user?.role ?? ""}
         />
 
-        {/* Main Content */}
+        {/* Main content */}
         <main className="orders-main">
           <div className="orders-header">
             <div className="orders-header-inner">
@@ -190,7 +190,7 @@ const Orders = () => {
                 const isExpanded = expandedOrders.has(order.order_id);
                 return (
                   <div key={order.order_id} className="orders-row">
-                    {/* Row Header */}
+                    {/* Clickable row header — expands/collapses order details */}
                     <div
                       className={`orders-row-header${order.tracking_number ? " orders-row-header-with-tracking" : ""} orders-row-header-clickable`}
                       onClick={() => toggleOrder(order.order_id)}
@@ -218,7 +218,7 @@ const Orders = () => {
                       </div>
                     </div>
 
-                    {/* Tracking Number Row */}
+                    {/* Tracking number row — only shown when a tracking number exists */}
                     {order.tracking_number && (
                       <div className="orders-tracking-row">
                         <span className="orders-info-label">
@@ -236,11 +236,11 @@ const Orders = () => {
                       </div>
                     )}
 
-                    {/* Collapsible section */}
+                    {/* Collapsible order details */}
                     <div
                       className={`orders-collapsible${isExpanded ? " orders-collapsible-open" : ""}`}
                     >
-                      {/* Info Grid */}
+                      {/* Info grid */}
                       <div className="orders-row-body">
                         <div className="orders-info-grid">
                           <div className="orders-info-item">
@@ -272,7 +272,7 @@ const Orders = () => {
                       </div>
                     </div>
 
-                    {/* Footer — always visible */}
+                    {/* Footer — always visible; shows shipping/delivery dates and view details button */}
                     <div className="orders-row-footer">
                       <div className="orders-footer-left">
                         {order.shipped_at && (

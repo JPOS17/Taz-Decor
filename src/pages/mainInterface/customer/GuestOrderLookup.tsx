@@ -6,7 +6,6 @@ import {
   FaTruck,
   FaCheckCircle,
   FaTimesCircle,
-  FaSpinner,
 } from "react-icons/fa";
 import {
   fetchGuestOrderByNumber,
@@ -16,6 +15,7 @@ import {
 import DeliveryEstimate from "../../../components/customerInterface/checkout/DeliveryEstimate";
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import { formatDate } from "../../../utils/formatDate";
 
 import "../../../styles/pages/customerInterface/Tokens.css";
 import "../../../styles/pages/customerInterface/customer/GuestOrderLookup.css";
@@ -24,6 +24,7 @@ import "../../../styles/pages/customerInterface/customer/GuestOrderLookup.css";
 // CONSTANTS
 // ============================================================================
 
+// Human-readable labels for each order status
 const STATUS_LABELS: Record<string, string> = {
   pending: "Order Received",
   processing: "Processing",
@@ -34,6 +35,7 @@ const STATUS_LABELS: Record<string, string> = {
   refunded: "Refunded",
 };
 
+// Icon components for each order status
 const STATUS_ICONS: Record<string, JSX.Element> = {
   pending: <FaShoppingBag />,
   processing: <FaShoppingBag />,
@@ -44,7 +46,7 @@ const STATUS_ICONS: Record<string, JSX.Element> = {
   refunded: <FaTimesCircle />,
 };
 
-// Maps the status key returned by getStatusClass() to a scoped CSS Module class
+// Maps the status key returned by getStatusClass() to its scoped CSS class
 const STATUS_STYLES: Record<string, string> = {
   pending: "guest-lookup-status-pending",
   shipped: "guest-lookup-status-shipped",
@@ -56,19 +58,13 @@ const STATUS_STYLES: Record<string, string> = {
 // HELPERS
 // ============================================================================
 
+// Returns a simplified status key used for icon and style lookups
 const getStatusClass = (status: string) => {
   if (status === "delivered") return "delivered";
   if (status === "shipped" || status === "ready_to_ship") return "shipped";
   if (status === "cancelled" || status === "refunded") return "cancelled";
   return "pending";
 };
-
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
 // ============================================================================
 // LOOKUPFORM COMPONENT
@@ -97,6 +93,7 @@ const LookupForm = () => {
   // VALIDATION
   // ============================================================================
 
+  // Validates form fields and populates field-level errors; returns true if valid
   const validate = (): boolean => {
     const errs: { orderNumber?: string; email?: string } = {};
     if (!orderNumber.trim()) errs.orderNumber = "Order number is required";
@@ -113,6 +110,7 @@ const LookupForm = () => {
   // EVENT HANDLERS
   // ============================================================================
 
+  // Verifies the order exists then navigates to the persistent result URL
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
@@ -121,9 +119,8 @@ const LookupForm = () => {
     setError(null);
 
     try {
-      // Verify the order exists before navigating
+      // Confirm order exists before navigating — email passed as query param so page refresh works
       await fetchGuestOrderByNumber(orderNumber.trim(), email.trim());
-      // Navigate to the persistent URL — email as query param so refresh works
       navigate(
         `/order-lookup/${encodeURIComponent(orderNumber.trim())}?email=${encodeURIComponent(email.trim())}`,
       );
@@ -195,6 +192,7 @@ const LookupForm = () => {
             )}
           </div>
 
+          {/* Error banner — shown when lookup fails */}
           {error && (
             <div className={"guest-lookup-error"}>
               <FaTimesCircle />
@@ -202,16 +200,15 @@ const LookupForm = () => {
             </div>
           )}
 
+          {loading && <LoadingSpinner message="Looking up order..." />}
+
           <button
             type="submit"
             className={"guest-lookup-btn"}
             disabled={loading}
           >
             {loading ? (
-              <>
-                <FaSpinner className={"guest-lookup-spin"} /> Looking up
-                order...
-              </>
+              "Looking up order..."
             ) : (
               <>
                 <FaSearch /> Find My Order
@@ -253,6 +250,7 @@ const OrderResult = () => {
   // DATA LOADING
   // ============================================================================
 
+  // Redirect to lookup form if required params are missing; otherwise load order
   useEffect(() => {
     if (!orderNumber || !email) {
       navigate("/order-lookup", { replace: true });
@@ -261,6 +259,7 @@ const OrderResult = () => {
     loadOrder();
   }, [orderNumber, email]);
 
+  // Fetches the guest order by order number and email
   const loadOrder = async () => {
     setLoading(true);
     setError(null);
@@ -363,7 +362,7 @@ const OrderResult = () => {
           </div>
         </div>
 
-        {/* Status banner — STATUS_STYLES maps the key to the correct scoped class */}
+        {/* Status banner */}
         <div
           className={`guest-lookup-status-banner ${STATUS_STYLES[statusClass] ?? ""}`}
         >
@@ -371,7 +370,7 @@ const OrderResult = () => {
           <span>{statusLabel}</span>
         </div>
 
-        {/* Tracking info */}
+        {/* Tracking info — only shown when a tracking number is present */}
         {order.tracking_number && (
           <div className={"guest-lookup-tracking-section"}>
             <h3>Tracking Information</h3>
@@ -397,9 +396,9 @@ const OrderResult = () => {
           </div>
         )}
 
-        {/* Two-column layout: items + summary */}
+        {/* Two-column layout: items on the left, summary and address on the right */}
         <div className={"guest-lookup-result-body"}>
-          {/* Items */}
+          {/* Items ordered */}
           <div className={"guest-lookup-items-section"}>
             <h3>Items Ordered</h3>
             <div className={"guest-lookup-items-list"}>
@@ -436,7 +435,7 @@ const OrderResult = () => {
             </div>
           </div>
 
-          {/* Summary + Address */}
+          {/* Order summary and shipping address */}
           <div className={"guest-lookup-summary-sidebar"}>
             <div className={"guest-lookup-price-summary"}>
               <h3>Order Summary</h3>

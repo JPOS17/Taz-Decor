@@ -4,11 +4,11 @@ import { getActiveLocations, getLocationById } from "../controllers/sellerLocati
 export const sellerLocationRouter = express.Router();
 
 // ============================================================================
-// SELLER LOCATION ROUTES (PUBLIC)
+// SELLER LOCATION ROUTES — Public
 // ============================================================================
 
-// GET all active locations - Public route (no auth needed)
+// GET all active seller locations
 sellerLocationRouter.get("/", getActiveLocations);
 
-// GET specific location by ID - Public route (no auth needed)
+// GET single seller location by ID
 sellerLocationRouter.get("/:locationId", getLocationById);

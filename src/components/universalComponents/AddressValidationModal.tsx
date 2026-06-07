@@ -9,6 +9,7 @@ interface AddressValidationModalProps {
   onCancel: () => void;
 }
 
+// Modal shown after USPS address validation during checkout
 const AddressValidationModal = ({
   validationResult,
   onAcceptOriginal,
@@ -18,6 +19,7 @@ const AddressValidationModal = ({
   const { is_valid, validation_results, original_address, validated_address } =
     validationResult;
 
+  // Normalize street fields — API may return street1 or address_line1 depending on the source
   const originalStreet1 =
     original_address.street1 || (original_address as any).address_line1 || "";
   const originalStreet2 =
@@ -26,6 +28,7 @@ const AddressValidationModal = ({
   const originalState = original_address.state;
   const originalZip = original_address.zip;
 
+  // True when USPS returned a validated address that differs from what the user entered
   const hasCorrections =
     validated_address &&
     (validated_address.street1 !== originalStreet1 ||
@@ -36,6 +39,7 @@ const AddressValidationModal = ({
   return (
     <div className="avm-overlay">
       <div className="avm-modal">
+        {/* Header — icon and title reflect validation outcome */}
         <div className="avm-header">
           <h3>
             {is_valid ? (
@@ -56,20 +60,21 @@ const AddressValidationModal = ({
         </div>
 
         <div className="avm-body">
-          {/* Valid, no corrections */}
+          {/* State 1: valid, no corrections needed */}
           {is_valid && !hasCorrections && (
             <div className="avm-validation-success">
               <p>Your address has been verified successfully!</p>
             </div>
           )}
 
-          {/* Valid, with corrections */}
+          {/* State 2: valid, but USPS suggests a correction — shows a side-by-side comparison */}
           {is_valid && hasCorrections && (
             <div className="avm-validation-correction">
               <p className="avm-correction-notice">
                 We found a suggested correction for your address:
               </p>
               <div className="avm-address-comparison">
+                {/* Original address as entered by the user */}
                 <div className="avm-address-column">
                   <h4>You Entered:</h4>
                   <div className="avm-address-box avm-address-box-original">
@@ -80,6 +85,8 @@ const AddressValidationModal = ({
                     </p>
                   </div>
                 </div>
+
+                {/* USPS-corrected address */}
                 <div className="avm-address-column">
                   <h4>Suggested:</h4>
                   <div className="avm-address-box avm-address-box-corrected">
@@ -97,7 +104,7 @@ const AddressValidationModal = ({
             </div>
           )}
 
-          {/* Invalid */}
+          {/* State 3: invalid — shows USPS error messages and the address as entered */}
           {!is_valid && (
             <div className="avm-validation-error">
               <p className="avm-error-notice">
@@ -122,13 +129,16 @@ const AddressValidationModal = ({
           )}
         </div>
 
+        {/* Actions — buttons rendered conditionally based on validation state */}
         <div className="avm-actions">
+          {/* Valid, no corrections — single continue button */}
           {is_valid && !hasCorrections && (
             <button className="avm-btn-accept" onClick={onAcceptOriginal}>
               Continue
             </button>
           )}
 
+          {/* Valid, with corrections — let the user choose which address to use */}
           {is_valid && hasCorrections && (
             <>
               <button
@@ -146,6 +156,7 @@ const AddressValidationModal = ({
             </>
           )}
 
+          {/* Invalid — allow going back to edit or saving as-is */}
           {!is_valid && (
             <>
               <button className="avm-btn-cancel" onClick={onCancel}>

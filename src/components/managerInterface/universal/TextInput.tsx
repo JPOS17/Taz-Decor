@@ -11,6 +11,7 @@ interface TextInputProps {
   autoFormat?: boolean;
 }
 
+// Renders a text input or textarea depending on whether rows is provided
 export function TextInput({
   value,
   onChange,
@@ -21,6 +22,7 @@ export function TextInput({
   disabled = false,
   autoFormat = false,
 }: TextInputProps) {
+  // Formats the value on blur when autoFormat is enabled
   const handleBlur = () => {
     if (autoFormat && type === "text" && typeof value === "string") {
       const formatted = formatName(value);
@@ -30,6 +32,7 @@ export function TextInput({
     }
   };
 
+  // Textarea variant — rendered when a row count is provided
   if (rows) {
     return (
       <textarea
@@ -44,6 +47,7 @@ export function TextInput({
     );
   }
 
+  // Default single-line input — step set to 0.01 for number fields
   return (
     <input
       type={type}

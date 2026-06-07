@@ -31,13 +31,13 @@ const Login = () => {
   // HANDLERS
   // ============================================================================
 
+  // Logs the user in, syncs the guest cart to the database, then redirects
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      // Login returns user data
       await login(email, password);
 
       // Sync guest cart/wishlist to database, then load full DB state
@@ -69,19 +69,22 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
+        {/* Page header */}
         <div className="login-header">
           <h1 className="login-title">Welcome</h1>
           <p className="login-subtitle">Sign in to your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
+          {/* Inline error message */}
           {error && <div className="login-error-message">{error}</div>}
 
-          {/* Show message from redirect if exists */}
+          {/* Info message passed via router state */}
           {location.state?.message && (
             <div className="login-info-message">{location.state.message}</div>
           )}
 
+          {/* Email input */}
           <div className="login-form-group">
             <label htmlFor="email" className="login-label">
               Email <span className="login-required">*</span>
@@ -97,6 +100,7 @@ const Login = () => {
             />
           </div>
 
+          {/* Password input — forgot password link sits inline with the label */}
           <div className="login-form-group">
             <div className="login-password-header">
               <label htmlFor="password" className="login-label">
@@ -124,6 +128,7 @@ const Login = () => {
             {isLoading ? "Signing in..." : "Sign In"}
           </button>
 
+          {/* Register link */}
           <div className="login-footer">
             <p className="login-footer-text">
               Don't have an account?{" "}

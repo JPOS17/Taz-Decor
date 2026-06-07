@@ -10,6 +10,7 @@ interface WarehouseSelectorProps {
   required?: boolean;
 }
 
+// Thin wrapper around FormField + SelectInput for picking a warehouse shipping location
 export function WarehouseSelector({
   value,
   onChange,

@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { FaTag, FaTimes, FaLock, FaShippingFast } from "react-icons/fa";
 import type { ProductCoupon } from "../../../api/couponCustomer";
-import { fetchUserCouponUsage } from "../../../api/couponCustomer";
-import { useAuth } from "../../../context/AuthContext";
 
 import "../../../styles/components/customerInterface/checkout/CartLevelCouponSelector.css";
 
@@ -14,6 +12,8 @@ interface CartLevelCouponSelectorProps {
   subtotalAfterItemDiscounts: number;
   isEmailVerified: boolean;
   isGuest: boolean;
+  // Usage map is pre-fetched by CheckoutPage and passed down to avoid duplicate API calls
+  userCouponUsage: Record<number, number>;
 }
 
 const CartLevelCouponSelector = ({
@@ -23,52 +23,39 @@ const CartLevelCouponSelector = ({
   subtotalAfterItemDiscounts,
   isEmailVerified,
   isGuest,
+  userCouponUsage,
 }: CartLevelCouponSelectorProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
 
-  // Per-user usage map — fetched internally so no parent needs to manage it
-  const [userCouponUsage, setUserCouponUsage] = useState<
-    Record<number, number>
-  >({});
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (!user) {
-      setUserCouponUsage({});
-      return;
-    }
-
-    const loadUserUsage = async () => {
-      try {
-        const usage = await fetchUserCouponUsage(user.userId);
-        setUserCouponUsage(usage);
-      } catch (error) {
-        console.error("Error loading user coupon usage:", error);
-      }
-    };
-
-    loadUserUsage();
-  }, [user?.userId, isLoading]);
-
-  // Filter for cart-level coupons only
+  // Only show coupons that apply to the entire cart
   const cartLevelCoupons = coupons.filter((c) => c.applies_to_type === "all");
 
   if (cartLevelCoupons.length === 0) {
     return null;
   }
 
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  // When a coupon is selected from the list, pass it up to the parent and collapse the list
   const handleCouponSelect = (coupon: ProductCoupon) => {
     onCouponSelect(coupon);
     setIsExpanded(false);
   };
 
+  // When the remove button is clicked, clear the selected coupon and collapse the list
   const handleRemoveCoupon = () => {
     onCouponSelect(null);
     setIsExpanded(false);
   };
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Returns a human-readable discount label for a coupon
   const getDiscountDisplay = (coupon: ProductCoupon) => {
     if (coupon.discount_type === "free_shipping_only") return "FREE SHIPPING";
     if (!coupon.discount_value) return "Invalid coupon";
@@ -79,6 +66,7 @@ const CartLevelCouponSelector = ({
     return "Discount";
   };
 
+  // Returns true if the coupon passes all eligibility checks for the current user/cart
   const isEligible = (coupon: ProductCoupon) => {
     if (coupon.requires_verified_email && !isEmailVerified) return false;
     if (
@@ -100,6 +88,7 @@ const CartLevelCouponSelector = ({
     return true;
   };
 
+  // Returns a user-facing explanation for why a coupon cannot be applied
   const getIneligibilityReason = (coupon: ProductCoupon) => {
     if (coupon.requires_verified_email && !isEmailVerified)
       return "Email verification required";
@@ -126,12 +115,18 @@ const CartLevelCouponSelector = ({
   const isFreeShippingCoupon = (coupon: ProductCoupon) =>
     coupon.discount_type === "free_shipping_only";
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div className="clcs-section">
       <div className="clcs-header">
         <h3 className="clcs-title">
           <FaTag /> Cart Discount
         </h3>
+
+        {/* Header right — shows selected coupon details or an add button */}
         {selectedCoupon ? (
           <div className="clcs-selected-coupon">
             <div className="clcs-selected-coupon-details">
@@ -169,9 +164,10 @@ const CartLevelCouponSelector = ({
         )}
       </div>
 
+      {/* Expandable coupon list */}
       {isExpanded && (
         <>
-          {/* Guest notice */}
+          {/* Sign-in notice — shown when the user's email is not verified */}
           {!isEmailVerified && (
             <div className="clcs-guest-notice">
               <FaLock className="clcs-guest-icon" />
@@ -187,7 +183,7 @@ const CartLevelCouponSelector = ({
             </div>
           )}
 
-          {/* Coupon list */}
+          {/* Coupon list — pointer events disabled for unverified users */}
           <div
             style={
               !isEmailVerified

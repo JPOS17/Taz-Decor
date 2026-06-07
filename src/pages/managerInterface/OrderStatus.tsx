@@ -25,6 +25,7 @@ import {
   downloadCSV,
   generatePirateShipFilename,
 } from "../../utils/shippingLabelFormatter";
+import { formatDate } from "../../utils/formatDate";
 
 import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 import { FormField } from "../../components/managerInterface/universal/FormField";
@@ -86,12 +87,14 @@ const ExpandedOrderRow = ({
     handleCancel,
   } = useConfirmationModal();
 
+  // Ref used to scroll the error message into view when a validation error occurs
   const errorRef = useRef<HTMLDivElement>(null);
 
   // ============================================================================
   // CONSTANTS
   // ============================================================================
 
+  // Linear status flow — each step knows its next status for the advance button
   const statusFlow = [
     { value: "pending", label: "Pending", color: "gray", next: "processing" },
     {
@@ -114,11 +117,13 @@ const ExpandedOrderRow = ({
   // DATA LOADING
   // ============================================================================
 
+  // Load order details on mount; default shipping carrier to USPS
   useEffect(() => {
     loadOrderDetails();
     setShippingCarrier("USPS");
   }, [order.order_id]);
 
+  // Fetches full order details and pre-fills tracking fields if they already exist
   const loadOrderDetails = async () => {
     try {
       setLoadingDetails(true);
@@ -135,6 +140,7 @@ const ExpandedOrderRow = ({
     }
   };
 
+  // Fetches the status history log and shows it in the history panel
   const loadStatusHistory = async () => {
     try {
       const data = await fetchOrderStatusHistory(order.order_id);
@@ -149,9 +155,11 @@ const ExpandedOrderRow = ({
   // STATUS HELPERS
   // ============================================================================
 
+  // Returns the index of the current status in the flow array
   const getCurrentStatusIndex = () =>
     statusFlow.findIndex((s) => s.value === order.status);
 
+  // Returns the next status object, or null if already at the final step
   const getNextStatus = () => {
     const currentIndex = getCurrentStatusIndex();
     if (currentIndex === -1 || currentIndex >= statusFlow.length - 1)
@@ -159,6 +167,7 @@ const ExpandedOrderRow = ({
     return statusFlow[currentIndex + 1];
   };
 
+  // Returns the previous status object for rollback; null if at the start or already shipped
   const getPreviousStatus = () => {
     const currentIndex = getCurrentStatusIndex();
     if (currentIndex <= 0) return null;
@@ -167,24 +176,10 @@ const ExpandedOrderRow = ({
   };
 
   // ============================================================================
-  // FORMAT HELPERS
-  // ============================================================================
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  // ============================================================================
   // EVENT HANDLERS
   // ============================================================================
 
+  // Sends the status update to the API and refreshes the parent order list
   const handleStatusUpdate = async (newStatus: string) => {
     setLoading(true);
     setError(null);
@@ -205,6 +200,7 @@ const ExpandedOrderRow = ({
     }
   };
 
+  // Validates tracking is present before shipping, then opens the advance confirmation modal
   const handleNextStatusClick = (nextStatus: {
     value: string;
     label: string;
@@ -218,6 +214,7 @@ const ExpandedOrderRow = ({
       delivered: "This indicates the customer has received their package.",
     };
 
+    // Block advancing to 'shipped' if no tracking number is entered
     if (nextStatus.value === "shipped" && !trackingNumber.trim()) {
       setError(
         "Please enter a tracking number before marking the order as shipped.",
@@ -243,6 +240,7 @@ const ExpandedOrderRow = ({
     });
   };
 
+  // Opens the rollback confirmation modal — always records a rollback note in history
   const handlePreviousStatusClick = (prevStatus: {
     value: string;
     label: string;
@@ -254,6 +252,7 @@ const ExpandedOrderRow = ({
     });
   };
 
+  // Saves updated tracking number and carrier without changing the order status
   const handleTrackingUpdateConfirmed = async () => {
     setLoading(true);
     setError(null);
@@ -278,6 +277,7 @@ const ExpandedOrderRow = ({
     }
   };
 
+  // Opens the tracking update confirmation modal
   const handleTrackingUpdate = () => {
     showConfirmation({
       title: "Update Tracking Information?",
@@ -287,6 +287,7 @@ const ExpandedOrderRow = ({
     });
   };
 
+  // Opens the cancel order confirmation modal
   const handleCancelOrder = () => {
     showConfirmation({
       title: "Cancel Order?",
@@ -296,6 +297,7 @@ const ExpandedOrderRow = ({
     });
   };
 
+  // Opens the refund order confirmation modal
   const handleRefundOrder = () => {
     showConfirmation({
       title: "Refund Order?",
@@ -305,6 +307,7 @@ const ExpandedOrderRow = ({
     });
   };
 
+  // Toggles the status history panel; fetches history from the API when opening for the first time
   const toggleHistory = async () => {
     if (showHistory) {
       setShowHistory(false);
@@ -331,17 +334,18 @@ const ExpandedOrderRow = ({
             </div>
           ) : (
             <>
+              {/* Inline error — scrolled into view when a validation error occurs */}
               {error && (
                 <div className="order-error-message" ref={errorRef}>
                   {error}
                 </div>
               )}
 
-              {/* Order Details */}
+              {/* Order Details Section */}
               <div className="order-details-section">
                 <h3>Order Details</h3>
 
-                {/* Identity & Shipping Info */}
+                {/* Identity & Shipping Info — order number, date, status, box, and weight */}
                 <div className="order-details-primary">
                   <div className="order-detail-item">
                     <strong>Order Number</strong>
@@ -349,7 +353,7 @@ const ExpandedOrderRow = ({
                   </div>
                   <div className="order-detail-item">
                     <strong>Created</strong>
-                    {formatDate(order.created_at)}
+                    {formatDate(order.created_at, true)}
                   </div>
                   <div className="order-detail-item">
                     <strong>Status</strong>
@@ -374,7 +378,7 @@ const ExpandedOrderRow = ({
                   )}
                 </div>
 
-                {/* Financials */}
+                {/* Financials — subtotal, discount, shipping, tax, and total */}
                 <div className="order-details-financials">
                   <div className="order-detail-item">
                     <strong>Subtotal</strong>${order.subtotal.toFixed(2)}
@@ -396,7 +400,7 @@ const ExpandedOrderRow = ({
                   </div>
                 </div>
 
-                {/* Shipping Address */}
+                {/* Shipping Address — includes email and tracking link if available */}
                 {orderDetails && (
                   <div className="shipping-address-section">
                     <h4>Shipping Address</h4>
@@ -426,6 +430,7 @@ const ExpandedOrderRow = ({
                           </a>
                         </p>
                       )}
+                      {/* USPS tracking link — only shown when a tracking number exists */}
                       {order.tracking_number && (
                         <p>
                           <strong>Tracking: </strong>
@@ -443,7 +448,7 @@ const ExpandedOrderRow = ({
                   </div>
                 )}
 
-                {/* Order Items */}
+                {/* Order Items — product image, name, variant, quantity, and line total */}
                 {orderDetails && orderDetails.items && (
                   <div className="order-items-section">
                     <h4>Items ({orderDetails.items.length})</h4>
@@ -486,7 +491,7 @@ const ExpandedOrderRow = ({
               <div className="status-update-section">
                 <h3>Update Order Status</h3>
 
-                {/* Status Flow */}
+                {/* Status Flow — visual step indicator showing current, past, and upcoming steps */}
                 <div className="status-flow">
                   {statusFlow.map((status, index) => {
                     const isCurrent = status.value === order.status;
@@ -501,6 +506,7 @@ const ExpandedOrderRow = ({
                           {index + 1}
                         </div>
                         <div className="status-label">{status.label}</div>
+                        {/* Connector line between steps — filled for completed steps */}
                         {index < statusFlow.length - 1 && (
                           <div
                             className={`status-connector ${isPast ? "completed" : ""}`}
@@ -511,7 +517,7 @@ const ExpandedOrderRow = ({
                   })}
                 </div>
 
-                {/* Tracking */}
+                {/* Tracking Section — tracking input is only editable at ready_to_ship */}
                 <div className="tracking-section">
                   <h4>Tracking Information</h4>
                   <div className="tracking-inputs">
@@ -531,6 +537,7 @@ const ExpandedOrderRow = ({
                     </div>
                     <div className="tracking-field">
                       <label>Service</label>
+                      {/* Maps the shipping_service API key to a human-readable label */}
                       <div className="tracking-info-block">
                         {orderDetails?.shipping_service
                           ? ((
@@ -554,7 +561,7 @@ const ExpandedOrderRow = ({
                   </button>
                 </div>
 
-                {/* Notes */}
+                {/* Notes — optional note attached to this status change */}
                 <div className="notes-section">
                   <FormField label="Notes (Optional)">
                     <TextInput
@@ -566,7 +573,7 @@ const ExpandedOrderRow = ({
                   </FormField>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Action Buttons — rollback, advance, cancel, and refund */}
                 <div className="status-actions">
                   {previousStatus && (
                     <button
@@ -586,6 +593,7 @@ const ExpandedOrderRow = ({
                       Move to {nextStatus.label}
                     </button>
                   )}
+                  {/* Special actions — outside the normal flow */}
                   <div className="special-actions">
                     <button
                       onClick={handleCancelOrder}
@@ -605,7 +613,7 @@ const ExpandedOrderRow = ({
                 </div>
               </div>
 
-              {/* Status History */}
+              {/* Status History — toggle visibility; entries shown newest-first */}
               <div className="status-history-section">
                 <button onClick={toggleHistory} className="btn-toggle-history">
                   {showHistory ? "Hide" : "Show"} Status History
@@ -621,9 +629,10 @@ const ExpandedOrderRow = ({
                             {item.status.replace(/_/g, " ")}
                           </span>
                           <span className="order-history-date">
-                            {formatDate(item.created_at)}
+                            {formatDate(item.created_at, true)}
                           </span>
                         </div>
+                        {/* Notes are optional — only shown when present */}
                         {item.notes && (
                           <div className="order-history-notes">
                             {item.notes}
@@ -637,6 +646,7 @@ const ExpandedOrderRow = ({
             </>
           )}
 
+          {/* Confirmation Modal — shared by all action buttons in this row */}
           {confirmOpen && confirmConfig && (
             <ConfirmationModal
               title={confirmConfig.title}
@@ -684,10 +694,12 @@ const OrderStatusPage = () => {
   // DATA LOADING
   // ============================================================================
 
+  // Load orders on mount
   useEffect(() => {
     loadOrders();
   }, []);
 
+  // Fetches the most recent 100 orders
   const loadOrders = async () => {
     setLoading(true);
     setError(null);
@@ -705,15 +717,7 @@ const OrderStatusPage = () => {
   // FORMAT HELPERS
   // ============================================================================
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
+  // Maps a status string to its CSS color token
   const getStatusColor = (status: string) => {
     const statusMap: Record<string, string> = {
       pending: "gray",
@@ -731,11 +735,13 @@ const OrderStatusPage = () => {
   // DERIVED VALUES
   // ============================================================================
 
+  // Applies the active status filter to the full order list
   const filteredOrders =
     statusFilter === "all"
       ? orders
       : orders.filter((order) => order.status === statusFilter);
 
+  // Count of ready_to_ship orders — drives the export bar and filter label
   const readyToShipCount = orders.filter(
     (order) => order.status === "ready_to_ship",
   ).length;
@@ -744,10 +750,12 @@ const OrderStatusPage = () => {
   // EVENT HANDLERS
   // ============================================================================
 
+  // Toggles the expanded row for the clicked order; collapses it if already open
   const handleRowClick = (orderId: number) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
   };
 
+  // Adds or removes an order from the export selection set
   const toggleOrderSelection = (orderId: number) => {
     setSelectedOrderIds((prev) => {
       const newSet = new Set(prev);
@@ -760,6 +768,7 @@ const OrderStatusPage = () => {
     });
   };
 
+  // Selects all orders currently in ready_to_ship status
   const selectAllReadyToShip = () => {
     const readyToShipIds = orders
       .filter((order) => order.status === "ready_to_ship")
@@ -767,10 +776,12 @@ const OrderStatusPage = () => {
     setSelectedOrderIds(new Set(readyToShipIds));
   };
 
+  // Clears the export selection set
   const clearSelection = () => {
     setSelectedOrderIds(new Set());
   };
 
+  // Validates all selected orders are ready_to_ship, generates a Pirate Ship CSV, and downloads it
   const exportToPirateShip = async () => {
     if (selectedOrderIds.size === 0) {
       setExportError("Please select at least one order to export");
@@ -784,6 +795,7 @@ const OrderStatusPage = () => {
       );
       const orderDetailsList = await Promise.all(orderDetailsPromises);
 
+      // Guard: block export if any selected order isn't ready to ship
       const nonReadyOrders = orderDetailsList.filter(
         (order) => order.status !== "ready_to_ship",
       );
@@ -847,6 +859,7 @@ const OrderStatusPage = () => {
       {/* Main Content */}
       <div className="mgr-container">
         <div className="mgr-body">
+          {/* Inline error alerts — general and export-specific */}
           {error && <div className="order-error-message">{error}</div>}
           {exportError && (
             <div className="order-error-message order-error-dismissible">
@@ -860,7 +873,7 @@ const OrderStatusPage = () => {
             </div>
           )}
 
-          {/* Filters */}
+          {/* Status Filter */}
           <div className="order-filters">
             <div className="order-filters-grid">
               <div className="order-filter-item">
@@ -872,6 +885,7 @@ const OrderStatusPage = () => {
                   <option value="all">All Orders</option>
                   <option value="pending">Pending</option>
                   <option value="processing">Processing</option>
+                  {/* Count shown inline so manager can see how many need exporting */}
                   <option value="ready_to_ship">
                     Ready to Ship ({readyToShipCount})
                   </option>
@@ -884,7 +898,7 @@ const OrderStatusPage = () => {
             </div>
           </div>
 
-          {/* Export Actions Bar */}
+          {/* Export Actions Bar — only visible when there are ready_to_ship orders */}
           {readyToShipCount > 0 && (
             <div className="export-actions-bar">
               <div className="export-actions-left">
@@ -906,6 +920,7 @@ const OrderStatusPage = () => {
                   Select All Ready to Ship ({readyToShipCount})
                 </button>
               </div>
+              {/* Export button — disabled until at least one order is selected */}
               <button
                 onClick={exportToPirateShip}
                 disabled={selectedOrderIds.size === 0 || isExporting}
@@ -917,7 +932,7 @@ const OrderStatusPage = () => {
             </div>
           )}
 
-          {/* Orders Table */}
+          {/* Orders Table — loading spinner, empty state, or table */}
           {loading ? (
             <LoadingSpinner message="Loading orders..." />
           ) : filteredOrders.length === 0 ? (
@@ -931,9 +946,8 @@ const OrderStatusPage = () => {
               <table className="mgr-table">
                 <thead>
                   <tr>
-                    <th className="order-th-checkbox">
-                      {/* Checkbox column */}
-                    </th>
+                    {/* Checkbox column — only selectable for ready_to_ship orders */}
+                    <th className="order-th-checkbox"></th>
                     <th>Order Number</th>
                     <th>Date</th>
                     <th>Ship By</th>
@@ -949,6 +963,7 @@ const OrderStatusPage = () => {
                         className={`order-row ${expandedOrderId === order.order_id ? "expanded" : ""}`}
                         onClick={() => handleRowClick(order.order_id)}
                       >
+                        {/* Checkbox cell — stopPropagation prevents row expansion when clicking the checkbox */}
                         <td
                           onClick={(e) => {
                             e.stopPropagation();
@@ -993,6 +1008,7 @@ const OrderStatusPage = () => {
                         </td>
                         <td className="order-col-tracking">
                           {order.tracking_number ? (
+                            /* Tracking link — stopPropagation prevents row expansion when clicking */
                             <a
                               href={`https://tools.usps.com/go/TrackConfirmAction?tLabels=${order.tracking_number}`}
                               target="_blank"
@@ -1009,6 +1025,7 @@ const OrderStatusPage = () => {
                           )}
                         </td>
                       </tr>
+                      {/* Expanded order row — renders inline below the summary row */}
                       {expandedOrderId === order.order_id && (
                         <ExpandedOrderRow
                           order={order}

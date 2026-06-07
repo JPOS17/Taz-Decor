@@ -41,6 +41,7 @@ const Register = () => {
   // HELPER FUNCTIONS
   // ============================================================================
 
+  // Scores the password from 0–5 and returns unmet requirement feedback
   const checkPasswordStrength = (password: string) => {
     const feedback: string[] = [];
     let score = 0;
@@ -53,11 +54,12 @@ const Register = () => {
     else feedback.push("One lowercase letter");
     if (/[0-9]/.test(password)) score++;
     else feedback.push("One number");
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) score++;
+    if (/[!@#$%^&*()_+\--=\[\]{};':"\\|,.<>\/?]/.test(password)) score++;
     else feedback.push("One special character");
     return { score, feedback };
   };
 
+  // Returns an error string if the password fails any requirement, or null if it passes
   const validatePassword = (password: string): string | null => {
     if (password.length < 8)
       return "Password must be at least 8 characters long";
@@ -76,6 +78,7 @@ const Register = () => {
   // HANDLERS
   // ============================================================================
 
+  // Updates form fields and re-evaluates password strength when the password field changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -84,11 +87,11 @@ const Register = () => {
     }
   };
 
+  // Validates the form, registers the user, syncs the guest cart, then redirects to profile
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Validate password
     const passwordError = validatePassword(formData.password);
     if (passwordError) {
       setError(passwordError);
@@ -103,9 +106,9 @@ const Register = () => {
     setIsLoading(true);
 
     try {
+      // Strip confirmPassword before sending to the API
       const { confirmPassword, ...registerData } = formData;
 
-      // Register returns user data
       await register(registerData);
 
       // Sync guest cart/wishlist to database, then load full DB state
@@ -123,19 +126,23 @@ const Register = () => {
   // RENDER
   // ============================================================================
 
+  // Strength class drives the CSS fill width and color of the strength bar
   const strengthClass = `register-strength-${passwordStrength.score}`;
 
   return (
     <div className="register-container">
       <div className="register-card">
+        {/* Page header */}
         <div className="register-header">
           <h1 className="register-title">Create Account</h1>
           <p className="register-subtitle">Join us today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="register-form">
+          {/* Inline error message */}
           {error && <div className="register-error-message">{error}</div>}
 
+          {/* First and last name — side by side */}
           <div className="register-form-row">
             <div className="register-form-group">
               <label htmlFor="first_name" className="register-label">
@@ -170,6 +177,7 @@ const Register = () => {
             </div>
           </div>
 
+          {/* Email input */}
           <div className="register-form-group">
             <label htmlFor="email" className="register-label">
               Email <span className="register-required">*</span>
@@ -186,6 +194,7 @@ const Register = () => {
             />
           </div>
 
+          {/* Phone input — optional */}
           <div className="register-form-group">
             <label htmlFor="phone" className="register-label">
               Phone (Optional)
@@ -201,6 +210,7 @@ const Register = () => {
             />
           </div>
 
+          {/* Password input with live strength meter */}
           <div className="register-form-group">
             <label htmlFor="password" className="register-label">
               Password <span className="register-required">*</span>
@@ -213,6 +223,7 @@ const Register = () => {
               placeholder="At least 8 characters"
               required
             />
+            {/* Strength bar and unmet requirements — only shown once the user starts typing */}
             {formData.password && (
               <div className="register-password-strength">
                 <div className="register-strength-bar">
@@ -229,6 +240,7 @@ const Register = () => {
             )}
           </div>
 
+          {/* Confirm password input */}
           <div className="register-form-group">
             <label htmlFor="confirmPassword" className="register-label">
               Confirm Password <span className="register-required">*</span>
@@ -251,6 +263,7 @@ const Register = () => {
             {isLoading ? "Creating Account..." : "Create Account"}
           </button>
 
+          {/* Sign in link */}
           <div className="register-footer">
             <p className="register-footer-text">
               Already have an account?{" "}

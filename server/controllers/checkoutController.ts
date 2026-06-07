@@ -1,10 +1,26 @@
 import { Request, Response } from "express";
 import { getUserFromToken } from "../middleware/authMiddleware";
 import { pool } from "../db";
+import { randomBytes } from "crypto";
 import { sendOrderConfirmationEmail } from "../utils/emailService";
 import { selectShippingBox } from "../utils/boxPackingService";
 import { getRealTimeShippingRates, validateAddress } from "../utils/shippoService";
 import type { BoxDimensions } from "../utils/shippoService";
+
+// ============================================================================
+// ORDER NUMBER GENERATION
+// ============================================================================
+
+// Alphabet excludes visually ambiguous characters: 0, O, 1, I, L
+const ORDER_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
+const ORDER_ID_LENGTH = 7;
+
+const generateOrderId = (): string => {
+  const bytes = randomBytes(ORDER_ID_LENGTH);
+  return Array.from(bytes)
+    .map((b) => ORDER_ALPHABET[b % ORDER_ALPHABET.length])
+    .join("");
+};
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -341,7 +357,6 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
           box_name: box.box_name,
         };
         selectedBoxId = box.box_id;
-        console.log(`✅ Selected box for shipping calculation: ${box.box_name} (ID: ${box.box_id})`);
       }
     } catch (boxError) {
       console.error("⚠️  Box selection failed, will use default dimensions:", boxError);
@@ -606,7 +621,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         const weightOz = variant?.weight_oz ? parseFloat(variant.weight_oz) : 8;
         totalWeightOz += weightOz * cartItem.quantity;
       }
-      console.log(`⚖️  Order total weight: ${totalWeightOz}oz (${(totalWeightOz / 16).toFixed(2)}lbs)`);
 
       // Select optimal shipping box
       let selectedBoxId: number | null = null;
@@ -614,16 +628,13 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         const selectedBox = await selectShippingBox(packingItems, location_id);
         if (selectedBox) {
           selectedBoxId = selectedBox.box_id;
-          console.log(`📦 Selected box for order: ${selectedBox.box_name} (ID: ${selectedBox.box_id})`);
-        } else {
-          console.warn("⚠️  No box selected, order will proceed without box assignment");
         }
       } catch (boxError) {
-        console.error("❌ Box selection failed for order:", boxError);
+        console.error("Box selection failed for order:", boxError);
       }
 
       // Generate unique order number
-      const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      const orderNumber = `ORD-${generateOrderId()}`;
 
       // Create order with address snapshot
       const orderResult = await client.query(
@@ -1154,7 +1165,7 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
       }
 
       // Generate unique order number 
-      const orderNumber = `GST-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      const orderNumber = `GST-${generateOrderId()}`;
 
       // Insert into orders (user_id and shipping_address_id are NULL) 
       const orderResult = await client.query(
@@ -1307,7 +1318,7 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
 };
 
 // ============================================================================
-// HELPER FUNCTIONS FOR BOGO VALIDATION
+// COUPON HANDLING/VALIDATION
 // ============================================================================
 
 /**
@@ -1465,10 +1476,6 @@ const calculateBogoDiscount = (
   return discountMap;
 };
 
-// ============================================================================
-// COUPON VALIDATION
-// ============================================================================
-
 /**
  * VALIDATE coupons before checkout
  * Handles both item-level and cart-level coupons
@@ -1605,7 +1612,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
             continue;
           }
 
-          // Check 3: still active
+          // Check 2: still active
           if (!coupon.is_active) {
             errors.push({ variant_id, coupon_id: selected_coupon_id, error: "Coupon is no longer active" });
             validated_discounts.push({
@@ -1615,7 +1622,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
             continue;
           }
 
-          // Check 2: not expired
+          // Check 3: not expired
           if (coupon.valid_until && new Date(coupon.valid_until) < new Date()) {
             errors.push({ variant_id, coupon_id: selected_coupon_id, error: "Coupon has expired" });
             validated_discounts.push({
@@ -1725,7 +1732,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
         } else {
           const cartCoupon = cartCouponResult.rows[0];
 
-          // Check 3: still active
+          // Check 2: still active
           if (!cartCoupon.is_active) {
             cart_level_discount = {
               coupon_id: cart_level_coupon_id,
@@ -1743,7 +1750,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
               error: "This coupon is not a cart-level coupon",
             };
           }
-          // Check 2: not expired
+          // Check 3: not expired
           else if (
             cartCoupon.valid_until &&
             new Date(cartCoupon.valid_until) < new Date()

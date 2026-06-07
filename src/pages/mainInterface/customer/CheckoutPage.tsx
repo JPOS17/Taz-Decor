@@ -27,24 +27,25 @@ import {
 } from "../../../api/user";
 import {
   fetchProductCouponsPreview,
+  fetchUserCouponUsage,
   type ProductCoupon,
   type GroupedCoupons,
 } from "../../../api/couponCustomer";
 import {
   validateCart,
   validateCartGuest,
-  validateAddress,
-  validateAddressGuest,
   calculateShipping,
   calculateShippingGuest,
   createOrder,
   createGuestOrder,
+  validateCoupons,
+  validateAddress,
+  validateAddressGuest,
   type GuestInfo,
   type GuestShippingAddress,
   type ShippingOption,
   type AddressValidationResult,
 } from "../../../api/checkout";
-import { validateCoupons } from "../../../api/couponValidation";
 
 import StepIndicator from "../../../components/customerInterface/checkout/StepIndicator";
 import OrderSummary from "../../../components/customerInterface/checkout/OrderSummary";
@@ -58,6 +59,7 @@ import AddressValidationModal from "../../../components/universalComponents/Addr
 import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import { getBOGOLabel } from "../../../utils/couponUtils";
 
 import "../../../styles/pages/customerInterface/Tokens.css";
 import "../../../styles/pages/customerInterface/customer/CheckoutPage.css";
@@ -93,10 +95,6 @@ const EMPTY_GUEST_ADDRESS: GuestShippingAddress = {
   country: "USA",
 };
 
-// ============================================================================
-// CHECKOUT COMPONENT
-// ============================================================================
-
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { step: urlStep } = useParams<{ step?: string }>();
@@ -115,7 +113,7 @@ const CheckoutPage = () => {
   // STATE MANAGEMENT
   // ============================================================================
 
-  // Rehydrate from sessionStorage once on mount
+  // Rehydrate checkout session from sessionStorage on mount
   const session = loadSession();
 
   // Step management — derive initial step from URL param
@@ -123,7 +121,7 @@ const CheckoutPage = () => {
   const [currentStep, setCurrentStep] = useState<CheckoutStep>(stepFromUrl);
   const [orderResult, setOrderResult] = useState<OrderResult | null>(null);
 
-  // Guest vs auth mode — rehydrate from session if available
+  // Guest vs auth mode — rehydrated from session if returning mid-checkout
   const [checkoutMode, setCheckoutMode] = useState<"auth" | "guest" | null>(
     session.checkoutMode ?? null,
   );
@@ -137,7 +135,7 @@ const CheckoutPage = () => {
     Record<string, string>
   >({});
 
-  // Auth user: address management
+  // Auth user address management
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     session.selectedAddressId ?? null,
@@ -155,7 +153,7 @@ const CheckoutPage = () => {
     is_default: false,
   });
 
-  // Coupon management (auth users only)
+  // Coupon management — auth users only
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
   const [couponValidation, setCouponValidation] = useState<any>(null);
   const [couponErrors, setCouponErrors] = useState<string[]>([]);
@@ -163,6 +161,11 @@ const CheckoutPage = () => {
     useState<ProductCoupon | null>(null);
   const [itemLevelDiscount, setItemLevelDiscount] = useState<number>(0);
   const [cartLevelDiscount, setCartLevelDiscount] = useState<number>(0);
+  // Per-coupon usage counts — fetched once and passed to OrderSummary → CartLevelCouponSelector
+  // so it doesn't fetch independently
+  const [userCouponUsage, setUserCouponUsage] = useState<
+    Record<number, number>
+  >({});
 
   // Shipping management
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>(
@@ -183,7 +186,7 @@ const CheckoutPage = () => {
   const [taxAmount, setTaxAmount] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
 
-  // Confirm modal (universal)
+  // Universal confirm modal state
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     title: string;
@@ -193,12 +196,11 @@ const CheckoutPage = () => {
     onConfirm: () => void;
   }>({ isOpen: false, title: "", message: "", onConfirm: () => {} });
 
-  // Address validation modal
+  // Address validation modal state
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [validationResult, setValidationResult] =
     useState<AddressValidationResult | null>(null);
-  // For auth users, pending save
-  // For guests, pending address apply
+  // Pending address data — for auth users awaiting save, or guest users awaiting apply
   const [pendingAddressData, setPendingAddressData] =
     useState<CreateAddressPayload | null>(null);
   const [pendingGuestAddressData, setPendingGuestAddressData] =
@@ -211,7 +213,7 @@ const CheckoutPage = () => {
     Record<number, string>
   >({});
 
-  // Loading / error states
+  // Loading and error state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<any[]>([]);
@@ -230,7 +232,7 @@ const CheckoutPage = () => {
   // LIFECYCLE EFFECTS
   // ============================================================================
 
-  // After auth finishes loading, decide mode
+  // Determines checkout mode (auth vs guest) once auth resolves
   useEffect(() => {
     if (!isLoading) {
       setIsInitialLoad(false);
@@ -249,7 +251,7 @@ const CheckoutPage = () => {
     }
   }, [isLoading, user]);
 
-  // Redirect if cart is empty
+  // Redirects to cart page if cart becomes empty mid-checkout
   useEffect(() => {
     if (isInitialLoad) return;
     if (cartItems.length === 0 && currentStep !== "success") {
@@ -257,24 +259,25 @@ const CheckoutPage = () => {
     }
   }, [cartItems, currentStep, navigate, isInitialLoad]);
 
-  // Load saved addresses for auth users
+  // Loads saved addresses when the authenticated user is known
   useEffect(() => {
     if (user) loadAddresses();
   }, [user]);
 
-  // Load coupons for all users (guests see sign-in prompt inside selector)
+  // Loads coupons once when the user/auth state is known
+  // Cart contents don't affect which coupons exist; applicability is handled client-side
   useEffect(() => {
     if (cartItems.length > 0) loadCoupons();
-  }, [cartItems]);
+  }, [user]);
 
-  // Validate coupons for auth users only
+  // Re-validates coupon rules whenever the cart or selected coupons change (auth users only)
   useEffect(() => {
     if (user && cartItems.length > 0 && coupons) {
       validateCouponRules();
     }
   }, [cartItems, user, coupons, selectedCartLevelCoupon]);
 
-  // Load shipping options whenever one of these change
+  // Recalculates shipping options for auth users when address, step, or coupon state changes
   useEffect(() => {
     if (
       !isGuest &&
@@ -295,7 +298,7 @@ const CheckoutPage = () => {
     coupons,
   ]);
 
-  // Recalculate totals whenever relevant state changes
+  // Recalculates order totals whenever cart, coupons, shipping, or step changes
   useEffect(() => {
     calculateOrderTotals();
   }, [
@@ -307,7 +310,7 @@ const CheckoutPage = () => {
     currentStep,
   ]);
 
-  // Load shipping options for guests on refresh
+  // Restores guest shipping options on page refresh when address is already validated
   useEffect(() => {
     if (
       isGuest &&
@@ -321,7 +324,7 @@ const CheckoutPage = () => {
     }
   }, [guestAddressValidated, currentStep, isGuest, cartItems.length]);
 
-  // Persist key checkout state to sessionStorage whenever it changes
+  // Persists key checkout state to sessionStorage whenever it changes
   useEffect(() => {
     if (checkoutMode === null) return;
     saveSession({
@@ -339,7 +342,7 @@ const CheckoutPage = () => {
     selectedAddressId,
   ]);
 
-  // Sync current step to the URL
+  // Syncs the current checkout step to the URL
   useEffect(() => {
     if (currentStep === "success") return;
     const target =
@@ -349,14 +352,14 @@ const CheckoutPage = () => {
     }
   }, [currentStep]);
 
-  // When the user navigates away from checkout entirely, wipe the session
+  // Clears session storage when the user navigates away from checkout
   useEffect(() => {
     return () => {
       clearSession();
     };
   }, []);
 
-  // Scroll if error is given
+  // Scrolls the error banner into view when a new error is set
   useEffect(() => {
     const firstErrorEl = errorRef.current;
     if (firstErrorEl) {
@@ -364,7 +367,7 @@ const CheckoutPage = () => {
     }
   }, [error]);
 
-  // Scroll to top on step change
+  // Scrolls to the top of the page on each step transition
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentStep]);
@@ -373,6 +376,7 @@ const CheckoutPage = () => {
   // DATA LOADING
   // ============================================================================
 
+  // Fetches saved addresses for the auth user and pre-selects the default
   const loadAddresses = async () => {
     try {
       const data = await fetchUserAddresses();
@@ -384,10 +388,15 @@ const CheckoutPage = () => {
     }
   };
 
+  // Fetches the coupon catalogue and user usage data in a single round trip
   const loadCoupons = async () => {
     try {
-      const data = await fetchProductCouponsPreview();
+      const [data, usageData] = await Promise.all([
+        fetchProductCouponsPreview(),
+        user ? fetchUserCouponUsage() : Promise.resolve({}),
+      ]);
       setCoupons(data);
+      setUserCouponUsage(usageData);
 
       const couponIdToFind = cartLevelCouponId ?? session.cartLevelCouponId;
       if (couponIdToFind) {
@@ -404,6 +413,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Validates current cart coupons server-side and updates discount and error state
   const validateCouponRules = async () => {
     if (!user) return;
     try {
@@ -444,7 +454,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // Updates selectedCartLevelCoupon AND keeps CartContext in sync
+  // Updates selectedCartLevelCoupon and keeps CartContext in sync when user selects or clears a cart-level coupon
   const handleCartLevelCouponSelect = (coupon: ProductCoupon | null) => {
     setSelectedCartLevelCoupon(coupon);
     setCartLevelCouponId(coupon ? coupon.coupon_id : null);
@@ -458,6 +468,7 @@ const CheckoutPage = () => {
   // HELPERS
   // ============================================================================
 
+  // Looks up the selected coupon for a cart item from the loaded coupon catalogue
   const getCouponForItem = (item: CartItem): ProductCoupon | null => {
     if (!coupons || !item.selected_coupon_id) return null;
     const all = [
@@ -471,6 +482,7 @@ const CheckoutPage = () => {
     return all.find((c) => c.coupon_id === item.selected_coupon_id) || null;
   };
 
+  // Recalculates subtotal, discounts, tax, and total based on current cart and coupon state
   const calculateOrderTotals = () => {
     const originalSubtotal = cartItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
@@ -507,7 +519,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // Guest info validation
+  // Validates guest contact info fields and populates field-level errors; returns true if valid
   const validateGuestInfo = (): boolean => {
     const errs: Record<string, string> = {};
     if (!guestInfo.email.trim()) {
@@ -535,6 +547,7 @@ const CheckoutPage = () => {
   // QUANTITY INPUT HANDLERS
   // ============================================================================
 
+  // Stores the current quantity as a draft string when the input gains focus
   const handleQuantityFocus = (variantId: number, currentQty: number) => {
     setDraftQuantities((prev) => ({
       ...prev,
@@ -542,12 +555,14 @@ const CheckoutPage = () => {
     }));
   };
 
+  // Updates the draft quantity for a cart item, restricting input to digits only
   const handleQuantityChange = (variantId: number, value: string) => {
     if (/^\d*$/.test(value)) {
       setDraftQuantities((prev) => ({ ...prev, [variantId]: value }));
     }
   };
 
+  // Commits the draft quantity on blur, prompting removal confirmation if set to zero
   const handleQuantityCommit = (variantId: number) => {
     const draft = draftQuantities[variantId];
     setDraftQuantities((prev) => {
@@ -578,6 +593,7 @@ const CheckoutPage = () => {
     updateQuantity(variantId, parsed);
   };
 
+  // Submits quantity on Enter or discards the draft on Escape
   const handleQuantityKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
     variantId: number,
@@ -597,6 +613,7 @@ const CheckoutPage = () => {
   // SHIPPING HANDLERS
   // ============================================================================
 
+  // Fetches shipping options for the selected auth user address and persists the result
   const handleCalculateShipping = async () => {
     if (!selectedAddressId) return;
     setLoadingShipping(true);
@@ -643,6 +660,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Fetches shipping options for the guest's validated address using current guestInfo
   const handleCalculateShippingGuest = async () => {
     if (!guestAddressComplete) return;
     setLoadingShipping(true);
@@ -694,6 +712,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Fetches shipping options for a guest using an explicitly provided address object
   const handleCalculateShippingGuestWithAddress = async (
     address: GuestShippingAddress,
   ) => {
@@ -746,6 +765,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Selects a shipping option, updates the cost, and persists the choice to session
   const handleShippingOptionSelect = (option: ShippingOption) => {
     const cost = isFreeShipping ? 0 : parseFloat(option.amount);
     setSelectedShipping(option);
@@ -761,6 +781,7 @@ const CheckoutPage = () => {
   // CHECKOUT FLOW HANDLERS
   // ============================================================================
 
+  // Validates the cart and coupon state before advancing to the shipping step
   const handleContinueToShipping = async () => {
     setLoading(true);
     setError(null);
@@ -798,6 +819,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Validates shipping info before advancing to the payment step
   const handleContinueToPayment = () => {
     if (isGuest) {
       if (!validateGuestInfo()) {
@@ -822,11 +844,12 @@ const CheckoutPage = () => {
     setCurrentStep("payment");
   };
 
+  // Advances to the review step
   const handleContinueToReview = () => {
     setCurrentStep("review");
   };
 
-  // Place order (auth)
+  // Submits the order for authenticated users after final coupon validation
   const handlePlaceOrder = async () => {
     if (!selectedAddressId || (!selectedShipping && !isFreeShipping)) {
       setError("Please complete all required fields");
@@ -884,7 +907,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // Place order (guest)
+  // Submits the order for guest users after validating contact and address info
   const handlePlaceGuestOrder = async () => {
     if (!validateGuestInfo() || !guestAddressComplete || !selectedShipping) {
       setError("Please complete all required fields");
@@ -921,7 +944,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // Auth user address handlers
+  // Submits the address form, triggering validation before saving
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -949,6 +972,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Saves a new or edited address, then refreshes the address list
   const saveAddress = async (addressData: CreateAddressPayload) => {
     const wasEditingSelected = editingAddressId === selectedAddressId;
     setLoading(true);
@@ -972,10 +996,12 @@ const CheckoutPage = () => {
     }
   };
 
+  // Saves the address as entered, bypassing the corrected suggestion
   const handleAcceptOriginalAddress = () => {
     if (pendingAddressData) saveAddress(pendingAddressData);
   };
 
+  // Saves the USPS-corrected address in place of what the user entered
   const handleAcceptCorrectedAddress = () => {
     if (validationResult?.validated_address && pendingAddressData) {
       saveAddress({
@@ -990,6 +1016,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Dismisses the validation modal and returns the user to the address form
   const handleCancelValidation = () => {
     setShowValidationModal(false);
     if (pendingAddressData) {
@@ -1000,6 +1027,7 @@ const CheckoutPage = () => {
     setValidationResult(null);
   };
 
+  // Populates the address form with an existing address and opens the edit modal
   const handleEditAddress = (address: Address) => {
     setAddressForm({
       address_name: address.address_name,
@@ -1015,6 +1043,7 @@ const CheckoutPage = () => {
     setShowAddressModal(true);
   };
 
+  // Prompts for confirmation before permanently deleting an address
   const handleDeleteAddress = (addressId: number) => {
     setConfirmModal({
       isOpen: true,
@@ -1037,6 +1066,7 @@ const CheckoutPage = () => {
     });
   };
 
+  // Resets the address form to its empty default state
   const resetAddressForm = () => {
     setAddressForm({
       address_name: "",
@@ -1050,6 +1080,7 @@ const CheckoutPage = () => {
     });
   };
 
+  // Updates a single field in the address form
   const handleAddressFormChange = (
     field: keyof CreateAddressPayload,
     value: string | boolean,
@@ -1057,7 +1088,7 @@ const CheckoutPage = () => {
     setAddressForm({ ...addressForm, [field]: value });
   };
 
-  // Resets guest address validation + shipping when the user edits a field
+  // Resets guest address validation and shipping when the user edits a field
   const handleGuestAddressFieldChange = (
     field: keyof GuestShippingAddress,
     value: string,
@@ -1071,6 +1102,7 @@ const CheckoutPage = () => {
     }
   };
 
+  // Validates the guest address with USPS before showing shipping options
   const handleGuestAddressValidate = async () => {
     setLoading(true);
     setError(null);
@@ -1096,7 +1128,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // Fetch shipping rates immediately after validation
+  // Applies the USPS-corrected guest address and immediately fetches shipping rates
   const handleAcceptCorrectedGuestAddress = () => {
     let finalAddress = pendingGuestAddressData
       ? { ...pendingGuestAddressData }
@@ -1120,7 +1152,7 @@ const CheckoutPage = () => {
     handleCalculateShippingGuestWithAddress(finalAddress);
   };
 
-  // Fetch shipping rates immediately after validation
+  // Accepts the guest address as entered and immediately fetches shipping rates
   const handleAcceptOriginalGuestAddress = () => {
     setGuestAddressValidated(true);
     setShowValidationModal(false);
@@ -1220,7 +1252,7 @@ const CheckoutPage = () => {
         </h1>
         <StepIndicator currentStep={currentStep} />
 
-        {/* Address Validation Modal */}
+        {/* Address validation modal — shown after address form submission */}
         {showValidationModal && validationResult && (
           <AddressValidationModal
             validationResult={validationResult}
@@ -1238,7 +1270,7 @@ const CheckoutPage = () => {
           />
         )}
 
-        {/* Address Form Modal */}
+        {/* Address form modal — add or edit a saved address */}
         {showAddressModal && (
           <div
             className="checkout-modal-overlay"
@@ -1265,7 +1297,7 @@ const CheckoutPage = () => {
           </div>
         )}
 
-        {/* Universal Confirm Modal */}
+        {/* Universal confirm modal — used for item removal and address deletion */}
         <ConfirmModal
           isOpen={confirmModal.isOpen}
           title={confirmModal.title}
@@ -1278,7 +1310,7 @@ const CheckoutPage = () => {
           }
         />
 
-        {/* Error banner */}
+        {/* Error banner — shown when a step validation or API error occurs */}
         {error && (
           <div className="checkout-error" ref={errorRef}>
             <FaExclamationTriangle />
@@ -1286,7 +1318,7 @@ const CheckoutPage = () => {
           </div>
         )}
 
-        {/* Coupon errors */}
+        {/* Coupon error list — shown for auth users with invalid coupon selections */}
         {!isGuest && couponErrors.length > 0 && (
           <div className="checkout-coupon-errors-section">
             <h3>
@@ -1303,7 +1335,7 @@ const CheckoutPage = () => {
           </div>
         )}
 
-        {/* Validation errors */}
+        {/* Validation error list — shown when cart items fail stock or price checks */}
         {validationErrors.length > 0 && (
           <div className="checkout-validation-errors">
             <h4>Please review the following issues:</h4>
@@ -1318,7 +1350,7 @@ const CheckoutPage = () => {
 
         <div className="checkout-content">
           <div className="checkout-main">
-            {/* CART STEP */}
+            {/* Cart step — item review and coupon application */}
             {currentStep === "cart" && (
               <div className="checkout-section">
                 <h2 className="checkout-section-title">Review Your Cart</h2>
@@ -1447,9 +1479,11 @@ const CheckoutPage = () => {
                               {itemCoupon.discount_type === "bogo" && (
                                 <div className="checkout-item-coupon-savings">
                                   <span className="checkout-savings-badge bogo">
-                                    {itemCoupon.bogo_discount_percentage === 100
-                                      ? `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} FREE`
-                                      : `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} ${itemCoupon.bogo_discount_percentage}% OFF`}
+                                    {getBOGOLabel(
+                                      itemCoupon.bogo_buy_quantity,
+                                      itemCoupon.bogo_get_quantity,
+                                      itemCoupon.bogo_discount_percentage,
+                                    )}
                                   </span>
                                 </div>
                               )}
@@ -1489,7 +1523,7 @@ const CheckoutPage = () => {
                   })}
                 </div>
 
-                {/* Email verification prompt — auth users only */}
+                {/* Email verification prompt — auth users without a verified email */}
                 {!isGuest && !isEmailVerified && (
                   <div className="checkout-warning">
                     <FaLock />
@@ -1518,12 +1552,12 @@ const CheckoutPage = () => {
               </div>
             )}
 
-            {/* SHIPPING STEP */}
+            {/* Shipping step — address selection and shipping method */}
             {currentStep === "shipping" && (
               <div className="checkout-section">
                 <h2 className="checkout-section-title">Shipping</h2>
 
-                {/* GUEST: contact info + inline address form */}
+                {/* Guest checkout — contact info and inline address form */}
                 {isGuest && (
                   <>
                     <div className="checkout-guest-contact-section">
@@ -1633,7 +1667,7 @@ const CheckoutPage = () => {
                       </div>
                     </div>
 
-                    {/* Shipping address */}
+                    {/* Guest shipping address fields */}
                     <div className="checkout-guest-address-section">
                       <h3 className="checkout-subsection-title">
                         Shipping Address
@@ -1754,7 +1788,7 @@ const CheckoutPage = () => {
                   </>
                 )}
 
-                {/* AUTH: saved address list + add form */}
+                {/* Auth checkout — saved address list and add new address button */}
                 {!isGuest && (
                   <>
                     <p className="checkout-section-description">
@@ -1798,7 +1832,7 @@ const CheckoutPage = () => {
                   </>
                 )}
 
-                {/* Shipping options */}
+                {/* Shipping options — shown once an address is selected or validated */}
                 {((isGuest && guestAddressValidated) ||
                   (!isGuest && selectedAddressId)) && (
                   <ShippingOptionsSelector
@@ -1847,7 +1881,7 @@ const CheckoutPage = () => {
               </div>
             )}
 
-            {/* PAYMENT STEP */}
+            {/* Payment step — payment method entry */}
             {currentStep === "payment" && (
               <div className="checkout-section">
                 <h2 className="checkout-section-title">Payment Information</h2>
@@ -1877,7 +1911,7 @@ const CheckoutPage = () => {
               </div>
             )}
 
-            {/* REVIEW STEP */}
+            {/* Review step — final order confirmation before placing */}
             {currentStep === "review" && (
               <div className="checkout-section">
                 <h2 className="checkout-section-title">Review Your Order</h2>
@@ -1988,10 +2022,11 @@ const CheckoutPage = () => {
                                 {itemCoupon.discount_type === "bogo" && (
                                   <div className="checkout-review-coupon-savings">
                                     <span className="checkout-savings-badge bogo">
-                                      {itemCoupon.bogo_discount_percentage ===
-                                      100
-                                        ? `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} FREE`
-                                        : `Buy ${itemCoupon.bogo_buy_quantity || 1} Get ${itemCoupon.bogo_get_quantity || 1} ${itemCoupon.bogo_discount_percentage}% OFF`}
+                                      {getBOGOLabel(
+                                        itemCoupon.bogo_buy_quantity,
+                                        itemCoupon.bogo_get_quantity,
+                                        itemCoupon.bogo_discount_percentage,
+                                      )}
                                     </span>
                                   </div>
                                 )}
@@ -2041,7 +2076,7 @@ const CheckoutPage = () => {
             )}
           </div>
 
-          {/* Order Summary Sidebar */}
+          {/* Order summary sidebar — visible on all steps */}
           <div className="checkout-sidebar">
             <OrderSummary
               cartItems={cartItems}
@@ -2060,6 +2095,8 @@ const CheckoutPage = () => {
               isEmailVerified={!isGuest && isEmailVerified}
               getCouponForItem={getCouponForItem}
               couponValidation={!isGuest ? couponValidation : null}
+              userCouponUsage={userCouponUsage}
+              isGuest={isGuest}
             />
           </div>
         </div>

@@ -18,6 +18,7 @@ interface ShippingFieldsProps {
   "data-section"?: string;
 }
 
+// Shipping weight and dimensions fields
 const ShippingFields = ({
   weight_oz,
   length_in,
@@ -29,6 +30,7 @@ const ShippingFields = ({
   showTitle = true,
   "data-section": dataSection,
 }: ShippingFieldsProps) => {
+  // Converts the raw string input to a number before passing up
   const handleChange = (field: string, value: string) => {
     if (value === "") {
       onChange(field, null);

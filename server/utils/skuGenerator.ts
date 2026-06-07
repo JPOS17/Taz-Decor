@@ -1,20 +1,12 @@
 import { Pool, PoolClient } from "pg";
 
-// ============================================================================
-// SKU GENERATION - PRODUCT
-// ============================================================================
-
-/**
- * Generates the next SKU for a new product based on product type
- * Format: {PREFIX}-{PRODUCT_NUM}-{VARIANT_NUM}
- * Example: JRN-001-001
- */
+// Generates the next SKU for a new product based on its type
+// Format: {PREFIX}-{PRODUCT_NUM}-{VARIANT_NUM} (e.g. JRN-001-001)
 export async function generateProductSKU(
-  client: Pool | PoolClient, 
+  client: Pool | PoolClient,
   productTypeId: number
 ): Promise<string> {
 
-  // Get the SKU prefix from product_types table
   const typeResult = await client.query(`
     SELECT sku_prefix
     FROM product_types
@@ -26,8 +18,8 @@ export async function generateProductSKU(
   }
 
   const prefix = typeResult.rows[0].sku_prefix;
-  
-  // Find the highest product number for this product type
+
+  // Find the highest existing product number for this type to determine the next one
   const result = await client.query(`
     SELECT pv.sku
     FROM product_variants pv
@@ -39,12 +31,12 @@ export async function generateProductSKU(
   `, [productTypeId, `${prefix}-%`]);
 
   let nextProductNum = 1;
-  
+
   if (result.rows.length > 0) {
     const lastSKU = result.rows[0].sku;
 
-    // Extract product number from SKU (e.g., "JRN-007-002" -> "007")
-    const match = lastSKU.match(/^[A-Z]+-(\d{3})-\d{3}$/);
+    // Extract the product segment from the SKU (e.g. "JRN-007-002" -> "007")
+    const match = lastSKU.match(/^[A-Z]+-(\\d{3})-\\d{3}$/);
 
     if (match) {
       const lastProductNum = parseInt(match[1], 10);
@@ -52,24 +44,16 @@ export async function generateProductSKU(
     }
   }
 
-  // Format: XXX-001-001 (first variant of new product)
   const productNumStr = String(nextProductNum).padStart(3, '0');
   return `${prefix}-${productNumStr}-001`;
 }
 
-// ============================================================================
-// SKU GENERATION - VARIANT
-// ============================================================================
-
-/**
- * Generates the next variant SKU for an existing product
- * Uses the product's existing SKU pattern
- */
+// Generates the next variant SKU for an existing product by incrementing the variant segment
 export async function generateVariantSKU(
   client: Pool | PoolClient,
   productId: number
 ): Promise<string> {
-  // Get product type to determine prefix
+
   const productResult = await client.query(`
     SELECT pt.sku_prefix
     FROM products p
@@ -82,8 +66,7 @@ export async function generateVariantSKU(
   }
 
   const prefix = productResult.rows[0].sku_prefix;
-  
-  // Find all existing variants for this product
+
   const result = await client.query(`
     SELECT sku
     FROM product_variants
@@ -97,15 +80,15 @@ export async function generateVariantSKU(
   }
 
   const existingSKU = result.rows[0].sku;
-  
-  // Extract product number and variant number
+
+  // Parse the product and variant segments to keep the product number fixed and increment the variant
   const match = existingSKU.match(/^[A-Z]+-(\d{3})-(\d{3})$/);
-  
+
   if (!match) {
     throw new Error('Invalid SKU format for existing variant');
   }
 
-  const productNum = match[1]; // Keep the same product number
+  const productNum = match[1];
   const lastVariantNum = parseInt(match[2], 10);
   const nextVariantNum = lastVariantNum + 1;
   const variantNumStr = String(nextVariantNum).padStart(3, '0');

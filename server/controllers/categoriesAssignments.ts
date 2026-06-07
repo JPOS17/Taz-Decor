@@ -34,7 +34,7 @@ export const getProductCategories = async (req: Request, res: Response): Promise
 };
 
 // ============================================================================
-// PRODUCT CATEGORIES - ADD
+// PRODUCT CATEGORIES - FUNCTIONS
 // ============================================================================
 
 /**
@@ -124,10 +124,6 @@ export const addProductCategory = async (req: Request, res: Response): Promise<v
   }
 };
 
-// ============================================================================
-// PRODUCT CATEGORIES - UPDATE
-// ============================================================================
-
 /**
  * UPDATE product category (mainly for changing primary status)
  */
@@ -184,10 +180,6 @@ export const updateProductCategory = async (req: Request, res: Response): Promis
     client.release();
   }
 };
-
-// ============================================================================
-// PRODUCT CATEGORIES - DELETE
-// ============================================================================
 
 /**
  * DELETE category from product

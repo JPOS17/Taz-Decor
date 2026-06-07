@@ -16,10 +16,12 @@ interface DetailsHeaderProps {
   onSubmitForm?: () => void;
 }
 
+// Renders the detail panel header
 export const HeaderFormatter = ({
   viewMode,
   ...buttonProps
 }: DetailsHeaderProps) => {
+  // Returns the panel title string based on the current view mode
   const getTitle = () => {
     switch (viewMode) {
       case "create-product":
@@ -36,6 +38,7 @@ export const HeaderFormatter = ({
   return (
     <div className="mi-details-header">
       <h2 className="mi-details-title">{getTitle()}</h2>
+      {/* All remaining props forwarded directly to ActionButtons */}
       <ActionButtons viewMode={viewMode} {...buttonProps} />
     </div>
   );

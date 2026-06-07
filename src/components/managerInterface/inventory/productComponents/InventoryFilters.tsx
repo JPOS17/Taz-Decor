@@ -13,6 +13,7 @@ interface ManagerFilterBarProps {
   onClearFilters: () => void;
 }
 
+// Collapsible filter bar for the manager inventory list
 const ManagerFilterBar = ({
   onStatusChange,
   onStockChange,
@@ -39,6 +40,11 @@ const ManagerFilterBar = ({
     currentSortBy,
   ].filter(Boolean).length;
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Returns the display label for the current product status filter value
   const getStatusLabel = () => {
     switch (currentStatus) {
       case "active":
@@ -50,6 +56,7 @@ const ManagerFilterBar = ({
     }
   };
 
+  // Returns the display label for the current stock level filter value
   const getStockLabel = () => {
     switch (currentStockStatus) {
       case "out-of-stock":
@@ -61,6 +68,7 @@ const ManagerFilterBar = ({
     }
   };
 
+  // Returns the display label for the current category status filter value
   const getCategoryStatusLabel = () => {
     switch (currentCategoryStatus) {
       case "active":
@@ -74,6 +82,7 @@ const ManagerFilterBar = ({
     }
   };
 
+  // Returns the display label for the current sort order value
   const getSortLabel = () => {
     switch (currentSortBy) {
       case "name-asc":
@@ -97,8 +106,13 @@ const ManagerFilterBar = ({
     }
   };
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div>
+      {/* Filter toggle bar */}
       <div className="mi-filter-bar">
         <button
           className={`mi-filter-toggle ${hasActiveFilters ? "mi-filter-toggle--active" : ""}`}
@@ -108,6 +122,7 @@ const ManagerFilterBar = ({
           Filters{hasActiveFilters ? ` (${activeFilterCount})` : ""}
         </button>
 
+        {/* Clear All */}
         {hasActiveFilters && (
           <button className="mi-filter-clear" onClick={onClearFilters}>
             <X size={16} />
@@ -116,6 +131,7 @@ const ManagerFilterBar = ({
         )}
       </div>
 
+      {/* Collapsible filter panel */}
       {showFilters && (
         <div className="mi-filter-panel">
           {/* Product Status */}

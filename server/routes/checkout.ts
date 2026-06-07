@@ -8,7 +8,7 @@ import {
   calculateShippingGuest,
   createOrder,
   createGuestOrder,
-  validateCoupons, 
+  validateCoupons,
 } from "../controllers/checkoutController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
@@ -18,35 +18,35 @@ export const checkoutRouter = express.Router();
 // PUBLIC ROUTES — Guest checkout (no authentication required)
 // ============================================================================
 
-// Validate address for guests
+// POST validate shipping address for guest
 checkoutRouter.post("/guest/validate-address", validateAddressGuest);
 
-// Validate cart contents for guests
+// POST validate cart contents for guest
 checkoutRouter.post("/guest/validate-cart", validateCartGuest);
 
-// Calculate shipping rates for guests (address passed inline in body)
+// POST calculate shipping rates for guest
 checkoutRouter.post("/guest/calculate-shipping", calculateShippingGuest);
 
-// Create a guest order
+// POST create guest order
 checkoutRouter.post("/guest/create-order", createGuestOrder);
 
 // ============================================================================
-// AUTH ROUTES — User checkout 
+// AUTHENTICATED ROUTES — Authentication required
 // ============================================================================
 
 checkoutRouter.use(authenticateToken);
 
-// VALIDATE address
+// POST validate shipping address
 checkoutRouter.post("/validate-address", validateAddressEndpoint);
 
-// VALIDATE cart before checkout
+// POST validate cart before checkout
 checkoutRouter.post("/validate-cart", validateCart);
 
-// VALIDATE coupons
+// POST validate applied coupons
 checkoutRouter.post("/validate-coupons", validateCoupons);
 
-// CALCULATE shipping rates
+// POST calculate shipping rates
 checkoutRouter.post("/calculate-shipping", calculateShipping);
 
-// CREATE new order
+// POST create order
 checkoutRouter.post("/create-order", createOrder);

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { pool } from '../db';
 
 // ============================================================================
-// PRODUCT TYPES - GET ALL
+// PRODUCT TYPES - GET
 // ============================================================================
 
 /**
@@ -30,10 +30,6 @@ export const getAllProductTypes = async (req: Request, res: Response): Promise<v
     });
   }
 };
-
-// ============================================================================
-// PRODUCT TYPES - GET BY ID
-// ============================================================================
 
 /**
  * GET a single product type by ID
@@ -69,7 +65,7 @@ export const getProductTypeById = async (req: Request, res: Response): Promise<v
 };
 
 // ============================================================================
-// PRODUCT TYPES - CREATE
+// PRODUCT TYPES - FUNCTIONS
 // ============================================================================
 
 /**
@@ -123,10 +119,6 @@ export const createProductType = async (req: Request, res: Response): Promise<vo
     });
   }
 };
-
-// ============================================================================
-// PRODUCT TYPES - UPDATE
-// ============================================================================
 
 /**
  * UPDATE product type description

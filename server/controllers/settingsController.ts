@@ -295,67 +295,51 @@ export const toggleLocationStatus = async (req: Request, res: Response): Promise
 export const getAllShippingBoxes = async (req: Request, res: Response): Promise<void> => {
   try {
     const { active, location_id, box_type } = req.query;
-    
+
     let query = `
-      SELECT 
-        box_id,
-        box_name,
-        length_in,
-        width_in,
-        height_in,
-        box_type,
-        location_id,
-        box_size_order,
-        is_active,
-        created_at
-      FROM shipping_boxes
+      SELECT
+        sb.box_id,
+        sb.box_name,
+        sb.length_in,
+        sb.width_in,
+        sb.height_in,
+        sb.box_type,
+        sb.location_id,
+        sb.box_size_order,
+        sb.is_active,
+        sb.created_at,
+        sl.location_name
+      FROM shipping_boxes sb
+      LEFT JOIN seller_locations sl ON sl.location_id = sb.location_id
       WHERE 1=1
     `;
-    
+
     const params: any[] = [];
     let paramCount = 1;
-    
+
     if (active === 'true') {
-      query += ` AND is_active = true`;
+      query += ` AND sb.is_active = true`;
     } else if (active === 'false') {
-      query += ` AND is_active = false`;
+      query += ` AND sb.is_active = false`;
     }
-    
+
     if (location_id) {
-      query += ` AND location_id = $${paramCount}`;
+      query += ` AND sb.location_id = $${paramCount}`;
       params.push(location_id);
       paramCount++;
     }
-    
+
     if (box_type) {
-      query += ` AND box_type = $${paramCount}`;
+      query += ` AND sb.box_type = $${paramCount}`;
       params.push(box_type);
       paramCount++;
     }
-    
-    // Order by box_size_order (smallest first) then by box_name
-    query += ' ORDER BY box_size_order ASC, box_name ASC';
-    
+
+    query += ' ORDER BY sb.box_size_order ASC, sb.box_name ASC';
+
     const result = await pool.query(query, params);
-    
-    // Get location names
-    const boxesWithLocation = await Promise.all(
-      result.rows.map(async (box) => {
-        if (box.location_id) {
-          const locationResult = await pool.query(
-            'SELECT location_name FROM seller_locations WHERE location_id = $1',
-            [box.location_id]
-          );
-          return {
-            ...box,
-            location_name: locationResult.rows[0]?.location_name || null
-          };
-        }
-        return { ...box, location_name: null };
-      })
-    );
-    
-    res.json(boxesWithLocation);
+
+    res.json(result.rows);
   } catch (error) {
     console.error('Error fetching shipping boxes:', error);
     res.status(500).json({ message: 'Failed to fetch shipping boxes' });
@@ -368,41 +352,32 @@ export const getAllShippingBoxes = async (req: Request, res: Response): Promise<
 export const getShippingBoxById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { boxId } = req.params;
-    
+
     const result = await pool.query(
-      `SELECT 
-        box_id,
-        box_name,
-        length_in,
-        width_in,
-        height_in,
-        box_type,
-        location_id,
-        box_size_order,
-        is_active,
-        created_at
-      FROM shipping_boxes
-      WHERE box_id = $1`,
+      `SELECT
+        sb.box_id,
+        sb.box_name,
+        sb.length_in,
+        sb.width_in,
+        sb.height_in,
+        sb.box_type,
+        sb.location_id,
+        sb.box_size_order,
+        sb.is_active,
+        sb.created_at,
+        sl.location_name
+      FROM shipping_boxes sb
+      LEFT JOIN seller_locations sl ON sl.location_id = sb.location_id
+      WHERE sb.box_id = $1`,
       [boxId]
     );
-    
+
     if (result.rows.length === 0) {
       res.status(404).json({ message: 'Shipping box not found' });
       return;
     }
-    
-    const box = result.rows[0];
-    
-    // Get location name if exists
-    if (box.location_id) {
-      const locationResult = await pool.query(
-        'SELECT location_name FROM seller_locations WHERE location_id = $1',
-        [box.location_id]
-      );
-      box.location_name = locationResult.rows[0]?.location_name || null;
-    }
-    
-    res.json(box);
+
+    res.json(result.rows[0]);
   } catch (error) {
     console.error('Error fetching shipping box:', error);
     res.status(500).json({ message: 'Failed to fetch shipping box' });
@@ -437,29 +412,26 @@ export const createShippingBox = async (req: Request, res: Response): Promise<vo
     );
     
     const nextOrder = orderResult.rows[0].next_order;
-    
+
     const result = await pool.query(
-      `INSERT INTO shipping_boxes 
+      `INSERT INTO shipping_boxes
         (box_name, length_in, width_in, height_in, box_type, location_id, box_size_order, is_active)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *`,
       [box_name, length_in, width_in, height_in, box_type, location_id, nextOrder, is_active]
     );
-    
-    const box = result.rows[0];
-    
-    // Get location name
-    if (box.location_id) {
-      const locationResult = await pool.query(
-        'SELECT location_name FROM seller_locations WHERE location_id = $1',
-        [box.location_id]
-      );
-      box.location_name = locationResult.rows[0]?.location_name || null;
-    }
-    
-    console.log(`📦 Created new box: ${box_name} with order ${nextOrder} for location ${location_id}`);
-    
-    res.status(201).json(box);
+
+    const boxId = result.rows[0].box_id;
+
+    const boxWithLocation = await pool.query(
+      `SELECT sb.*, sl.location_name
+       FROM shipping_boxes sb
+       LEFT JOIN seller_locations sl ON sl.location_id = sb.location_id
+       WHERE sb.box_id = $1`,
+      [boxId]
+    );
+
+    res.status(201).json(boxWithLocation.rows[0]);
   } catch (error) {
     console.error('Error creating shipping box:', error);
     res.status(500).json({ message: 'Failed to create shipping box' });
@@ -540,27 +512,23 @@ export const updateShippingBox = async (req: Request, res: Response): Promise<vo
     }
     
     values.push(boxId);
-    
-    const result = await pool.query(
-      `UPDATE shipping_boxes 
+
+    await pool.query(
+      `UPDATE shipping_boxes
        SET ${updates.join(', ')}
-       WHERE box_id = $${paramCount}
-       RETURNING *`,
+       WHERE box_id = $${paramCount}`,
       values
     );
-    
-    const box = result.rows[0];
-    
-    // Get location name
-    if (box.location_id) {
-      const locationResult = await pool.query(
-        'SELECT location_name FROM seller_locations WHERE location_id = $1',
-        [box.location_id]
-      );
-      box.location_name = locationResult.rows[0]?.location_name || null;
-    }
-    
-    res.json(box);
+
+    const boxWithLocation = await pool.query(
+      `SELECT sb.*, sl.location_name
+       FROM shipping_boxes sb
+       LEFT JOIN seller_locations sl ON sl.location_id = sb.location_id
+       WHERE sb.box_id = $1`,
+      [boxId]
+    );
+
+    res.json(boxWithLocation.rows[0]);
   } catch (error) {
     console.error('Error updating shipping box:', error);
     res.status(500).json({ message: 'Failed to update shipping box' });
@@ -611,29 +579,26 @@ export const toggleShippingBoxStatus = async (req: Request, res: Response): Prom
   try {
     const { boxId } = req.params;
     const { is_active } = req.body;
-    
-    const result = await pool.query(
-      'UPDATE shipping_boxes SET is_active = $1 WHERE box_id = $2 RETURNING *',
+
+    const check = await pool.query(
+      'UPDATE shipping_boxes SET is_active = $1 WHERE box_id = $2 RETURNING box_id',
       [is_active, boxId]
     );
-    
-    if (result.rows.length === 0) {
+
+    if (check.rows.length === 0) {
       res.status(404).json({ message: 'Shipping box not found' });
       return;
     }
-    
-    const box = result.rows[0];
-    
-    // Get location name
-    if (box.location_id) {
-      const locationResult = await pool.query(
-        'SELECT location_name FROM seller_locations WHERE location_id = $1',
-        [box.location_id]
-      );
-      box.location_name = locationResult.rows[0]?.location_name || null;
-    }
-    
-    res.json(box);
+
+    const boxWithLocation = await pool.query(
+      `SELECT sb.*, sl.location_name
+       FROM shipping_boxes sb
+       LEFT JOIN seller_locations sl ON sl.location_id = sb.location_id
+       WHERE sb.box_id = $1`,
+      [boxId]
+    );
+
+    res.json(boxWithLocation.rows[0]);
   } catch (error) {
     console.error('Error toggling shipping box status:', error);
     res.status(500).json({ message: 'Failed to toggle shipping box status' });
@@ -674,8 +639,7 @@ export const reorderShippingBoxes = async (req: Request, res: Response): Promise
       }
       
       await client.query('COMMIT');
-      
-      console.log(`📦 Reordered ${boxes.length} shipping boxes`);
+
       res.json({ message: 'Boxes reordered successfully', count: boxes.length });
     } catch (error) {
       await client.query('ROLLBACK');

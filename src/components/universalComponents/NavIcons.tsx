@@ -5,12 +5,14 @@ import { FiShoppingCart } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
 import "../../styles/components/universal/TopBar.css";
 
+// Renders the profile, wishlist, and cart icon links in the TopBar
 const NavIcons = () => {
   const { getCartCount, wishlistItems } = useCart();
 
   const cartCount = getCartCount();
   const wishlistCount = wishlistItems.length;
 
+  // Icon definitions — count > 0 triggers a badge overlay
   const icons = [
     {
       to: "/profile",
@@ -43,6 +45,7 @@ const NavIcons = () => {
         >
           <span className="tb-topbar-icon-wrapper">
             {icon}
+            {/* Badge — only rendered when the count is non-zero */}
             {count > 0 && <span className="tb-topbar-icon-badge">{count}</span>}
           </span>
         </Link>

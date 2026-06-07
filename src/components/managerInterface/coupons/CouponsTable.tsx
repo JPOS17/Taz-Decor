@@ -10,6 +10,7 @@ import {
 import type { Coupon } from "../../../api/couponManagement";
 
 import LoadingSpinner from "../../universalComponents/LoadingSpinner";
+import { formatDate } from "../../../utils/formatDate";
 
 interface CouponsTableProps {
   coupons: Coupon[];
@@ -30,14 +31,11 @@ export const CouponsTable = ({
   onDelete,
   onCopyCode,
 }: CouponsTableProps) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
 
+  // Returns the appropriate status badge based on active flag, expiry date, and usage cap
   const getStatusBadge = (coupon: Coupon) => {
     const now = new Date();
     const validUntil = coupon.valid_until ? new Date(coupon.valid_until) : null;
@@ -57,6 +55,7 @@ export const CouponsTable = ({
     return <span className="mgr-badge mgr-badge-success">Active</span>;
   };
 
+  // Formats the discount value into a human-readable string
   const formatDiscount = (coupon: Coupon) => {
     if (coupon.discount_type === "free_shipping_only") {
       return (
@@ -86,6 +85,7 @@ export const CouponsTable = ({
       }
     }
 
+    // Fallback for free_shipping flag without a discount value
     if (coupon.free_shipping && !coupon.discount_value) {
       return (
         <span className="coupon-discount-highlight">Free Shipping Only</span>
@@ -94,6 +94,10 @@ export const CouponsTable = ({
 
     return "-";
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (loading) {
     return <LoadingSpinner message="Loading coupons..." />;
@@ -129,6 +133,7 @@ export const CouponsTable = ({
         <tbody>
           {coupons.map((coupon) => (
             <tr key={coupon.coupon_id}>
+              {/* Code cell */}
               <td>
                 <div className="coupon-code-cell">
                   <code className="coupon-code-display">
@@ -143,10 +148,14 @@ export const CouponsTable = ({
                   </button>
                 </div>
               </td>
+
               <td>{coupon.description || "-"}</td>
+
               <td>
                 <div>{formatDiscount(coupon)}</div>
               </td>
+
+              {/* Limits cell */}
               <td>
                 <div className="coupon-limits-cell">
                   {coupon.min_purchase_amount && (
@@ -160,21 +169,28 @@ export const CouponsTable = ({
                     "-"}
                 </div>
               </td>
+
               <td>
                 <span className="coupon-applies-to-badge">
                   {coupon.applies_to_name}
                 </span>
               </td>
+
+              {/* Usage cell */}
               <td>
                 {coupon.usage_count_total}
                 {coupon.usage_limit_total && ` / ${coupon.usage_limit_total}`}
               </td>
+
               <td>
                 {coupon.valid_until
-                  ? formatDate(coupon.valid_until)
+                  ? formatDate(coupon.valid_until, false, "short")
                   : "No expiry"}
               </td>
+
               <td>{getStatusBadge(coupon)}</td>
+
+              {/* Action buttons */}
               <td>
                 <div className="mgr-action-group">
                   <button
@@ -206,6 +222,7 @@ export const CouponsTable = ({
                   >
                     <Edit2 size={16} />
                   </button>
+                  {/* Delete is disabled for coupons that have already been redeemed */}
                   <button
                     onClick={() => onDelete(coupon.coupon_id)}
                     className="mgr-action-btn mgr-action-btn-delete"

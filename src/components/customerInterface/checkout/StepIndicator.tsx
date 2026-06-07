@@ -12,6 +12,7 @@ interface StepIndicatorProps {
   currentStep: CheckoutStep;
 }
 
+// Displays the current step in the checkout process with icons and labels
 const StepIndicator = ({ currentStep }: StepIndicatorProps) => {
   const steps: { key: CheckoutStep; label: string; icon: any }[] = [
     { key: "cart", label: "Cart", icon: FaShoppingCart },

@@ -1,16 +1,19 @@
 import express from "express";
 import { body } from "express-validator";
-import { 
-  getAllUsers, 
+import {
+  getAllUsers,
   updateUserRole,
   toggleUserStatus,
-  sendEmailToUser
+  sendEmailToUser,
 } from "../controllers/adminController";
 import { requireAdmin } from "../middleware/authMiddleware";
 
 export const adminRouter = express.Router();
 
-// Protect all admin routes - only admins
+// ============================================================================
+// MIDDLEWARE — Admin only
+// ============================================================================
+
 adminRouter.use(requireAdmin);
 
 // ============================================================================
@@ -20,12 +23,12 @@ adminRouter.use(requireAdmin);
 // GET all users
 adminRouter.get("/users", getAllUsers);
 
-// POST send email to specific user
+// POST send email to a specific user
 adminRouter.post(
   "/users/:id/email",
   [
     body("subject").notEmpty().withMessage("Subject is required"),
-    body("message").notEmpty().withMessage("Message is required")
+    body("message").notEmpty().withMessage("Message is required"),
   ],
   sendEmailToUser
 );
@@ -36,7 +39,7 @@ adminRouter.patch(
   [
     body("role")
       .isIn(["customer", "manager", "admin"])
-      .withMessage("Role must be customer, manager, or admin")
+      .withMessage("Role must be customer, manager, or admin"),
   ],
   updateUserRole
 );

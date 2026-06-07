@@ -10,10 +10,7 @@ import {
 
 import "../../styles/pages/adminInterface/AdminDashboard.css";
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
+// Types for confirmation modal state
 interface ConfirmationModal {
   show: boolean;
   type: "role" | "status" | null;
@@ -23,6 +20,7 @@ interface ConfirmationModal {
   userName: string;
 }
 
+// Types for email modal state
 interface EmailModal {
   show: boolean;
   userId: number | null;
@@ -30,11 +28,8 @@ interface EmailModal {
   userEmail: string;
 }
 
-// ============================================================================
-// ADMINDASHBOARD COMPONENT
-// ============================================================================
-
 const AdminDashboard = () => {
+  // Get current logged-in user from auth context to prevent self-modification
   const { user: currentUser } = useAuth();
 
   // ============================================================================
@@ -80,6 +75,7 @@ const AdminDashboard = () => {
   // DATA LOADING
   // ============================================================================
 
+  // Fetch all users once on mount
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -92,6 +88,7 @@ const AdminDashboard = () => {
     }
   }, [toast]);
 
+  // Loads all users from API and stores them in state
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
@@ -109,6 +106,7 @@ const AdminDashboard = () => {
   // HELPERS
   // ============================================================================
 
+  // Returns CSS class for role badge based on user role
   const getRoleBadgeClass = (role: string) => {
     switch (role) {
       case "admin":
@@ -120,6 +118,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // Formats ISO date string into a more readable format
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "Never";
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -153,6 +152,7 @@ const AdminDashboard = () => {
   // EVENT HANDLERS — CONFIRMATION MODAL
   // ============================================================================
 
+  // Opens confirmation modal for role change with relevant user info
   const showRoleConfirmation = (
     userId: number,
     newRole: "customer" | "manager" | "admin",
@@ -169,6 +169,7 @@ const AdminDashboard = () => {
     });
   };
 
+  // Opens confirmation modal for status toggle with relevant user info
   const showStatusConfirmation = (
     userId: number,
     userName: string,
@@ -184,6 +185,7 @@ const AdminDashboard = () => {
     });
   };
 
+  // Handles confirmation of role change or status toggle
   const handleConfirmAction = async () => {
     if (!confirmModal.userId) return;
 
@@ -231,6 +233,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // Closes confirmation modal without making any changes
   const handleCancelAction = () => {
     setConfirmModal({
       show: false,
@@ -246,6 +249,7 @@ const AdminDashboard = () => {
   // EVENT HANDLERS — EMAIL MODAL
   // ============================================================================
 
+  // Opens email modal with relevant user info and resets form fields
   const showEmailModal = (
     userId: number,
     userName: string,
@@ -256,12 +260,14 @@ const AdminDashboard = () => {
     setEmailMessage("");
   };
 
+  // Closes email modal and resets form fields
   const handleCloseEmailModal = () => {
     setEmailModal({ show: false, userId: null, userName: "", userEmail: "" });
     setEmailSubject("");
     setEmailMessage("");
   };
 
+  // Validates form and sends email to user via API, showing toast notifications for success/error
   const handleSendEmail = async () => {
     if (!emailModal.userId || !emailSubject.trim() || !emailMessage.trim()) {
       setToast({
@@ -431,6 +437,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* Page header */}
       <div className="dashboard-header">
         <div className="container">
           <h1 className="dashboard-title">Admin Dashboard - User Management</h1>
@@ -438,7 +445,9 @@ const AdminDashboard = () => {
       </div>
 
       <div className="container">
+        {/* Search and filter controls */}
         <div className="controls-section">
+          {/* Free-text search — matches name or email */}
           <div className="search-box">
             <input
               type="text"
@@ -449,6 +458,7 @@ const AdminDashboard = () => {
             />
           </div>
 
+          {/* Role filter dropdown */}
           <div className="filter-box">
             <label className="filter-label">Filter by Role:</label>
             <select
@@ -463,6 +473,7 @@ const AdminDashboard = () => {
             </select>
           </div>
 
+          {/* Status filter dropdown */}
           <div className="filter-box">
             <label className="filter-label">Filter by Status:</label>
             <select
@@ -477,6 +488,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* Stats summary cards */}
         <div className="stats-section">
           <div className="stat-card">
             <div className="stat-value">{users.length}</div>
@@ -508,6 +520,7 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* Users table */}
         <div className="users-table-container">
           <table className="users-table">
             <thead>
@@ -529,6 +542,7 @@ const AdminDashboard = () => {
                   key={user.userId}
                   className={!user.isActive ? "inactive-row" : ""}
                 >
+                  {/* Avatar (initials) + full name */}
                   <td>
                     <div className="user-cell">
                       <div className="user-avatar">
@@ -556,11 +570,15 @@ const AdminDashboard = () => {
                     </span>
                   </td>
                   <td>{user.phone || "N/A"}</td>
+
+                  {/* Role badge */}
                   <td>
                     <span className={getRoleBadgeClass(user.role)}>
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </span>
                   </td>
+
+                  {/* Active/Inactive status badge */}
                   <td>
                     <span
                       className={`status-badge ${
@@ -570,6 +588,8 @@ const AdminDashboard = () => {
                       {user.isActive ? "Active" : "Inactive"}
                     </span>
                   </td>
+
+                  {/* Email verification status */}
                   <td>
                     <span
                       className={`verification-badge ${
@@ -581,10 +601,13 @@ const AdminDashboard = () => {
                   </td>
                   <td className="date-cell">{formatDate(user.createdAt)}</td>
                   <td className="date-cell">{formatDate(user.lastLogin)}</td>
+
+                  {/* Action column — hidden for the currently logged-in admin */}
                   <td>
                     <div className="action-buttons">
                       {currentUser?.userId !== user.userId && (
                         <>
+                          {/* Role select — opens confirmation modal on change */}
                           <select
                             value={user.role}
                             onChange={(e) =>
@@ -601,6 +624,8 @@ const AdminDashboard = () => {
                             <option value="manager">Manager</option>
                             <option value="admin">Admin</option>
                           </select>
+
+                          {/* Activate / Deactivate toggle button */}
                           <button
                             onClick={() =>
                               showStatusConfirmation(
@@ -632,6 +657,7 @@ const AdminDashboard = () => {
             </tbody>
           </table>
 
+          {/* Empty state */}
           {filteredUsers.length === 0 && (
             <div className="empty-state">
               <p className="empty-state-text">

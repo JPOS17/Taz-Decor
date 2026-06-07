@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// Helper function to get auth headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
   return {
@@ -8,10 +9,16 @@ const getAuthHeaders = () => {
   };
 };
 
+// Helper function to get public headers (no auth)
+const getPublicHeaders = () => ({
+  "Content-Type": "application/json",
+});
+
 // ============================================================================
-// INTERFACES - USER PROFILE
+// INTERFACES
 // ============================================================================
 
+// USER PROFILE
 export interface UserProfile {
   user_id: number;
   first_name: string;
@@ -47,10 +54,7 @@ export interface UpdateProfilePayload {
   phone?: string;
 }
 
-// ============================================================================
-// INTERFACES - ADDRESSES
-// ============================================================================
-
+// ADDRESS
 export interface Address {
   address_id: number;
   address_name: string;
@@ -201,3 +205,5 @@ export const setDefaultAddress = async (addressId: number): Promise<{
   }
   return response.json();
 };
+
+

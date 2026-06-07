@@ -6,6 +6,7 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 import { fetchProductReviews, type Review } from "../../api/reviews";
+import { formatDate } from "../../utils/formatDate";
 
 interface ReviewSectionProps {
   productId: number;
@@ -18,9 +19,18 @@ const ReviewSection = ({
   averageRating,
   reviewCount,
 }: ReviewSectionProps) => {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Fetches all reviews for the product on mount or when the productId changes
   useEffect(() => {
     const loadReviews = async () => {
       try {
@@ -36,9 +46,15 @@ const ReviewSection = ({
     loadReviews();
   }, [productId]);
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Renders a 5-star row for a given rating, using full, half, and empty star icons
   const renderStars = (rating: number) => {
     const stars = [];
     const fullStars = Math.floor(rating);
+    // Show a half star when the decimal portion is 0.5 or above
     const hasHalfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
@@ -49,6 +65,7 @@ const ReviewSection = ({
       stars.push(<FaStarHalfAlt key="half" className="text-warning" />);
     }
 
+    // Fill the remaining slots up to 5 with empty stars
     const remainingStars = 5 - stars.length;
     for (let i = 0; i < remainingStars; i++) {
       stars.push(<FaRegStar key={`empty-${i}`} className="text-warning" />);
@@ -57,14 +74,9 @@ const ReviewSection = ({
     return stars;
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (reviewCount === 0) {
     return (
@@ -89,6 +101,7 @@ const ReviewSection = ({
           </div>
           <div>
             <div className="d-flex mb-1">{renderStars(averageRating)}</div>
+            {/* Pluralizes "review" correctly based on count */}
             <p className="text-muted mb-0">
               {reviewCount} {reviewCount === 1 ? "review" : "reviews"}
             </p>
@@ -105,6 +118,7 @@ const ReviewSection = ({
             <div key={review.review_id} className="border-bottom pb-3 mb-3">
               <div className="d-flex justify-content-between align-items-start mb-2">
                 <div>
+                  {/* Star rating row with optional verified purchase badge */}
                   <div className="d-flex align-items-center mb-1">
                     {renderStars(review.rating)}
                     {review.is_verified_purchase && (
@@ -114,6 +128,7 @@ const ReviewSection = ({
                       </span>
                     )}
                   </div>
+                  {/* Review title — optional, only shown when present */}
                   {review.review_title && (
                     <h6 className="mb-1">{review.review_title}</h6>
                   )}
@@ -123,17 +138,20 @@ const ReviewSection = ({
                 </small>
               </div>
 
+              {/* Review body text — optional, only shown when present */}
               {review.review_text && (
                 <p className="mb-2">{review.review_text}</p>
               )}
 
               <div className="d-flex justify-content-between align-items-center">
+                {/* Reviewer name and variant details */}
                 <div>
                   <small className="text-muted">
                     By {review.user_name}
                     {review.variant_details && ` • ${review.variant_details}`}
                   </small>
                 </div>
+                {/* Helpful count — only shown when at least one person found it helpful */}
                 {review.helpful_count > 0 && (
                   <small className="text-muted">
                     {review.helpful_count}{" "}

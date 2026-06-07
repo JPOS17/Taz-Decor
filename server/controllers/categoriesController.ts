@@ -70,7 +70,7 @@ export const getAllCategories = async (req: Request, res: Response): Promise<voi
 };
 
 // ============================================================================
-// CATEGORIES - CREATE
+// CATEGORIES - FUNCTIONS
 // ============================================================================
 
 /**
@@ -119,10 +119,6 @@ export const createCategory = async (req: Request, res: Response): Promise<void>
     });
   }
 };
-
-// ============================================================================
-// CATEGORIES - UPDATE
-// ============================================================================
 
 /**
  * PUT update category
@@ -198,10 +194,6 @@ export const updateCategory = async (req: Request, res: Response): Promise<void>
   }
 };
 
-// ============================================================================
-// CATEGORIES - DELETE
-// ============================================================================
-
 /**
  * DELETE category
  */
@@ -244,10 +236,6 @@ export const deleteCategory = async (req: Request, res: Response): Promise<void>
     });
   }
 };
-
-// ============================================================================
-// CATEGORIES - REORDER
-// ============================================================================
 
 /**
  * PUT update display order for multiple categories

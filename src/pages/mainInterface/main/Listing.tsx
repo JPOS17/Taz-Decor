@@ -12,7 +12,7 @@ import {
   FaLock,
 } from "react-icons/fa";
 import { fetchProductDetail, type ProductDetail } from "../../../api/listings";
-import { fetchProductStats, type ProductStats } from "../../../api/statistics";
+import { fetchProductStats, type ProductStats } from "../../../api/reviews";
 import {
   fetchApplicableCouponsForVariant,
   type ProductCoupon,
@@ -83,7 +83,7 @@ const IndividualListing = () => {
   // HELPERS
   // ============================================================================
 
-  // Normalize the from path — if coming from another product page, default to /items
+  // Normalizes the back-navigation path — defaults to /items if coming from another product page
   const getFromPath = () => {
     const fromState = location.state?.from;
     if (typeof fromState === "string" && fromState.startsWith("/items/")) {
@@ -107,6 +107,7 @@ const IndividualListing = () => {
   // PRICE CALCULATIONS
   // ============================================================================
 
+  // Returns the effective display price after applying any active coupon discount
   const getDisplayedPrice = () => {
     if (!product || !selectedCoupon) return product?.price || 0;
 
@@ -137,7 +138,7 @@ const IndividualListing = () => {
     window.scrollTo(0, 0);
   }, [variantId]);
 
-  // Only runs on initial load or when variantId changes (shows spinner)
+  // Fetches product details, stats, and applicable coupons on mount or variant change
   useEffect(() => {
     const loadProduct = async () => {
       if (!variantId) return;
@@ -170,7 +171,7 @@ const IndividualListing = () => {
     loadProduct();
   }, [variantId]);
 
-  // Only restores selected coupon when cart/wishlist changes (no spinner)
+  // Restores the previously selected coupon from cart or wishlist when either changes (no spinner)
   useEffect(() => {
     if (!coupons || coupons.length === 0) return;
 
@@ -207,6 +208,7 @@ const IndividualListing = () => {
   // EVENT HANDLERS — IMAGE GALLERY
   // ============================================================================
 
+  // Opens the lightbox at the given image index
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setIsLightboxOpen(true);
@@ -216,12 +218,14 @@ const IndividualListing = () => {
     setIsLightboxOpen(false);
   };
 
+  // Advances to the next image, wrapping around at the end
   const nextLightboxImage = () => {
     if (product) {
       setLightboxIndex((prev) => (prev + 1) % product.images.length);
     }
   };
 
+  // Goes back to the previous image, wrapping around at the beginning
   const prevLightboxImage = () => {
     if (product) {
       setLightboxIndex(
@@ -234,10 +238,12 @@ const IndividualListing = () => {
   // EVENT HANDLERS — PRODUCT ACTIONS
   // ============================================================================
 
+  // Navigates to the selected variant's listing page
   const handleVariantChange = (newVariantId: number) => {
     navigate(`/items/${newVariantId}`, { state: { from: "/items" } });
   };
 
+  // Adds the current variant to the cart and opens the mini cart flyout
   const handleAddToCart = () => {
     if (!product) return;
 
@@ -261,6 +267,7 @@ const IndividualListing = () => {
     setIsMiniCartOpen(true);
   };
 
+  // Toggles the current variant in or out of the wishlist
   const handleToggleWishlist = () => {
     if (!product) return;
 
@@ -280,6 +287,7 @@ const IndividualListing = () => {
     addToWishlist(wishlistItem, selectedCoupon?.coupon_id);
   };
 
+  // Updates the selected coupon and syncs it to the cart or wishlist if the item is already saved
   const handleCouponSelect = (coupon: ProductCoupon | null) => {
     setSelectedCoupon(coupon);
 
@@ -294,6 +302,7 @@ const IndividualListing = () => {
     }
   };
 
+  // Redirects the user to their profile page to verify their email
   const handleVerifyEmailClick = () => {
     navigate("/profile");
   };
@@ -342,7 +351,7 @@ const IndividualListing = () => {
           <div className="listing-product-layout">
             {/* Image Section */}
             <div className="listing-image-section">
-              {/* Main Image Container — arrows overlaid, thumbnails below */}
+              {/* Main image — click opens lightbox */}
               <div
                 className="listing-main-image-container"
                 onClick={() =>
@@ -357,7 +366,7 @@ const IndividualListing = () => {
                 <div className="listing-zoom-hint">Click to view full size</div>
               </div>
 
-              {/* Thumbnail Gallery — horizontal strip below image */}
+              {/* Thumbnail strip — only shown when there are multiple images */}
               {product.images.length > 1 && (
                 <div className="listing-thumbnail-gallery">
                   {product.images.map((img, index) => (
@@ -397,7 +406,7 @@ const IndividualListing = () => {
                   {/* Product Title */}
                   <h1 className="listing-product-title">{product.name}</h1>
 
-                  {/* Price */}
+                  {/* Price — shows original crossed out alongside discounted price when a coupon is active */}
                   {hasDiscount ? (
                     <div className="listing-product-price listing-product-price-discounted">
                       <span className="listing-price-original">
@@ -410,6 +419,7 @@ const IndividualListing = () => {
                   ) : (
                     <div className="listing-product-price">
                       ${displayedPrice.toFixed(2)}
+                      {/* Lock icon shown when coupon requires email verification */}
                       {selectedCoupon?.requires_verified_email &&
                         !isEmailVerified && (
                           <FaLock
@@ -435,7 +445,7 @@ const IndividualListing = () => {
                     </div>
                   )}
 
-                  {/* Popularity Stats */}
+                  {/* Popularity Stats — wishlist and cart counts */}
                   {stats &&
                     (stats.wishlistCount > 0 || stats.cartCount > 0) && (
                       <div className="listing-popularity-stats">
@@ -467,7 +477,7 @@ const IndividualListing = () => {
                     )}
                 </div>
 
-                {/* Coupons Section */}
+                {/* Coupons Section — only rendered when coupons are available */}
                 {coupons.length > 0 && (
                   <div className="listing-header-coupons">
                     <CouponBanner
@@ -482,7 +492,7 @@ const IndividualListing = () => {
                 )}
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons — add to cart and wishlist toggle */}
               <div className="listing-product-actions">
                 <button
                   className="listing-btn-add-to-cart"
@@ -568,7 +578,7 @@ const IndividualListing = () => {
             </div>
           </div>
 
-          {/* Reviews Section */}
+          {/* Reviews Section — only shown when at least one review exists */}
           {stats && stats.reviewCount > 0 && (
             <div className="listing-reviews-section">
               <ReviewSection

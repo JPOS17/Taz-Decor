@@ -1,10 +1,6 @@
 import type { ShippingOption, GuestInfo, GuestShippingAddress } from "../api/checkout";
 import type { ProductCoupon } from "../api/couponCustomer";
 
-// ============================================================================
-// CHECKOUT SESSION — persists checkout state to sessionStorage across refreshes
-// ============================================================================
-
 const SESSION_KEY = "checkout_session";
 
 export interface CheckoutSession {
@@ -20,6 +16,7 @@ export interface CheckoutSession {
   cartLevelCoupon: ProductCoupon | null;
 }
 
+// Merges the provided data into the existing session, preserving all other fields
 export const saveSession = (data: Partial<CheckoutSession>): void => {
   try {
     const existing = loadSession();
@@ -28,9 +25,11 @@ export const saveSession = (data: Partial<CheckoutSession>): void => {
       JSON.stringify({ ...existing, ...data }),
     );
   } catch {
+    // Silently fail — sessionStorage may be unavailable (e.g. private browsing restrictions)
   }
 };
 
+// Returns the current session object, or an empty object if none exists or parsing fails
 export const loadSession = (): Partial<CheckoutSession> => {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
@@ -40,9 +39,11 @@ export const loadSession = (): Partial<CheckoutSession> => {
   }
 };
 
+// Removes the entire checkout session from sessionStorage (called on order completion or logout)
 export const clearSession = (): void => {
   try {
     sessionStorage.removeItem(SESSION_KEY);
   } catch {
+    // Silently fail
   }
 };

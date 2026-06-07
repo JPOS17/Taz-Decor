@@ -1,22 +1,21 @@
 import express from "express";
-import { 
+import {
   getCart,
   syncCart,
   addToCart,
   removeFromCart,
   updateCartQuantity,
   updateCartCoupon,
-  clearCart
+  clearCart,
 } from "../controllers/cartController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 export const cartRouter = express.Router();
 
 // ============================================================================
-// MIDDLEWARE
+// MIDDLEWARE — Authentication required for all cart routes
 // ============================================================================
 
-// All cart routes require authentication
 cartRouter.use(authenticateToken);
 
 // ============================================================================
@@ -26,19 +25,19 @@ cartRouter.use(authenticateToken);
 // GET user's cart from database
 cartRouter.get("/", getCart);
 
-// POST sync localStorage cart to database
+// POST sync localStorage cart to database on login
 cartRouter.post("/sync", syncCart);
 
 // POST add item to cart
 cartRouter.post("/add", addToCart);
 
-// PUT update cart item's selected coupon - MUST BE BEFORE /:variantId
+// PUT update cart item's selected coupon — MUST BE BEFORE /:variantId
 cartRouter.put("/:variantId/coupon", updateCartCoupon);
 
 // PUT update cart item quantity
 cartRouter.put("/:variantId", updateCartQuantity);
 
-// DELETE clear entire cart - MUST BE BEFORE /:variantId
+// DELETE clear entire cart — MUST BE BEFORE /:variantId
 cartRouter.delete("/clear", clearCart);
 
 // DELETE remove specific item from cart

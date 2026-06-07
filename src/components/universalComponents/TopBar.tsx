@@ -6,6 +6,7 @@ import { FaBars } from "react-icons/fa";
 import "../../styles/components/universal/TopBar.css";
 
 const NavBar = () => {
+  // Controls mobile menu open/closed state
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
@@ -14,7 +15,7 @@ const NavBar = () => {
   return (
     <nav className="tb-topbar">
       <div className="tb-topbar-container">
-        {/* Left section: dropdown toggle and logo */}
+        {/* Left section — mobile hamburger toggle and logo */}
         <div className="tb-topbar-left">
           <button
             className="tb-topbar-mobile-toggle"
@@ -28,7 +29,7 @@ const NavBar = () => {
           <Logo />
         </div>
 
-        {/* Center section: nav links */}
+        {/* Center section — main nav links; closing the menu on any link click */}
         <div
           className={`tb-topbar-nav-links ${isMenuOpen ? "tb-topbar-nav-links-open" : ""}`}
           onClick={closeMenu}
@@ -36,7 +37,7 @@ const NavBar = () => {
           <NavLinks />
         </div>
 
-        {/* Right section: nav icons */}
+        {/* Right section — profile, wishlist, and cart icons */}
         <div className="tb-topbar-icons">
           <NavIcons />
         </div>

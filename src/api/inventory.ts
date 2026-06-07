@@ -1,5 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// Helper function to get auth headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
   return {
@@ -9,9 +10,10 @@ const getAuthHeaders = () => {
 };
 
 // ============================================================================
-// INTERFACES - IMAGES
+// INTERFACES
 // ============================================================================
 
+//IMAGES
 export interface VariantImage {
   image_id: number;
   img_url: string;
@@ -24,10 +26,7 @@ export interface ImageOrderPayload {
   display_order: number;
 }
 
-// ============================================================================
-// INTERFACES - VARIANTS
-// ============================================================================
-
+// VARIANTS
 export interface ProductVariantForManagement {
   variant_id: number;
   product_id: number;
@@ -70,10 +69,7 @@ export interface VariantOption {
   primary_image?: string | null;
 }
 
-// ============================================================================
-// INTERFACES - PAYLOADS
-// ============================================================================
-
+// PAYLOADS
 export interface CreateProductPayload {
   name: string;
   category_id: number;

@@ -54,10 +54,6 @@ interface FormData {
   productCategories: ProductCategory[];
 }
 
-// ============================================================================
-// PRODUCT OVERLAY FORM COMPONENT
-// ============================================================================
-
 const ProductForm = ({
   variant,
   categories,
@@ -72,6 +68,7 @@ const ProductForm = ({
   // STATE MANAGEMENT
   // ============================================================================
 
+  // Tracks whether the user has attempted to save
   const [hasAttemptedSave, setHasAttemptedSave] = useState(false);
 
   // ============================================================================
@@ -84,6 +81,7 @@ const ProductForm = ({
   // COMPUTED VALUES
   // ============================================================================
 
+  // Derived from the variant prop on every render
   const formData: FormData = {
     name: variant.name || "",
     sku: variant.sku || "",
@@ -107,6 +105,7 @@ const ProductForm = ({
     hasAttemptedSave,
   );
 
+  // Mapped for use in the fallback SelectInput when category handlers are not provided
   const categoryOptions = categories.map((cat) => ({
     value: cat.category_id,
     label: cat.category_name,
@@ -116,7 +115,7 @@ const ProductForm = ({
   // EFFECTS
   // ============================================================================
 
-  // Reset validation state when variant changes (new product loaded)
+  // Reset validation state when the loaded variant changes (new product opened in overlay)
   useEffect(() => {
     setHasAttemptedSave(false);
     setErrors({});
@@ -126,7 +125,7 @@ const ProductForm = ({
     }
   }, [variant.variant_id, onValidationChange, setErrors]);
 
-  // Update parent with form validity
+  // Notify parent of form validity whenever errors change after a save attempt
   useEffect(() => {
     if (hasAttemptedSave) {
       const isValid = Object.keys(errors).length === 0;
@@ -136,7 +135,7 @@ const ProductForm = ({
     }
   }, [errors, hasAttemptedSave, onValidationChange]);
 
-  // Expose validation function to parent via window
+  // Expose a validation trigger to the parent via window
   useEffect(() => {
     (window as any).__validateProductForm = () => {
       setHasAttemptedSave(true);
@@ -161,6 +160,7 @@ const ProductForm = ({
   // EVENT HANDLERS
   // ============================================================================
 
+  // Routes field changes to the parent — numeric fields are parsed before being passed up
   const handleInputChange = (field: keyof VariantDetails, value: string) => {
     if (hasAttemptedSave) {
       clearFieldError(field as string);
@@ -179,6 +179,7 @@ const ProductForm = ({
     }
   };
 
+  // Handles shipping field changes
   const handleShippingChange = (field: string, value: number | null) => {
     if (hasAttemptedSave) {
       const isDimensionField = ["length_in", "width_in", "height_in"].includes(
@@ -195,7 +196,7 @@ const ProductForm = ({
 
   return (
     <div className="product-form">
-      {/* SKU - READ-ONLY */}
+      {/* SKU */}
       <div className="form-section">
         <FormField
           label="SKU"
@@ -216,7 +217,7 @@ const ProductForm = ({
       {/* Product Information */}
       <div className="form-section" data-section="product-info">
         <h4 className="form-section-header">Product Information</h4>
-        {/* Product Name */}
+
         <FormField label="Product Name" required error={errors.name}>
           <TextInput
             value={variant.name}
@@ -226,7 +227,7 @@ const ProductForm = ({
             autoFormat={true}
           />
         </FormField>
-        {/* Description */}
+
         <FormField label="Description" required error={errors.description}>
           <TextInput
             value={variant.description || ""}
@@ -236,6 +237,7 @@ const ProductForm = ({
             rows={3}
           />
         </FormField>
+
         {/* Category */}
         {onAddCategory && onRemoveCategory && onSetPrimaryCategory ? (
           <div className="pf-category-wrapper">
@@ -259,7 +261,7 @@ const ProductForm = ({
             />
           </FormField>
         )}
-        {/* Price */}
+
         <FormField label="Price" required error={errors.price}>
           <TextInput
             type="number"
@@ -269,7 +271,7 @@ const ProductForm = ({
             error={!!errors.price}
           />
         </FormField>
-        {/* Stock Quantity */}
+
         <FormField
           label="Stock Quantity"
           required
@@ -284,7 +286,6 @@ const ProductForm = ({
           />
         </FormField>
 
-        {/* Warehouse Location */}
         <WarehouseSelector
           value={variant.location_id?.toString() || ""}
           onChange={(value) => handleInputChange("location_id", value)}

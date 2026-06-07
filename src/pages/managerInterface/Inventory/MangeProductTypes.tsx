@@ -13,6 +13,7 @@ import { ToastNotification } from "../../../components/managerInterface/universa
 import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
 
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
+import { useToastMessage } from "../../../hooks/useToastMessage";
 import { formatName } from "../../../utils/nameFormatter";
 
 import "../../../styles/pages/managerInterface/Tokens.css";
@@ -20,23 +21,15 @@ import "../../../styles/pages/managerInterface/Components.css";
 import "../../../styles/pages/managerInterface/ManagerShared.css";
 import "../../../styles/pages/managerInterface/ManageProductType.css";
 
-interface Message {
-  text: string;
-  type: "success" | "error" | "warning";
-}
-
 type EditMode = "none" | "edit" | "create";
 
+// Types for the inline create/edit form fields
 interface EditingType {
   product_type_id?: number;
   type_name: string;
   sku_prefix: string;
   description: string;
 }
-
-// ============================================================================
-// MANAGE PRODUCT TYPES COMPONENT
-// ============================================================================
 
 const ManageProductTypes = () => {
   const navigate = useNavigate();
@@ -50,7 +43,7 @@ const ManageProductTypes = () => {
 
   // UI state
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<Message | null>(null);
+  const { message, showMessage } = useToastMessage();
   const [editMode, setEditMode] = useState<EditMode>("none");
 
   // Form state
@@ -68,10 +61,12 @@ const ManageProductTypes = () => {
   // DATA LOADING
   // ============================================================================
 
+  // On component mount, load product types
   useEffect(() => {
     loadProductTypes();
   }, []);
 
+  // Fetches all product types and populates the table
   const loadProductTypes = async () => {
     setLoading(true);
     try {
@@ -86,18 +81,10 @@ const ManageProductTypes = () => {
   };
 
   // ============================================================================
-  // UTILITY FUNCTIONS
-  // ============================================================================
-
-  const showMessage = (text: string, type: "success" | "error" | "warning") => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
-
-  // ============================================================================
   // EVENT HANDLERS
   // ============================================================================
 
+  // Switches to create mode and resets the form fields
   const handleCreateNew = () => {
     setEditMode("create");
     setFormData({
@@ -108,6 +95,7 @@ const ManageProductTypes = () => {
     setEditingType(null);
   };
 
+  // Switches to edit mode and pre-populates the form with the selected product type's data
   const handleEdit = (productType: ProductType) => {
     setEditMode("edit");
     setEditingType({
@@ -123,6 +111,7 @@ const ManageProductTypes = () => {
     });
   };
 
+  // Resets form state and returns to the idle table view
   const handleCancelEdit = () => {
     setEditMode("none");
     setEditingType(null);
@@ -133,6 +122,7 @@ const ManageProductTypes = () => {
     });
   };
 
+  // Validates all required fields and SKU prefix length, then opens the save confirmation modal
   const handleRequestSave = () => {
     if (
       !formData.type_name.trim() ||
@@ -163,6 +153,7 @@ const ManageProductTypes = () => {
     });
   };
 
+  // Creates or updates the product type using formatted values, then reloads the table
   const handleSave = async () => {
     const formattedTypeName = formatName(formData.type_name);
     const formattedDescription = formatName(formData.description);
@@ -182,6 +173,7 @@ const ManageProductTypes = () => {
           "success",
         );
       } else if (editMode === "edit" && editingType?.product_type_id) {
+        // Only description is editable on existing types — type_name and sku_prefix are locked
         await updateProductType(editingType.product_type_id, {
           description: formattedDescription,
         });
@@ -228,7 +220,7 @@ const ManageProductTypes = () => {
       <div className="mgr-container">
         <div className="mgr-body">
           <div className="mpt-panel">
-            {/* Actions bar */}
+            {/* Actions bar — New Product Type button hidden while form is open */}
             <div className="mpt-actions-bar">
               <h2 className="mpt-section-title">Product Types</h2>
               {editMode === "none" && (
@@ -243,7 +235,7 @@ const ManageProductTypes = () => {
               )}
             </div>
 
-            {/* Create / Edit form */}
+            {/* Create / Edit form — only visible when editMode is active */}
             {editMode !== "none" && (
               <div className="mpt-form">
                 <h3 className="mpt-form-title">
@@ -252,6 +244,7 @@ const ManageProductTypes = () => {
                     : "Edit Product Type"}
                 </h3>
 
+                {/* SKU Prefix — read-only when editing an existing type */}
                 <div className="mpt-form-group">
                   <label className="mpt-form-label">
                     SKU Prefix * {editMode === "edit" && "(Read-only)"}
@@ -273,6 +266,7 @@ const ManageProductTypes = () => {
                   </p>
                 </div>
 
+                {/* Type Name — read-only when editing an existing type */}
                 <div className="mpt-form-group">
                   <label className="mpt-form-label">
                     Type Name * {editMode === "edit" && "(Read-only)"}
@@ -287,6 +281,7 @@ const ManageProductTypes = () => {
                     placeholder="Enter type name"
                     disabled={loading || editMode === "edit"}
                   />
+                  {/* Formatted name preview — only shown in create mode when name differs from formatted version */}
                   {editMode === "create" &&
                     formData.type_name.trim() &&
                     formData.type_name.trim() !==
@@ -298,6 +293,7 @@ const ManageProductTypes = () => {
                     )}
                 </div>
 
+                {/* Description — editable in both create and edit modes */}
                 <div className="mpt-form-group">
                   <label className="mpt-form-label">Description *</label>
                   <textarea
@@ -310,6 +306,7 @@ const ManageProductTypes = () => {
                     disabled={loading}
                     rows={3}
                   />
+                  {/* Formatted description preview — only shown when it differs from the formatted version */}
                   {formData.description.trim() &&
                     formData.description.trim() !==
                       formatName(formData.description) && (
@@ -324,6 +321,7 @@ const ManageProductTypes = () => {
                   </p>
                 </div>
 
+                {/* Form action buttons */}
                 <div className="mpt-form-actions">
                   <button
                     className="mpt-btn mpt-btn-success"
@@ -352,10 +350,11 @@ const ManageProductTypes = () => {
               </div>
             )}
 
-            {/* Loading */}
+            {/* Loading spinner — only shown on initial load before any types exist */}
             {loading && productTypes.length === 0 ? (
               <LoadingSpinner message="Loading product types..." />
             ) : (
+              /* Product types table */
               <div className="mpt-table-container">
                 <table className="mpt-table">
                   <thead>
@@ -370,6 +369,7 @@ const ManageProductTypes = () => {
                     {productTypes.map((productType) => (
                       <tr
                         key={productType.product_type_id}
+                        // Highlights the row currently being edited
                         className={
                           editingType?.product_type_id ===
                           productType.product_type_id
@@ -392,6 +392,7 @@ const ManageProductTypes = () => {
                           {productType.description}
                         </td>
                         <td className="mpt-actions-cell" data-label="Actions">
+                          {/* Edit opens the form in edit mode — only description is modifiable */}
                           <button
                             className="mpt-btn mpt-btn-primary mpt-btn-sm"
                             onClick={() => handleEdit(productType)}

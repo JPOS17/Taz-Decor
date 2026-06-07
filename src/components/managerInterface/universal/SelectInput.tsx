@@ -11,6 +11,7 @@ interface SelectInputProps {
   error?: boolean;
 }
 
+// Renders a styled <select> dropdown with an optional blank placeholder option
 export function SelectInput({
   value,
   onChange,
@@ -24,6 +25,7 @@ export function SelectInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
     >
+      {/* Empty-value placeholder — always rendered as the first option */}
       <option value="">{placeholder}</option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>

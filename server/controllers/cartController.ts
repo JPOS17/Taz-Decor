@@ -3,7 +3,7 @@ import { getUserFromToken } from "../middleware/authMiddleware";
 import { pool } from "../db";
 
 // ============================================================================
-// CART - ADD ITEM
+// CART - FUNCTIONS
 // ============================================================================
 
 /**
@@ -47,10 +47,6 @@ export const addToCart = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// ============================================================================
-// CART - REMOVE ITEM
-// ============================================================================
-
 /**
  * DELETE remove item from cart
  */
@@ -77,10 +73,6 @@ export const removeFromCart = async (req: Request, res: Response): Promise<void>
   }
 };
 
-// ============================================================================
-// CART - CLEAR ALL
-// ============================================================================
-
 /**
  * DELETE clear entire cart
  */
@@ -104,10 +96,6 @@ export const clearCart = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// ============================================================================
-// CART - UPDATE QUANTITY
-// ============================================================================
 
 /**
  * PUT update cart item quantity
@@ -144,7 +132,7 @@ export const updateCartQuantity = async (req: Request, res: Response): Promise<v
 };
 
 // ============================================================================
-// CART - UPDATE COUPON
+// CART - COUPON HANDLING
 // ============================================================================
 
 /**

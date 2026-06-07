@@ -8,7 +8,7 @@ import { sendShippingNotificationEmail } from "../utils/emailService";
 // ============================================================================
 
 /**
- * GET user's order history
+ * GET authenticated user's own order history
  */
 export const getUserOrders = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -19,9 +19,6 @@ export const getUserOrders = async (req: Request, res: Response): Promise<void> 
     }
 
     const { limit, offset } = req.query;
-
-    const isAdminRoute = req.path === '/admin/orders';
-    const showAllOrders = isAdminRoute && (user.role === 'admin' || user.role === 'manager');
 
     const result = await pool.query(
       `SELECT 
@@ -52,11 +49,11 @@ export const getUserOrders = async (req: Request, res: Response): Promise<void> 
         COUNT(oi.order_item_id) as item_count
       FROM orders o
       LEFT JOIN order_items oi ON oi.order_id = o.order_id
-      WHERE ($1::boolean = true OR o.user_id = $2)
+      WHERE o.user_id = $1
       GROUP BY o.order_id
       ORDER BY o.created_at DESC
-      LIMIT $3 OFFSET $4`,
-      [showAllOrders, user.userId, limit || 20, offset || 0]
+      LIMIT $2 OFFSET $3`,
+      [user.userId, limit || 20, offset || 0]
     );
 
     const orders = result.rows.map(order => ({
@@ -73,7 +70,74 @@ export const getUserOrders = async (req: Request, res: Response): Promise<void> 
     res.json(orders);
 
   } catch (error) {
-    console.error("Error fetching orders:", error);
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/**
+ * GET all orders (manager/admin only)
+ */
+export const getAllOrders = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = getUserFromToken(req.headers.authorization);
+    if (!user) {
+      res.status(401).json({ message: "Not authenticated" });
+      return;
+    }
+
+    const { limit, offset } = req.query;
+
+    const result = await pool.query(
+      `SELECT 
+        o.order_id,
+        o.order_number,
+        o.subtotal,
+        o.discount_amount,
+        o.shipping_cost,
+        o.tax_amount,
+        o.total_price,
+        o.total_weight_oz,
+        o.status,
+        o.tracking_number,
+        o.shipping_carrier,
+        o.shipping_service,
+        o.shipped_at,
+        o.delivered_at,
+        o.created_at,
+        o.first_name,
+        o.last_name,
+        o.address_line1,
+        o.address_line2,
+        o.city,
+        o.state,
+        o.zip,
+        o.country,
+        o.customer_email,
+        COUNT(oi.order_item_id) as item_count
+      FROM orders o
+      LEFT JOIN order_items oi ON oi.order_id = o.order_id
+      GROUP BY o.order_id
+      ORDER BY o.created_at DESC
+      LIMIT $1 OFFSET $2`,
+      [limit || 20, offset || 0]
+    );
+
+    const orders = result.rows.map(order => ({
+      ...order,
+      subtotal: parseFloat(order.subtotal),
+      discount_amount: parseFloat(order.discount_amount),
+      shipping_cost: parseFloat(order.shipping_cost),
+      tax_amount: parseFloat(order.tax_amount),
+      total_price: parseFloat(order.total_price),
+      total_weight_oz: order.total_weight_oz ? parseFloat(order.total_weight_oz) : null,
+      item_count: parseInt(order.item_count)
+    }));
+
+    res.json(orders);
+
+  } catch (error) {
+    console.error("Error fetching all orders:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -344,11 +408,6 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    if (user.role !== 'admin' && user.role !== 'manager') {
-      res.status(403).json({ message: "Unauthorized - Admin access required" });
-      return;
-    }
-
     const { orderId } = req.params;
     const { status, notes, tracking_number, shipping_carrier, shipping_service } = req.body;
 
@@ -435,47 +494,33 @@ export const updateOrderStatus = async (req: Request, res: Response): Promise<vo
 
       await client.query('COMMIT');
 
-      // Send shipping notification — check both registered users and guests
+      // Send shipping notification — resolve recipient from order data or guest fallback
       if (status === 'shipped' && currentOrder.status !== 'shipped') {
         try {
-          // Try registered user first
-          const customerResult = await pool.query(
-            `SELECT u.email, u.first_name
+          const recipientResult = await pool.query(
+            `SELECT
+              COALESCE(u.email, go.guest_email)           AS email,
+              COALESCE(u.first_name, go.guest_first_name) AS first_name,
+              CASE WHEN go.guest_order_id IS NOT NULL THEN true ELSE false END AS is_guest
              FROM orders o
-             JOIN users u ON u.user_id = o.user_id
+             LEFT JOIN users u ON u.user_id = o.user_id
+             LEFT JOIN guest_orders go ON go.order_id = o.order_id
              WHERE o.order_id = $1`,
             [orderId]
           );
 
-          let recipientEmail: string | null = null;
-          let recipientName: string | null = null;
+          const recipient = recipientResult.rows[0];
 
-          if (customerResult.rows.length > 0) {
-            recipientEmail = customerResult.rows[0].email;
-            recipientName = customerResult.rows[0].first_name;
-          } else {
-            // Fall back to guest_orders
-            const guestResult = await pool.query(
-              `SELECT guest_email, guest_first_name FROM guest_orders WHERE order_id = $1`,
-              [orderId]
-            );
-            if (guestResult.rows.length > 0) {
-              recipientEmail = guestResult.rows[0].guest_email;
-              recipientName = guestResult.rows[0].guest_first_name;
-            }
-          }
-
-          if (recipientEmail && recipientName) {
+          if (recipient?.email && recipient?.first_name) {
             await sendShippingNotificationEmail(
-              recipientEmail,
-              recipientName,
+              recipient.email,
+              recipient.first_name,
               {
                 order_number: updatedOrder.order_number,
                 total_price: parseFloat(updatedOrder.total_price),
                 tracking_number: tracking_number || updatedOrder.tracking_number || '',
               },
-              // isGuest: true when the email came from guest_orders rather than users
-              customerResult.rows.length === 0
+              recipient.is_guest
             );
           }
         } catch (emailError) {

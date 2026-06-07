@@ -12,6 +12,7 @@ interface ProductAttributesFieldsProps {
   "data-section"?: string;
 }
 
+// Renders optional color and size inputs
 const ProductAttributesFields = ({
   color,
   size,

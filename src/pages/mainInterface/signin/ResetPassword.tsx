@@ -35,6 +35,7 @@ const ResetPassword = () => {
   // HELPER FUNCTIONS
   // ============================================================================
 
+  // Scores the password from 0–5 and returns unmet requirement feedback
   const checkPasswordStrength = (password: string) => {
     const feedback: string[] = [];
     let score = 0;
@@ -57,6 +58,7 @@ const ResetPassword = () => {
   // HANDLERS
   // ============================================================================
 
+  // Updates form fields and re-evaluates password strength on every keystroke
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -65,6 +67,7 @@ const ResetPassword = () => {
     }
   };
 
+  // Validates the passwords, calls the reset API, then redirects to login after 3 seconds
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -107,6 +110,7 @@ const ResetPassword = () => {
     return (
       <div className="reset-container">
         <div className="reset-card">
+          {/* Success confirmation — auto-redirects to login after 3 seconds */}
           <div className="reset-success-icon">✓</div>
           <h1 className="reset-title">Password Reset Successful!</h1>
           <p className="reset-subtitle">
@@ -114,6 +118,7 @@ const ResetPassword = () => {
             your new password.
           </p>
           <p className="reset-redirect">Redirecting to login...</p>
+          {/* Manual redirect link in case auto-redirect is slow */}
           <Link to="/login" className="reset-action-btn">
             Go to Login Now
           </Link>
@@ -122,19 +127,23 @@ const ResetPassword = () => {
     );
   }
 
+  // Strength class drives the CSS fill width and color of the strength bar
   const strengthClass = `reset-strength-${passwordStrength.score}`;
 
   return (
     <div className="reset-container">
       <div className="reset-card">
+        {/* Page header */}
         <div className="reset-header">
           <h1 className="reset-title">Reset Your Password</h1>
           <p className="reset-subtitle">Enter your new password below</p>
         </div>
 
         <form onSubmit={handleSubmit} className="reset-form">
+          {/* Inline error message */}
           {error && <div className="reset-error-message">{error}</div>}
 
+          {/* New password input with live strength meter */}
           <div className="reset-form-group">
             <label htmlFor="newPassword" className="reset-label">
               New Password <span className="reset-required">*</span>
@@ -147,6 +156,7 @@ const ResetPassword = () => {
               placeholder="Enter new password"
               required
             />
+            {/* Strength bar and unmet requirements — only shown once the user starts typing */}
             {formData.newPassword && (
               <div className="reset-password-strength">
                 <div className="reset-strength-bar">
@@ -163,6 +173,7 @@ const ResetPassword = () => {
             )}
           </div>
 
+          {/* Confirm password input */}
           <div className="reset-form-group">
             <label htmlFor="confirmPassword" className="reset-label">
               Confirm New Password <span className="reset-required">*</span>
@@ -185,6 +196,7 @@ const ResetPassword = () => {
             {isLoading ? "Resetting..." : "Reset Password"}
           </button>
 
+          {/* Back to login link */}
           <div className="reset-form-footer">
             <Link to="/login" className="reset-back-link">
               ← Back to Login

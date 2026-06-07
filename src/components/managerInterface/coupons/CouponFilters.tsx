@@ -26,6 +26,7 @@ export const CouponFilters = ({
   return (
     <div className="coupon-filters-container">
       <div className="coupon-filters-grid">
+        {/* Free-text search */}
         <div className="coupon-filter-item">
           <label className="mgr-form-label">
             <Search size={16} className="coupon-label-icon" />
@@ -40,6 +41,7 @@ export const CouponFilters = ({
           />
         </div>
 
+        {/* Status filter */}
         <div className="coupon-filter-item-narrow">
           <label className="mgr-form-label">
             <Filter size={16} className="coupon-label-icon" />
@@ -57,7 +59,7 @@ export const CouponFilters = ({
           </select>
         </div>
 
-        {/* Location Filter */}
+        {/* Location filter */}
         <div className="coupon-filter-item-narrow">
           <label className="mgr-form-label">
             <MapPin size={16} className="coupon-label-icon" />
@@ -77,6 +79,7 @@ export const CouponFilters = ({
           </select>
         </div>
 
+        {/* Applies-to filter */}
         <div className="coupon-filter-item-narrow">
           <label className="mgr-form-label">
             <Tag size={16} className="coupon-label-icon" />

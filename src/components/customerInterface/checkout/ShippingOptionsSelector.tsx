@@ -4,6 +4,7 @@ import DeliveryEstimate from "./DeliveryEstimate";
 import LoadingSpinner from "../../universalComponents/LoadingSpinner";
 import "../../../styles/components/customerInterface/checkout/ShippingOptionsSelector.css";
 
+// Maps DB service keys to carrier/name labels for display
 const SERVICE_DISPLAY_MAP: Record<string, { carrier: string; name: string }> = {
   usps_ground_advantage: { carrier: "USPS", name: "Ground Advantage" },
   usps_priority: { carrier: "USPS", name: "Priority Mail" },
@@ -29,6 +30,11 @@ const ShippingOptionsSelector = ({
   onRetryCalculation,
   isFreeShippingCoupon = false,
 }: ShippingOptionsSelectorProps) => {
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
+  // Free shipping coupon applied — skip rate selection and show a confirmation banner
   if (isFreeShippingCoupon) {
     return (
       <div className="sos-container">
@@ -93,6 +99,7 @@ const ShippingOptionsSelector = ({
         {shippingOptions.length !== 1 ? "s" : ""} available)
       </h3>
 
+      {/* Shipping rate options — each rendered as a radio button card */}
       <div className="sos-options-list">
         {shippingOptions.map((option) => (
           <label

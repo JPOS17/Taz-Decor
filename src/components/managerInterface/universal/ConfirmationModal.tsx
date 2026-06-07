@@ -7,6 +7,7 @@ interface ConfirmationModalProps {
   cancelText?: string;
 }
 
+// Renders a modal dialog prompting the user to confirm or cancel a destructive action
 const ConfirmationModal = ({
   title,
   message,
@@ -20,6 +21,8 @@ const ConfirmationModal = ({
       <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
         <h3>{title}</h3>
         <p>{message}</p>
+
+        {/* Action buttons — cancel always appears first (left) */}
         <div className="confirmation-modal-buttons">
           <button className="btn-cancel" onClick={onCancel}>
             {cancelText}

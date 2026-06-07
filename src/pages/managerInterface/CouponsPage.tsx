@@ -26,15 +26,13 @@ import { CouponFilters } from "../../components/managerInterface/coupons/CouponF
 import { CouponsTable } from "../../components/managerInterface/coupons/CouponsTable";
 import { CouponWizard } from "../../components/managerInterface/coupons/CouponWizard";
 import { CouponPreview } from "../../components/managerInterface/coupons/CouponPreview";
+import ConfirmationModal from "../../components/managerInterface/universal/ConfirmationModal";
+import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 
 import "../../styles/pages/managerInterface/Tokens.css";
 import "../../styles/pages/managerInterface/Components.css";
 import "../../styles/pages/managerInterface/ManagerShared.css";
 import "../../styles/pages/managerInterface/CouponsPage.css";
-
-// ============================================================================
-// COUPONS PAGE COMPONENT
-// ============================================================================
 
 const CouponsPage = () => {
   const navigate = useNavigate();
@@ -102,15 +100,20 @@ const CouponsPage = () => {
     location_ids: [],
   });
 
+  // Confirmation modal
+  const deleteConfirmation = useConfirmationModal();
+
   // ============================================================================
   // DATA LOADING
   // ============================================================================
 
+  // Reload coupons and dropdown data whenever any filter changes
   useEffect(() => {
     loadCoupons();
     loadDropdownData();
   }, [statusFilter, appliesToFilter, searchQuery, locationFilter]);
 
+  // Fetches the filtered coupon list from the API
   const loadCoupons = async () => {
     try {
       setLoading(true);
@@ -129,6 +132,7 @@ const CouponsPage = () => {
     }
   };
 
+  // Fetches all dropdown option data (categories, product types, products, locations) in parallel
   const loadDropdownData = async () => {
     try {
       const [categoriesData, productTypesData, productsData, locationsData] =
@@ -147,6 +151,7 @@ const CouponsPage = () => {
     }
   };
 
+  // Fetches and sets the variants for a single product (used by the variant coupon type selector)
   const loadVariantsForProduct = async (productId: number) => {
     try {
       const variantsData = await fetchVariantsForProduct(productId);
@@ -157,6 +162,7 @@ const CouponsPage = () => {
     }
   };
 
+  // Fetches and returns variants for a product without setting global state (used by custom group builder)
   const loadVariantsForCustomGroup = async (productId: number) => {
     try {
       return await fetchVariantsForProduct(productId);
@@ -170,6 +176,7 @@ const CouponsPage = () => {
   // FORM HELPERS
   // ============================================================================
 
+  // Resets all form fields and custom group state back to their blank defaults
   const resetForm = () => {
     setFormData({
       coupon_code: "",
@@ -198,6 +205,7 @@ const CouponsPage = () => {
     setSelectedProductForVariant(null);
   };
 
+  // Copies the given text string to the user's clipboard
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
@@ -206,6 +214,7 @@ const CouponsPage = () => {
   // EVENT HANDLERS
   // ============================================================================
 
+  // Creates a new coupon; for custom_group type, flattens all selected variant IDs into the payload
   const handleCreateCoupon = async () => {
     try {
       setError(null);
@@ -232,6 +241,7 @@ const CouponsPage = () => {
     }
   };
 
+  // Updates an existing coupon; same custom_group flattening as create
   const handleUpdateCoupon = async (couponId: number) => {
     try {
       setError(null);
@@ -258,18 +268,29 @@ const CouponsPage = () => {
     }
   };
 
-  const handleDeleteCoupon = async (couponId: number) => {
-    if (!window.confirm("Are you sure you want to delete this coupon?")) return;
-
-    try {
-      setError(null);
-      await deleteCoupon(couponId);
-      loadCoupons();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete coupon");
-    }
+  // Opens the delete confirmation modal and deletes on confirm
+  const handleDeleteCoupon = (couponId: number) => {
+    deleteConfirmation.showConfirmation({
+      title: "Delete Coupon?",
+      message:
+        "This coupon will be permanently deleted. This action cannot be undone.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      onConfirm: async () => {
+        try {
+          setError(null);
+          await deleteCoupon(couponId);
+          loadCoupons();
+        } catch (err) {
+          setError(
+            err instanceof Error ? err.message : "Failed to delete coupon",
+          );
+        }
+      },
+    });
   };
 
+  // Flips the coupon's active state and reloads the table
   const handleToggleStatus = async (
     couponId: number,
     currentStatus: boolean,
@@ -283,11 +304,13 @@ const CouponsPage = () => {
     }
   };
 
+  // Opens the read-only preview modal for the given coupon
   const handlePreviewCoupon = (coupon: Coupon) => {
     setPreviewCoupon(coupon);
     setShowPreviewModal(true);
   };
 
+  // Loads full coupon data (including variant details) in a specific order before opening the edit wizard
   const openEditModal = async (coupon: Coupon) => {
     try {
       // STEP 1: Fetch full coupon data first
@@ -305,6 +328,7 @@ const CouponsPage = () => {
         fullCoupon.applies_to_type === "variant" &&
         fullCoupon.applies_to_id
       ) {
+        // For variant coupons — resolve the product so the variant dropdown is pre-populated
         const variantId = Number(fullCoupon.applies_to_id);
         const variant = await fetchVariantById(variantId);
         selectedProduct = variant.product_id;
@@ -313,6 +337,7 @@ const CouponsPage = () => {
         fullCoupon.applies_to_type === "custom_group" &&
         fullCoupon.applies_to_id
       ) {
+        // For custom_group coupons — group variant IDs by product, preferring cached variant_details
         const variantIds: number[] = Array.isArray(fullCoupon.applies_to_id)
           ? fullCoupon.applies_to_id
           : [];
@@ -324,6 +349,7 @@ const CouponsPage = () => {
           fullCoupon.variant_details &&
           fullCoupon.variant_details.length > 0
         ) {
+          // Use pre-fetched variant details to avoid individual API calls
           for (const detail of fullCoupon.variant_details) {
             const productId = detail.product_id;
             const variantId = detail.variant_id;
@@ -336,6 +362,7 @@ const CouponsPage = () => {
             groupedVariants[productId].push(variantId);
           }
         } else {
+          // Fallback: fetch each variant individually to determine its product
           for (const variantId of variantIds) {
             try {
               const variant = await fetchVariantById(variantId);
@@ -352,6 +379,7 @@ const CouponsPage = () => {
           }
         }
 
+        // Load the full variant list for each product so checkboxes can be rendered
         for (const productId of Array.from(productIds)) {
           try {
             const variants = await loadVariantsForCustomGroup(productId);
@@ -384,6 +412,7 @@ const CouponsPage = () => {
         max_discount_amount: fullCoupon.max_discount_amount || undefined,
         free_shipping: fullCoupon.free_shipping,
         applies_to_type: fullCoupon.applies_to_type,
+        // For custom_group, applies_to_id is managed via customGroupVariants instead
         applies_to_id:
           fullCoupon.applies_to_type === "custom_group"
             ? undefined
@@ -393,6 +422,7 @@ const CouponsPage = () => {
         usage_limit_total: fullCoupon.usage_limit_total || undefined,
         usage_limit_per_user: fullCoupon.usage_limit_per_user || undefined,
         requires_verified_email: fullCoupon.requires_verified_email,
+        // Strip time component — form only uses the date portion
         valid_from: fullCoupon.valid_from.split("T")[0],
         valid_until: fullCoupon.valid_until
           ? fullCoupon.valid_until.split("T")[0]
@@ -405,8 +435,8 @@ const CouponsPage = () => {
         location_ids: fullCoupon.location_ids || [],
       });
 
-      // STEP 5: Set editingCoupon LAST - this is the trigger that opens the modal
-      // Setting it last ensures all other state is ready when the modal opens
+      // STEP 5: Set editingCoupon LAST — this is the trigger that opens the modal
+      // All other state must be ready before the wizard renders
       setEditingCoupon(fullCoupon);
     } catch (error) {
       console.error("Failed to load coupon data:", error);
@@ -414,6 +444,7 @@ const CouponsPage = () => {
     }
   };
 
+  // Routes the wizard's submit action to create or update depending on whether a coupon is being edited
   const handleWizardSubmit = () => {
     if (editingCoupon) {
       handleUpdateCoupon(editingCoupon.coupon_id);
@@ -422,6 +453,7 @@ const CouponsPage = () => {
     }
   };
 
+  // Closes the create/edit wizard and resets all form state
   const handleCloseWizard = () => {
     setShowCreateModal(false);
     setEditingCoupon(null);
@@ -452,11 +484,14 @@ const CouponsPage = () => {
           </div>
         </div>
       </div>
+
       {/* Main Content */}
       <div className="mgr-container">
         <div className="mgr-body">
+          {/* Inline error alert */}
           {error && <div className="coupon-error-alert">{error}</div>}
 
+          {/* Create Coupon action button */}
           <div className="coupon-create-action">
             <button
               onClick={() => setShowCreateModal(true)}
@@ -467,6 +502,7 @@ const CouponsPage = () => {
             </button>
           </div>
 
+          {/* Filter bar — search, status, applies-to, and location filters */}
           <CouponFilters
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -479,6 +515,7 @@ const CouponsPage = () => {
             locations={locations}
           />
 
+          {/* Coupons table — preview, toggle, edit, delete, copy code */}
           <CouponsTable
             coupons={coupons}
             loading={loading}
@@ -490,7 +527,8 @@ const CouponsPage = () => {
           />
         </div>
       </div>
-      {/* Create/Edit Modal */}
+
+      {/* Create/Edit Wizard Modal — shown when creating or editing a coupon */}
       {(showCreateModal || editingCoupon) && (
         <CouponWizard
           editingCoupon={editingCoupon}
@@ -514,10 +552,12 @@ const CouponsPage = () => {
           loadVariantsForCustomGroup={loadVariantsForCustomGroup}
         />
       )}
-      {/* Preview Modal */}
+
+      {/* Preview Modal — read-only coupon details */}
       {showPreviewModal && previewCoupon && (
         <div className="mgr-modal-overlay">
           <div className="mgr-modal-content coupon-preview-modal">
+            {/* Preview modal header */}
             <div className="coupon-preview-modal-header">
               <h2 className="coupon-preview-modal-title">
                 Coupon Preview: {previewCoupon.coupon_code}
@@ -532,6 +572,7 @@ const CouponsPage = () => {
               }}
             />
 
+            {/* Preview modal footer — close button */}
             <div className="coupon-preview-modal-footer">
               <button
                 onClick={() => {
@@ -545,6 +586,18 @@ const CouponsPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmation.isOpen && deleteConfirmation.config && (
+        <ConfirmationModal
+          title={deleteConfirmation.config.title}
+          message={deleteConfirmation.config.message}
+          confirmText={deleteConfirmation.config.confirmText}
+          cancelText={deleteConfirmation.config.cancelText}
+          onConfirm={deleteConfirmation.handleConfirm}
+          onCancel={deleteConfirmation.handleCancel}
+        />
       )}
     </div>
   );

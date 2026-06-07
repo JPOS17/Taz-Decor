@@ -6,6 +6,7 @@ import {
 } from "../../../api/couponManagement";
 
 import LoadingSpinner from "../../universalComponents/LoadingSpinner";
+import { getBOGOLabel } from "../../../utils/couponUtils";
 
 interface CouponPreviewProps {
   coupon: Coupon | null;
@@ -25,11 +26,16 @@ export const CouponPreview = ({
   const [previewProducts, setPreviewProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Memoize the variant IDs to prevent reference changes
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // Memoized string of variant IDs for custom group coupons, used to trigger preview reload when changed
   const variantIds = useMemo(() => {
     return draftCustomGroupProducts.join(",");
   }, [draftCustomGroupProducts]);
 
+  // Re-fetches the preview whenever the coupon scope or draft group changes
   useEffect(() => {
     if (coupon) {
       if (isDraft) {
@@ -45,8 +51,13 @@ export const CouponPreview = ({
     couponId,
     isDraft,
     variantIds,
-  ]); // Use variantIds instead of draftCustomGroupProducts
+  ]);
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Fetches a preview for an unsaved draft coupon using its scope and location params
   const loadDraftPreview = async (cpn: Coupon) => {
     setLoading(true);
     try {
@@ -60,7 +71,7 @@ export const CouponPreview = ({
         appliesTo = JSON.stringify(cpn.applies_to_id);
       }
 
-      // For custom_group, send the flattened variant IDs
+      // For custom groups, send the flattened variant IDs selected by the user
       if (
         cpn.applies_to_type === "custom_group" &&
         draftCustomGroupProducts.length > 0
@@ -82,6 +93,7 @@ export const CouponPreview = ({
     }
   };
 
+  // Fetches a preview for an existing saved coupon by its ID
   const loadPreview = async (id: number) => {
     setLoading(true);
     try {
@@ -95,8 +107,12 @@ export const CouponPreview = ({
     }
   };
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Calculates the final price for a product after the coupon discount is applied
   const calculateDiscountedPrice = (originalPrice: number, cpn: Coupon) => {
-    // Free shipping only doesn't change the price
     if (cpn.discount_type === "free_shipping_only") {
       return originalPrice;
     }
@@ -116,6 +132,7 @@ export const CouponPreview = ({
       discount = Math.min(cpn.discount_value, originalPrice);
     }
 
+    // Clamp discount to the max_discount_amount cap when one is set
     if (cpn.max_discount_amount && discount > cpn.max_discount_amount) {
       discount = cpn.max_discount_amount;
     }
@@ -123,6 +140,7 @@ export const CouponPreview = ({
     return Math.max(0, originalPrice - discount);
   };
 
+  // Returns a formatted discount label or badge for the coupon summary row
   const formatDiscount = (cpn: Coupon) => {
     if (cpn.discount_type === "free_shipping_only") {
       return (
@@ -131,14 +149,13 @@ export const CouponPreview = ({
     }
 
     if (cpn.discount_type === "bogo") {
-      const buyQty = cpn.bogo_buy_quantity || 1;
-      const getQty = cpn.bogo_get_quantity || 1;
-      const discountPct = cpn.bogo_discount_percentage || 100;
-
       return (
         <span className="coupon-discount-bogo">
-          Buy {buyQty} Get {getQty}{" "}
-          {discountPct === 100 ? "Free" : `${discountPct}% Off`}
+          {getBOGOLabel(
+            cpn.bogo_buy_quantity,
+            cpn.bogo_get_quantity,
+            cpn.bogo_discount_percentage,
+          )}
         </span>
       );
     }
@@ -152,6 +169,7 @@ export const CouponPreview = ({
       }
     }
 
+    // Fallback for free_shipping flag without a discount value
     if (cpn.free_shipping && !cpn.discount_value) {
       return (
         <span className="coupon-discount-shipping">Free Shipping Only</span>
@@ -161,10 +179,15 @@ export const CouponPreview = ({
     return "-";
   };
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   if (!coupon) return null;
 
   return (
     <div className="coupon-preview-container">
+      {/* Summary row */}
       <div className="coupon-preview-summary">
         <div className="coupon-preview-summary-grid">
           <div>
@@ -200,6 +223,7 @@ export const CouponPreview = ({
         </div>
       ) : (
         <>
+          {/* Header */}
           <div className="coupon-preview-header">
             <strong>
               {previewProducts.length} product
@@ -217,6 +241,7 @@ export const CouponPreview = ({
             )}
           </div>
 
+          {/* Product table */}
           <div className="coupon-preview-table-container">
             <table className="coupon-preview-table">
               <thead>
@@ -245,6 +270,7 @@ export const CouponPreview = ({
 
                   return (
                     <tr key={index}>
+                      {/* Product cell */}
                       <td>
                         <div className="coupon-product-name-cell">
                           {product.name}
@@ -271,6 +297,7 @@ export const CouponPreview = ({
                           <td className="coupon-final-price-cell">
                             ${finalPrice.toFixed(2)}
                           </td>
+                          {/* Savings badge */}
                           <td>
                             <span
                               className={`coupon-savings-badge ${
@@ -293,6 +320,7 @@ export const CouponPreview = ({
             </table>
           </div>
 
+          {/* Totals summary */}
           {coupon.discount_value && coupon.discount_type !== "bogo" && (
             <div className="coupon-preview-totals">
               <div className="coupon-totals-grid">

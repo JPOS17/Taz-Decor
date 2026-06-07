@@ -10,6 +10,7 @@ import type {
 } from "../../../api/couponManagement";
 import { CouponPreview } from "./CouponPreview";
 import { CustomSelect } from "./CustomSelect";
+import { getBOGOLabel } from "../../../utils/couponUtils";
 import {
   validateStep1,
   validateStep2,
@@ -67,20 +68,36 @@ export const CouponWizard = ({
   loadVariantsForProduct,
   loadVariantsForCustomGroup,
 }: CouponWizardProps) => {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Wizard navigation
   const [modalStep, setModalStep] = useState(1);
   const TOTAL_STEPS = 5;
+
+  // Per-step validation error messages
   const [validationErrors, setValidationErrors] =
     useState<CouponValidationErrors>({});
 
+  // Variant data for the custom group builder — keyed by product ID
   const [productVariantsMap, setProductVariantsMap] = useState<{
     [productId: number]: any[];
   }>({});
+
+  // Tracks which products are currently fetching their variants in the custom group builder
   const [loadingVariants, setLoadingVariants] = useState<{
     [productId: number]: boolean;
   }>({});
 
+  // All existing coupon codes — used to detect duplicates during Step 1 validation
   const [existingCouponCodes, setExistingCouponCodes] = useState<string[]>([]);
 
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // Loads all existing coupon codes on mount for duplicate detection in Step 1
   useEffect(() => {
     const loadCouponCodes = async () => {
       try {
@@ -93,12 +110,18 @@ export const CouponWizard = ({
     loadCouponCodes();
   }, []);
 
+  // Seeds the local variant map when editing an existing coupon that has pre-fetched variants
   useEffect(() => {
     if (Object.keys(initialProductVariantsMap).length > 0) {
       setProductVariantsMap(initialProductVariantsMap);
     }
   }, [initialProductVariantsMap]);
 
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  // Validates the current step and advances to the next if no errors are found
   const handleNext = () => {
     let errors: CouponValidationErrors = {};
 
@@ -118,18 +141,24 @@ export const CouponWizard = ({
     }
   };
 
+  // Submits the form and resets the wizard back to Step 1
   const handleSubmit = () => {
     onSubmit();
     setModalStep(1);
   };
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div className="mgr-modal-overlay">
       <div className="mgr-modal-content coupon-modal-wizard">
+        {/* Wizard header */}
         <div className="coupon-wizard-header">
           <h2>{editingCoupon ? "Edit Coupon" : "Create New Coupon"}</h2>
 
-          {/* Progress Bar */}
+          {/* Progress bar */}
           <div className="coupon-wizard-progress">
             <div className="coupon-progress-steps">
               {[1, 2, 3, 4, 5].map((step) => (
@@ -157,12 +186,15 @@ export const CouponWizard = ({
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* ================================================================== */}
+        {/* STEP CONTENT                                                        */}
+        {/* ================================================================== */}
+
         <div className="coupon-wizard-body">
           {/* Step 1: Basic Info */}
           {modalStep === 1 && (
             <div className="coupon-wizard-step">
-              {/* Store Location - ABOVE Coupon Code */}
+              {/* Store location */}
               <div className="mgr-form-group">
                 <label className="mgr-form-label">Store Location *</label>
                 <CustomSelect
@@ -171,6 +203,7 @@ export const CouponWizard = ({
                       value: loc.location_id,
                       label: `${loc.location_name} (${loc.city}, ${loc.state})`,
                     })),
+                    // "All Stores" option only available when there are 2 or more locations
                     ...(locations.length >= 2
                       ? [{ value: "all", label: "All Stores" }]
                       : []),
@@ -185,10 +218,8 @@ export const CouponWizard = ({
                     let newLocationIds: number[];
 
                     if (value === "all") {
-                      // Select all locations
                       newLocationIds = locations.map((loc) => loc.location_id);
                     } else {
-                      // Select single location
                       newLocationIds = [value as number];
                     }
 
@@ -197,7 +228,6 @@ export const CouponWizard = ({
                       location_ids: newLocationIds,
                     });
 
-                    // Clear error when user makes a selection
                     if (validationErrors.location_ids) {
                       setValidationErrors({
                         ...validationErrors,
@@ -221,7 +251,7 @@ export const CouponWizard = ({
                 </small>
               </div>
 
-              {/* Coupon Code - BELOW Store Location */}
+              {/* Coupon code */}
               <div className="mgr-form-group">
                 <label className="mgr-form-label">Coupon Code *</label>
                 <input
@@ -250,7 +280,7 @@ export const CouponWizard = ({
                 )}
               </div>
 
-              {/* Description */}
+              {/* Internal description */}
               <div className="mgr-form-group">
                 <label className="mgr-form-label">Description</label>
                 <textarea
@@ -272,7 +302,7 @@ export const CouponWizard = ({
           {/* Step 2: Apply To */}
           {modalStep === 2 && (
             <div className="coupon-wizard-step">
-              {/* Coupon Select */}
+              {/* Scope selector */}
               <div className="mgr-form-group">
                 <label className="mgr-form-label">
                   This coupon applies to *
@@ -290,11 +320,13 @@ export const CouponWizard = ({
                   value={formData.applies_to_type || ""}
                   onChange={(value) => {
                     const newType = value as any;
+
                     const discountBecomesInvalid =
                       !!editingCoupon &&
                       newType !== "all" &&
                       (formData.discount_type === "fixed" ||
                         formData.discount_type === "free_shipping_only");
+
                     setFormData({
                       ...formData,
                       applies_to_type: newType,
@@ -306,6 +338,8 @@ export const CouponWizard = ({
                           }
                         : {}),
                     });
+
+                    // Reset all secondary scope state when the type changes
                     setSelectedProductForVariant(null);
                     setCustomGroupProducts([]);
                     setCustomGroupVariants({});
@@ -331,7 +365,7 @@ export const CouponWizard = ({
                 )}
               </div>
 
-              {/* If Category Selected */}
+              {/* Category picker */}
               {formData.applies_to_type === "category" && (
                 <div className="mgr-form-group">
                   <label className="mgr-form-label">Select Category *</label>
@@ -369,8 +403,8 @@ export const CouponWizard = ({
                   )}
                 </div>
               )}
-              {/* If Product Type Selected */}
 
+              {/* Product type picker */}
               {formData.applies_to_type === "product_type" && (
                 <div className="mgr-form-group">
                   <label className="mgr-form-label">
@@ -410,8 +444,8 @@ export const CouponWizard = ({
                   )}
                 </div>
               )}
-              {/* If Product Selected */}
 
+              {/* Product picker */}
               {formData.applies_to_type === "product" && (
                 <div className="mgr-form-group">
                   <label className="mgr-form-label">Select Product *</label>
@@ -449,8 +483,8 @@ export const CouponWizard = ({
                   )}
                 </div>
               )}
-              {/* If Variant Selected */}
 
+              {/* Variant picker */}
               {formData.applies_to_type === "variant" && (
                 <>
                   <div className="mgr-form-group">
@@ -472,6 +506,7 @@ export const CouponWizard = ({
                         if (productId) {
                           loadVariantsForProduct(productId);
                         }
+                        // Clear the variant selection when the parent product changes
                         setFormData({ ...formData, applies_to_id: undefined });
                       }}
                       placeholder="Choose a product..."
@@ -479,6 +514,7 @@ export const CouponWizard = ({
                     />
                   </div>
 
+                  {/* Variant selector — only shown after a product has been selected */}
                   {selectedProductForVariant && (
                     <div className="mgr-form-group">
                       <label className="mgr-form-label">
@@ -526,14 +562,15 @@ export const CouponWizard = ({
                   )}
                 </>
               )}
-              {/* If Custom Group Selected */}
 
+              {/* Custom group builder */}
               {formData.applies_to_type === "custom_group" && (
                 <div className="mgr-form-group">
                   <label className="mgr-form-label">
                     Build Custom Product Group *
                   </label>
                   <div className="coupon-custom-group-builder">
+                    {/* Product adder — only shows products not already in the group */}
                     <CustomSelect
                       options={[
                         { value: "", label: "Add a product..." },
@@ -558,6 +595,7 @@ export const CouponWizard = ({
                             [productId]: true,
                           });
                           try {
+                            // Fetch variants and default-select all of them
                             const fetchedVariants =
                               await loadVariantsForCustomGroup(productId);
                             setProductVariantsMap((prev) => ({
@@ -588,6 +626,7 @@ export const CouponWizard = ({
                       searchable={true}
                     />
 
+                    {/* Selected products list — each shows its variants with per-variant checkboxes */}
                     {customGroupProducts.length > 0 && (
                       <div className="coupon-custom-group-products">
                         {customGroupProducts.map((productId) => {
@@ -603,6 +642,7 @@ export const CouponWizard = ({
                               key={productId}
                               className="coupon-custom-group-product"
                             >
+                              {/* Product header — name and remove button */}
                               <div className="coupon-custom-group-product-header">
                                 <strong>{product?.name}</strong>
                                 <button
@@ -612,6 +652,7 @@ export const CouponWizard = ({
                                         (id) => id !== productId,
                                       ),
                                     );
+                                    // Also remove its variant selections from the map
                                     const newVariants = {
                                       ...customGroupVariants,
                                     };
@@ -623,12 +664,14 @@ export const CouponWizard = ({
                                   ×
                                 </button>
                               </div>
+
                               {loadingVariants[productId] ? (
                                 <div className="coupon-loading-variants">
                                   Loading variants...
                                 </div>
                               ) : (
                                 <div className="coupon-custom-group-variants">
+                                  {/* Select All toggle — checks or clears all variants for this product */}
                                   <label className="coupon-variant-checkbox-label">
                                     <input
                                       type="checkbox"
@@ -649,6 +692,8 @@ export const CouponWizard = ({
                                     />
                                     <strong>Select All Variants</strong>
                                   </label>
+
+                                  {/* Individual variant checkboxes */}
                                   {variants.map((variant: any) => (
                                     <label
                                       key={variant.variant_id}
@@ -699,6 +744,7 @@ export const CouponWizard = ({
                       {validationErrors.custom_group}
                     </span>
                   )}
+                  {/* Hint updates dynamically to show a running product and variant count */}
                   <small className="mgr-form-hint">
                     {customGroupProducts.length === 0
                       ? "Select at least one product to create a custom group"
@@ -712,7 +758,7 @@ export const CouponWizard = ({
           {/* Step 3: Discount Details */}
           {modalStep === 3 && (
             <div className="coupon-wizard-step">
-              {/* Discount Type */}
+              {/* Discount type selector */}
               <div className="mgr-form-group">
                 <label className="mgr-form-label">Discount Type *</label>
                 <CustomSelect
@@ -733,6 +779,7 @@ export const CouponWizard = ({
                   value={formData.discount_type || ""}
                   onChange={(value) => {
                     const newType = value as any;
+                    // Reset all discount-related fields when the type changes
                     const updates: any = {
                       discount_type: newType,
                       discount_value: undefined,
@@ -771,7 +818,7 @@ export const CouponWizard = ({
                 )}
               </div>
 
-              {/* ── No type selected ── */}
+              {/* No type selected */}
               {!formData.discount_type ? (
                 <div className="coupon-info-message coupon-info-message-warning">
                   <strong>Please Select a Discount Type</strong>
@@ -780,7 +827,7 @@ export const CouponWizard = ({
                     your coupon.
                   </p>
                 </div>
-              ) : /* ── BOGO ── */
+              ) : /* BOGO — buy/get quantities and the discount percentage for the "get" items */
               formData.discount_type === "bogo" ? (
                 <>
                   <div className="mgr-form-group">
@@ -875,16 +922,17 @@ export const CouponWizard = ({
                     <small className="mgr-form-hint">1–100% (100 = Free)</small>
                   </div>
 
+                  {/* Live BOGO label preview */}
                   <div className="coupon-bogo-preview">
-                    <strong>Preview:</strong> Buy{" "}
-                    {formData.bogo_buy_quantity || 1} Get{" "}
-                    {formData.bogo_get_quantity || 1}{" "}
-                    {formData.bogo_discount_percentage === 100
-                      ? "Free"
-                      : `${formData.bogo_discount_percentage || 50}% Off`}
+                    <strong>Preview:</strong>{" "}
+                    {getBOGOLabel(
+                      formData.bogo_buy_quantity,
+                      formData.bogo_get_quantity,
+                      formData.bogo_discount_percentage,
+                    )}
                   </div>
                 </>
-              ) : /* ── Free Shipping Only ── */
+              ) : /* Free Shipping Only — no price reduction, but requires a minimum purchase */
               formData.discount_type === "free_shipping_only" ? (
                 <>
                   <div className="coupon-info-message coupon-info-message-info">
@@ -937,9 +985,8 @@ export const CouponWizard = ({
                   </div>
                 </>
               ) : (
-                /* ── Percentage / Fixed ── */
+                /* Percentage / Fixed — discount value, optional min purchase, and optional max cap */
                 <>
-                  {/* Discount Value */}
                   <div className="mgr-form-group">
                     <label className="mgr-form-label">Discount Value *</label>
                     <div className="coupon-input-with-prefix">
@@ -987,7 +1034,8 @@ export const CouponWizard = ({
                       </span>
                     )}
                   </div>
-                  {/* Min Purchase */}
+
+                  {/* Min purchase — required for fixed discounts, optional for percentage */}
                   <div className="mgr-form-group">
                     <label className="mgr-form-label">
                       Minimum Purchase Amount
@@ -1023,6 +1071,7 @@ export const CouponWizard = ({
                         {validationErrors.min_purchase_amount}
                       </span>
                     )}
+                    {/* Hint for fixed discounts — enforces the 5× minimum rule */}
                     {formData.discount_type === "fixed" &&
                       formData.discount_value && (
                         <small className="mgr-form-hint">
@@ -1032,7 +1081,8 @@ export const CouponWizard = ({
                         </small>
                       )}
                   </div>
-                  {/* Max Purchase */}
+
+                  {/* Max discount cap — optional; useful for percentage-off coupons */}
                   <div className="mgr-form-group">
                     <label className="mgr-form-label">
                       Maximum Discount Amount
@@ -1068,7 +1118,7 @@ export const CouponWizard = ({
           {/* Step 4: Limits & Dates */}
           {modalStep === 4 && (
             <div className="coupon-wizard-step">
-              {/* Total Usage Limit */}
+              {/* Total usage cap — blank means unlimited redemptions */}
               <div className="mgr-form-group">
                 <label className="mgr-form-label">Total Usage Limit</label>
                 <input
@@ -1090,7 +1140,8 @@ export const CouponWizard = ({
                   Max times this coupon can be used total
                 </small>
               </div>
-              {/* Usage Per User */}
+
+              {/* Per-user cap — blank means unlimited uses per customer */}
               <div className="mgr-form-group">
                 <label className="mgr-form-label">Per User Limit</label>
                 <input
@@ -1111,7 +1162,7 @@ export const CouponWizard = ({
                 <small className="mgr-form-hint">Max times per customer</small>
               </div>
 
-              {/* Requires Email Check */}
+              {/* Requires verified email — prevents anonymous or unverified redemptions */}
               <div className="mgr-form-group">
                 <label className="mgr-checkbox-label">
                   <input
@@ -1127,7 +1178,8 @@ export const CouponWizard = ({
                   <span>Require Verified Email</span>
                 </label>
               </div>
-              {/* Valid From */}
+
+              {/* Valid from date */}
               <div className="mgr-form-group">
                 <label className="mgr-form-label">Valid From</label>
                 <input
@@ -1144,7 +1196,8 @@ export const CouponWizard = ({
                   </span>
                 )}
               </div>
-              {/* Valid Until */}
+
+              {/* Valid until date — optional */}
               <div className="mgr-form-group">
                 <label className="mgr-form-label">Valid Until</label>
                 <input
@@ -1159,7 +1212,8 @@ export const CouponWizard = ({
                   className="mgr-form-input"
                 />
               </div>
-              {/* Is Active */}
+
+              {/* Active toggle */}
               <div className="mgr-form-group">
                 <label className="mgr-checkbox-label">
                   <input
@@ -1231,12 +1285,12 @@ export const CouponWizard = ({
           )}
         </div>
 
-        {/* Footer */}
         <div className="coupon-wizard-footer">
           <button onClick={onClose} className="mgr-btn mgr-btn-secondary">
             Cancel
           </button>
           <div className="coupon-wizard-navigation">
+            {/* Back button */}
             {modalStep > 1 && (
               <button
                 onClick={() => setModalStep(modalStep - 1)}
@@ -1245,6 +1299,7 @@ export const CouponWizard = ({
                 Back
               </button>
             )}
+            {/* Next advances through steps */}
             {modalStep < TOTAL_STEPS ? (
               <button onClick={handleNext} className="mgr-btn mgr-btn-primary">
                 Next

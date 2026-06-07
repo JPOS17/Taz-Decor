@@ -88,8 +88,8 @@ export const updateUserProfile = async (req: Request, res: Response) => {
 
     // Validate inputs
     if (!first_name || !last_name) {
-      res.status(400).json({ 
-        message: "First name and last name are required" 
+      res.status(400).json({
+        message: "First name and last name are required"
       });
       return;
     }
@@ -296,7 +296,6 @@ export const createAddress = async (req: Request, res: Response): Promise<void> 
       is_default
     } = req.body;
 
-    // Start transaction
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -371,7 +370,7 @@ export const updateAddress = async (req: Request, res: Response): Promise<void> 
       if (checkResult.rows.length === 0) {
         await client.query('ROLLBACK');
         res.status(404).json({ message: "Address not found" });
-      return;
+        return;
       }
 
       // If setting as default, unset other defaults

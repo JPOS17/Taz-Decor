@@ -17,6 +17,7 @@ const About = () => {
   // EVENT HANDLERS
   // ============================================================================
 
+  // Copies the shop email to clipboard; falls back to execCommand for older browsers
   const handleEmailCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
     const email = "tazdecorcatholiccompany@gmail.com";
@@ -110,7 +111,7 @@ const About = () => {
           </div>
         </section>
 
-        {/* Divider */}
+        {/* Section Divider */}
         <div className="about-divider">
           <span className="about-divider-line" />
           <span className="about-divider-cross">
@@ -119,10 +120,12 @@ const About = () => {
           <span className="about-divider-line" />
         </div>
 
-        {/* Mission */}
+        {/* Our Mission */}
         <section className="about-section">
           <div className="about-section-label">Our Mission</div>
           <h2 className="about-section-heading centered">What We Stand For</h2>
+
+          {/* Mission cards — Faith First, Made for You, Quality & Care */}
           <div className="about-mission-cards">
             <div className="about-mission-card">
               <div className="about-mission-icon">
@@ -162,7 +165,7 @@ const About = () => {
           </div>
         </section>
 
-        {/* Divider */}
+        {/* Section Divider */}
         <div className="about-divider">
           <span className="about-divider-line" />
           <span className="about-divider-cross">
@@ -183,6 +186,8 @@ const About = () => {
             our customers. Don't hesitate to reach out — we will be happy to
             answer.
           </p>
+
+          {/* Contact cards — email copy button and shop link */}
           <div className="about-contact-cards">
             <button onClick={handleEmailCopy} className="about-contact-card">
               <div className="about-contact-icon">
@@ -192,6 +197,7 @@ const About = () => {
               <div className="about-contact-email">
                 tazdecorcatholiccompany@gmail.com
               </div>
+              {/* Toggles between copy prompt and confirmation message */}
               <div className="about-contact-sub">
                 {copied
                   ? "📋 Copied to clipboard!"

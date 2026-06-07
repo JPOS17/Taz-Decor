@@ -43,11 +43,20 @@ const CouponModal = ({
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
 
-  // Per-user usage map — fetched internally so no parent needs to manage it
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Fetched here and passed down to CouponBanner to avoid a duplicate API call
   const [userCouponUsage, setUserCouponUsage] = useState<
     Record<number, number>
   >({});
 
+  // ============================================================================
+  // DATA LOADING
+  // ============================================================================
+
+  // Fetch the user's coupon usage once auth has resolved
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -57,7 +66,7 @@ const CouponModal = ({
 
     const loadUserUsage = async () => {
       try {
-        const usage = await fetchUserCouponUsage(user.userId);
+        const usage = await fetchUserCouponUsage();
         setUserCouponUsage(usage);
       } catch (error) {
         console.error("Error loading user coupon usage:", error);
@@ -67,14 +76,7 @@ const CouponModal = ({
     loadUserUsage();
   }, [user?.userId, authLoading]);
 
-  const isEligible = (coupon: ProductCoupon) => {
-    if (coupon.usage_limit_per_user != null) {
-      const timesUsed = userCouponUsage[coupon.coupon_id] ?? 0;
-      if (timesUsed >= coupon.usage_limit_per_user) return false;
-    }
-    return true;
-  };
-
+  // Fetch applicable coupons whenever the modal opens or the variant changes
   useEffect(() => {
     const loadCoupons = async () => {
       if (!isOpen) return;
@@ -98,16 +100,39 @@ const CouponModal = ({
     loadCoupons();
   }, [isOpen, variantId, productId, categoryId, productTypeId]);
 
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Returns false when the user has hit their per-coupon usage limit
+  const isEligible = (coupon: ProductCoupon) => {
+    if (coupon.usage_limit_per_user != null) {
+      const timesUsed = userCouponUsage[coupon.coupon_id] ?? 0;
+      if (timesUsed >= coupon.usage_limit_per_user) return false;
+    }
+    return true;
+  };
+
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  // Guards against selecting an ineligible coupon, then closes the modal
   const handleCouponSelect = (coupon: ProductCoupon | null) => {
     if (coupon && !isEligible(coupon)) return;
     onCouponSelect(coupon);
     onClose();
   };
 
+  // Clears the coupon selection and closes the modal
   const handleRemoveCoupon = () => {
     onCouponSelect(null);
     onClose();
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   if (!isOpen) return null;
 
@@ -127,7 +152,7 @@ const CouponModal = ({
         </div>
 
         <div className="coupon-modal-body">
-          {/* Guest notice */}
+          {/* Sign-in notice — shown when the user's email is not verified */}
           {!isEmailVerified && (
             <div className="coupon-modal-guest-notice">
               <FaLock className="coupon-modal-guest-icon" />
@@ -146,7 +171,6 @@ const CouponModal = ({
             </div>
           )}
 
-          {/* Coupon list */}
           {loading ? (
             <div className="coupon-modal-loading">
               <div className="coupon-modal-spinner" role="status">
@@ -159,6 +183,7 @@ const CouponModal = ({
             </div>
           ) : (
             <>
+              {/* Coupon list — pointer events disabled for unverified users */}
               <div
                 style={
                   !isEmailVerified
@@ -166,6 +191,7 @@ const CouponModal = ({
                     : undefined
                 }
               >
+                {/* userCouponUsage is passed down so CouponBanner skips its own fetch */}
                 <CouponBanner
                   coupons={coupons}
                   productPrice={productPrice}
@@ -174,9 +200,11 @@ const CouponModal = ({
                   currentProductId={productId}
                   onCouponSelect={handleCouponSelect}
                   selectedCoupon={selectedCoupon}
+                  userCouponUsage={userCouponUsage}
                 />
               </div>
 
+              {/* "No Coupon" option — only shown to verified users */}
               {isEmailVerified && (
                 <div className="coupon-modal-remove-option">
                   <button

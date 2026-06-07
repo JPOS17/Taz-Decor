@@ -75,10 +75,6 @@ interface FormData {
   productCategories: ProductCategory[];
 }
 
-// ============================================================================
-// CREATE PRODUCT FORM COMPONENT
-// ============================================================================
-
 const CreateProductForm = ({
   categoryId,
   categories,
@@ -93,6 +89,7 @@ const CreateProductForm = ({
   // STATE MANAGEMENT
   // ============================================================================
 
+  // category_id is pre-seeded from the prop when a valid category is provided
   const [formData, setFormData] = useState<FormData>({
     name: "",
     category_id: categoryId > 0 ? categoryId.toString() : "",
@@ -110,6 +107,7 @@ const CreateProductForm = ({
     productCategories: [],
   });
 
+  // Gates inline validation display until the user has attempted to submit
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
   // ============================================================================
@@ -135,6 +133,7 @@ const CreateProductForm = ({
     hasAttemptedSubmit,
   );
 
+  // SKU preview is driven by product type — parsed to 0 when unset to avoid an API call
   const parsedProductTypeId = formData.product_type_id
     ? parseInt(formData.product_type_id)
     : 0;
@@ -148,7 +147,7 @@ const CreateProductForm = ({
   // EFFECTS
   // ============================================================================
 
-  // Track dirty state
+  // Notify parent whenever any field has been touched (used to gate the unsaved-changes warning)
   useEffect(() => {
     const isDirty =
       formData.name.trim() !== "" ||
@@ -169,13 +168,13 @@ const CreateProductForm = ({
     onDirtyChange(isDirty);
   }, [formData, images, onDirtyChange]);
 
-  // Update parent with form validity
+  // Notify parent of form validity after the first submit attempt
   useEffect(() => {
     const isValid = Object.keys(errors).length === 0 && hasAttemptedSubmit;
     onFormValidChange?.(isValid);
   }, [errors, hasAttemptedSubmit, onFormValidChange]);
 
-  // Initialize the primary category when categoryId changes
+  // Seed the primary category in formData whenever the categoryId prop changes
   useEffect(() => {
     if (categoryId > 0) {
       const category = categories.find((c) => c.category_id === categoryId);
@@ -206,6 +205,7 @@ const CreateProductForm = ({
   // COMPUTED VALUES
   // ============================================================================
 
+  // Formatted for the product type SelectInput — label includes the SKU prefix for clarity
   const productTypeOptions = productTypes.map((pt) => ({
     value: pt.product_type_id,
     label: `${pt.type_name} (${pt.sku_prefix})`,
@@ -215,6 +215,7 @@ const CreateProductForm = ({
   // EVENT HANDLERS — FORM FIELDS
   // ============================================================================
 
+  // Updates a string field and clears its error if validation has already run
   const handleTextChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (hasAttemptedSubmit) {
@@ -222,6 +223,7 @@ const CreateProductForm = ({
     }
   };
 
+  // Updates a numeric field (kept as string) and clears its error if validation has already run
   const handleNumberChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (hasAttemptedSubmit) {
@@ -229,6 +231,7 @@ const CreateProductForm = ({
     }
   };
 
+  // Converts null back to an empty string for controlled input compatibility
   const handleShippingChange = (field: string, value: number | null) => {
     setFormData((prev) => ({
       ...prev,
@@ -246,6 +249,7 @@ const CreateProductForm = ({
   // EVENT HANDLERS — CATEGORY MANAGEMENT
   // ============================================================================
 
+  // Adds a category — the first category added is automatically set as primary
   const handleAddCategory = async (categoryId: number) => {
     const category = categories.find((c) => c.category_id === categoryId);
     if (!category) return;
@@ -269,6 +273,7 @@ const CreateProductForm = ({
     });
   };
 
+  // Removes a category — if the removed category was primary, promotes the first remaining entry
   const handleRemoveCategory = async (categoryId: number) => {
     setFormData((prev) => {
       const remaining = prev.productCategories.filter(
@@ -297,6 +302,7 @@ const CreateProductForm = ({
     });
   };
 
+  // Sets a single category as primary, clearing the flag on all others
   const handleSetPrimaryCategory = async (categoryId: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -311,6 +317,7 @@ const CreateProductForm = ({
   // EVENT HANDLERS — IMAGE MANAGEMENT
   // ============================================================================
 
+  // Opens Cloudinary upload widget — blocked until product type and SKU are both resolved
   const handleOpenWidget = () => {
     if (!formData.product_type_id) {
       alert("Please select a product type before uploading images.");
@@ -345,11 +352,11 @@ const CreateProductForm = ({
   // EVENT HANDLERS — FORM SUBMISSION
   // ============================================================================
 
+  // Validates the form and either delegates to the parent (onRequestSubmit) or submits directly
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setHasAttemptedSubmit(true);
 
-    // Validation happens automatically via useFormValidation hook
     const validationErrors = validateProductForm(formData);
     setErrors(validationErrors);
 
@@ -370,11 +377,13 @@ const CreateProductForm = ({
     }
   };
 
+  // Parses all string fields to their correct types and calls the parent onSubmit handler
   const executeSubmit = () => {
     const primaryCategory = formData.productCategories.find(
       (pc) => pc.is_primary,
     );
 
+    // Non-primary categories are passed separately so the API can create the assignments
     const additionalCategoryIds = formData.productCategories
       .filter((pc) => !pc.is_primary)
       .map((pc) => pc.category_id);
@@ -406,6 +415,7 @@ const CreateProductForm = ({
     });
   };
 
+  // Registers executeSubmit on window so the parent overlay can trigger submission externally
   useFormSubmission({
     formData,
     additionalDeps: [images],
@@ -470,7 +480,6 @@ const CreateProductForm = ({
           />
         </div>
 
-        {/* Product Name */}
         <FormField label="Product Name" required error={errors.name}>
           <TextInput
             value={formData.name}
@@ -481,7 +490,6 @@ const CreateProductForm = ({
           />
         </FormField>
 
-        {/* Description */}
         <FormField label="Description" required error={errors.description}>
           <TextInput
             value={formData.description}
@@ -492,7 +500,6 @@ const CreateProductForm = ({
           />
         </FormField>
 
-        {/* Price */}
         <FormField label="Price" required error={errors.price}>
           <TextInput
             type="number"
@@ -503,7 +510,6 @@ const CreateProductForm = ({
           />
         </FormField>
 
-        {/* Stock Quantity */}
         <FormField
           label="Stock Quantity"
           required
@@ -518,7 +524,6 @@ const CreateProductForm = ({
           />
         </FormField>
 
-        {/* Warehouse Location */}
         <WarehouseSelector
           value={formData.location_id}
           onChange={(value) => handleNumberChange("location_id", value)}

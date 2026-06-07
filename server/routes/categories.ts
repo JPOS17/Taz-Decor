@@ -14,17 +14,17 @@ export const categoriesRouter = express.Router();
 // CATEGORY ROUTES
 // ============================================================================
 
-// GET all categories - Public route (anyone can view categories)
+// GET all categories — public
 categoriesRouter.get("/", getAllCategories);
 
-// POST create new category - Requires manager or admin
+// POST create new category — manager/admin only
 categoriesRouter.post("/", requireManagerOrAdmin, createCategory);
 
-// PUT reorder categories (drag and drop) - Requires manager or admin
+// PUT reorder categories — manager/admin only — MUST BE BEFORE /:categoryId
 categoriesRouter.put("/reorder", requireManagerOrAdmin, reorderCategories);
 
-// PUT update category - Requires manager or admin
+// PUT update category — manager/admin only
 categoriesRouter.put("/:categoryId", requireManagerOrAdmin, updateCategory);
 
-// DELETE category - Requires manager or admin
+// DELETE category — manager/admin only
 categoriesRouter.delete("/:categoryId", requireManagerOrAdmin, deleteCategory);

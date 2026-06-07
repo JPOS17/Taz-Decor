@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import {
   fetchProductCouponsPreview,
+  fetchUserCouponUsage,
   type ProductCoupon,
   type GroupedCoupons,
   findBestCoupon,
@@ -27,6 +28,7 @@ import CouponModal from "../../../components/customerInterface/items/CouponModal
 import CartLevelCouponSelector from "../../../components/customerInterface/checkout/CartLevelCouponSelector";
 
 import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
+import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 
 import "../../../styles/pages/customerInterface/Tokens.css";
 import "../../../styles/pages/customerInterface/customer/Cart.css";
@@ -56,9 +58,15 @@ const Cart = () => {
     Record<number, number[]>
   >({});
 
-  // Cart-level coupon object (resolved from cartLevelCouponId stored in context)
+  // Cart-level coupon resolved from cartLevelCouponId stored in context
   const [selectedCartLevelCoupon, setSelectedCartLevelCoupon] =
     useState<ProductCoupon | null>(session.cartLevelCoupon ?? null);
+
+  // Per-coupon usage counts for the current user — fetched once and passed
+  // down to CartLevelCouponSelector so it doesn't fetch independently
+  const [userCouponUsage, setUserCouponUsage] = useState<
+    Record<number, number>
+  >({});
 
   // Modal state
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
@@ -74,15 +82,20 @@ const Cart = () => {
   // DATA LOADING
   // ============================================================================
 
-  // Fetch coupons — wait for auth to resolve first so userId is accurate
+  // Fetch coupons once when auth resolves
+  // Custom group membership is re-checked separately when variant IDs change.
   useEffect(() => {
     if (isLoading) return;
     if (cartItems.length === 0) return;
 
     const loadCoupons = async () => {
       try {
-        const couponsData = await fetchProductCouponsPreview();
+        const [couponsData, usageData] = await Promise.all([
+          fetchProductCouponsPreview(),
+          user ? fetchUserCouponUsage() : Promise.resolve({}),
+        ]);
         setCoupons(couponsData);
+        setUserCouponUsage(usageData);
 
         if (couponsData.custom_group.length > 0) {
           const variantIds = cartItems.map((item) => item.variant_id);
@@ -95,9 +108,9 @@ const Cart = () => {
     };
 
     loadCoupons();
-  }, [cartItems.length, isLoading]);
+  }, [isLoading]);
 
-  // Once coupons are loaded, restore or clear the selected cart-level coupon
+  // Once coupons load, restore or clear the selected cart-level coupon
   useEffect(() => {
     if (!coupons) return;
 
@@ -110,6 +123,7 @@ const Cart = () => {
     }
   }, [coupons, cartLevelCouponId]);
 
+  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -118,7 +132,7 @@ const Cart = () => {
   // CART-LEVEL COUPON HANDLER
   // ============================================================================
 
-  // When user selects/removes a cart-level coupon in the Cart page, update both the local display state AND the shared context
+  // Updates local display state and shared context when user selects or removes a cart-level coupon
   const handleCartLevelCouponSelect = (coupon: ProductCoupon | null) => {
     setSelectedCartLevelCoupon(coupon);
     setCartLevelCouponId(coupon ? coupon.coupon_id : null);
@@ -132,7 +146,7 @@ const Cart = () => {
   // COUPON LOGIC
   // ============================================================================
 
-  // Helper to get applicable coupons for a cart item
+  // Returns all item-level coupons applicable to a given cart item
   const getApplicableCouponsForItem = (
     item: (typeof cartItems)[0],
   ): ProductCoupon[] => {
@@ -140,11 +154,11 @@ const Cart = () => {
 
     const applicableCoupons: ProductCoupon[] = [];
 
-    // Add 'all' coupons - ONLY item-level
+    // Add 'all' coupons — item-level only
     const allCoupons = coupons.all.filter((c) => isItemLevelCoupon(c));
     applicableCoupons.push(...allCoupons);
 
-    // Add category coupons - ONLY item-level
+    // Add category coupons — item-level only
     if (item.category_id) {
       const categoryCoupons = coupons.category.filter(
         (c) => c.applies_to_id === item.category_id && isItemLevelCoupon(c),
@@ -152,7 +166,7 @@ const Cart = () => {
       applicableCoupons.push(...categoryCoupons);
     }
 
-    // Add product_type coupons - ONLY item-level
+    // Add product_type coupons — item-level only
     if (item.product_type_id) {
       const productTypeCoupons = coupons.product_type.filter(
         (c) => c.applies_to_id === item.product_type_id && isItemLevelCoupon(c),
@@ -160,7 +174,7 @@ const Cart = () => {
       applicableCoupons.push(...productTypeCoupons);
     }
 
-    // Add product coupons - ONLY item-level
+    // Add product coupons — item-level only
     if (item.product_id) {
       const productCoupons = coupons.product.filter(
         (c) => c.applies_to_id === item.product_id && isItemLevelCoupon(c),
@@ -168,13 +182,13 @@ const Cart = () => {
       applicableCoupons.push(...productCoupons);
     }
 
-    // Add variant coupons - ONLY item-level
+    // Add variant coupons — item-level only
     const variantCoupons = coupons.variant.filter(
       (c) => c.applies_to_id === item.variant_id && isItemLevelCoupon(c),
     );
     applicableCoupons.push(...variantCoupons);
 
-    // Add custom_group coupons - ONLY item-level
+    // Add custom_group coupons — item-level only
     if (customGroupMap[item.variant_id]) {
       const applicableCouponIds = customGroupMap[item.variant_id];
       const customGroupCoupons = coupons.custom_group.filter(
@@ -187,7 +201,7 @@ const Cart = () => {
     return applicableCoupons;
   };
 
-  // Get the coupon for a cart item
+  // Resolves the active coupon for a cart item, handling expiry and fallback to best available
   const getCouponForItem = (
     item: (typeof cartItems)[0],
   ): {
@@ -197,13 +211,11 @@ const Cart = () => {
   } => {
     const applicableCoupons = getApplicableCouponsForItem(item);
 
-    // If user had selected a coupon
     if (item.selected_coupon_id) {
       const selectedCoupon = applicableCoupons.find(
         (c) => c.coupon_id === item.selected_coupon_id,
       );
 
-      // Check if selected coupon is still valid
       if (selectedCoupon) {
         const isExpired = selectedCoupon.valid_until
           ? new Date(selectedCoupon.valid_until) < new Date()
@@ -216,7 +228,7 @@ const Cart = () => {
             fallbackToBest: false,
           };
         } else {
-          // Coupon expired, fall back to best
+          // Coupon expired — fall back to best available
           const bestCoupon = findBestCoupon(
             applicableCoupons,
             item.price,
@@ -229,7 +241,7 @@ const Cart = () => {
           };
         }
       } else {
-        // Selected coupon no longer applicable, fall back to best
+        // Selected coupon no longer applicable — fall back to best available
         const bestCoupon = findBestCoupon(
           applicableCoupons,
           item.price,
@@ -243,7 +255,6 @@ const Cart = () => {
       }
     }
 
-    // If no coupon was selected
     return { itemCoupon: null, isExpired: false, fallbackToBest: false };
   };
 
@@ -251,14 +262,14 @@ const Cart = () => {
   // PRICE CALCULATIONS
   // ============================================================================
 
-  // Calculate original subtotal (before any discounts)
+  // Calculates original subtotal before any discounts
   const calculateOriginalSubtotal = (): number => {
     return cartItems.reduce((total, item) => {
       return total + item.price * item.quantity;
     }, 0);
   };
 
-  // Check if multiple items share the same BOGO coupon
+  // Returns BOGO combination info if multiple items share the same BOGO coupon
   const getBogoCombinationInfo = (
     item: (typeof cartItems)[0],
   ): {
@@ -286,7 +297,7 @@ const Cart = () => {
     };
   };
 
-  // Calculate BOGO discounts across multiple items
+  // Calculates BOGO discounts across all cart items, distributing savings to the cheapest units
   const calculateBogoDiscounts = (): Map<number, number> => {
     const bogoDiscounts = new Map<number, number>();
 
@@ -319,13 +330,13 @@ const Cart = () => {
       // Calculate total quantity across all items in this BOGO group
       const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
-      // Calculate how many complete BOGO sets we have
+      // Determine how many items qualify for a discount
       const completeSets = Math.floor(totalQuantity / (buyQty + getQty));
       const itemsToDiscount = completeSets * getQty;
 
       if (itemsToDiscount === 0) return;
 
-      // Create array of individual items for sorting
+      // Flatten items into individual units for price-based sorting
       const individualItems: Array<{ variant_id: number; price: number }> = [];
       for (const item of items) {
         for (let i = 0; i < item.quantity; i++) {
@@ -336,10 +347,10 @@ const Cart = () => {
         }
       }
 
-      // Sort by price ascending (cheapest items get discounted)
+      // Sort ascending so cheapest items get the discount
       individualItems.sort((a, b) => a.price - b.price);
 
-      // Apply discount to the cheapest items
+      // Apply discount to the cheapest qualifying items
       let totalDiscount = 0;
       for (let i = 0; i < itemsToDiscount; i++) {
         const item = individualItems[i];
@@ -349,7 +360,7 @@ const Cart = () => {
         totalDiscount += itemDiscount;
       }
 
-      // Apply max discount cap if set
+      // Cap total discount if a max discount amount is set
       if (maxDiscountAmount && totalDiscount > maxDiscountAmount) {
         const ratio = maxDiscountAmount / totalDiscount;
         for (const [variantId, discount] of bogoDiscounts.entries()) {
@@ -361,7 +372,7 @@ const Cart = () => {
     return bogoDiscounts;
   };
 
-  // Calculate total discount amount from item-level coupons
+  // Calculates the total discount amount from all item-level coupons
   const calculateTotalDiscount = (): number => {
     const bogoDiscounts = calculateBogoDiscounts();
 
@@ -376,13 +387,13 @@ const Cart = () => {
         return totalDiscount;
       }
 
-      // For BOGO, use pre-calculated discount
+      // Use pre-calculated BOGO discount
       if (itemCoupon.discount_type === "bogo") {
         const bogoDiscount = bogoDiscounts.get(item.variant_id) || 0;
         return totalDiscount + bogoDiscount;
       }
 
-      // For non-BOGO coupons, calculate normally
+      // Calculate discount for non-BOGO coupons
       const discountInfo = calculateDiscount(
         item.price,
         itemCoupon,
@@ -393,33 +404,32 @@ const Cart = () => {
     }, 0);
   };
 
-  // Calculate subtotal with item-level discounts applied
+  // Calculates the subtotal with all item-level discounts applied
   const calculateSubtotalWithDiscounts = (): number => {
     const bogoDiscounts = calculateBogoDiscounts();
 
     return cartItems.reduce((total, item) => {
       const { itemCoupon } = getCouponForItem(item);
 
-      // If no coupon or email not verified, use original price
+      // No coupon or unverified email — use original price
       if (!itemCoupon || !isEmailVerified) {
         return total + item.price * item.quantity;
       }
 
-      // For BOGO, use pre-calculated discount
+      // Use pre-calculated BOGO discount
       if (itemCoupon.discount_type === "bogo") {
         const bogoDiscount = bogoDiscounts.get(item.variant_id) || 0;
         const itemTotal = item.price * item.quantity - bogoDiscount;
         return total + itemTotal;
       }
 
-      // For non-BOGO coupons, calculate normally
+      // Calculate discount for non-BOGO coupons
       const discountInfo = calculateDiscount(
         item.price,
         itemCoupon,
         item.quantity,
       );
 
-      // Use totalPrice if available, otherwise calculate
       const itemTotal =
         discountInfo.totalPrice !== undefined
           ? discountInfo.totalPrice
@@ -429,13 +439,14 @@ const Cart = () => {
     }, 0);
   };
 
-  // Calculate values
+  // Derived price values used throughout the cart summary
   const originalSubtotal = calculateOriginalSubtotal();
   const bogoDiscounts = calculateBogoDiscounts();
   const totalDiscount = calculateTotalDiscount();
   const subtotalWithDiscounts = calculateSubtotalWithDiscounts();
 
-  // Cart-level coupon preview — computed so the summary updates immediately when the user selects/removes a coupon, matching what validateCoupons will return in CheckoutPage.
+  // Cart-level coupon preview — computed so the summary updates immediately
+  // when the user selects or removes a coupon, matching validateCoupons output in CheckoutPage
   const cartLevelDiscountInfo = selectedCartLevelCoupon
     ? calculateCartLevelDiscount(selectedCartLevelCoupon, subtotalWithDiscounts)
     : null;
@@ -448,13 +459,13 @@ const Cart = () => {
   // EVENT HANDLERS
   // ============================================================================
 
-  // Handle opening coupon modal
+  // Opens the coupon modal for the given cart item
   const handleOpenCouponModal = (item: (typeof cartItems)[0]) => {
     setSelectedCartItem(item);
     setIsCouponModalOpen(true);
   };
 
-  // Handle coupon selection
+  // Applies the selected coupon to the cart item and closes the modal
   const handleCouponSelect = (coupon: ProductCoupon | null) => {
     if (selectedCartItem) {
       updateCartCoupon(
@@ -466,7 +477,7 @@ const Cart = () => {
     setSelectedCartItem(null);
   };
 
-  // Handle quantity decrease
+  // Triggers a removal confirmation if quantity would drop to zero, otherwise decrements normally
   const handleDecreaseQuantity = (
     variantId: number,
     currentQuantity: number,
@@ -479,7 +490,7 @@ const Cart = () => {
     }
   };
 
-  // Handle removal confirmation
+  // Confirms item removal and clears the removal warning state
   const handleConfirmRemoval = () => {
     if (itemToRemove !== null) {
       removeFromCart(itemToRemove);
@@ -488,7 +499,7 @@ const Cart = () => {
     }
   };
 
-  // Handle removal cancellation
+  // Cancels item removal and dismisses the warning modal
   const handleCancelRemoval = () => {
     setShowRemovalWarning(false);
     setItemToRemove(null);
@@ -497,6 +508,14 @@ const Cart = () => {
   // ============================================================================
   // RENDER
   // ============================================================================
+
+  if (isLoading) {
+    return (
+      <div className={"cart-page cart-loading-state"}>
+        <LoadingSpinner message="Loading your cart..." />
+      </div>
+    );
+  }
 
   if (cartItems.length === 0) {
     return (
@@ -531,7 +550,7 @@ const Cart = () => {
         </div>
 
         <div className={"cart-layout"}>
-          {/* LEFT COLUMN — all cart items grouped together */}
+          {/* LEFT COLUMN — all cart items */}
           <div className={"cart-items-section"}>
             {!isEmailVerified &&
               cartItems.some(
@@ -622,7 +641,7 @@ const Cart = () => {
                         {item.size && <span>Size: {item.size}</span>}
                       </div>
 
-                      {/* Price Display */}
+                      {/* Price display — shows original and discounted when a coupon applies */}
                       <div className={"cart-item-price-container"}>
                         {hasDiscount && discountInfo ? (
                           <>
@@ -829,7 +848,7 @@ const Cart = () => {
               })}
           </div>
 
-          {/* RIGHT COLUMN — order summary (sticky on desktop, below on mobile) */}
+          {/* RIGHT COLUMN — sticky order summary */}
           <div className={"cart-summary-section"}>
             <div className={"cart-summary-card"}>
               <h4 className={"cart-summary-title"}>Order Summary</h4>
@@ -895,7 +914,7 @@ const Cart = () => {
                 Plus applicable tax and shipping
               </p>
 
-              {/* Cart-Level Coupon Selector */}
+              {/* Cart-level coupon selector */}
               {coupons && (
                 <CartLevelCouponSelector
                   coupons={coupons.all}
@@ -904,6 +923,7 @@ const Cart = () => {
                   subtotalAfterItemDiscounts={subtotalWithDiscounts}
                   isEmailVerified={isEmailVerified}
                   isGuest={!user}
+                  userCouponUsage={userCouponUsage}
                 />
               )}
 
@@ -925,7 +945,7 @@ const Cart = () => {
         </div>
       </div>
 
-      {/* Coupon Modal */}
+      {/* Coupon modal — shown when user clicks Add/Change Coupon on an item */}
       {selectedCartItem && (
         <CouponModal
           isOpen={isCouponModalOpen}
@@ -947,7 +967,7 @@ const Cart = () => {
         />
       )}
 
-      {/* Removal Warning Modal */}
+      {/* Removal warning modal — shown when quantity would drop to zero */}
       <ConfirmModal
         isOpen={showRemovalWarning}
         title="Remove Item from Cart?"

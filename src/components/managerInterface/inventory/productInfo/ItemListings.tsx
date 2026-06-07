@@ -7,6 +7,7 @@ interface ProductListItemProps {
   onClick: () => void;
 }
 
+// Renders a single product row in the manager sidebar list
 const ProductListItem = ({
   product,
   isActive,
@@ -18,11 +19,16 @@ const ProductListItem = ({
       ? `${product.color || ""} ${product.size || ""}`.trim()
       : "Default";
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <div
       className={`mi-product-item ${isActive ? "active" : ""}`}
       onClick={onClick}
     >
+      {/* Thumbnail */}
       {product.primary_image ? (
         <img
           src={product.primary_image}
@@ -39,6 +45,7 @@ const ProductListItem = ({
         <h3 className="mi-product-name">{product.name}</h3>
         <p className="mi-product-meta">
           ${product.price.toFixed(2)} • Stock: {product.stock_quantity}
+          {/* Variant label is only shown when the product has more than one variant */}
           {hasVariants && (
             <>
               <br />
@@ -48,6 +55,7 @@ const ProductListItem = ({
         </p>
       </div>
 
+      {/* Variant count badge */}
       {hasVariants && (
         <span
           className="mi-variant-badge mi-variant-badge-bottom"

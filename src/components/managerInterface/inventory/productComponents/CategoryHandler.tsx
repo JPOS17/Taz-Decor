@@ -16,6 +16,7 @@ interface CategoryHandlerProps {
   error?: string;
 }
 
+// Manages product category assignments
 const CategoryHandler = ({
   productCategories,
   availableCategories,
@@ -25,11 +26,14 @@ const CategoryHandler = ({
   disabled = false,
   error,
 }: CategoryHandlerProps) => {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
   const [showAddDropdown, setShowAddDropdown] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [showQuickSwitch, setShowQuickSwitch] = useState(false);
 
-  // Confirmation states
   const [pendingAction, setPendingAction] = useState<{
     type: "remove" | "setPrimary" | "switchPrimary";
     categoryId: number;
@@ -37,21 +41,29 @@ const CategoryHandler = ({
     needsAdd?: boolean;
   } | null>(null);
 
-  // Get categories not yet assigned
+  // ============================================================================
+  // COMPUTED VALUES
+  // ============================================================================
+
+  // Only unassigned, active categories are offered in the add dropdown
   const unassignedCategories = availableCategories.filter(
     (cat) =>
       !productCategories.some((pc) => pc.category_id === cat.category_id) &&
       cat.is_active,
   );
 
-  // Get primary category
   const primaryCategory = productCategories.find((pc) => pc.is_primary);
 
-  // Get all active categories for quick switch (excluding current primary)
+  // All active categories except the current primary
   const switchableCategories = availableCategories.filter(
     (cat) => cat.is_active && cat.category_id !== primaryCategory?.category_id,
   );
 
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
+  // Calls onAdd with the selected category and resets the add dropdown state
   const handleAdd = async () => {
     if (!selectedCategoryId) return;
 
@@ -60,14 +72,17 @@ const CategoryHandler = ({
     setShowAddDropdown(false);
   };
 
+  // Stages a remove action for confirmation before executing
   const handleRemoveClick = (categoryId: number, categoryName: string) => {
     setPendingAction({ type: "remove", categoryId, categoryName });
   };
 
+  // Stages a set-primary action for confirmation before executing
   const handleSetPrimaryClick = (categoryId: number, categoryName: string) => {
     setPendingAction({ type: "setPrimary", categoryId, categoryName });
   };
 
+  // Stages a quick-switch action — flags needsAdd if the target isn't already assigned
   const handleQuickSwitchClick = (categoryId: number, categoryName: string) => {
     if (categoryId === primaryCategory?.category_id) {
       setShowQuickSwitch(false);
@@ -86,6 +101,7 @@ const CategoryHandler = ({
     });
   };
 
+  // Executes the pending action after user confirmation
   const handleConfirm = async () => {
     if (!pendingAction) return;
 
@@ -97,12 +113,14 @@ const CategoryHandler = ({
       } else if (pendingAction.type === "switchPrimary") {
         const oldPrimaryCategoryId = primaryCategory?.category_id;
 
+        // Add the new category first if it isn't already assigned
         if (pendingAction.needsAdd) {
           await onAdd(pendingAction.categoryId);
         }
 
         await onSetPrimary(pendingAction.categoryId);
 
+        // If the old primary was the only category and a new one was added, remove the old one
         if (oldPrimaryCategoryId && pendingAction.needsAdd) {
           const wasOnlyCategory = productCategories.length === 1;
           if (wasOnlyCategory) {
@@ -123,7 +141,11 @@ const CategoryHandler = ({
     setPendingAction(null);
   };
 
-  // Generate modal message based on action type
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Builds the confirmation modal message based on the pending action type
   const getModalMessage = () => {
     if (!pendingAction) return "";
 
@@ -142,6 +164,7 @@ const CategoryHandler = ({
       let message = `Are you sure you want to switch the primary category to ${pendingAction.categoryName}?`;
       if (primaryCategory) {
         message += ` Current primary: ${primaryCategory.category_name}.`;
+        // Warn the user if the old primary will be removed as a result of the switch
         if (pendingAction.needsAdd && productCategories.length === 1) {
           message += ` Note: ${primaryCategory.category_name} will be removed from the product.`;
         }
@@ -151,6 +174,10 @@ const CategoryHandler = ({
 
     return "";
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <FormField
@@ -163,7 +190,7 @@ const CategoryHandler = ({
       }
     >
       <div className="category-handler">
-        {/* Quick Switch Dropdown */}
+        {/* Primary category button */}
         {primaryCategory && (
           <div className="category-primary-container">
             <button
@@ -177,6 +204,7 @@ const CategoryHandler = ({
                 <span className="category-badge category-badge-primary">
                   PRIMARY
                 </span>
+                {/* Inactive badge shown when the assigned category has been deactivated */}
                 {!primaryCategory.category_is_active && (
                   <span className="category-badge category-badge-inactive">
                     INACTIVE
@@ -191,6 +219,7 @@ const CategoryHandler = ({
               />
             </button>
 
+            {/* Quick-switch dropdown */}
             {showQuickSwitch && (
               <div className="category-dropdown">
                 {switchableCategories.length === 0 ? (
@@ -220,7 +249,7 @@ const CategoryHandler = ({
           </div>
         )}
 
-        {/* Current Categories (non-primary) */}
+        {/* Additional (non-primary) categories */}
         {productCategories.filter((pc) => !pc.is_primary).length > 0 && (
           <div className="category-additional-container">
             <div className="category-additional-label">
@@ -283,6 +312,7 @@ const CategoryHandler = ({
                 Add Category
               </button>
             ) : (
+              // Inline select + confirm/cancel
               <div className="category-add-controls">
                 <SelectInput
                   value={selectedCategoryId}
@@ -317,7 +347,7 @@ const CategoryHandler = ({
           </div>
         )}
 
-        {/* Confirmation Modal */}
+        {/* Confirmation modal */}
         {pendingAction && (
           <ConfirmationModal
             title="Confirm Category Change"

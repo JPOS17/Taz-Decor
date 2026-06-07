@@ -15,32 +15,30 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
   const location = useLocation();
   const { logout } = useAuth();
   const { resetSession } = useCart();
+
+  // Controls the mobile dropdown nav open/closed state
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  // Clears cart session, logs the user out, and redirects to login
   const handleLogout = () => {
     resetSession();
     logout();
     navigate("/login");
   };
 
+  // Returns true when the current route matches the given path
   const isActive = (path: string) => location.pathname === path;
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  // ============================================================================
+  // DERIVED VALUES
+  // ============================================================================
 
-  // Role badge class mapping
+  // Maps role to its corresponding badge CSS class
   const roleBadgeClass =
     {
       customer: "psb-role-customer",
@@ -48,12 +46,13 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
       admin: "psb-role-admin",
     }[role] ?? "psb-role-customer";
 
-  // Determine the active label + icon for the dropdown trigger
+  // Dropdown trigger label and icon path reflect whichever page is currently active
   const activeLabel = isActive("/orders") ? "Orders" : "Profile";
   const activeIconPath = isActive("/orders")
     ? "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
     : "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z";
 
+  // Shared logout SVG icon used across all three sign-out buttons
   const logoutSvg = (
     <svg
       className="psb-logout-icon"
@@ -70,18 +69,40 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
     </svg>
   );
 
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // Closes the dropdown when the user clicks anywhere outside of it
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
+
   return (
     <>
       <aside className="psb-sidebar">
-        {/* Desktop: stacked column  |  ≤1024px: single full-width row */}
+        {/* Desktop: stacked column */}
         <div className="psb-avatar-section">
-          {/* Avatar */}
+          {/* Avatar — initials derived from first and last name */}
           <div className="psb-avatar-large">
             {firstName.charAt(0)}
             {lastName.charAt(0)}
           </div>
 
-          {/* Name + nav (grows to fill space, pushing Sign Out to the right) */}
+          {/* User info */}
           <div className="psb-user-info">
             <h2 className="psb-user-name">
               {firstName} {lastName}
@@ -92,7 +113,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
                 {role.charAt(0).toUpperCase() + role.slice(1)}
               </span> */}
 
-              {/* Flat nav pills — visible at 700px–1024px and at desktop */}
+              {/* Flat nav pills */}
               <nav className="psb-nav">
                 <button
                   className={`psb-nav-item${isActive("/profile") ? " psb-nav-item--active" : ""}`}
@@ -134,6 +155,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
                   Orders
                 </button>
 
+                {/* Manager Dashboard — only rendered for manager and admin roles */}
                 {(role === "manager" || role === "admin") && (
                   <button
                     className={`psb-nav-item${isActive("/manager") ? " psb-nav-item--active" : ""}`}
@@ -157,7 +179,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
                 )}
               </nav>
 
-              {/* Dropdown nav — visible below 568px */}
+              {/* Dropdown nav */}
               <div
                 ref={dropdownRef}
                 className={`psb-nav-dropdown${dropdownOpen ? " psb-nav-dropdown--open" : ""}`}
@@ -197,6 +219,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
                   </svg>
                 </button>
 
+                {/* Dropdown menu items */}
                 <div className="psb-nav-dropdown-menu" role="menu">
                   <button
                     className={`psb-nav-dropdown-item${isActive("/profile") ? " psb-nav-dropdown-item--active" : ""}`}
@@ -269,7 +292,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
                     </button>
                   )} */}
 
-                  {/* Sign Out — only visible at ≤410px via CSS */}
+                  {/* Sign Out */}
                   <button
                     className="psb-nav-dropdown-logout"
                     onClick={() => {
@@ -286,14 +309,14 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
             </div>
           </div>
 
-          {/* Mobile-only Sign Out — far right of the row */}
+          {/* Mobile-only Sign Out */}
           <button onClick={handleLogout} className="psb-logout-inline">
             {logoutSvg}
             <span>Sign Out</span>
           </button>
         </div>
 
-        {/* Desktop-only Sign Out — sits below the nav list */}
+        {/* Desktop-only Sign Out */}
         <button onClick={handleLogout} className="psb-logout-button">
           {logoutSvg}
           Sign Out

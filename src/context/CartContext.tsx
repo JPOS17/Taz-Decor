@@ -56,7 +56,7 @@ interface CartContextType {
   ) => void;
   clearCart: () => void;
 
-  // Cart-level coupon (applies to entire cart, not per-item)
+  // Cart-level coupon — applies to the entire cart, not per-item
   cartLevelCouponId: number | null;
   setCartLevelCouponId: (id: number | null) => void;
 
@@ -86,8 +86,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
 
-  // Cart-level coupon ID — persisted in localStorage so it survives navigation
-  // from Cart page to CheckoutPage
+  // Initialized from localStorage so the coupon survives navigation between the Cart page and the Checkout page
   const [cartLevelCouponId, setCartLevelCouponIdState] = useState<
     number | null
   >(() => {
@@ -99,12 +98,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
-  // Check if user is authenticated
+  // ============================================================================
+  // HELPERS
+  // ============================================================================
+
+  // Returns true when a JWT token exists — used to decide whether to sync with the DB
   const isAuthenticated = () => {
     return !!localStorage.getItem("token");
   };
 
-  // Load from localStorage on mount
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // Hydrates cart and wishlist from localStorage on mount (guest and returning users)
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
     const savedWishlist = localStorage.getItem("wishlist");
@@ -128,18 +135,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // Save to localStorage whenever cart changes
+  // Keeps localStorage in sync whenever cart changes;
+  // clears the cart-level coupon automatically when the cart becomes empty
   useEffect(() => {
     if (cartItems.length > 0) {
       localStorage.setItem("cart", JSON.stringify(cartItems));
     } else {
       localStorage.removeItem("cart");
-      // Clear cart-level coupon when cart is emptied
       setCartLevelCouponId(null);
     }
   }, [cartItems]);
 
-  // Save to localStorage whenever wishlist changes
+  // Keeps localStorage in sync whenever wishlist changes
   useEffect(() => {
     if (wishlistItems.length > 0) {
       localStorage.setItem("wishlist", JSON.stringify(wishlistItems));
@@ -148,7 +155,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [wishlistItems]);
 
-  // Public setter — updates state AND persists to localStorage
+  // ============================================================================
+  // CART-LEVEL COUPON
+  // ============================================================================
+
+  // Updates state AND persists to localStorage so the coupon survives page refreshes
   const setCartLevelCouponId = (id: number | null) => {
     setCartLevelCouponIdState(id);
     if (id === null) {
@@ -158,7 +169,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Sync localStorage to database after login
+  // ============================================================================
+  // DATABASE SYNC
+  // ============================================================================
+
+  // Pushes the current localStorage cart and wishlist to the database after login,
+  // merging guest session data into the authenticated user's stored data
   const syncToDatabase = async () => {
     try {
       const cartData = cartItems.map((item) => ({
@@ -179,8 +195,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Fetch cart and wishlist from database after login
-  // Backend validates coupons — expired/inactive ones are returned as null
+  // Replaces local cart and wishlist state with the database version after login
+  // The backend validates coupons — expired or inactive ones are returned as null
   const loadFromDatabase = async () => {
     try {
       const [cartData, wishlistData] = await Promise.all([
@@ -188,6 +204,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         fetchWishlistFromDatabase(),
       ]);
 
+      // Parse price and quantity — API returns them as strings
       const loadedCartItems: CartItem[] = cartData.map((item: any) => ({
         ...item,
         price: parseFloat(item.price),
@@ -212,6 +229,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // ============================================================================
+  // CART ACTIONS
+  // ============================================================================
+
+  // Adds a new item to the cart, or updates addedAt and the coupon if it already exists
+  // Returns true if the item was newly added (used by the mini cart to show "added" vs "updated")
   const addToCart = (
     item: Omit<CartItem, "quantity" | "addedAt">,
     selectedCouponId?: number | null,
@@ -221,6 +244,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setCartItems((prev) => {
       const existingItem = prev.find((i) => i.variant_id === item.variant_id);
       if (existingItem) {
+        // Item already in cart — refresh timestamp and update coupon if provided
         return prev.map((i) =>
           i.variant_id === item.variant_id
             ? {
@@ -247,6 +271,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
+    // Fire-and-forget DB sync — errors are logged but don't block the UI
     if (isAuthenticated()) {
       addToCartDB(item.variant_id, 1, selectedCouponId).catch((err) =>
         console.error("Failed to sync cart to database:", err),
@@ -256,6 +281,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return isNewItem;
   };
 
+  // Removes the item from local state and syncs the removal to the DB if authenticated
   const removeFromCart = (variantId: number) => {
     setCartItems((prev) =>
       prev.filter((item) => item.variant_id !== variantId),
@@ -268,6 +294,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Removes the item if quantity drops to 0 or below; otherwise updates quantity in state and DB
   const updateQuantity = (variantId: number, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(variantId);
@@ -287,6 +314,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Updates the coupon on a cart item AND the matching wishlist item (if it exists),
+  // then syncs both to the database so they stay in agreement
   const updateCartCoupon = (
     variantId: number,
     selectedCouponId: number | null,
@@ -299,6 +328,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       ),
     );
 
+    // Keep wishlist coupon in sync with the cart coupon for the same variant
     setWishlistItems((prev) =>
       prev.map((item) =>
         item.variant_id === variantId
@@ -312,6 +342,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         console.error("Failed to update cart coupon in database:", err),
       );
 
+      // Also sync the wishlist DB record if this variant is wishlisted
       const isInWishlistCheck = wishlistItems.some(
         (item) => item.variant_id === variantId,
       );
@@ -323,9 +354,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Empties the cart, clears the cart-level coupon, and syncs to the DB if authenticated
   const clearCart = () => {
     setCartItems([]);
-    // Also clear the cart-level coupon when cart is cleared
     setCartLevelCouponId(null);
 
     if (isAuthenticated()) {
@@ -335,6 +366,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // ============================================================================
+  // WISHLIST ACTIONS
+  // ============================================================================
+
+  // Toggles the item in the wishlist — adds it if not present, removes it if already there
   const addToWishlist = (
     item: Omit<WishlistItem, "addedAt">,
     selectedCouponId?: number | null,
@@ -342,6 +378,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setWishlistItems((prev) => {
       const exists = prev.find((i) => i.variant_id === item.variant_id);
       if (exists) {
+        // Already wishlisted — remove it
         if (isAuthenticated()) {
           removeFromWishlistDB(item.variant_id).catch((err) =>
             console.error("Failed to sync wishlist removal to database:", err),
@@ -349,6 +386,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
         return prev.filter((i) => i.variant_id !== item.variant_id);
       } else {
+        // Not yet wishlisted — add it to the front of the list
         if (isAuthenticated()) {
           addToWishlistDB(item.variant_id, selectedCouponId).catch((err) =>
             console.error("Failed to sync wishlist to database:", err),
@@ -366,6 +404,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  // Updates the coupon on a wishlist item and syncs to the DB
   const updateWishlistCoupon = (
     variantId: number,
     selectedCouponId: number | null,
@@ -385,6 +424,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Removes the item from the wishlist and syncs the removal to the DB if authenticated
   const removeFromWishlist = (variantId: number) => {
     setWishlistItems((prev) =>
       prev.filter((item) => item.variant_id !== variantId),
@@ -397,27 +437,30 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const isInWishlist = (variantId: number) => {
-    return wishlistItems.some((item) => item.variant_id === variantId);
-  };
+  // ============================================================================
+  // READ-ONLY HELPERS
+  // ============================================================================
 
-  const isInCart = (variantId: number) => {
-    return cartItems.some((item) => item.variant_id === variantId);
-  };
+  const isInWishlist = (variantId: number) =>
+    wishlistItems.some((item) => item.variant_id === variantId);
 
-  const getCartTotal = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0,
-    );
-  };
+  const isInCart = (variantId: number) =>
+    cartItems.some((item) => item.variant_id === variantId);
 
-  const getCartCount = () => {
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
-  };
+  // Sum of (price × quantity) across all cart items — does not include discounts
+  const getCartTotal = () =>
+    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  // Reset all session data on logout — clears cart, wishlist, and all coupons
-  // from both state and localStorage so no stale data bleeds into guest session
+  // Total number of individual units in the cart (not just unique items)
+  const getCartCount = () =>
+    cartItems.reduce((count, item) => count + item.quantity, 0);
+
+  // ============================================================================
+  // SESSION RESET
+  // ============================================================================
+
+  // Clears all cart, wishlist, and coupon data from both state and localStorage on logout,
+  // so no authenticated user's data bleeds into a subsequent guest session
   const resetSession = () => {
     setCartItems([]);
     setWishlistItems([]);
@@ -426,6 +469,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem("wishlist");
     localStorage.removeItem("cartLevelCouponId");
   };
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <CartContext.Provider
@@ -456,6 +503,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// Throws if used outside of CartProvider to surface misconfigured component trees early
 export const useCart = () => {
   const context = useContext(CartContext);
   if (context === undefined) {

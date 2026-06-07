@@ -67,10 +67,6 @@ interface FormData {
   height_in: string;
 }
 
-// ============================================================================
-// CREATE VARIANT FORM COMPONENT
-// ============================================================================
-
 const CreateVariantForm = ({
   productId,
   productName,
@@ -92,18 +88,20 @@ const CreateVariantForm = ({
   // STATE MANAGEMENT
   // ============================================================================
 
+  // Shipping and price fields are pre-filled from parent values when available
   const [formData, setFormData] = useState<FormData>({
-    price: parentPrice ? parentPrice.toString() : "", // PRE-FILLED from parent
+    price: parentPrice ? parentPrice.toString() : "",
     stock_quantity: "",
     color: "",
     size: "",
     location_id: "",
-    weight_oz: parentWeightOz ? parentWeightOz.toString() : "", // PRE-FILLED from parent
-    length_in: parentLengthIn ? parentLengthIn.toString() : "", // PRE-FILLED from parent
-    width_in: parentWidthIn ? parentWidthIn.toString() : "", // PRE-FILLED from parent
-    height_in: parentHeightIn ? parentHeightIn.toString() : "", // PRE-FILLED from parent
+    weight_oz: parentWeightOz ? parentWeightOz.toString() : "",
+    length_in: parentLengthIn ? parentLengthIn.toString() : "",
+    width_in: parentWidthIn ? parentWidthIn.toString() : "",
+    height_in: parentHeightIn ? parentHeightIn.toString() : "",
   });
 
+  // Gates inline validation display until the user has attempted to submit
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
   // ============================================================================
@@ -129,6 +127,7 @@ const CreateVariantForm = ({
     hasAttemptedSubmit,
   );
 
+  // SKU is fetched from the API based on the parent product — needed before images can be uploaded
   const { previewSKU, loading: loadingSKU } = useSKUPreview(
     productId,
     previewVariantSKU,
@@ -138,6 +137,7 @@ const CreateVariantForm = ({
   // COMPUTED VALUES
   // ============================================================================
 
+  // Resolved for display in the shared product info box
   const categoryName =
     categories.find((c) => c.category_id === categoryId)?.category_name ||
     "Unknown";
@@ -146,7 +146,7 @@ const CreateVariantForm = ({
   // EFFECTS
   // ============================================================================
 
-  // Track dirty state — only user-entered fields, plus changes to pre-filled values
+  // Notify parent of dirty state
   useEffect(() => {
     const isDirty =
       formData.stock_quantity !== "" ||
@@ -174,6 +174,7 @@ const CreateVariantForm = ({
     onDirtyChange,
   ]);
 
+  // Notify parent of form validity after the first submit attempt
   useEffect(() => {
     const isValid = Object.keys(errors).length === 0 && hasAttemptedSubmit;
     onFormValidChange?.(isValid);
@@ -183,6 +184,7 @@ const CreateVariantForm = ({
   // EVENT HANDLERS — FORM FIELDS
   // ============================================================================
 
+  // Updates a string field and clears its error if validation has already run
   const handleTextChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (hasAttemptedSubmit) {
@@ -190,6 +192,7 @@ const CreateVariantForm = ({
     }
   };
 
+  // Updates a numeric field (kept as string) and clears its error if validation has already run
   const handleNumberChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (hasAttemptedSubmit) {
@@ -197,12 +200,14 @@ const CreateVariantForm = ({
     }
   };
 
+  // Converts null back to an empty string for controlled input compatibility
   const handleShippingChange = (field: string, value: number | null) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value === null ? "" : value.toString(),
     }));
     if (hasAttemptedSubmit) {
+      // Dimension fields (L/W/H) share a single error key — pass flag to clear it correctly
       const isDimensionField = ["length_in", "width_in", "height_in"].includes(
         field,
       );
@@ -214,6 +219,7 @@ const CreateVariantForm = ({
   // EVENT HANDLERS — IMAGE MANAGEMENT
   // ============================================================================
 
+  // Opens Cloudinary upload widget — blocked until the SKU is resolved (needed for folder path)
   const handleOpenWidget = () => {
     if (!previewSKU || loadingSKU) {
       alert("Please wait for SKU to load before uploading images.");
@@ -236,6 +242,7 @@ const CreateVariantForm = ({
   // EVENT HANDLERS — FORM SUBMISSION
   // ============================================================================
 
+  // Validates the form and either delegates to the parent (onRequestSubmit) or submits directly
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setHasAttemptedSubmit(true);
@@ -259,6 +266,7 @@ const CreateVariantForm = ({
     }
   };
 
+  // Parses all string fields to their correct types and calls the parent onSubmit handler
   const executeSubmit = () => {
     onSubmit({
       images: getReorderedImages(),
@@ -281,6 +289,7 @@ const CreateVariantForm = ({
     });
   };
 
+  // Registers executeSubmit on window so the parent overlay can trigger submission externally
   useFormSubmission({
     formData,
     additionalDeps: [images],
@@ -297,7 +306,7 @@ const CreateVariantForm = ({
       {/* SKU Preview */}
       <SKUPreview sku={previewSKU} loading={loadingSKU} type="variant" />
 
-      {/* Product Information (Shared) */}
+      {/* Read-only shared product info inherited from the parent */}
       <div className="info-box">
         <h4>Product Information (Shared)</h4>
         <div className="info-box-content">
@@ -326,11 +335,10 @@ const CreateVariantForm = ({
         helperText="Optional: You can add images now or later after creating the variant"
       />
 
-      {/* Variant Information */}
+      {/* Variant-specific fields */}
       <div className="form-section" data-section="product-info">
         <h4 className="form-section-header">Variant Information</h4>
 
-        {/* Price */}
         <FormField label="Price" required error={errors.price}>
           <TextInput
             type="number"
@@ -341,7 +349,6 @@ const CreateVariantForm = ({
           />
         </FormField>
 
-        {/* Stock Quantity */}
         <FormField
           label="Stock Quantity"
           required
@@ -356,7 +363,6 @@ const CreateVariantForm = ({
           />
         </FormField>
 
-        {/* Warehouse Location */}
         <WarehouseSelector
           value={formData.location_id}
           onChange={(value) => handleNumberChange("location_id", value)}

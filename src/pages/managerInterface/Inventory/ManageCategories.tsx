@@ -43,17 +43,13 @@ import { ToastNotification } from "../../../components/managerInterface/universa
 import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
 
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
+import { useToastMessage } from "../../../hooks/useToastMessage";
 import { formatName } from "../../../utils/nameFormatter";
 
 import "../../../styles/pages/managerInterface/Tokens.css";
 import "../../../styles/pages/managerInterface/Components.css";
 import "../../../styles/pages/managerInterface/ManagerShared.css";
 import "../../../styles/pages/managerInterface/ManageCategories.css";
-
-interface Message {
-  text: string;
-  type: "success" | "error" | "warning";
-}
 
 type EditMode = "none" | "edit" | "create";
 
@@ -96,6 +92,7 @@ const SortableRow = ({
     transition,
   };
 
+  // Drag is disabled when a form is open or a request is in-flight
   const isDragDisabled = editMode !== "none" || loading;
 
   const rowClasses = [
@@ -118,6 +115,7 @@ const SortableRow = ({
       {...(!isDragDisabled ? { ...attributes, ...listeners } : {})}
     >
       <div className="mc-row-left">
+        {/* Drag handle — hidden when dragging is disabled */}
         {!isDragDisabled && (
           <div className="mc-drag-handle">
             <GripVertical size={20} />
@@ -126,6 +124,7 @@ const SortableRow = ({
         <div className="mc-row-info">
           <div className="mc-row-name-row">
             <h4 className="mc-row-name">{category.category_name}</h4>
+            {/* Disabled badge — only shown for inactive categories */}
             {!category.is_active && (
               <span className="mc-badge-disabled">Disabled</span>
             )}
@@ -136,6 +135,7 @@ const SortableRow = ({
         </div>
       </div>
 
+      {/* Row actions — disable/enable, edit, delete */}
       <div className="mc-row-actions">
         <button
           className={`mc-btn ${category.is_active ? "mc-btn-warning" : "mc-btn-success"}`}
@@ -180,7 +180,7 @@ const ManageCategories = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<Message | null>(null);
+  const { message, showMessage } = useToastMessage();
   const [editMode, setEditMode] = useState<EditMode>("none");
   const [hasOrderChanged, setHasOrderChanged] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -211,10 +211,12 @@ const ManageCategories = () => {
   // DATA LOADING
   // ============================================================================
 
+  // On component mount, load categories
   useEffect(() => {
     loadCategories();
   }, []);
 
+  // Fetches all categories (including inactive) and populates the list
   const loadCategories = async () => {
     setLoading(true);
     try {
@@ -229,36 +231,31 @@ const ManageCategories = () => {
   };
 
   // ============================================================================
-  // UTILITY FUNCTIONS
-  // ============================================================================
-
-  const showMessage = (text: string, type: "success" | "error" | "warning") => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
-
-  // ============================================================================
   // EVENT HANDLERS — EDIT FORM
   // ============================================================================
 
+  // Switches to create mode and resets the form
   const handleCreateNew = () => {
     setEditMode("create");
     setCategoryName("");
     setEditingCategory(null);
   };
 
+  // Switches to edit mode and pre-populates the form with the selected category's name
   const handleEdit = (category: Category) => {
     setEditMode("edit");
     setEditingCategory(category);
     setCategoryName(category.category_name);
   };
 
+  // Resets form state and returns to the idle view
   const handleCancelEdit = () => {
     setEditMode("none");
     setEditingCategory(null);
     setCategoryName("");
   };
 
+  // Creates or updates the category using the formatted name, then reloads the list
   const handleSave = async () => {
     if (!categoryName.trim()) {
       showMessage("Category name cannot be empty", "warning");
@@ -303,6 +300,7 @@ const ManageCategories = () => {
   // EVENT HANDLERS — DELETE & TOGGLE
   // ============================================================================
 
+  // Opens the delete confirmation modal for the given category
   const handleRequestDelete = (category: Category) => {
     deleteConfirmation.showConfirmation({
       title: "Delete Category",
@@ -313,6 +311,7 @@ const ManageCategories = () => {
     });
   };
 
+  // Deletes the category and reloads the list; shows a specific error if products are attached
   const confirmDelete = async (category: Category) => {
     setLoading(true);
     try {
@@ -332,6 +331,7 @@ const ManageCategories = () => {
     }
   };
 
+  // Opens the enable/disable confirmation modal with context-aware messaging
   const handleRequestToggleActive = (category: Category) => {
     const action = category.is_active ? "disable" : "enable";
     toggleActiveConfirmation.showConfirmation({
@@ -347,6 +347,7 @@ const ManageCategories = () => {
     });
   };
 
+  // Flips the active state of the category and reloads the list
   const confirmToggleActive = async (category: Category) => {
     setLoading(true);
     try {
@@ -369,6 +370,7 @@ const ManageCategories = () => {
   // Called once when the user drops
   // ============================================================================
 
+  // Reorders the category list locally and marks the order as changed (unsaved)
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -393,6 +395,7 @@ const ManageCategories = () => {
   // EVENT HANDLERS — ORDER
   // ============================================================================
 
+  // Opens the save order confirmation modal before persisting the new order
   const handleSaveOrder = () => {
     saveOrderConfirmation.showConfirmation({
       title: "Save Category Order",
@@ -404,6 +407,7 @@ const ManageCategories = () => {
     });
   };
 
+  // Persists the current display_order values to the API and reloads the list
   const confirmSaveOrder = async () => {
     setLoading(true);
     try {
@@ -424,6 +428,7 @@ const ManageCategories = () => {
     }
   };
 
+  // Discards local order changes by re-fetching the server state
   const handleCancelOrder = () => {
     loadCategories();
     setHasOrderChanged(false);
@@ -459,7 +464,7 @@ const ManageCategories = () => {
       <div className="mgr-container">
         <div className="mgr-body">
           <div className="mc-panel">
-            {/* Panel header */}
+            {/* Panel header — shows order save/cancel actions when order has changed, or New Category button otherwise */}
             <div className="mc-panel-header">
               <h2 className="mc-panel-title">Categories</h2>
               <div className="mc-header-actions">
@@ -496,7 +501,7 @@ const ManageCategories = () => {
               </div>
             </div>
 
-            {/* Create / Edit form */}
+            {/* Create / Edit form — only visible when editMode is active */}
             {editMode !== "none" && (
               <div className="mc-form">
                 <h3 className="mc-form-title">
@@ -518,6 +523,7 @@ const ManageCategories = () => {
                       else if (e.key === "Escape") handleCancelEdit();
                     }}
                   />
+                  {/* Formatted name preview — only shown when the name differs from its formatted version */}
                   {categoryName.trim() &&
                     categoryName.trim() !== formatName(categoryName) && (
                       <div className="mc-name-preview">
@@ -530,6 +536,7 @@ const ManageCategories = () => {
                     lowercase (except at start/end)
                   </p>
                 </div>
+                {/* Form action buttons */}
                 <div className="mc-form-actions">
                   <button
                     className="mc-btn mc-btn-success"
@@ -551,11 +558,11 @@ const ManageCategories = () => {
               </div>
             )}
 
-            {/* Loading */}
+            {/* Loading spinner — only shown on initial load before any categories exist */}
             {loading && categories.length === 0 ? (
               <LoadingSpinner message="Loading categories..." />
             ) : (
-              // DndContext wraps the whole sortable list and handle mouse, touch, and keyboard
+              // DndContext wraps the whole sortable list and handles mouse, touch, and keyboard
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -565,6 +572,7 @@ const ManageCategories = () => {
                   items={categories.map((cat) => cat.category_id)}
                   strategy={verticalListSortingStrategy}
                 >
+                  {/* Draggable category rows */}
                   <div className="mc-list">
                     {categories.map((category) => (
                       <SortableRow

@@ -50,6 +50,7 @@ import { ToastNotification } from "../../../components/managerInterface/universa
 import { useCloudinaryWidget } from "../../../hooks/useCloudinaryWidget";
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 import { useUnsavedChanges } from "../../../hooks/useUnsavedChanges";
+import { useToastMessage } from "../../../hooks/useToastMessage";
 import { sanitizeFolderName } from "../../../utils/folderNameFormatter";
 
 import "../../../styles/pages/managerInterface/Tokens.css";
@@ -57,16 +58,7 @@ import "../../../styles/pages/managerInterface/Components.css";
 import "../../../styles/pages/managerInterface/ManagerShared.css";
 import "../../../styles/pages/managerInterface/ManageInventory.css";
 
-interface Message {
-  text: string;
-  type: "success" | "error" | "warning";
-}
-
 type ViewMode = "edit" | "create-product" | "create-variant";
-
-// ============================================================================
-// MANAGE PRODUCTS COMPONENT
-// ============================================================================
 
 const ManageProducts = () => {
   const navigate = useNavigate();
@@ -113,7 +105,7 @@ const ManageProducts = () => {
 
   // UI state
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<Message | null>(null);
+  const { message, showMessage } = useToastMessage();
 
   // Refs & hooks
   const detailsColumnRef = useRef<HTMLDivElement>(null);
@@ -131,12 +123,14 @@ const ManageProducts = () => {
   // DATA LOADING
   // ============================================================================
 
+  // Load filter dropdown data once on mount
   useEffect(() => {
     loadCategories();
     loadProductTypes();
     loadLocations();
   }, []);
 
+  // Reload product list whenever any filter or sort param changes
   useEffect(() => {
     loadProducts(selectedCategory, selectedLocation);
   }, [
@@ -148,6 +142,7 @@ const ManageProducts = () => {
     sortBy,
   ]);
 
+  // Fetches all categories (including inactive) for the category filter dropdown
   const loadCategories = async () => {
     try {
       const data = await fetchCategories(true);
@@ -158,6 +153,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Fetches all product types for use in create/edit forms
   const loadProductTypes = async () => {
     try {
       const data = await fetchProductTypes();
@@ -168,6 +164,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Fetches all warehouse locations for the location filter dropdown
   const loadLocations = async () => {
     try {
       const data = await fetchWarehouseLocations();
@@ -178,6 +175,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Fetches the product list applying all active filters and sort params
   const loadProducts = async (
     categoryId: number | null,
     locationId: number | null,
@@ -201,11 +199,13 @@ const ManageProducts = () => {
     }
   };
 
+  // Fetches full variant details, its sibling variants, and product category assignments
   const loadVariantDetails = async (variantId: number) => {
     setLoading(true);
     try {
       const data = await fetchVariantDetails(variantId);
       setVariantDetails(data);
+      // Deep clone so unsaved change detection can diff against the original
       setOriginalVariantDetails(JSON.parse(JSON.stringify(data)));
 
       const variants = await fetchProductVariants(data.product_id);
@@ -222,6 +222,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Fetches the category assignments for a given product and updates state
   const loadProductCategories = async (productId: number) => {
     try {
       const data = await fetchProductCategories(productId);
@@ -236,11 +237,7 @@ const ManageProducts = () => {
   // UTILITY FUNCTIONS
   // ============================================================================
 
-  const showMessage = (text: string, type: "success" | "error" | "warning") => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage(null), 4000);
-  };
-
+  // Returns a list of field names that differ between the current and original variant details
   const getUpdatedFields = (
     current: VariantDetails,
     original: VariantDetails,
@@ -266,6 +263,7 @@ const ManageProducts = () => {
     return updated;
   };
 
+  // Returns the ID to highlight in the product list — create modes use special sentinel values
   const getActiveItemId = () => {
     if (viewMode === "create-product") return "create-new-product";
     if (viewMode === "create-variant" && parentVariantForNewVariant) {
@@ -274,6 +272,7 @@ const ManageProducts = () => {
     return selectedVariant?.variant_id;
   };
 
+  // Programmatically dispatches a submit event on the product form element
   const handleSubmitForm = () => {
     const form = document.querySelector(".product-form") as HTMLFormElement;
     if (form) {
@@ -283,6 +282,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Smooth-scrolls the details column into view on mobile after a short delay
   const scrollToDetails = () => {
     setTimeout(() => {
       if (window.innerWidth < 992 && detailsColumnRef.current) {
@@ -298,6 +298,7 @@ const ManageProducts = () => {
   // UNSAVED CHANGES DETECTION
   // ============================================================================
 
+  // Returns true if any edit-mode field or image differs from the saved original
   const hasUnsavedChanges = (): boolean => {
     if (viewMode === "create-product" || viewMode === "create-variant")
       return false;
@@ -322,6 +323,7 @@ const ManageProducts = () => {
     );
   };
 
+  // Runs the provided navigation function if there are no unsaved changes; otherwise prompts the user first
   const handleNavigationWithUnsavedCheck = (navigationFn: () => void) => {
     const hasChanges =
       viewMode === "create-product" || viewMode === "create-variant"
@@ -335,6 +337,7 @@ const ManageProducts = () => {
   // EVENT HANDLERS — NAVIGATION
   // ============================================================================
 
+  // Selects a product from the list and loads its full details into the right column
   const handleVariantSelect = (variant: ProductVariantForManagement) => {
     handleNavigationWithUnsavedCheck(() => {
       setViewMode("edit");
@@ -345,6 +348,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Switches to a different variant of the same product without leaving edit mode
   const handleVariantSwitch = (newVariantId: number) => {
     handleNavigationWithUnsavedCheck(() => {
       const newVariant = products.find((p) => p.variant_id === newVariantId);
@@ -355,6 +359,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Updates the category filter and clears the current selection
   const handleCategoryChange = (categoryId: number | null) => {
     handleNavigationWithUnsavedCheck(() => {
       setSelectedCategory(categoryId);
@@ -366,6 +371,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Updates the warehouse location filter and clears the current selection
   const handleLocationChange = (locationId: number | null) => {
     handleNavigationWithUnsavedCheck(() => {
       setSelectedLocation(locationId);
@@ -377,6 +383,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Switches to create-product mode and clears the current selection
   const handleNewProduct = () => {
     handleNavigationWithUnsavedCheck(() => {
       setViewMode("create-product");
@@ -389,6 +396,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Switches to create-variant mode using the currently selected variant as the parent
   const handleNewVariant = () => {
     handleNavigationWithUnsavedCheck(() => {
       if (selectedVariant) {
@@ -400,6 +408,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Resets all filter and sort params to their default (null) values
   const handleClearFilters = () => {
     setProductStatus(null);
     setStockStatus(null);
@@ -412,6 +421,7 @@ const ManageProducts = () => {
   // EVENT HANDLERS — CREATE & CANCEL
   // ============================================================================
 
+  // If the create form has unsaved changes, prompts before discarding; otherwise cancels immediately
   const handleCancelCreate = () => {
     if (isCreateFormDirty) {
       cancelCreateConfirmation.showConfirmation({
@@ -432,6 +442,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Cancels create mode — returns to the parent variant's edit view if cancelling variant creation
   const executeCancelCreate = () => {
     if (viewMode === "create-variant" && parentVariantForNewVariant) {
       setViewMode("edit");
@@ -447,6 +458,7 @@ const ManageProducts = () => {
     setIsCreateFormDirty(false);
   };
 
+  // Opens the create product confirmation modal before submitting the form
   const handleRequestCreateProduct = () => {
     createConfirmation.showConfirmation({
       title: "Confirm Create Product",
@@ -458,12 +470,14 @@ const ManageProducts = () => {
     });
   };
 
+  // Triggers the product form submit by calling the global handler registered by the form component
   const confirmCreateProduct = async () => {
     if ((window as any).__executeProductFormSubmit) {
       (window as any).__executeProductFormSubmit();
     }
   };
 
+  // Calls the API to create the product, then switches to edit mode on the new variant
   const handleCreateProduct = async (productData: any) => {
     setLoading(true);
     try {
@@ -488,6 +502,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Opens the create variant confirmation modal before submitting the form
   const handleRequestCreateVariant = () => {
     createConfirmation.showConfirmation({
       title: "Confirm Create Variant",
@@ -499,12 +514,14 @@ const ManageProducts = () => {
     });
   };
 
+  // Triggers the variant form submit by calling the global handler registered by the form component
   const confirmCreateVariant = async () => {
     if ((window as any).__executeVariantFormSubmit) {
       (window as any).__executeVariantFormSubmit();
     }
   };
 
+  // Calls the API to create the variant, then switches to edit mode on the new variant
   const handleCreateVariant = async (variantData: any) => {
     setLoading(true);
     try {
@@ -534,6 +551,7 @@ const ManageProducts = () => {
   // EVENT HANDLERS — CATEGORY ASSIGNMENTS
   // ============================================================================
 
+  // Sets the given category as the primary category for the current product, then reloads details
   const handleSetPrimaryCategory = async (categoryId: number) => {
     if (!variantDetails) return;
 
@@ -544,8 +562,7 @@ const ManageProducts = () => {
       });
       showMessage("Primary category updated successfully!", "success");
       await loadProductCategories(variantDetails.product_id);
-
-      // Reload variant details to update the display
+      // Reload variant details to update the displayed primary category
       await loadVariantDetails(variantDetails.variant_id);
     } catch (error: any) {
       console.error("Error setting primary category:", error);
@@ -555,6 +572,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Adds a secondary category assignment to the current product
   const handleAddCategory = async (categoryId: number) => {
     if (!variantDetails) return;
 
@@ -574,6 +592,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Removes a category assignment from the current product and reloads details to reflect any primary change
   const handleRemoveCategory = async (categoryId: number) => {
     if (!variantDetails) return;
 
@@ -582,8 +601,7 @@ const ManageProducts = () => {
       await removeProductCategory(variantDetails.product_id, categoryId);
       showMessage("Category removed successfully!", "success");
       await loadProductCategories(variantDetails.product_id);
-
-      // Reload variant details to update the primary category if it changed
+      // Reload variant details in case the removed category was the primary
       await loadVariantDetails(variantDetails.variant_id);
     } catch (error: any) {
       console.error("Error removing category:", error);
@@ -597,6 +615,7 @@ const ManageProducts = () => {
   // EVENT HANDLERS — EDIT, SAVE & DELETE
   // ============================================================================
 
+  // Opens the activate/deactivate confirmation modal with context-aware messaging
   const handleToggleStatus = () => {
     if (!variantDetails) return;
 
@@ -612,6 +631,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Toggles the variant's active state and syncs both detail snapshots to avoid false unsaved-change detection
   const confirmToggleStatus = async () => {
     if (!variantDetails) return;
 
@@ -625,6 +645,7 @@ const ManageProducts = () => {
         "success",
       );
 
+      // Update both current and original so the change doesn't trigger unsaved-changes detection
       setVariantDetails((prev) =>
         prev ? { ...prev, is_active: newStatus } : null,
       );
@@ -643,6 +664,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Runs client-side validation before opening the save confirmation modal
   const handleSaveVariant = () => {
     if ((window as any).__validateProductForm) {
       const isValid = (window as any).__validateProductForm();
@@ -664,10 +686,10 @@ const ManageProducts = () => {
     });
   };
 
+  // Saves all changed variant fields, image order, primary image, and deleted images in sequence
   const confirmSaveVariant = async () => {
     if (!variantDetails || !originalVariantDetails) return;
 
-    // Get list of updated fields
     const updatedFields = getUpdatedFields(
       variantDetails,
       originalVariantDetails,
@@ -691,7 +713,7 @@ const ManageProducts = () => {
         height_in: variantDetails.height_in ?? null,
       });
 
-      // Handle image order changes
+      // Persist image order if it changed
       const imageOrderChanged =
         JSON.stringify(
           variantDetails.images.map((img) => ({
@@ -715,7 +737,7 @@ const ManageProducts = () => {
         updatedFields.push("image order");
       }
 
-      // Handle primary image changes
+      // Persist primary image change if it changed
       const currentPrimary = variantDetails.images.find(
         (img) => img.is_primary,
       );
@@ -732,7 +754,7 @@ const ManageProducts = () => {
         updatedFields.push("primary image");
       }
 
-      // Handle deleted images
+      // Delete any images that were removed locally
       const deletedImages = originalVariantDetails.images.filter(
         (origImg) =>
           !variantDetails.images.some(
@@ -747,7 +769,7 @@ const ManageProducts = () => {
         updatedFields.push(`${deletedImages.length} image(s) removed`);
       }
 
-      // Create success message with updated fields
+      // Build success message listing all changed fields
       let successMessage = "Product updated successfully!";
       if (updatedFields.length > 0) {
         successMessage += "\nUpdated fields:\n• " + updatedFields.join("\n• ");
@@ -767,6 +789,7 @@ const ManageProducts = () => {
     }
   };
 
+  // Opens the delete confirmation modal for the currently selected variant
   const handleDeleteVariant = () => {
     deleteConfirmation.showConfirmation({
       title: "Confirm Deletion",
@@ -775,6 +798,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Deletes the variant; if it was the last variant, treats the deletion as a full product deletion
   const confirmDeleteVariant = async () => {
     if (!variantDetails) return;
 
@@ -782,12 +806,10 @@ const ManageProducts = () => {
     try {
       await deleteVariant(variantDetails.variant_id);
 
-      // Check if this was the last variant (product completely deleted)
-      // by seeing if there are still other variants for this product
+      // Determine whether the whole product was deleted by checking remaining variants
       const remainingVariants = availableVariants.filter(
         (v) => v.variant_id !== variantDetails.variant_id,
       );
-
       const wasLastVariant = remainingVariants.length === 0;
 
       if (wasLastVariant) {
@@ -796,13 +818,12 @@ const ManageProducts = () => {
         showMessage("Variant deleted successfully!", "success");
       }
 
-      // Clear current selection
+      // Clear current selection and return to idle edit view
       setVariantDetails(null);
       setOriginalVariantDetails(null);
       setSelectedVariant(null);
       setViewMode("edit");
 
-      // Reload product list
       if (selectedCategory) {
         loadProducts(selectedCategory, selectedLocation);
       }
@@ -820,6 +841,7 @@ const ManageProducts = () => {
   // EVENT HANDLERS — IMAGES
   // ============================================================================
 
+  // Updates a single field in the variant details form state
   const handleInputChange = (
     field: keyof VariantDetails,
     value: string | number | null,
@@ -830,6 +852,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Replaces the image array with the newly reordered version
   const handleImageReorder = (newOrder: VariantImage[]) => {
     setVariantDetails((prev) => {
       if (!prev) return prev;
@@ -837,6 +860,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Sets the given image as primary and clears the flag on all other images
   const handleSetPrimaryImage = (imageId: number) => {
     setVariantDetails((prev) => {
       if (!prev) return prev;
@@ -850,6 +874,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Removes the given image from local state; the actual API delete happens on save
   const handleDeleteImageLocal = (imageId: number) => {
     setVariantDetails((prev) => {
       if (!prev) return prev;
@@ -860,6 +885,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Opens the Cloudinary upload widget scoped to the variant's category/SKU folder
   const openCloudinaryWidget = () => {
     if (!variantDetails) return;
 
@@ -881,6 +907,7 @@ const ManageProducts = () => {
     });
   };
 
+  // Uploads the image URL to the API, then appends the returned image object to both detail snapshots
   const handleAddImage = async (imgUrl: string) => {
     if (!variantDetails) return;
 
@@ -890,6 +917,7 @@ const ManageProducts = () => {
         imgUrl,
       );
 
+      // Add to current details
       setVariantDetails((prev) => {
         if (!prev) return prev;
         return {
@@ -898,6 +926,7 @@ const ManageProducts = () => {
         };
       });
 
+      // Add to original snapshot so the new image isn't flagged as an unsaved change
       setOriginalVariantDetails((prev) => {
         if (!prev) return prev;
         return {
@@ -992,16 +1021,16 @@ const ManageProducts = () => {
           onClearFilters={handleClearFilters}
         />
 
-        {/* Main Content */}
+        {/* Main Content — loading spinner shown while initial product list loads */}
         {loading && !variantDetails && viewMode === "edit" ? (
           <LoadingSpinner message="Loading products..." />
         ) : (
           <div className="mi-dashboard-content">
-            {/* Left Column - Product List */}
+            {/* Left Column — Product List */}
             <div className="mi-products-column">
               <h2>Products</h2>
               <div className="mi-products-list">
-                {/* Create New Product Card */}
+                {/* Create New Product Card — highlighted when create-product mode is active */}
                 <div
                   className={`mi-add-new-card ${
                     viewMode === "create-product" ? "active" : ""
@@ -1012,7 +1041,7 @@ const ManageProducts = () => {
                   <p className="mi-add-new-text">Create New Product</p>
                 </div>
 
-                {/* Existing Product List */}
+                {/* Existing product cards */}
                 {products.map((product) => (
                   <ItemListings
                     key={product.variant_id}
@@ -1024,7 +1053,7 @@ const ManageProducts = () => {
               </div>
             </div>
 
-            {/* Right Column - Forms */}
+            {/* Right Column — Forms */}
             <div className="mi-details-column" ref={detailsColumnRef}>
               {/* Create Product View */}
               {viewMode === "create-product" && (
@@ -1050,7 +1079,7 @@ const ManageProducts = () => {
                 </>
               )}
 
-              {/* Create Variant View */}
+              {/* Create Variant View — requires a parent variant and its full details to pre-populate fields */}
               {viewMode === "create-variant" &&
                 parentVariantForNewVariant &&
                 variantDetails && (
@@ -1084,6 +1113,7 @@ const ManageProducts = () => {
               {/* Edit View */}
               {viewMode === "edit" && variantDetails && (
                 <>
+                  {/* Action bar — save, delete, toggle status, new variant */}
                   <HeaderFormatter
                     viewMode={viewMode}
                     loading={loading}
@@ -1096,6 +1126,7 @@ const ManageProducts = () => {
                     onDelete={handleDeleteVariant}
                   />
 
+                  {/* Variant switcher — only shown when the product has more than one variant */}
                   {availableVariants.length > 1 && (
                     <VariantSelector
                       variants={availableVariants}
@@ -1105,6 +1136,7 @@ const ManageProducts = () => {
                     />
                   )}
 
+                  {/* Image manager — reorder, set primary, delete, upload */}
                   <ImageManager
                     images={variantDetails.images}
                     onReorder={handleImageReorder}
@@ -1113,6 +1145,7 @@ const ManageProducts = () => {
                     onUpload={openCloudinaryWidget}
                   />
 
+                  {/* Product details form */}
                   <ProductOverlayForm
                     variant={variantDetails}
                     categories={categories}
@@ -1126,7 +1159,7 @@ const ManageProducts = () => {
                 </>
               )}
 
-              {/* Empty State */}
+              {/* Empty State — shown when no variant is selected in edit mode */}
               {viewMode === "edit" && !variantDetails && (
                 <div className="mi-empty-state">
                   <Package className="mi-empty-state-icon" size={80} />
@@ -1145,7 +1178,7 @@ const ManageProducts = () => {
         <ToastNotification message={message.text} type={message.type} />
       )}
 
-      {/* Unsaved Changes Modal */}
+      {/* Unsaved Changes Modal — title and message vary by current view mode */}
       {unsavedChanges.showModal && (
         <ConfirmationModal
           title={

@@ -8,6 +8,7 @@ interface ShipByDateProps {
   className?: string;
 }
 
+// Maps shipping service keys to their maximum processing day count
 const PROCESSING_CAP: Record<string, number> = {
   usps_priority_express: 1,
   usps_priority: 2,
@@ -16,6 +17,20 @@ const PROCESSING_CAP: Record<string, number> = {
 
 const DEFAULT_PROCESSING_MAX = 2;
 
+type UrgencyState = "on-time" | "due-today" | "overdue" | "shipped";
+
+const CLOSED_STATUSES = new Set([
+  "shipped",
+  "delivered",
+  "cancelled",
+  "refunded",
+]);
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+// Returns the processing day cap for the given shipping service
 const resolveProcessingMax = (shippingService?: string | null): number => {
   if (!shippingService) return DEFAULT_PROCESSING_MAX;
   return (
@@ -23,12 +38,13 @@ const resolveProcessingMax = (shippingService?: string | null): number => {
   );
 };
 
+// Determines if a given date falls on a weekend
 const isWeekend = (date: Date): boolean => {
   const day = date.getDay();
   return day === 0 || day === 6;
 };
 
-/** Adds n business days (Mon–Fri) to a starting date — weekends are skipped */
+// Advances a date by n business days (Mon–Fri), skipping Saturdays and Sundays
 const addBusinessDays = (startDate: Date, n: number): Date => {
   const result = new Date(startDate);
   let added = 0;
@@ -39,6 +55,7 @@ const addBusinessDays = (startDate: Date, n: number): Date => {
   return result;
 };
 
+// Strips the time component so date comparisons are day-accurate
 const toDateOnly = (date: Date): Date =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
@@ -51,23 +68,7 @@ const FORMAT_OPTS: Intl.DateTimeFormatOptions = {
 const formatDate = (date: Date): string =>
   date.toLocaleDateString("en-US", FORMAT_OPTS);
 
-// ============================================================================
-// URGENCY LOGIC
-//   "on-time"   — ship-by date is still in the future
-//   "due-today" — ship-by date is today
-//   "overdue"   — ship-by date has passed, order hasn't shipped
-//   "shipped"   — order is already shipped/delivered/closed; badge hidden
-// ============================================================================
-
-type UrgencyState = "on-time" | "due-today" | "overdue" | "shipped";
-
-const CLOSED_STATUSES = new Set([
-  "shipped",
-  "delivered",
-  "cancelled",
-  "refunded",
-]);
-
+// Derives urgency based on where the ship-by date falls relative to today
 const getUrgency = (shipByDate: Date, orderStatus: string): UrgencyState => {
   if (CLOSED_STATUSES.has(orderStatus)) return "shipped";
 
@@ -79,7 +80,7 @@ const getUrgency = (shipByDate: Date, orderStatus: string): UrgencyState => {
   return "on-time";
 };
 
-/** Counts business days remaining from today up to (but not including) shipByDate */
+// Counts business days remaining from today up to (but not including) shipByDate
 const businessDaysUntil = (shipByDate: Date): number => {
   const today = toDateOnly(new Date());
   const target = toDateOnly(shipByDate);
@@ -104,10 +105,12 @@ const ShipByDate = ({
   const shipByDate = addBusinessDays(createdAt, processingMax);
   const urgency = getUrgency(shipByDate, orderStatus);
 
+  // Suppress badge entirely for closed orders
   if (urgency === "shipped") return null;
 
   const daysLeft = businessDaysUntil(shipByDate);
 
+  // Maps each urgency state to its icon, CSS modifier, and subtext copy
   const urgencyConfig: Record<
     Exclude<UrgencyState, "shipped">,
     { icon: React.ReactNode; modifier: string; subtext: string }

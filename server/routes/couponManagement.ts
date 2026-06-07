@@ -19,67 +19,62 @@ import {
 
 export const couponManagementRouter = express.Router();
 
-// Protect all coupon routes - only managers and admins
+// ============================================================================
+// MIDDLEWARE — Manager/admin only for all coupon management routes
+// ============================================================================
+
 couponManagementRouter.use(requireManagerOrAdmin);
 
 // ============================================================================
-// COUPON MANAGEMENT
+// COLLECTION ROUTES
 // ============================================================================
 
-// GET /api/coupons - Get all coupons with filters
+// GET all coupons with optional filters
 couponManagementRouter.get("/", getAllCoupons);
 
+// POST create new coupon
+couponManagementRouter.post("/", createCoupon);
+
 // ============================================================================
-// DROPDOWN DATA (MUST BE BEFORE /:couponId)
+// STATIC ROUTES — MUST BE BEFORE /:couponId
 // ============================================================================
 
-// GET /api/coupons/codes - Get all coupon codes (for validation)
+// GET all coupon codes (for duplicate validation)
 couponManagementRouter.get("/codes", getAllCouponCodes);
 
-// GET /api/coupons/categories - Get categories for coupon creation
+// GET categories list for coupon creation form
 couponManagementRouter.get("/categories", getCategoriesForCoupons);
 
-// GET /api/coupons/product-types - Get product types for coupon creation
+// GET product types list for coupon creation form
 couponManagementRouter.get("/product-types", getProductTypesForCoupons);
 
-// GET /api/coupons/products - Get products for coupon creation
+// GET products list for coupon creation form
 couponManagementRouter.get("/products", getProductsForCoupons);
 
-// GET /api/coupons/locations - Get locations for coupon creation
+// GET locations list for coupon creation form
 couponManagementRouter.get("/locations", getLocationsForCoupons);
 
-// ============================================================================
-// PREVIEW & UTILITY (MUST BE BEFORE /:couponId)
-// ============================================================================
-
-// GET /api/coupons/preview-draft - Get preview of draft coupon (before creation)
+// GET preview of draft coupon before creation
 couponManagementRouter.get("/preview-draft", previewDraftCoupon);
 
-// GET /api/coupons/variant/:variantId - Get variant by ID (for editing)
+// GET variant by ID for coupon editing
 couponManagementRouter.get("/variant/:variantId", getVariantForCoupon);
 
 // ============================================================================
-// DYNAMIC ROUTES (MUST BE LAST)
+// DYNAMIC ROUTES — MUST BE AFTER STATIC ROUTES
 // ============================================================================
 
-// GET /api/coupons/:couponId - Get single coupon by ID
+// GET single coupon by ID
 couponManagementRouter.get("/:couponId", getCouponById);
 
-// PUT /api/coupons/:couponId - Update coupon
+// PUT update coupon
 couponManagementRouter.put("/:couponId", updateCoupon);
 
-// DELETE /api/coupons/:couponId - Delete coupon
-couponManagementRouter.delete("/:couponId", deleteCoupon);
-
-// PUT /api/coupons/:couponId/status - Toggle coupon status
+// PUT toggle coupon active status
 couponManagementRouter.put("/:couponId/status", toggleCouponStatus);
 
-// GET /api/coupons/:couponId/preview - Get preview of products affected by coupon
+// GET preview of products affected by coupon
 couponManagementRouter.get("/:couponId/preview", previewCouponProducts);
 
-// ============================================================================
-// CREATE (POST can be anywhere since it's a different HTTP method)
-// ============================================================================
-
-// POST /api/coupons - Create new coupon
-couponManagementRouter.post("/", createCoupon);
+// DELETE coupon
+couponManagementRouter.delete("/:couponId", deleteCoupon);

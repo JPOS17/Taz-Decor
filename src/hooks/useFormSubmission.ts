@@ -7,6 +7,7 @@ interface UseFormSubmissionProps<T> {
   functionName: string;
 }
 
+// Custom hook to expose a form submission function globally for external triggers
 export function useFormSubmission<T>({
   formData,
   additionalDeps,
