@@ -182,8 +182,24 @@ export const getCart = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Pre-fetch per-user coupon usage counts for all coupons referenced in this
+    // user's cart in a single query, then join inline — avoids a correlated
+    // subquery that executes once per cart row
     const result = await pool.query(
-      `SELECT 
+      `WITH cart_coupon_ids AS (
+         SELECT DISTINCT selected_coupon_id
+         FROM shopping_cart_items
+         WHERE user_id = $1 AND selected_coupon_id IS NOT NULL
+       ),
+       user_usage AS (
+         SELECT oc.coupon_id, COUNT(DISTINCT oc.order_id) AS usage_count
+         FROM order_coupons oc
+         JOIN orders o ON o.order_id = oc.order_id
+         WHERE o.user_id = $1
+           AND oc.coupon_id IN (SELECT selected_coupon_id FROM cart_coupon_ids)
+         GROUP BY oc.coupon_id
+       )
+      SELECT 
         sci.variant_id,
         sci.quantity,
         CASE 
@@ -211,13 +227,8 @@ export const getCart = async (req: Request, res: Response): Promise<void> => {
         AND (c_val.valid_until IS NULL OR c_val.valid_until > NOW())
         AND (c_val.usage_limit_total IS NULL OR c_val.usage_count_total < c_val.usage_limit_total)
         AND (
-          c_val.usage_limit_per_user IS NULL OR (
-            SELECT COUNT(*)
-            FROM order_coupons oc
-            JOIN orders o ON o.order_id = oc.order_id
-            WHERE oc.coupon_id = sci.selected_coupon_id
-              AND o.user_id = sci.user_id
-          ) < c_val.usage_limit_per_user
+          c_val.usage_limit_per_user IS NULL OR
+          COALESCE((SELECT usage_count FROM user_usage WHERE coupon_id = c_val.coupon_id), 0) < c_val.usage_limit_per_user
         )
       WHERE sci.user_id = $1
       ORDER BY sci.added_at DESC`,
@@ -271,7 +282,7 @@ export const syncCart = async (req: Request, res: Response): Promise<void> => {
           if (existing) {
             const newQty = Math.max(existing.quantity, item.quantity);
             const newCoupon = item.selected_coupon_id !== undefined ? item.selected_coupon_id : existing.coupon;
-            
+
             await client.query(
               `UPDATE shopping_cart_items 
                SET quantity = $1, selected_coupon_id = $2, updated_at = NOW() 

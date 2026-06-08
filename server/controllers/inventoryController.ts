@@ -396,9 +396,9 @@ export const createVariant = async (req: Request, res: Response): Promise<void> 
 export const getVariantForEdit = async (req: Request, res: Response): Promise<void> => {
   try {
     const { variantId } = req.params;
-    
-    const variantResult = await pool.query(`
-      SELECT 
+
+    const result = await pool.query(`
+      SELECT
         pv.variant_id,
         pv.product_id,
         p.name,
@@ -419,34 +419,38 @@ export const getVariantForEdit = async (req: Request, res: Response): Promise<vo
         pt.type_name AS product_type,
         pt.sku_prefix,
         pv.location_id,
-        sl.location_name
+        sl.location_name,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'image_id', pi.image_id,
+              'img_url', pi.img_url,
+              'is_primary', pi.is_primary,
+              'display_order', pi.display_order
+            ) ORDER BY pi.display_order ASC, pi.image_id ASC
+          ) FILTER (WHERE pi.image_id IS NOT NULL),
+          '[]'
+        ) AS images
       FROM product_variants pv
       JOIN products p ON p.product_id = pv.product_id
       JOIN product_categories pc ON pc.product_id = p.product_id AND pc.is_primary = TRUE
       JOIN categories c ON c.category_id = pc.category_id
       LEFT JOIN product_types pt ON pt.product_type_id = p.product_type_id
       LEFT JOIN seller_locations sl ON sl.location_id = pv.location_id
+      LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id
       WHERE pv.variant_id = $1
+      GROUP BY
+        pv.variant_id, p.product_id, pc.category_id, c.category_name,
+        pt.product_type_id, pt.type_name, pt.sku_prefix,
+        sl.location_id, sl.location_name
     `, [variantId]);
 
-    if (variantResult.rows.length === 0) {
+    if (result.rows.length === 0) {
       res.status(404).json({ message: "Variant not found" });
       return;
     }
 
-    const variant = variantResult.rows[0];
-
-    // Get images for this variant
-    const imagesResult = await pool.query(`
-      SELECT 
-        image_id,
-        img_url,
-        is_primary,
-        display_order
-      FROM product_images
-      WHERE variant_id = $1
-      ORDER BY display_order ASC, image_id ASC
-    `, [variantId]);
+    const variant = result.rows[0];
 
     res.json({
       ...variant,
@@ -455,7 +459,7 @@ export const getVariantForEdit = async (req: Request, res: Response): Promise<vo
       length_in: variant.length_in ? parseFloat(variant.length_in) : null,
       width_in: variant.width_in ? parseFloat(variant.width_in) : null,
       height_in: variant.height_in ? parseFloat(variant.height_in) : null,
-      images: imagesResult.rows
+      images: variant.images
     });
   } catch (error) {
     console.error("Error fetching variant for edit:", error);

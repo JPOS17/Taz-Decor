@@ -97,10 +97,14 @@ const Cart = () => {
         setCoupons(couponsData);
         setUserCouponUsage(usageData);
 
+        // Fire the custom group mapping fetch concurrently
         if (couponsData.custom_group.length > 0) {
           const variantIds = cartItems.map((item) => item.variant_id);
-          const mapping = await checkCustomGroupCoupons(variantIds);
-          setCustomGroupMap(mapping);
+          checkCustomGroupCoupons(variantIds)
+            .then((mapping) => setCustomGroupMap(mapping))
+            .catch((err) =>
+              console.error("Error loading custom group coupons:", err),
+            );
         }
       } catch (error) {
         console.error("Error loading coupons:", error);

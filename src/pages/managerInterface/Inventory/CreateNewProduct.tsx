@@ -39,8 +39,8 @@ const CreateProduct = () => {
 
   // On component mount, load categories and product types
   useEffect(() => {
-    loadCategories();
-    loadProductTypes();
+    // Both are independent reference data fetches — run concurrently
+    Promise.all([loadCategories(), loadProductTypes()]);
   }, []);
 
   // Fetches all categories (including inactive) for the product form dropdown

@@ -107,10 +107,17 @@ const CouponsPage = () => {
   // DATA LOADING
   // ============================================================================
 
-  // Reload coupons and dropdown data whenever any filter changes
+  // Dropdown data is static reference so it only needs to be fetched once on mount
   useEffect(() => {
-    loadCoupons();
     loadDropdownData();
+  }, []);
+
+  // Debounced 400ms so typing in the search box doesn't fire a request on every keystroke
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadCoupons();
+    }, 400);
+    return () => clearTimeout(timer);
   }, [statusFilter, appliesToFilter, searchQuery, locationFilter]);
 
   // Fetches the filtered coupon list from the API

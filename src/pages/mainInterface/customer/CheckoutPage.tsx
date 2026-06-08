@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   saveSession,
@@ -270,11 +270,13 @@ const CheckoutPage = () => {
     if (cartItems.length > 0) loadCoupons();
   }, [user]);
 
-  // Re-validates coupon rules whenever the cart or selected coupons change (auth users only)
+  // Re-validates coupon rules whenever the cart or selected coupons change (auth users only).
   useEffect(() => {
-    if (user && cartItems.length > 0 && coupons) {
+    if (!user || cartItems.length === 0 || !coupons) return;
+    const timer = setTimeout(() => {
       validateCouponRules();
-    }
+    }, 400);
+    return () => clearTimeout(timer);
   }, [cartItems, user, coupons, selectedCartLevelCoupon]);
 
   // Recalculates shipping options for auth users when address, step, or coupon state changes

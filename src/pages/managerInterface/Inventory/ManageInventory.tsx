@@ -125,9 +125,8 @@ const ManageProducts = () => {
 
   // Load filter dropdown data once on mount
   useEffect(() => {
-    loadCategories();
-    loadProductTypes();
-    loadLocations();
+    // All three are independent reference data fetches — run concurrently
+    Promise.all([loadCategories(), loadProductTypes(), loadLocations()]);
   }, []);
 
   // Reload product list whenever any filter or sort param changes
@@ -208,10 +207,14 @@ const ManageProducts = () => {
       // Deep clone so unsaved change detection can diff against the original
       setOriginalVariantDetails(JSON.parse(JSON.stringify(data)));
 
-      const variants = await fetchProductVariants(data.product_id);
-      setAvailableVariants(variants);
+      // both only need product_id and are independent of each other
+      const [variants, categoriesData] = await Promise.all([
+        fetchProductVariants(data.product_id),
+        fetchProductCategories(data.product_id),
+      ]);
 
-      await loadProductCategories(data.product_id);
+      setAvailableVariants(variants);
+      setProductCategories(categoriesData);
 
       setIsFormValid(true);
     } catch (error) {

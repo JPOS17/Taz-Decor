@@ -17,9 +17,14 @@ export const getProductStats = async (req: Request, res: Response): Promise<void
         (SELECT COUNT(*) FROM wishlist_items WHERE variant_id = $1) AS wishlist_count,
         (SELECT COUNT(*) FROM shopping_cart_items WHERE variant_id = $1) AS cart_count,
         pv.product_id,
-        (SELECT COUNT(*) FROM reviews WHERE product_id = pv.product_id) AS review_count,
-        (SELECT AVG(rating) FROM reviews WHERE product_id = pv.product_id) AS average_rating
+        review_stats.review_count,
+        review_stats.average_rating
        FROM product_variants pv
+       LEFT JOIN LATERAL (
+         SELECT COUNT(*) AS review_count, AVG(rating) AS average_rating
+         FROM reviews
+         WHERE product_id = pv.product_id
+       ) review_stats ON true
        WHERE pv.variant_id = $1`,
       [variantId]
     );

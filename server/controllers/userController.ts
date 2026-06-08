@@ -18,49 +18,67 @@ export const getUserProfile = async (req: Request, res: Response) => {
       return;
     }
 
-    // Get user details
-    const userResult = await pool.query(
-      `SELECT 
-        user_id,
-        first_name,
-        last_name,
-        email,
-        phone,
-        role,
-        is_active,
-        is_email_verified,
-        created_at
-      FROM users
-      WHERE user_id = $1`,
-      [user.userId]
-    );
-
-    if (userResult.rows.length === 0) {
-      res.status(404).json({ message: "User not found" });
-      return;
-    }
-
-    const userData = userResult.rows[0];
-
-    // Get default address
-    const addressResult = await pool.query(
-      `SELECT 
-        address_id,
-        address_name,
-        address_line1,
-        address_line2,
-        city,
-        state,
-        zip,
-        country,
-        is_default
-      FROM user_addresses
-      WHERE user_id = $1 AND is_default = true
+    // fetch user profile and default address together 
+    const result = await pool.query(
+      `SELECT
+        u.user_id,
+        u.first_name,
+        u.last_name,
+        u.email,
+        u.phone,
+        u.role,
+        u.is_active,
+        u.is_email_verified,
+        u.created_at,
+        a.address_id,
+        a.address_name,
+        a.address_line1,
+        a.address_line2,
+        a.city,
+        a.state,
+        a.zip,
+        a.country,
+        a.is_default
+      FROM users u
+      LEFT JOIN user_addresses a
+        ON a.user_id = u.user_id AND a.is_default = true
+      WHERE u.user_id = $1
       LIMIT 1`,
       [user.userId]
     );
 
-    const defaultAddress = addressResult.rows.length > 0 ? addressResult.rows[0] : null;
+    if (result.rows.length === 0) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const row = result.rows[0];
+
+    const userData = {
+      user_id: row.user_id,
+      first_name: row.first_name,
+      last_name: row.last_name,
+      email: row.email,
+      phone: row.phone,
+      role: row.role,
+      is_active: row.is_active,
+      is_email_verified: row.is_email_verified,
+      created_at: row.created_at,
+    };
+
+    const defaultAddress = row.address_id
+      ? {
+        address_id: row.address_id,
+        address_name: row.address_name,
+        address_line1: row.address_line1,
+        address_line2: row.address_line2,
+        city: row.city,
+        state: row.state,
+        zip: row.zip,
+        country: row.country,
+        is_default: row.is_default,
+      }
+      : null;
 
     res.json({
       user: userData,

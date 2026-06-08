@@ -69,8 +69,8 @@ export const validateAddressEndpoint = async (req: Request, res: Response): Prom
 
     // Only validate U.S. addresses 
     if (country && country !== "US" && country !== "USA") {
-       res.status(400).json({ 
-        message: "Address validation is only available for U.S. addresses" 
+      res.status(400).json({
+        message: "Address validation is only available for U.S. addresses"
       });
       return
     }
@@ -90,8 +90,8 @@ export const validateAddressEndpoint = async (req: Request, res: Response): Prom
 
   } catch (error: any) {
     console.error("Error validating address:", error);
-    res.status(500).json({ 
-      message: error.message || "Failed to validate address" 
+    res.status(500).json({
+      message: error.message || "Failed to validate address"
     });
   }
 };
@@ -151,7 +151,7 @@ export const validateCart = async (req: Request, res: Response): Promise<void> =
 
     const validationResults: ValidationResult[] = cartItems.map((cartItem: any) => {
       const dbItem = result.rows.find(row => row.variant_id === cartItem.variant_id);
-      
+
       if (!dbItem) {
         return {
           variant_id: cartItem.variant_id,
@@ -304,11 +304,11 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
         res.status(400).json({
           message: `Variant ${cartItem.variant_id} not found`,
         });
-        return 
+        return
       }
 
       // If weight is missing, use a default 
-      const weightOz = variant.weight_oz || 8; 
+      const weightOz = variant.weight_oz || 8;
 
       // Add item for each quantity 
       for (let i = 0; i < cartItem.quantity; i++) {
@@ -346,7 +346,7 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
     // Run box packing algorithm to select optimal box
     let selectedBox: BoxDimensions | undefined;
     let selectedBoxId: number | undefined;
-    
+
     try {
       const box = await selectShippingBox(packingItems, locationId);
       if (box) {
@@ -374,7 +374,7 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
         zip: address.zip,
         country: address.country === "USA" ? "US" : (address.country || "US"),
       },
-      selectedBox 
+      selectedBox
     );
 
     // Calculate total weight for informational purposes
@@ -395,9 +395,9 @@ export const calculateShipping = async (req: Request, res: Response): Promise<vo
 
   } catch (error: any) {
     console.error("Error calculating shipping:", error);
-    res.status(500).json({ 
-      message: "Failed to calculate shipping", 
-      error: error.message 
+    res.status(500).json({
+      message: "Failed to calculate shipping",
+      error: error.message
     });
   }
 };
@@ -478,7 +478,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       }
 
       const { email: userEmail, first_name, last_name } = userResult.rows[0];
-      
+
       // Helper query to validate a single coupon and return its per-user usage count
       const validateCoupon = async (couponId: number): Promise<{
         valid: boolean;
@@ -674,23 +674,30 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         'Order placed by customer'
       );
 
+      // Batch-fetch product name/color/size for all cart items in one query
+      const orderItemVariantIds = cart_items.map((item: any) => item.variant_id);
+      const productInfoResult = await client.query(
+        `SELECT pv.variant_id, p.name, pv.color, pv.size, pv.price
+         FROM product_variants pv
+         JOIN products p ON p.product_id = pv.product_id
+         WHERE pv.variant_id = ANY($1)`,
+        [orderItemVariantIds]
+      );
+
+      const productInfoMap = new Map<number, any>(
+        productInfoResult.rows.map((row: any) => [row.variant_id, row])
+      );
+
       // Insert order items
       for (const item of cart_items) {
-        const productResult = await client.query(
-          `SELECT p.name, pv.color, pv.size, pv.price
-           FROM product_variants pv
-           JOIN products p ON p.product_id = pv.product_id
-           WHERE pv.variant_id = $1`,
-          [item.variant_id]
-        );
+        const product = productInfoMap.get(item.variant_id);
 
-        if (productResult.rows.length === 0) {
+        if (!product) {
           await client.query('ROLLBACK');
           res.status(400).json({ message: `Invalid product variant: ${item.variant_id}` });
           return;
         }
 
-        const product = productResult.rows[0];
         const variantDetails = [product.color, product.size].filter(Boolean).join(', ');
 
         await client.query(
@@ -1217,23 +1224,30 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
       // Log initial status
       await logOrderStatus(client, order.order_id, 'pending', 'Guest order placed');
 
-      // Insert order items + decrement stock 
-      for (const item of cart_items) {
-        const productResult = await client.query(
-          `SELECT p.name, pv.color, pv.size, pv.price
-           FROM product_variants pv
-           JOIN products p ON p.product_id = pv.product_id
-           WHERE pv.variant_id = $1`,
-          [item.variant_id]
-        );
+      // Batch-fetch product name/color/size for all guest cart items in one query
+      const guestOrderVariantIds = cart_items.map((item: any) => item.variant_id);
+      const guestProductInfoResult = await client.query(
+        `SELECT pv.variant_id, p.name, pv.color, pv.size, pv.price
+         FROM product_variants pv
+         JOIN products p ON p.product_id = pv.product_id
+         WHERE pv.variant_id = ANY($1)`,
+        [guestOrderVariantIds]
+      );
 
-        if (productResult.rows.length === 0) {
+      const guestProductInfoMap = new Map<number, any>(
+        guestProductInfoResult.rows.map((row: any) => [row.variant_id, row])
+      );
+
+      // Insert order items
+      for (const item of cart_items) {
+        const product = guestProductInfoMap.get(item.variant_id);
+
+        if (!product) {
           await client.query('ROLLBACK');
           res.status(400).json({ message: `Invalid product variant: ${item.variant_id}` });
           return;
         }
 
-        const product = productResult.rows[0];
         const variantDetails = [product.color, product.size].filter(Boolean).join(', ');
 
         await client.query(
@@ -1261,34 +1275,34 @@ export const createGuestOrder = async (req: Request, res: Response): Promise<voi
            WHERE oi.order_id = $1`,
           [order.order_id]
         );
-      await sendOrderConfirmationEmail(
-        guest_info.email,
-        guest_info.first_name,
-        {
-          order_number: orderNumber,
-          total_price,
-          subtotal,
-          discount_amount: 0,
-          shipping_cost,
-          tax_amount: tax_amount || 0,
-          first_name: guest_info.first_name,
-          last_name: guest_info.last_name || '',
-          address_line1: shipping_address.address_line1,
-          address_line2: shipping_address.address_line2 || '',
-          city: shipping_address.city,
-          state: shipping_address.state,
-          zip: shipping_address.zip,
-          country: shipping_address.country || 'USA',
-          items: orderItemsResult.rows.map((item: any) => ({
-            product_name: item.product_name,
-            variant_details: item.variant_details,
-            quantity: item.quantity,
-            price_at_purchase: parseFloat(item.price_at_purchase),
-            img_url: item.img_url,
-          })),
-        },
-        true
-      );
+        await sendOrderConfirmationEmail(
+          guest_info.email,
+          guest_info.first_name,
+          {
+            order_number: orderNumber,
+            total_price,
+            subtotal,
+            discount_amount: 0,
+            shipping_cost,
+            tax_amount: tax_amount || 0,
+            first_name: guest_info.first_name,
+            last_name: guest_info.last_name || '',
+            address_line1: shipping_address.address_line1,
+            address_line2: shipping_address.address_line2 || '',
+            city: shipping_address.city,
+            state: shipping_address.state,
+            zip: shipping_address.zip,
+            country: shipping_address.country || 'USA',
+            items: orderItemsResult.rows.map((item: any) => ({
+              product_name: item.product_name,
+              variant_details: item.variant_details,
+              quantity: item.quantity,
+              price_at_purchase: parseFloat(item.price_at_purchase),
+              img_url: item.img_url,
+            })),
+          },
+          true
+        );
       } catch (emailError) {
         console.error("Failed to send guest order confirmation email:", emailError);
       }
@@ -1431,7 +1445,7 @@ const calculateBogoDiscount = (
 
   // Calculate how many complete BOGO sets we have
   const completeSets = Math.floor(totalQuantity / (buyQty + getQty));
-  
+
   // Calculate how many items should be discounted
   const itemsToDiscount = completeSets * getQty;
 
@@ -1457,11 +1471,11 @@ const calculateBogoDiscount = (
   for (let i = 0; i < itemsToDiscount; i++) {
     const item = individualItems[i];
     const itemDiscount = item.price * (discountPercentage / 100);
-    
+
     // Track discount per variant
     const currentDiscount = discountMap.get(item.variant_id) || 0;
     discountMap.set(item.variant_id, currentDiscount + itemDiscount);
-    
+
     totalDiscount += itemDiscount;
   }
 
@@ -1589,6 +1603,19 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
         }
       }
 
+      // Pre-fetch email verification status once — reused across all items that
+      // require it, avoiding a repeated DB hit inside the per-item loop
+      let isEmailVerified: boolean | null = null;
+      const getEmailVerified = async (): Promise<boolean> => {
+        if (isEmailVerified !== null) return isEmailVerified;
+        const userResult = await client.query(
+          "SELECT is_email_verified FROM users WHERE user_id = $1",
+          [user.userId]
+        );
+        isEmailVerified = userResult.rows[0]?.is_email_verified ?? false;
+        return isEmailVerified as boolean;
+      };
+
       // ========================================================================
       // STEP 1B: PROCESS EACH CART ITEM
       // ========================================================================
@@ -1632,13 +1659,10 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
             continue;
           }
 
-          // Email verification check
+          // Email verification check — uses cached result; only queries DB once
           if (coupon.requires_verified_email) {
-            const userResult = await client.query(
-              "SELECT is_email_verified FROM users WHERE user_id = $1",
-              [user.userId]
-            );
-            if (!userResult.rows[0]?.is_email_verified) {
+            const verified = await getEmailVerified();
+            if (!verified) {
               errors.push({ variant_id, coupon_id: selected_coupon_id, error: "Email verification required" });
               validated_discounts.push({
                 variant_id, coupon_id: null,
@@ -1789,13 +1813,10 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
 
           // All checks passed — calculate cart-level discount
           if (!cart_level_discount) {
-            // Email verification check
+            // Email verification check — uses cached result; only queries DB once
             if (cartCoupon.requires_verified_email) {
-              const userResult = await client.query(
-                "SELECT is_email_verified FROM users WHERE user_id = $1",
-                [user.userId]
-              );
-              if (!userResult.rows[0]?.is_email_verified) {
+              const verified = await getEmailVerified();
+              if (!verified) {
                 cart_level_discount = {
                   coupon_id: cart_level_coupon_id,
                   discount_amount: 0,
@@ -1816,7 +1837,7 @@ export const validateCoupons = async (req: Request, res: Response): Promise<void
               if (
                 cartCoupon.min_purchase_amount &&
                 cartSubtotalAfterItemDiscounts <
-                  parseFloat(cartCoupon.min_purchase_amount)
+                parseFloat(cartCoupon.min_purchase_amount)
               ) {
                 cart_level_discount = {
                   coupon_id: cart_level_coupon_id,

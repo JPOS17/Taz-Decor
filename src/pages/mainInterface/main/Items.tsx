@@ -87,6 +87,7 @@ const Items = () => {
         setLoading(true);
         setError(null);
 
+        // Fetch products, coupons, and categories concurrently
         const [productsData, couponsData, categoriesData] = await Promise.all([
           fetchProductPreview({
             categoryId: activeCategoryId,
@@ -103,11 +104,14 @@ const Items = () => {
         setCoupons(couponsData);
         setCategories(categoriesData);
 
-        // If there are custom_group coupons, fetch the mapping BY VARIANT
+        // Fire the custom group mapping fetch concurrently with the state updates above
         if (couponsData.custom_group.length > 0 && productsData.length > 0) {
           const variantIds = productsData.map((p) => p.variant_id);
-          const mapping = await checkCustomGroupCoupons(variantIds);
-          setCustomGroupMap(mapping);
+          checkCustomGroupCoupons(variantIds)
+            .then((mapping) => setCustomGroupMap(mapping))
+            .catch((err) =>
+              console.error("Error loading custom group coupons:", err),
+            );
         }
 
         // Find category-specific coupon if viewing a category

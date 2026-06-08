@@ -50,8 +50,8 @@ const MiniCart = ({
   // Coupon data
   const [coupons, setCoupons] = useState<GroupedCoupons | null>(null);
 
-  // Ref to track whether coupons have been fetched for the current open session of the mini cart
-  const hasFetchedRef = useRef(false);
+  // Tracks the cart variant IDs that were present when coupons were last fetched
+  const lastFetchedSignatureRef = useRef<string>("");
 
   // Refs for notification auto-dismiss timers
   const addedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -96,19 +96,20 @@ const MiniCart = ({
     };
   }, []);
 
-  // Fetches coupons once when the mini cart opens (if the cart is non-empty),
-  // and resets the fetch flag when it closes so the next open gets fresh data
+  // Fetches coupons when the mini cart opens, but only if the cart contents have changed since the last fetch
   useEffect(() => {
-    if (!isOpen) {
-      hasFetchedRef.current = false;
-      return;
-    }
+    if (!isOpen || cartItems.length === 0) return;
 
-    if (cartItems.length > 0 && !hasFetchedRef.current) {
-      hasFetchedRef.current = true;
-      loadCoupons();
-    }
-  }, [isOpen, cartItems.length]);
+    const signature = cartItems
+      .map((i) => i.variant_id)
+      .sort()
+      .join(",");
+
+    if (signature === lastFetchedSignatureRef.current) return;
+
+    lastFetchedSignatureRef.current = signature;
+    loadCoupons();
+  }, [isOpen, cartItems]);
 
   // ============================================================================
   // DATA LOADING

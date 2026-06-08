@@ -135,8 +135,12 @@ export const getProductDetail = async (req: Request, res: Response): Promise<voi
   try {
     const { variantId } = req.params;
     
+    // Single query: replaces three correlated category subqueries with direct JOINs.
+    // Primary category uses a filtered JOIN; all_categories uses json_agg.
+    // Images for the current variant are aggregated inline with json_agg so we
+    // avoid a separate round trip for the main variant's image list.
     const productResult = await pool.query(`
-      SELECT 
+      SELECT
         pv.variant_id,
         p.product_id,
         p.name,
@@ -152,34 +156,34 @@ export const getProductDetail = async (req: Request, res: Response): Promise<voi
         pv.height_in,
         sl.city AS location_city,
         sl.state AS location_state,
-        -- Get primary category
-        (
-          SELECT c.category_name 
-          FROM product_categories pc
-          JOIN categories c ON c.category_id = pc.category_id
-          WHERE pc.product_id = p.product_id AND pc.is_primary = TRUE
-          LIMIT 1
-        ) as category,
-        -- Get primary category_id
-        (
-          SELECT c.category_id 
-          FROM product_categories pc
-          JOIN categories c ON c.category_id = pc.category_id
-          WHERE pc.product_id = p.product_id AND pc.is_primary = TRUE
-          LIMIT 1
-        ) as category_id,
-        -- Get all category names
-        (
-          SELECT ARRAY_AGG(c.category_name ORDER BY pc.is_primary DESC, c.display_order ASC)
-          FROM product_categories pc
-          JOIN categories c ON c.category_id = pc.category_id
-          WHERE pc.product_id = p.product_id AND c.is_active = TRUE
-        ) as all_categories
+        pc_primary.category_id,
+        c_primary.category_name AS category,
+        COALESCE(
+          (
+            SELECT json_agg(c_all.category_name ORDER BY pc_all.is_primary DESC, c_all.display_order ASC)
+            FROM product_categories pc_all
+            JOIN categories c_all ON c_all.category_id = pc_all.category_id
+            WHERE pc_all.product_id = p.product_id AND c_all.is_active = TRUE
+          ),
+          '[]'
+        ) AS all_categories,
+        COALESCE(
+          json_agg(pi.img_url ORDER BY pi.display_order ASC, pi.image_id ASC)
+          FILTER (WHERE pi.image_id IS NOT NULL),
+          '[]'
+        ) AS images
       FROM product_variants pv
       JOIN products p ON p.product_id = pv.product_id
       LEFT JOIN seller_locations sl ON sl.location_id = pv.location_id
+      JOIN product_categories pc_primary
+        ON pc_primary.product_id = p.product_id AND pc_primary.is_primary = TRUE
+      JOIN categories c_primary ON c_primary.category_id = pc_primary.category_id
+      LEFT JOIN product_images pi ON pi.variant_id = pv.variant_id
       WHERE pv.variant_id = $1
         AND pv.is_active = TRUE
+      GROUP BY
+        pv.variant_id, p.product_id, sl.location_id,
+        pc_primary.category_id, c_primary.category_name
     `, [variantId]);
 
     if (productResult.rows.length === 0) {
@@ -188,47 +192,41 @@ export const getProductDetail = async (req: Request, res: Response): Promise<voi
     }
 
     const product = productResult.rows[0];
-    
+
     // Check if product has at least one active category
     if (!product.all_categories || product.all_categories.length === 0) {
       res.status(404).json({ message: "Product not available" });
       return;
     }
-    
+
     const productId = product.product_id;
 
-    // Count total variants for this product
-    const variantCountResult = await pool.query(`
-      SELECT COUNT(*) as variant_count
-      FROM product_variants
-      WHERE product_id = $1 AND is_active = TRUE
+    // Fetch all sibling variants with their images in two queries (variants list +
+    // a single batched image fetch grouped client-side) — only when there are
+    // multiple variants. Single-variant products skip this entirely.
+    let variantsWithImages: any[] = [];
+
+    const variantsResult = await pool.query(`
+      SELECT
+        pv.variant_id,
+        pv.sku,
+        pv.price,
+        pv.quantity,
+        pv.color,
+        pv.size,
+        pv.weight_oz,
+        pv.length_in,
+        pv.width_in,
+        pv.height_in
+      FROM product_variants pv
+      WHERE pv.product_id = $1 AND pv.is_active = TRUE
+      ORDER BY pv.color, pv.size
     `, [productId]);
 
-    const variantCount = parseInt(variantCountResult.rows[0].variant_count);
+    if (variantsResult.rows.length > 1) {
+      const variantIds = variantsResult.rows.map((v: any) => v.variant_id);
 
-    // Only fetch all variants if there are more than 1
-    let variantsWithImages = [];
-    if (variantCount > 1) {
-      const variantsResult = await pool.query(`
-        SELECT 
-          pv.variant_id,
-          pv.sku,
-          pv.price,
-          pv.quantity,
-          pv.color,
-          pv.size,
-          pv.weight_oz,
-          pv.length_in,
-          pv.width_in,
-          pv.height_in
-        FROM product_variants pv
-        WHERE pv.product_id = $1 AND pv.is_active = TRUE
-        ORDER BY pv.color, pv.size
-      `, [productId]);
-
-      const variantIds = variantsResult.rows.map(v => v.variant_id);
-
-      // Fetch all variant images in one query then group client-side
+      // Batch-fetch all sibling images in one query, then group client-side
       const allImagesResult = await pool.query(`
         SELECT variant_id, img_url
         FROM product_images
@@ -242,7 +240,7 @@ export const getProductDetail = async (req: Request, res: Response): Promise<voi
         imagesByVariant[row.variant_id].push(row.img_url);
       }
 
-      variantsWithImages = variantsResult.rows.map((variant) => ({
+      variantsWithImages = variantsResult.rows.map((variant: any) => ({
         ...variant,
         price: parseFloat(variant.price),
         weight_oz: variant.weight_oz ? parseFloat(variant.weight_oz) : null,
@@ -253,14 +251,6 @@ export const getProductDetail = async (req: Request, res: Response): Promise<voi
       }));
     }
 
-    // Get images for current variant
-    const imagesResult = await pool.query(`
-      SELECT img_url
-      FROM product_images
-      WHERE variant_id = $1
-      ORDER BY display_order ASC, image_id ASC
-    `, [variantId]);
-
     const productDetail = {
       ...product,
       price: parseFloat(product.price),
@@ -268,7 +258,7 @@ export const getProductDetail = async (req: Request, res: Response): Promise<voi
       length_in: product.length_in ? parseFloat(product.length_in) : null,
       width_in: product.width_in ? parseFloat(product.width_in) : null,
       height_in: product.height_in ? parseFloat(product.height_in) : null,
-      images: imagesResult.rows.map(row => row.img_url),
+      images: product.images,
       variants: variantsWithImages,
       categories: product.all_categories
     };

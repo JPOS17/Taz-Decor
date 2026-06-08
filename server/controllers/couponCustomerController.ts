@@ -13,8 +13,17 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
   try {
     const { userId } = req.query; // optional — passed when user is logged in
  
+    // Pre-aggregate per-user coupon usage in a CTE so the join is a single scan
+    // rather than a correlated subquery executing once per coupon row
     const result = await pool.query(`
-      SELECT 
+      WITH user_usage AS (
+        SELECT oc.coupon_id, COUNT(DISTINCT oc.order_id) AS usage_count
+        FROM order_coupons oc
+        JOIN orders o ON o.order_id = oc.order_id
+        WHERE o.user_id = $1::int
+        GROUP BY oc.coupon_id
+      )
+      SELECT
         c.coupon_id,
         c.coupon_code,
         c.discount_type,
@@ -34,15 +43,9 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
         c.bogo_discount_percentage,
         c.valid_until,
         c.location_ids,
-        -- Per-user usage count: 0 when no userId supplied (guest session)
-        COALESCE((
-          SELECT COUNT(DISTINCT oc.order_id)
-          FROM order_coupons oc
-          JOIN orders o ON oc.order_id = o.order_id
-          WHERE oc.coupon_id = c.coupon_id
-            AND o.user_id = $1::int
-        ), 0) AS user_usage_count,
-        CASE 
+        -- Per-user usage count: 0 for guests or when the coupon has never been used
+        COALESCE(uu.usage_count, 0) AS user_usage_count,
+        CASE
           WHEN c.applies_to_type = 'all' THEN 'All Products'
           WHEN c.applies_to_type = 'category' THEN cat.category_name
           WHEN c.applies_to_type = 'product' THEN p.name
@@ -50,18 +53,19 @@ export const getProductCouponsPreview = async (req: Request, res: Response): Pro
           WHEN c.applies_to_type = 'variant' THEN 'Specific variant'
           WHEN c.applies_to_type = 'custom_group' THEN 'Selected products'
           ELSE 'Unknown'
-        END as applies_to_name
+        END AS applies_to_name
       FROM coupons c
+      LEFT JOIN user_usage uu ON uu.coupon_id = c.coupon_id
       LEFT JOIN categories cat ON c.applies_to_type = 'category' AND c.applies_to_id = cat.category_id
       LEFT JOIN products p ON c.applies_to_type = 'product' AND c.applies_to_id = p.product_id
       LEFT JOIN product_types pt ON c.applies_to_type = 'product_type' AND c.applies_to_id = pt.product_type_id
-      WHERE c.is_active = TRUE                                                    -- check 3
+      WHERE c.is_active = TRUE
         AND c.valid_from <= NOW()
-        AND (c.valid_until IS NULL OR c.valid_until >= NOW())                     -- check 2
-        AND (c.usage_limit_total IS NULL OR c.usage_count_total < c.usage_limit_total) -- check 4
-      ORDER BY 
+        AND (c.valid_until IS NULL OR c.valid_until >= NOW())
+        AND (c.usage_limit_total IS NULL OR c.usage_count_total < c.usage_limit_total)
+      ORDER BY
         c.applies_to_type,
-        CASE c.discount_type 
+        CASE c.discount_type
           WHEN 'percentage' THEN c.discount_value
           WHEN 'fixed' THEN c.discount_value
           ELSE 0
@@ -267,22 +271,21 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
       return;
     }
  
-    // STEP 1: Get the variant's location_id
-    const variantLocationResult = await pool.query(
-      `SELECT location_id FROM product_variants WHERE variant_id = $1`,
-      [parseInt(variantId as string)]
-    );
- 
-    if (variantLocationResult.rows.length === 0) {
-      res.status(404).json({ message: "Variant not found" });
-      return;
-    }
- 
-    const variantLocationId = variantLocationResult.rows[0].location_id;
- 
-    // STEP 2: Get coupons that apply to this variant AND match its location
+    // Single query: folds the separate location_id lookup and the correlated
+    // per-coupon usage subquery into one using a CTE and a direct JOIN on
+    // product_variants — eliminates the first round trip entirely
     const result = await pool.query(`
-      SELECT 
+      WITH variant_info AS (
+        SELECT location_id FROM product_variants WHERE variant_id = $1::int
+      ),
+      user_usage AS (
+        SELECT oc.coupon_id, COUNT(DISTINCT oc.order_id) AS usage_count
+        FROM order_coupons oc
+        JOIN orders o ON o.order_id = oc.order_id
+        WHERE o.user_id = $5::int
+        GROUP BY oc.coupon_id
+      )
+      SELECT
         c.coupon_id,
         c.coupon_code,
         c.discount_type,
@@ -302,15 +305,9 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
         c.bogo_discount_percentage,
         c.valid_until,
         c.location_ids,
-        -- Per-user usage count: 0 when no userId supplied (guest session)
-        COALESCE((
-          SELECT COUNT(DISTINCT oc.order_id)
-          FROM order_coupons oc
-          JOIN orders o ON oc.order_id = o.order_id
-          WHERE oc.coupon_id = c.coupon_id
-            AND o.user_id = $6::int
-        ), 0) AS user_usage_count,
-        CASE 
+        -- Per-user usage count: 0 for guests or when the coupon has never been used
+        COALESCE(uu.usage_count, 0) AS user_usage_count,
+        CASE
           WHEN c.applies_to_type = 'all' THEN 'All Products'
           WHEN c.applies_to_type = 'category' THEN cat.category_name
           WHEN c.applies_to_type = 'product' THEN p.name
@@ -318,8 +315,10 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
           WHEN c.applies_to_type = 'variant' THEN 'This variant'
           WHEN c.applies_to_type = 'custom_group' THEN 'Selected products'
           ELSE 'Unknown'
-        END as applies_to_name
+        END AS applies_to_name
       FROM coupons c
+      CROSS JOIN variant_info vi
+      LEFT JOIN user_usage uu ON uu.coupon_id = c.coupon_id
       LEFT JOIN categories cat ON c.applies_to_type = 'category' AND c.applies_to_id = cat.category_id
       LEFT JOIN products p ON c.applies_to_type = 'product' AND c.applies_to_id = p.product_id
       LEFT JOIN product_types pt ON c.applies_to_type = 'product_type' AND c.applies_to_id = pt.product_type_id
@@ -327,11 +326,11 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
         AND c.valid_from <= NOW()
         AND (c.valid_until IS NULL OR c.valid_until >= NOW())
         AND (c.usage_limit_total IS NULL OR c.usage_count_total < c.usage_limit_total)
-        AND $5::int = ANY(c.location_ids)
+        AND vi.location_id = ANY(c.location_ids)
         AND (
           c.applies_to_type = 'all'
-          OR (c.applies_to_type = 'category' AND c.applies_to_id = $3::int)
-          OR (c.applies_to_type = 'product' AND c.applies_to_id = $2::int)
+          OR (c.applies_to_type = 'category' AND c.applies_to_id = $2::int)
+          OR (c.applies_to_type = 'product' AND c.applies_to_id = $3::int)
           OR (c.applies_to_type = 'product_type' AND c.applies_to_id = $4::int)
           OR (c.applies_to_type = 'variant' AND c.applies_to_id = $1::int)
           OR (c.applies_to_type = 'custom_group' AND EXISTS (
@@ -339,19 +338,18 @@ export const getApplicableCouponsForVariant = async (req: Request, res: Response
             WHERE cvg.coupon_id = c.coupon_id AND cvg.variant_id = $1::int
           ))
         )
-      ORDER BY 
-        CASE c.discount_type 
+      ORDER BY
+        CASE c.discount_type
           WHEN 'percentage' THEN c.discount_value
           WHEN 'fixed' THEN c.discount_value
           ELSE 0
         END DESC
     `, [
-      parseInt(variantId as string),        // $1
-      parseInt(productId as string),         // $2
-      parseInt(categoryId as string),        // $3
-      productTypeId ? parseInt(productTypeId as string) : null, // $4
-      variantLocationId,                     // $5
-      userId ? parseInt(userId as string) : null,               // $6
+      parseInt(variantId as string),                             // $1
+      parseInt(categoryId as string),                            // $2
+      parseInt(productId as string),                             // $3
+      productTypeId ? parseInt(productTypeId as string) : null,  // $4
+      userId ? parseInt(userId as string) : null,                // $5
     ]);
  
     const coupons = result.rows.map(row => ({
