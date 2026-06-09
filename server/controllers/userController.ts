@@ -112,10 +112,11 @@ export const updateUserProfile = async (req: Request, res: Response) => {
       return;
     }
 
+    // Validate phone number
     if (phone) {
       const phoneDigits = phone.replace(/\D/g, "");
-      if (phoneDigits.length !== 10) {
-        res.status(400).json({ message: "Please enter a valid 10-digit phone number" });
+      if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+        res.status(400).json({ message: "Please enter a valid phone number (7–15 digits)" });
         return;
       }
     }

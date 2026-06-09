@@ -40,6 +40,15 @@ export const register = async (req: Request, res: Response) => {
       return;
     }
 
+    // Validate phone number
+    if (phone) {
+      const phoneDigits = phone.replace(/\D/g, "");
+      if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+        res.status(400).json({ message: "Please enter a valid phone number (7–15 digits)" });
+        return;
+      }
+    }  
+
     // Hash password
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(password, saltRounds);

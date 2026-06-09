@@ -592,12 +592,16 @@ const Profile = () => {
                     type="tel"
                     className={"profile-field-input"}
                     value={editingProfile.phone}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const sanitized = e.target.value.replace(
+                        /[^\d+\-()\s]/g,
+                        "",
+                      );
                       setEditingProfile({
                         ...editingProfile,
-                        phone: e.target.value,
-                      })
-                    }
+                        phone: sanitized,
+                      });
+                    }}
                     placeholder="(optional)"
                   />
                 ) : (
@@ -628,7 +632,9 @@ const Profile = () => {
           {/* Saved Addresses Section */}
           <section className={"profile-section"}>
             <div className={"profile-section-header"}>
-              <h3 className={"profile-section-title"}>Saved Addresses</h3>
+              <h3 className={"profile-section-title"}>
+                Saved Shipping Addresses
+              </h3>
               <button
                 className={"profile-btn-add"}
                 onClick={() => openAddressModal()}
@@ -659,7 +665,9 @@ const Profile = () => {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <p className={"profile-empty-text"}>No saved addresses yet</p>
+                <p className={"profile-empty-text"}>
+                  No saved shipping addresses yet
+                </p>
                 <button
                   className={"profile-btn-primary"}
                   onClick={() => openAddressModal()}

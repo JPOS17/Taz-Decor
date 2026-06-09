@@ -94,6 +94,14 @@ const Register = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (name === "phone") {
+      // Allow only digits, +, (, ), -, and spaces
+      const sanitized = value.replace(/[^\d+\-()\s]/g, "");
+      setFormData({ ...formData, phone: sanitized });
+      return;
+    }
+
     if (name === "password") {
       setPasswordStrength(checkPasswordStrength(value));
     }
