@@ -78,8 +78,6 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
       return `${coupon.discount_value}% OFF`;
     } else if (coupon.discount_type === "fixed" && coupon.discount_value) {
       return `$${coupon.discount_value} OFF`;
-    } else if (coupon.free_shipping && !coupon.discount_value) {
-      return "FREE SHIPPING";
     }
     return "DISCOUNT";
   };
@@ -92,9 +90,6 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
       parts.push(
         isBogo ? formatBogoBadge(coupon) : getDiscountBadgeText(coupon),
       );
-    }
-    if (coupon.free_shipping) {
-      parts.push("Free Shipping");
     }
     return parts.length > 0 ? parts.join(" · ") : null;
   };
@@ -119,14 +114,9 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
             </div>
           )}
 
-        {/* Free shipping badge */}
-        {coupon && coupon.free_shipping && (
-          <div className="item-listing-free-shipping-badge">FREE SHIPPING</div>
-        )}
-
         {/* Wishlist button */}
         <div
-          className={`item-listing-wishlist-btn${coupon?.free_shipping ? " item-listing-wishlist-btn-shifted" : ""}`}
+          className="item-listing-wishlist-btn"
           onClick={handleWishlistClick}
         >
           {isInWishlistState ? (

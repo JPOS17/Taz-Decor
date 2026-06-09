@@ -189,10 +189,6 @@
   box-sizing: border-box;
 }
 
-.saved-card-image:hover {
-  transform: scale(1.05);
-}
-
 .saved-card-body {
   display: flex;
   flex-direction: column;

@@ -269,9 +269,18 @@
 }
 
 .about-mission-icon {
-  font-size: 2.25rem;
+  font-size: 1.75rem;
   margin-bottom: 1rem;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--color-primary-bg-hover);
+  color: var(--color-primary-vivid);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .about-mission-card h3 {
@@ -338,8 +347,18 @@
 }
 
 .about-contact-icon {
-  font-size: 2.25rem;
-  margin-bottom: 0.25rem;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--color-primary-bg-hover);
+  color: var(--color-primary-vivid);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .about-contact-title {

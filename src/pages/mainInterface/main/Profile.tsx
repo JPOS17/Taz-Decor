@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
 import {
@@ -774,6 +774,10 @@ const Profile = () => {
                   placeholder="Enter your password"
                   required
                 />
+                {/* Forgot password link */}
+                <Link to="/forgot-password" className="login-forgot-link">
+                  Forgot your password?
+                </Link>
               </div>
 
               {/* Cancel and confirm buttons */}

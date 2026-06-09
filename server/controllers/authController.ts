@@ -255,21 +255,11 @@ export const verifyEmail = async (req: Request, res: Response) => {
 /**
  * POST resend verification email
  */
-export const resendVerification = async (req: Request, res: Response) => {
+export const resendVerification = async (req: AuthRequest, res: Response) => {
   try {
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({ message: "No token provided" });
-      return;
-    }
-
-    const jwtToken = authHeader.substring(7);
-    const decoded = jwt.verify(jwtToken, JWT_SECRET) as { userId: number };
-
     const userResult = await pool.query(
       `SELECT user_id, email, first_name, is_email_verified FROM users WHERE user_id = $1`,
-      [decoded.userId]
+      [req.user!.userId]
     );
 
     if (userResult.rows.length === 0) {

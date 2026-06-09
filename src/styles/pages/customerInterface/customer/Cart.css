@@ -260,10 +260,6 @@
   transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.cart-item-image:hover {
-  transform: scale(1.05);
-}
-
 .cart-item-details {
   display: flex;
   flex-direction: column;

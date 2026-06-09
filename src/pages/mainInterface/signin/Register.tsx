@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../../context/AuthContext";
@@ -17,6 +17,7 @@ const Register = () => {
   const { register } = useAuth();
   const { syncToDatabase, loadFromDatabase } = useCart();
   const navigate = useNavigate();
+  const errorRef = useRef<HTMLDivElement>(null);
 
   // ============================================================================
   // STATE
@@ -75,6 +76,17 @@ const Register = () => {
   };
 
   // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // Scrolls to the error message whenever a new error is set
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [error]);
+
+  // ============================================================================
   // HANDLERS
   // ============================================================================
 
@@ -90,16 +102,16 @@ const Register = () => {
   // Validates the form, registers the user, syncs the guest cart, then redirects to profile
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError(""); // clears first
 
     const passwordError = validatePassword(formData.password);
     if (passwordError) {
-      setError(passwordError);
+      setTimeout(() => setError(passwordError), 0); // forces re-trigger
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setTimeout(() => setError("Passwords do not match"), 0);
       return;
     }
 
@@ -140,7 +152,11 @@ const Register = () => {
 
         <form onSubmit={handleSubmit} className="register-form">
           {/* Inline error message */}
-          {error && <div className="register-error-message">{error}</div>}
+          {error && (
+            <div ref={errorRef} className="register-error-message">
+              {error}
+            </div>
+          )}
 
           {/* First and last name */}
           <div className="register-form-row">
@@ -229,13 +245,47 @@ const Register = () => {
                 <div className="register-strength-bar">
                   <div className={`register-strength-fill ${strengthClass}`} />
                 </div>
-                {passwordStrength.feedback.length > 0 && (
-                  <ul className="register-password-requirements">
-                    {passwordStrength.feedback.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
-                )}
+                <ul className="register-password-requirements">
+                  <li
+                    className={
+                      formData.password.length >= 8 ? "register-req-met" : ""
+                    }
+                  >
+                    At least 8 characters
+                  </li>
+                  <li
+                    className={
+                      /[A-Z]/.test(formData.password) ? "register-req-met" : ""
+                    }
+                  >
+                    One uppercase letter
+                  </li>
+                  <li
+                    className={
+                      /[a-z]/.test(formData.password) ? "register-req-met" : ""
+                    }
+                  >
+                    One lowercase letter
+                  </li>
+                  <li
+                    className={
+                      /[0-9]/.test(formData.password) ? "register-req-met" : ""
+                    }
+                  >
+                    One number
+                  </li>
+                  <li
+                    className={
+                      /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+                        formData.password,
+                      )
+                        ? "register-req-met"
+                        : ""
+                    }
+                  >
+                    One special character
+                  </li>
+                </ul>
               </div>
             )}
           </div>

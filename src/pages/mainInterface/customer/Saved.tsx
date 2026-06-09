@@ -448,7 +448,7 @@ const Saved = () => {
           isOpen={showRemoveConfirm}
           title="Remove from Wishlist?"
           message="This item will be removed from your wishlist. Are you sure?"
-          confirmLabel="Yes, Remove"
+          confirmLabel="Remove"
           cancelLabel="Cancel"
           variant="danger"
           onConfirm={handleConfirmRemove}

@@ -52,10 +52,6 @@
   transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.item-listing-list-item:hover .item-listing-image-container img {
-  transform: translate(-50%, -52%) scale(1.04);
-}
-
 /* ============================================================================
    BADGES — inside the image tile
    ============================================================================ */
@@ -66,22 +62,6 @@
   left: 9px;
   z-index: 10;
   background: var(--color-danger);
-  color: var(--color-text-on-primary-alt);
-  padding: 3px 7px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.item-listing-free-shipping-badge {
-  position: absolute;
-  top: 9px;
-  right: 9px;
-  z-index: 10;
-  background: var(--color-success);
   color: var(--color-text-on-primary-alt);
   padding: 3px 7px;
   border-radius: var(--radius-sm);
@@ -112,11 +92,6 @@
   opacity: 0;
   transition: opacity 0.2s ease, transform 0.18s ease, background 0.18s ease;
   border: 1px solid var(--color-primary-border-light);
-}
-
-/* Shift down when free shipping badge occupies top-right */
-.item-listing-wishlist-btn-shifted {
-  top: 42px;
 }
 
 .item-listing-list-item:hover .item-listing-wishlist-btn {
@@ -236,16 +211,6 @@
   font-weight: 700;
   box-shadow: var(--shadow-badge);
   letter-spacing: 0.5px;
-}
-
-.item-listing-free-shipping-badge-small {
-  background: var(--gradient-badge-success);
-  color: var(--color-text-on-primary-alt);
-  padding: 5px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-  font-weight: 600;
-  box-shadow: var(--shadow-badge);
 }
 
 .item-listing-verification-required-badge {

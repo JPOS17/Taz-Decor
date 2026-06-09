@@ -35,8 +35,6 @@
   overflow-y: hidden;
   padding-bottom: 0.5rem;
   min-width: 0;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-mid) var(--color-surface-image-bg);
 }
 
 .pv-variant-grid::-webkit-scrollbar {

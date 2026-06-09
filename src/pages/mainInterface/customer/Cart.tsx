@@ -841,7 +841,10 @@ const Cart = () => {
                     <div className={"cart-item-actions"}>
                       <button
                         className={"cart-btn-remove-item"}
-                        onClick={() => removeFromCart(item.variant_id)}
+                        onClick={() => {
+                          setItemToRemove(item.variant_id);
+                          setShowRemovalWarning(true);
+                        }}
                         title="Remove from cart"
                       >
                         <FaTrash />
@@ -976,7 +979,7 @@ const Cart = () => {
         isOpen={showRemovalWarning}
         title="Remove Item from Cart?"
         message="This item will be removed from your cart. Are you sure you want to continue?"
-        confirmLabel="Yes, Remove"
+        confirmLabel="Remove"
         cancelLabel="Cancel"
         variant="danger"
         onConfirm={handleConfirmRemoval}

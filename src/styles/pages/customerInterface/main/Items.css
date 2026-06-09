@@ -92,17 +92,6 @@
   text-transform: uppercase;
 }
 
-.items-free-shipping-badge {
-  background: var(--gradient-badge-success);
-  color: var(--color-text-on-primary-alt);
-  padding: 5px 11px;
-  border-radius: var(--radius-sm);
-  font-size: 0.8rem;
-  font-weight: 600;
-  box-shadow: var(--shadow-badge);
-  font-family: var(--font-sans);
-}
-
 .items-verification-badge {
   background: var(--gradient-badge-warning);
   color: var(--color-text-on-primary-alt);
@@ -226,7 +215,6 @@
   }
 
   .items-discount-badge,
-  .items-free-shipping-badge,
   .items-verification-badge {
     font-size: 0.72rem;
     padding: 4px 8px;

@@ -69,4 +69,4 @@ authRouter.post("/reset-password", resetPasswordValidation, resetPassword);
 authRouter.get("/me", authenticateToken, getCurrentUser);
 
 // POST resend verification email
-authRouter.post("/resend-verification", resendVerification);
+authRouter.post("/resend-verification", authenticateToken, resendVerification);
