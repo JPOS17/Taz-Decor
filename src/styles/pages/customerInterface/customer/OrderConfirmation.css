@@ -473,7 +473,7 @@
 
 @media (max-width: 1024px) {
   .order-confirm-main {
-    padding: 1rem;
+    padding: 1rem 2rem 4rem;
   }
 
   .order-confirm-details-grid {

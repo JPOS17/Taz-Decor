@@ -323,6 +323,10 @@
   color: var(--color-text-on-primary-alt);
 }
 
+.ac-address-card-no-radio {
+  grid-template-columns: 1fr auto;
+}
+
 /* ============================================================================
    ADDRESS FORM  (af-*)
    ============================================================================ */
@@ -441,12 +445,11 @@
 
 @media (max-width: 768px) {
   .ac-address-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto 1fr auto; /* keep radio + info + actions */
   }
 
-  .ac-address-actions {
-    flex-direction: row;
-    justify-content: flex-end;
+  .ac-address-card-no-radio {
+    grid-template-columns: 1fr auto; /* no radio, just info + actions */
   }
 
   .af-form-row:has(.af-form-group:nth-child(3)) {

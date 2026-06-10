@@ -8,6 +8,7 @@ interface AddressCardProps {
   onSelect: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  showRadio?: boolean;
 }
 
 // Displays a single saved address as a selectable card with edit and delete actions
@@ -17,21 +18,24 @@ const AddressCard = ({
   onSelect,
   onEdit,
   onDelete,
+  showRadio = true,
 }: AddressCardProps) => {
   return (
     <div
-      className={`ac-address-card ${isSelected ? "ac-address-card-selected" : ""}`}
+      className={`ac-address-card ${isSelected ? "ac-address-card-selected" : ""} ${!showRadio ? "ac-address-card-no-radio" : ""}`}
       onClick={onSelect}
     >
       {/* Radio indicator */}
-      <div className="ac-address-radio">
-        <input
-          type="radio"
-          name="shipping_address"
-          checked={isSelected}
-          onChange={onSelect}
-        />
-      </div>
+      {showRadio && (
+        <div className="ac-address-radio">
+          <input
+            type="radio"
+            name="shipping_address"
+            checked={isSelected}
+            onChange={onSelect}
+          />
+        </div>
+      )}
 
       {/* Address details */}
       <div className="ac-address-info">

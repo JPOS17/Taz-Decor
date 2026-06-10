@@ -315,6 +315,12 @@ export const createAddress = async (req: Request, res: Response): Promise<void> 
       is_default
     } = req.body;
 
+    // Validate required fields
+    if (!address_line1 || !city || !state || !zip) {
+      res.status(400).json({ message: "Street, city, state, and ZIP are required" });
+      return;
+    }
+
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -374,6 +380,12 @@ export const updateAddress = async (req: Request, res: Response): Promise<void> 
       country,
       is_default
     } = req.body;
+
+    // Validate required fields
+    if (!address_line1 || !city || !state || !zip) {
+      res.status(400).json({ message: "Street, city, state, and ZIP are required" });
+      return;
+    }
 
     // Start transaction
     const client = await pool.connect();

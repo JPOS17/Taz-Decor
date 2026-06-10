@@ -181,7 +181,7 @@ const Profile = () => {
     setAddressForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Validates US addresses before saving; skips validation for non-US addresses
+  // Validates US addresses before saving
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -194,10 +194,25 @@ const Profile = () => {
         addressForm.country === "USA"
       ) {
         const validation = await validateAddressAPI(addressForm);
-        setPendingAddressData(addressForm);
-        setValidationResult(validation);
-        setShowValidationModal(true);
-        setSaving(false);
+
+        const corrected = validation.validated_address;
+        const hasCorrections =
+          corrected &&
+          (corrected.street1 !== addressForm.address_line1 ||
+            corrected.city !== addressForm.city ||
+            corrected.state !== addressForm.state ||
+            corrected.zip !== addressForm.zip);
+
+        if (validation.is_valid && !hasCorrections) {
+          // Valid with no corrections — save silently without opening the modal
+          await saveAddress(addressForm);
+        } else {
+          // Needs user attention: corrections suggested or address is invalid
+          setPendingAddressData(addressForm);
+          setValidationResult(validation);
+          setShowValidationModal(true);
+          setSaving(false);
+        }
       } else {
         await saveAddress(addressForm);
       }
@@ -460,19 +475,6 @@ const Profile = () => {
           {!profileData.is_email_verified && (
             <div className={"profile-verification-banner"}>
               <div className={"profile-verification-content"}>
-                <svg
-                  className={"profile-verification-icon"}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
                 <div>
                   <p className={"profile-verification-title"}>
                     Email Not Verified
@@ -685,6 +687,7 @@ const Profile = () => {
                     onSelect={() => {}}
                     onEdit={() => openAddressModal(address)}
                     onDelete={() => handleDeleteAddress(address.address_id)}
+                    showRadio={false}
                   />
                 ))}
               </div>
@@ -732,7 +735,7 @@ const Profile = () => {
         isOpen={showDeleteConfirm}
         title="Delete Address?"
         message="This address will be permanently removed from your saved addresses. This action cannot be undone."
-        confirmLabel="Yes, Delete"
+        confirmLabel="Delete"
         cancelLabel="Cancel"
         variant="danger"
         onConfirm={handleConfirmDelete}
@@ -744,7 +747,7 @@ const Profile = () => {
         isOpen={showDeleteAccountConfirm}
         title="Delete Your Account?"
         message="This will permanently delete your account and all associated data. This action cannot be undone."
-        confirmLabel="Yes, Continue"
+        confirmLabel="Continue"
         cancelLabel="Cancel"
         variant="danger"
         onConfirm={handleDeleteAccountConfirmed}

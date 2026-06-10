@@ -31,13 +31,12 @@ const AddressForm = ({
       {/* Address name */}
       <div className="af-form-row">
         <div className="af-form-group">
-          <label>Address Name *</label>
+          <label>Address Name (optional)</label>
           <input
             type="text"
             value={addressForm.address_name}
             onChange={(e) => onFormChange("address_name", e.target.value)}
             placeholder="Home, Work, etc."
-            required
           />
         </div>
       </div>

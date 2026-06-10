@@ -153,15 +153,15 @@
   background: var(--color-surface-gradient);
   border: 1.5px solid var(--color-border-accent);
   border-radius: var(--radius-2xl);
-  padding: 2rem;
+  padding: 1.25rem 1.5rem;
 }
 
 .profile-section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--color-border);
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -281,7 +281,7 @@
 .profile-info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .profile-info-field {
@@ -710,7 +710,7 @@
 @media (max-width: 1024px) {
   .profile-layout {
     grid-template-columns: 1fr;
-    padding: 1.5rem;
+    padding: 2rem 2rem 4rem;
     gap: 1.25rem;
   }
 
