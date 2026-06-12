@@ -2,7 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useCart } from "../../../context/CartContext";
 import { useAuth } from "../../../context/AuthContext";
-import { FaHeart, FaLock, FaTag, FaExclamationTriangle } from "react-icons/fa";
+import {
+  FaHeart,
+  FaLock,
+  FaTag,
+  FaExclamationTriangle,
+  FaShoppingCart,
+  FaTrash,
+} from "react-icons/fa";
 import {
   fetchProductCouponsPreview,
   type ProductCoupon,
@@ -302,118 +309,128 @@ const Saved = () => {
                     />
                   </div>
                   <div className="saved-card-body">
-                    <span className="saved-card-category">{item.category}</span>
+                    {/* Left column: category, name, variant details */}
+                    <div className="saved-card-info">
+                      <span className="saved-card-category">
+                        {item.category}
+                      </span>
 
-                    <h5
-                      className="saved-card-title"
-                      onClick={() =>
-                        navigate(`/items/${item.variant_id}`, {
-                          state: { from: "/saved" },
-                        })
-                      }
-                    >
-                      {item.name}
-                    </h5>
+                      <h5
+                        className="saved-card-title"
+                        onClick={() =>
+                          navigate(`/items/${item.variant_id}`, {
+                            state: { from: "/saved" },
+                          })
+                        }
+                      >
+                        {item.name}
+                      </h5>
 
-                    {(item.color || item.size) && (
-                      <p className="saved-card-details">
-                        {item.color && <span>Color: {item.color}</span>}
-                        {item.color && item.size && <span> | </span>}
-                        {item.size && <span>Size: {item.size}</span>}
-                      </p>
-                    )}
+                      {(item.color || item.size) && (
+                        <p className="saved-card-details">
+                          {item.color && <span>Color: {item.color}</span>}
+                          {item.color && item.size && <span> | </span>}
+                          {item.size && <span>Size: {item.size}</span>}
+                        </p>
+                      )}
+                    </div>
 
-                    {/* Price — shows strikethrough original and discounted price when a coupon applies */}
-                    <div className="saved-card-price-container">
-                      {hasDiscount && discountInfo ? (
-                        <>
-                          <p className="saved-card-price-original">
-                            ${item.price.toFixed(2)}
-                          </p>
-                          <div className="saved-card-price-with-deal">
-                            <p className="saved-card-price-discounted">
-                              ${discountInfo.discountedPrice.toFixed(2)}
+                    {/* Middle column: price and coupon info */}
+                    <div className="saved-card-pricing">
+                      {/* Price — shows strikethrough original and discounted price when a coupon applies */}
+                      <div className="saved-card-price-container">
+                        {hasDiscount && discountInfo ? (
+                          <>
+                            <p className="saved-card-price-original">
+                              ${item.price.toFixed(2)}
                             </p>
-                            <div className="saved-card-deal-badges">
-                              {itemCoupon.discount_type === "percentage" && (
-                                <span className="saved-deal-badge">
-                                  {itemCoupon.discount_value}% OFF
-                                </span>
-                              )}
-                              {itemCoupon.discount_type === "fixed" && (
-                                <span className="saved-deal-badge">
-                                  ${itemCoupon.discount_value} OFF
-                                </span>
-                              )}
-                              {itemCoupon.free_shipping && (
-                                <span className="saved-deal-badge saved-deal-badge-shipping">
-                                  + Free Shipping
-                                </span>
-                              )}
+                            <div className="saved-card-price-with-deal">
+                              <p className="saved-card-price-discounted">
+                                ${discountInfo.discountedPrice.toFixed(2)}
+                              </p>
+                              <div className="saved-card-deal-badges">
+                                {itemCoupon.discount_type === "percentage" && (
+                                  <span className="saved-deal-badge">
+                                    {itemCoupon.discount_value}% OFF
+                                  </span>
+                                )}
+                                {itemCoupon.discount_type === "fixed" && (
+                                  <span className="saved-deal-badge">
+                                    ${itemCoupon.discount_value} OFF
+                                  </span>
+                                )}
+                                {itemCoupon.free_shipping && (
+                                  <span className="saved-deal-badge saved-deal-badge-shipping">
+                                    + Free Shipping
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                          </>
+                        ) : (
+                          <div className="saved-card-price-with-deal">
+                            <p className="saved-card-price">
+                              ${item.price.toFixed(2)}
+                            </p>
+                            {itemCoupon && (
+                              <div className="saved-card-deal-badges">
+                                {itemCoupon.discount_type === "bogo" && (
+                                  <span className="saved-deal-badge saved-deal-badge-bogo">
+                                    {getBOGOLabel(
+                                      itemCoupon.bogo_buy_quantity,
+                                      itemCoupon.bogo_get_quantity,
+                                      itemCoupon.bogo_discount_percentage,
+                                    )}
+                                  </span>
+                                )}
+                                {itemCoupon.free_shipping && (
+                                  <span className="saved-deal-badge saved-deal-badge-shipping">
+                                    + Free Shipping
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
-                        </>
-                      ) : (
-                        <div className="saved-card-price-with-deal">
-                          <p className="saved-card-price">
-                            ${item.price.toFixed(2)}
-                          </p>
-                          {itemCoupon && (
-                            <div className="saved-card-deal-badges">
-                              {itemCoupon.discount_type === "bogo" && (
-                                <span className="saved-deal-badge saved-deal-badge-bogo">
-                                  {getBOGOLabel(
-                                    itemCoupon.bogo_buy_quantity,
-                                    itemCoupon.bogo_get_quantity,
-                                    itemCoupon.bogo_discount_percentage,
-                                  )}
-                                </span>
-                              )}
-                              {itemCoupon.free_shipping && (
-                                <span className="saved-deal-badge saved-deal-badge-shipping">
-                                  + Free Shipping
-                                </span>
-                              )}
+                        )}
+                      </div>
+
+                      {/* Coupon info — expiry notices and coupon code badge */}
+                      {itemCoupon && (
+                        <div className="saved-card-coupon-info">
+                          {isExpired && (
+                            <div className="saved-coupon-expired-notice">
+                              <FaExclamationTriangle size={12} />
+                              <span>Saved coupon expired</span>
+                            </div>
+                          )}
+                          {fallbackToBest && !isExpired && (
+                            <div className="saved-coupon-fallback-notice">
+                              <FaExclamationTriangle size={12} />
+                              <span>Saved coupon no longer available</span>
+                            </div>
+                          )}
+                          <div className="saved-coupon-code-badge">
+                            <FaTag size={10} />
+                            <span>{itemCoupon.coupon_code}</span>
+                          </div>
+                          {requiresVerification && (
+                            <div className="saved-coupon-verification-notice">
+                              <FaLock size={10} />
+                              <span>Login required</span>
                             </div>
                           )}
                         </div>
                       )}
                     </div>
 
-                    {/* Coupon info — expiry notices and coupon code badge */}
-                    {itemCoupon && (
-                      <div className="saved-card-coupon-info">
-                        {isExpired && (
-                          <div className="saved-coupon-expired-notice">
-                            <FaExclamationTriangle size={12} />
-                            <span>Saved coupon expired</span>
-                          </div>
-                        )}
-                        {fallbackToBest && !isExpired && (
-                          <div className="saved-coupon-fallback-notice">
-                            <FaExclamationTriangle size={12} />
-                            <span>Saved coupon no longer available</span>
-                          </div>
-                        )}
-                        <div className="saved-coupon-code-badge">
-                          <FaTag size={10} />
-                          <span>{itemCoupon.coupon_code}</span>
-                        </div>
-                        {requiresVerification && (
-                          <div className="saved-coupon-verification-notice">
-                            <FaLock size={10} />
-                            <span>Login required</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
+                    {/* Right column: action buttons */}
                     <div className="saved-card-actions">
                       <button
                         className="saved-btn-add-to-cart"
                         onClick={() => handleAddToCart(item)}
                       >
-                        Add to Cart
+                        <FaShoppingCart className="saved-btn-icon" />
+                        <span>Add to Cart</span>
                       </button>
 
                       <button
@@ -422,7 +439,8 @@ const Saved = () => {
                           handleRemoveFromWishlist(item.variant_id)
                         }
                       >
-                        Remove
+                        <FaTrash className="saved-btn-icon" />
+                        <span>Remove</span>
                       </button>
                     </div>
                   </div>

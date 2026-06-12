@@ -278,9 +278,6 @@
   transition: color 0.2s ease;
   line-height: 1.35;
   letter-spacing: 0.01em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .cart-item-name:hover {
@@ -807,11 +804,23 @@
 
 @media (max-width: 968px) {
   .cart-layout {
+    grid-template-columns: 1fr 280px;
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .cart-layout {
     grid-template-columns: 1fr;
   }
 
   .cart-summary-section {
     position: static;
+    order: -1;
+  }
+
+  .cart-items-section {
+    order: 1;
   }
 
   .cart-summary-card {

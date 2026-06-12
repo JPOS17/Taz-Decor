@@ -40,8 +40,9 @@
   width: 100%;
   border-right: none;
   box-shadow: none;
-  background: transparent;
+  background: var(--color-page-bg);
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -50,12 +51,20 @@
    ============================================================================ */
 
 .sb-sidebar::-webkit-scrollbar {
-  display: none;
+  width: 3px;
 }
 
-.sb-sidebar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+.sb-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sb-sidebar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-primary-mid), var(--color-primary));
+  border-radius: var(--radius-sm);
+}
+
+.sb-sidebar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--color-primary-hover-dark), var(--color-primary-deep));
 }
 
 /* ============================================================================
@@ -94,7 +103,7 @@
   gap: 0.6rem;
   margin: 0 1.25rem 0.75rem;
   padding: 0.4rem 0;
-  background: transparent;
+  background: var(--color-page-bg);
   border: none;
   color: var(--color-text-strong);
   font-size: 0.88rem;
@@ -140,7 +149,7 @@
   align-items: center;
   width: 100%;
   padding: 0.6rem 1.25rem;
-  background: transparent;
+  background: var(--color-page-bg);
   border: none;
   cursor: pointer;
   font-family: var(--font-sans);
@@ -199,7 +208,7 @@
   gap: 0.65rem;
   width: 100%;
   padding: 0.42rem 1.25rem 0.42rem 1.5rem;
-  background: transparent;
+  background: var(--color-page-bg);
   border: none;
   cursor: pointer;
   font-family: var(--font-sans);
@@ -242,7 +251,7 @@
 .sb-sidebar-reset-btn {
   margin: 0 1.25rem 0.5rem;
   padding: 0;
-  background: transparent;
+  background: var(--color-page-bg);
   border: none;
   font-family: var(--font-sans);
   font-size: 0.78rem;
@@ -296,7 +305,7 @@
   padding: 0.75rem 1.5rem 0.75rem 1.25rem;
   box-sizing: border-box;
   transition: background-color 0.22s ease, color 0.22s ease, padding-left 0.22s ease;
-  background-color: transparent;
+  background-color: var(--color-page-bg);
   border: none;
   cursor: pointer;
   color: var(--color-text-strong);
@@ -458,7 +467,7 @@
     padding: 1rem 1.25rem 0.75rem;
     border-bottom: 1px solid var(--color-border-accent);
     flex-shrink: 0;
-    background: linear-gradient(90deg, var(--color-primary-bg-hover) 0%, transparent 100%);
+    background: var(--color-page-bg);
   }
 
   .sb-sidebar-drawer-title {
@@ -475,7 +484,7 @@
     justify-content: center;
     width: 30px;
     height: 30px;
-    background: transparent;
+    background: var(--color-page-bg);
     border: 1.5px solid var(--color-primary-mid);
     border-radius: 50%;
     cursor: pointer;

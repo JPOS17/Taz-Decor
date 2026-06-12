@@ -147,34 +147,48 @@
 
 /* ============================================================================
    PRODUCTS GRID
+   Breakpoints (based on available content width):
+   - Default (desktop): 4–5 cols via auto-fill with 200px min
+   - ≤ 1024px: 3 cols
+   - ≤ 768px : 2 cols
+   - ≤ 480px : 2 cols
    ============================================================================ */
 
 .items-products-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1.25rem;
   padding: 1.25rem;
   width: 100%;
   box-sizing: border-box;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 
 /* ============================================================================
    RESPONSIVE
    ============================================================================ */
 
+/* Tablet landscape — sidebar still visible, tighten to 3 cols */
+@media (max-width: 1024px) {
+  .items-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Tablet portrait — sidebar hides, full width → still 3 cols is fine */
 @media (max-width: 768px) {
   .items-sidebar-hidden {
     display: none;
   }
 
   .items-category-dropdown-mobile {
-    display: none;
-  }
-}
-
-@media (max-width: 767px) {
-  .items-category-dropdown-mobile {
     display: block;
+  }
+
+  .items-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
   }
 
   .items-header {
@@ -193,7 +207,6 @@
 
   .items-category-title {
     font-size: 1.55rem;
-    margin-left: 1.4rem;
   }
 
   .items-filter-wrapper {
@@ -205,7 +218,14 @@
   }
 }
 
-@media (max-width: 576px) {
+/* Mobile — drop to 2 columns */
+@media (max-width: 560px) {
+  .items-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
   .items-header {
     padding: 0.85rem;
   }
@@ -218,5 +238,14 @@
   .items-verification-badge {
     font-size: 0.72rem;
     padding: 4px 8px;
+  }
+}
+
+/* Small phones — 2 cols with tighter gap */
+@media (max-width: 380px) {
+  .items-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 0.5rem;
   }
 }
