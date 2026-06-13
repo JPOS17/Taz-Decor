@@ -480,7 +480,8 @@ const Profile = () => {
                     Email Not Verified
                   </p>
                   <p className={"profile-verification-text"}>
-                    Please verify your email address to access all features.
+                    Please verify your email address to access discounts and
+                    coupons.
                   </p>
                 </div>
               </div>

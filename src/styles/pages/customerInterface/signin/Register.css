@@ -233,6 +233,80 @@
   opacity: 0.6;
 }
 
+/* ============================================================================
+   SUCCESS STATE
+   ============================================================================ */
+
+.register-success-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: var(--color-text-on-primary-alt);
+  margin: 0 auto 24px;
+  box-shadow: 0 8px 24px var(--color-success-shadow);
+  animation: register-scale-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes register-scale-in {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+.register-email-chip {
+  display: inline-block;
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  border: 1px solid var(--color-info-border);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: var(--radius-md);
+  margin: 6px 0 20px;
+}
+
+.register-info {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.register-hint {
+  font-size: 13px;
+  color: var(--color-text-faint);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.register-resend-btn {
+  width: 100%;
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.register-resend-btn:hover:not(:disabled) {
+  border-color: var(--color-primary-mid);
+  color: var(--color-primary);
+}
+
+.register-resend-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 @media (max-width: 640px) {
   .register-card {
     padding: 32px 24px;

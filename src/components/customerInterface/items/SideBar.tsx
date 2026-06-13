@@ -63,7 +63,7 @@ const SideBar = ({
     min === currentMinPrice && max === currentMaxPrice;
 
   // ============================================================================
-  // SIDE EFFECTS
+  // EFFECTS
   // ============================================================================
 
   // Prevent body scroll while the mobile drawer is open
@@ -77,6 +77,12 @@ const SideBar = ({
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
+
+  // Scrolls to the top if reset is clicked
+  const handleReset = () => {
+    onReset();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // ============================================================================
   // HANDLERS
@@ -174,7 +180,7 @@ const SideBar = ({
 
         {/* Reset  */}
         {hasActiveFilters && (
-          <button className="sb-sidebar-reset-btn" onClick={onReset}>
+          <button className="sb-sidebar-reset-btn" onClick={handleReset}>
             Reset Filters
           </button>
         )}

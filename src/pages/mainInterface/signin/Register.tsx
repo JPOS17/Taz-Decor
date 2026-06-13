@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
+import { resendVerificationEmail } from "../../../api/auth";
 
 import PasswordInput from "../../../components/universalComponents/PasswordInput";
 
@@ -16,7 +17,6 @@ const Register = () => {
 
   const { register } = useAuth();
   const { syncToDatabase, loadFromDatabase } = useCart();
-  const navigate = useNavigate();
   const errorRef = useRef<HTMLDivElement>(null);
 
   // ============================================================================
@@ -33,6 +33,10 @@ const Register = () => {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent">(
+    "idle",
+  );
   const [passwordStrength, setPasswordStrength] = useState<{
     score: number;
     feedback: string[];
@@ -130,15 +134,26 @@ const Register = () => {
       const { confirmPassword, ...registerData } = formData;
 
       await register(registerData);
-
       // Sync guest cart/wishlist to database, then load full DB state
       await syncToDatabase();
       await loadFromDatabase();
-      navigate("/profile");
+      setIsRegistered(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to register");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Resends the verification email and locks the button to prevent duplicate sends
+  const handleResend = async () => {
+    if (resendStatus !== "idle") return;
+    setResendStatus("sending");
+    try {
+      await resendVerificationEmail();
+      setResendStatus("sent");
+    } catch {
+      setResendStatus("idle");
     }
   };
 
@@ -148,6 +163,47 @@ const Register = () => {
 
   // Strength class drives the CSS fill width and color of the strength bar
   const strengthClass = `register-strength-${passwordStrength.score}`;
+
+  if (isRegistered) {
+    return (
+      <div className="register-container">
+        <div className="register-card" style={{ textAlign: "center" }}>
+          <div className="register-success-icon">✓</div>
+          <h1 className="register-title">Check your inbox</h1>
+          <p className="register-subtitle">We sent a verification link to</p>
+          <p className="register-email-chip">{formData.email}</p>
+          <p className="register-info">
+            Verifying your email unlocks discounts and coupons on future orders.
+          </p>
+          <p className="register-hint">
+            Didn't get it? Check your spam folder, or resend below.
+          </p>
+          <Link
+            to="/profile"
+            className="register-submit-btn"
+            style={{
+              display: "block",
+              textDecoration: "none",
+              marginBottom: "12px",
+            }}
+          >
+            Go to your profile
+          </Link>
+          <button
+            className="register-resend-btn"
+            onClick={handleResend}
+            disabled={resendStatus !== "idle"}
+          >
+            {resendStatus === "sending"
+              ? "Sending..."
+              : resendStatus === "sent"
+                ? "Email sent ✓"
+                : "Resend verification email"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="register-container">
