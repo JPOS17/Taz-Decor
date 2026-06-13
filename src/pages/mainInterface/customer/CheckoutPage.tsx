@@ -1192,7 +1192,7 @@ const CheckoutPage = () => {
             <div className="checkout-mode-selection-cards">
               <button
                 className="checkout-mode-card checkout-mode-card-login"
-                onClick={() => navigate("/login?redirect=/checkout")}
+                onClick={() => navigate("/login?redirect=/cart")}
               >
                 <FaUser size={32} />
                 <h3>Sign In</h3>
@@ -1221,7 +1221,7 @@ const CheckoutPage = () => {
               Don&apos;t have an account?{" "}
               <button
                 className="checkout-btn-link"
-                onClick={() => navigate("/register?redirect=/checkout")}
+                onClick={() => navigate("/register?redirect=/cart")}
               >
                 Create one
               </button>

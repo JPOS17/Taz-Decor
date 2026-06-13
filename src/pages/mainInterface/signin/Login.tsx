@@ -66,6 +66,9 @@ const Login = () => {
   // RENDER
   // ============================================================================
 
+  // Forwards the redirect param to the register page if present
+  const redirectParam = new URLSearchParams(location.search).get("redirect");
+
   return (
     <div className="login-container">
       <div className="login-card">
@@ -132,7 +135,14 @@ const Login = () => {
           <div className="login-footer">
             <p className="login-footer-text">
               Don't have an account?{" "}
-              <Link to="/register" className="login-footer-link">
+              <Link
+                to={
+                  redirectParam
+                    ? `/register?redirect=${redirectParam}`
+                    : "/register"
+                }
+                className="login-footer-link"
+              >
                 Sign up
               </Link>
             </p>

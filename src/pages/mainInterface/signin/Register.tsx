@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
@@ -17,6 +17,7 @@ const Register = () => {
 
   const { register } = useAuth();
   const { syncToDatabase, loadFromDatabase } = useCart();
+  const location = useLocation();
   const errorRef = useRef<HTMLDivElement>(null);
 
   // ============================================================================
@@ -164,6 +165,12 @@ const Register = () => {
   // Strength class drives the CSS fill width and color of the strength bar
   const strengthClass = `register-strength-${passwordStrength.score}`;
 
+  // Reads the redirect param so the success screen can send the user to the right place
+  const redirectTo =
+    new URLSearchParams(location.search).get("redirect") || "/profile";
+  const redirectLabel =
+    redirectTo === "/cart" ? "Go to your cart" : "Go to your profile";
+
   if (isRegistered) {
     return (
       <div className="register-container">
@@ -179,7 +186,7 @@ const Register = () => {
             Didn't get it? Check your spam folder, or resend below.
           </p>
           <Link
-            to="/profile"
+            to={redirectTo}
             className="register-submit-btn"
             style={{
               display: "block",
@@ -187,7 +194,7 @@ const Register = () => {
               marginBottom: "12px",
             }}
           >
-            Go to your profile
+            {redirectLabel}
           </Link>
           <button
             className="register-resend-btn"
