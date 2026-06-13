@@ -222,6 +222,11 @@ const CheckoutPage = () => {
   const isEmailVerified = user?.isEmailVerified ?? false;
   const isGuest = checkoutMode === "guest";
 
+  // True if any cart item has a coupon applied, or a cart-level coupon is selected
+  const hasAnyCouponApplied =
+    cartItems.some((item) => !!item.selected_coupon_id) ||
+    !!selectedCartLevelCoupon;
+
   const guestAddressComplete =
     !!guestAddress.address_line1 &&
     !!guestAddress.city &&
@@ -1312,41 +1317,33 @@ const CheckoutPage = () => {
           }
         />
 
-        {/* Error banner — shown when a step validation or API error occurs */}
-        {error && (
+        {/* Error banner */}
+        {(error ||
+          validationErrors.length > 0 ||
+          (!isGuest && couponErrors.length > 0)) && (
           <div className="checkout-error" ref={errorRef}>
             <FaExclamationTriangle />
-            <span>{error}</span>
-          </div>
-        )}
+            <div>
+              {/* Top-level error message — hardcoded frontend validations */}
+              {error && <span>{error}</span>}
 
-        {/* Coupon error list — shown for auth users with invalid coupon selections */}
-        {!isGuest && couponErrors.length > 0 && (
-          <div className="checkout-coupon-errors-section">
-            <h3>
-              <FaExclamationTriangle /> Coupon Issues
-            </h3>
-            <ul>
-              {couponErrors.map((err, i) => (
-                <li key={i}>{err}</li>
-              ))}
-            </ul>
-            <p className="checkout-coupon-errors-help">
-              Please remove or update the coupons in your cart to continue.
-            </p>
-          </div>
-        )}
-
-        {/* Validation error list — shown when cart items fail stock or price checks */}
-        {validationErrors.length > 0 && (
-          <div className="checkout-validation-errors">
-            <h4>Please review the following issues:</h4>
-            {validationErrors.map((err, i) => (
-              <div key={i} className="checkout-validation-error-item">
-                <FaExclamationTriangle />
-                <span>{err.error}</span>
-              </div>
-            ))}
+              {/* Item-level stock and price errors — sourced from validateCart backend response */}
+              {validationErrors.length > 0 && (
+                <ul>
+                  {validationErrors.map((err, i) => (
+                    <li key={i}>{err.error}</li>
+                  ))}
+                </ul>
+              )}
+              {/* Coupon errors — sourced from validateCoupons backend response, auth users only */}
+              {!isGuest && couponErrors.length > 0 && (
+                <ul>
+                  {couponErrors.map((err, i) => (
+                    <li key={i}>{err}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
 
@@ -1526,7 +1523,7 @@ const CheckoutPage = () => {
                 </div>
 
                 {/* Email verification prompt — auth users without a verified email */}
-                {!isGuest && !isEmailVerified && (
+                {!isGuest && !isEmailVerified && hasAnyCouponApplied && (
                   <div className="checkout-warning">
                     <FaLock />
                     <span>
