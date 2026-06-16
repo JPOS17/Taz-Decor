@@ -25,9 +25,9 @@
 }
 
 .tb-topbar-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
-  justify-content: space-between;
   padding: 0.55rem 1.25rem;
   max-width: 100%;
   margin: 0 auto;
@@ -41,6 +41,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  justify-content: flex-start;
 }
 
 /* ============================================================================
@@ -70,7 +71,6 @@
   display: none;
   align-items: center;
   gap: 0.25rem;
-  flex: 1;
   justify-content: center;
 }
 
@@ -123,6 +123,7 @@
   display: flex;
   align-items: center;
   gap: 0.15rem;
+  justify-content: flex-end;
 }
 
 .tb-topbar-icon-link {
@@ -265,7 +266,7 @@
   display: none;
 }
 
-@media (max-width: 425px) {
+@media (max-width: 464px) {
   .tb-logo-full {
     display: none;
   }
@@ -278,6 +279,11 @@
 @media (max-width: 767px) {
   .tb-topbar {
     flex-wrap: wrap;
+  }
+
+  .tb-topbar-container {
+    display: flex;
+    justify-content: space-between;
   }
 
   .tb-topbar-nav-links {
@@ -352,13 +358,25 @@
   }
 }
 
+@media (min-width: 768px) and (max-width: 991px) {
+  .tb-topbar-logo {
+    font-size: 1.1rem;
+  }
+}
+
 @media (min-width: 992px) {
   .tb-topbar-container {
     padding: 0.55rem 1.75rem;
   }
 
-  .tb-topbar-nav-links {
-    gap: 0.75rem;
+  .tb-topbar-logo {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .tb-topbar-container {
+    padding: 0.55rem 1.75rem;
   }
 
   .tb-topbar-logo {
