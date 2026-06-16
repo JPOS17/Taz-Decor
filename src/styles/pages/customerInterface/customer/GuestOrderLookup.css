@@ -333,11 +333,13 @@
 .guest-lookup-item-img {
   width: 64px;
   height: 64px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--color-border);
   flex-shrink: 0;
   background: var(--color-surface-warm-solid);
+  padding: 0.25rem;
+  box-sizing: border-box;
 }
 
 .guest-lookup-item-info {

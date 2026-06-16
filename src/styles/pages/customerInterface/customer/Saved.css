@@ -169,8 +169,8 @@
 
 .saved-card-image-wrapper {
   flex-shrink: 0;
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  height: 180px;
   overflow: hidden;
   background: var(--color-surface-alt);
   display: flex;
@@ -505,8 +505,8 @@
   }
 
   .saved-card-image-wrapper {
-    width: 130px;
-    height: 130px;
+    width: 160px;
+    height: 160px;
   }
 
   .saved-card-body {
@@ -581,8 +581,8 @@
 
   /* Keep row layout — just tighter */
   .saved-card-image-wrapper {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     flex-shrink: 0;
   }
 
@@ -689,8 +689,8 @@
 
   /* Shrink image further to free up text space */
   .saved-card-image-wrapper {
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    height: 80px;
   }
 
   .saved-card-body {

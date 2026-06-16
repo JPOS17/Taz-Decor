@@ -268,10 +268,7 @@ const Saved = () => {
     <div className="saved-page">
       <div className="saved-container">
         <div className="saved-header">
-          <h2 className="saved-title">
-            <FaHeart className="saved-title-icon" />
-            My Wishlist
-          </h2>
+          <h2 className="saved-title">My Wishlist</h2>
           <span className="saved-count-badge">
             {wishlistItems.length} items
           </span>
