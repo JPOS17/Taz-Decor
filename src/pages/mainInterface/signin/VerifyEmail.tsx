@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { verifyEmail } from "../../../api/auth";
+import { verifyEmail, resendVerificationEmail } from "../../../api/auth";
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 
@@ -25,6 +25,9 @@ const VerifyEmail = () => {
     "loading",
   );
   const [message, setMessage] = useState("");
+  const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent">(
+    "idle",
+  );
 
   // ============================================================================
   // EFFECTS
@@ -62,6 +65,25 @@ const VerifyEmail = () => {
 
     performVerification();
   }, [token, navigate]);
+
+  // ============================================================================
+  // HANDLERS
+  // ============================================================================
+
+  // Resends the verification email; redirects to login if the user is not authenticated
+  const handleResend = async () => {
+    if (resendStatus !== "idle") return;
+    setResendStatus("sending");
+    try {
+      await resendVerificationEmail();
+      setResendStatus("sent");
+    } catch {
+      // Token missing or expired — user needs to log in first
+      navigate("/login", {
+        state: { message: "Please sign in to resend your verification email." },
+      });
+    }
+  };
 
   // ============================================================================
   // RENDER
@@ -108,9 +130,17 @@ const VerifyEmail = () => {
           <Link to="/profile" className="verify-btn-primary">
             Go to Profile
           </Link>
-          <Link to="/login" className="verify-btn-secondary">
-            Back to Login
-          </Link>
+          <button
+            className="verify-btn-secondary"
+            onClick={handleResend}
+            disabled={resendStatus !== "idle"}
+          >
+            {resendStatus === "sending"
+              ? "Sending..."
+              : resendStatus === "sent"
+                ? "Email sent ✓"
+                : "Resend verification email"}
+          </button>
         </div>
       </div>
     </div>
