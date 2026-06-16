@@ -477,7 +477,7 @@
   }
 }
 
-@media (max-width: 576px) {
+/* @media (max-width: 576px) {
   .mc-overlay {
     padding-top: 55px;
     padding-left: 0.5rem;
@@ -504,4 +504,4 @@
     padding: 0.6rem 1rem;
     font-size: 0.875rem;
   }
-}
+} */
