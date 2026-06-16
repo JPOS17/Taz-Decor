@@ -11,7 +11,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 3rem 1rem;
+  padding: 2rem 2rem 2rem 2rem;
 }
 
 .guest-lookup-container {
@@ -199,7 +199,6 @@
 }
 
 .guest-lookup-result-header h1 {
-  font-family: var(--font-serif);
   font-size: 1.9rem;
   font-weight: 700;
   margin: 0 0 0.25rem;
@@ -498,7 +497,7 @@
 
 @media (max-width: 768px) {
   .guest-lookup-page {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1rem 1rem 1rem;
   }
 
   .guest-lookup-container {
@@ -527,5 +526,15 @@
 
   .guest-lookup-result-header-estimate {
     width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .guest-lookup-page {
+    padding: 1.5rem 0.75rem 0.75rem 0.75rem;
+  }
+
+  .guest-lookup-container {
+    padding: 1.5rem 1rem;
   }
 }

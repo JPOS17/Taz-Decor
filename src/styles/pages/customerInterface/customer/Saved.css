@@ -7,7 +7,7 @@
 .saved-page {
   min-height: 100vh;
   background-color: var(--color-page-bg);
-  padding: 1rem 0 2rem 0;
+  padding: 2rem 2rem 2rem 2rem;
   font-family: var(--font-sans);
 }
 
@@ -490,9 +490,8 @@
 /* Tablet: shrink image and action column slightly */
 @media (max-width: 768px) {
   .saved-page {
-    padding: 1rem 0 1.5rem 0;
+    padding: 1.5rem 1rem 1rem 1rem;
   }
-
   .saved-header {
     margin-bottom: 1.5rem;
   }
@@ -555,7 +554,7 @@
 /* Mobile: stay horizontal, shrink image + icon-only buttons */
 @media (max-width: 576px) {
   .saved-page {
-    padding: 0.75rem 0 1rem 0;
+    padding: 1.5rem 0.75rem 0.75rem 0.75rem;
   }
 
   .saved-container {

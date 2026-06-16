@@ -17,7 +17,7 @@
   display: grid;
   grid-template-columns: 250px 1fr;
   gap: 2rem;
-  padding: 2rem;
+  padding: 3rem 2rem 2rem 2rem;
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -710,7 +710,7 @@
 @media (max-width: 1024px) {
   .profile-layout {
     grid-template-columns: 1fr;
-    padding: 2rem 2rem 4rem;
+    padding: 2rem 2rem 4rem 2rem;
     gap: 1.25rem;
   }
 
@@ -720,6 +720,12 @@
 
   .profile-addresses-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-layout {
+    padding: 2rem 2rem 3rem;
   }
 }
 
@@ -764,5 +770,11 @@
 
   .profile-dap-actions {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-layout {
+    padding: 1.5rem 1.5rem 2rem;
   }
 }

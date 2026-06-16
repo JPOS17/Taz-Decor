@@ -7,7 +7,7 @@
 .cart-page {
   min-height: 100vh;
   background-color: var(--color-page-bg);
-  padding: 1rem 0 2rem 0;
+  padding: 2rem 2rem 2rem 2rem;
   font-family: var(--font-sans);
 }
 
@@ -909,9 +909,18 @@
   }
 }
 
+@media (max-width: 768px) {
+  .cart-page {
+    padding: 1.5rem 1rem 1rem 1rem;
+  }
+  .cart-empty {
+    padding: 4rem 1.5rem;
+  }
+}
+
 @media (max-width: 576px) {
   .cart-page {
-    padding: 0.75rem 0 1rem 0;
+    padding: 1.5rem 0.75rem 0.75rem 0.75rem;
   }
 
   .cart-container {
