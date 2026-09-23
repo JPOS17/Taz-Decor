@@ -2,7 +2,6 @@ import { FaExclamationTriangle, FaShippingFast, FaCheck } from "react-icons/fa";
 import type { ShippingOption } from "../../../api/checkout";
 import DeliveryEstimate from "./DeliveryEstimate";
 import LoadingSpinner from "../../universalComponents/LoadingSpinner";
-import "../../../styles/components/customerInterface/checkout/ShippingOptionsSelector.css";
 
 // Maps DB service keys to carrier/name labels for display
 const SERVICE_DISPLAY_MAP: Record<string, { carrier: string; name: string }> = {

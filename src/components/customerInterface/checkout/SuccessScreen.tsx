@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaFileAlt, FaHome } from "react-icons/fa";
 import DeliveryEstimate from "./DeliveryEstimate";
-import "../../../styles/components/customerInterface/checkout/SuccessScreen.css";
 
 interface OrderResult {
   order_id: number;

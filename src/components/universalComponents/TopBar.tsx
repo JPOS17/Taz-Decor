@@ -3,7 +3,6 @@ import Logo from "./Logo";
 import NavLinks from "./NavLinks";
 import NavIcons from "./NavIcons";
 import { FaBars } from "react-icons/fa";
-import "../../styles/components/universal/TopBar.css";
 
 const NavBar = () => {
   // Controls mobile menu open/closed state

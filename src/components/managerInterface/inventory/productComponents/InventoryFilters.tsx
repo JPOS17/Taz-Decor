@@ -1,5 +1,5 @@
-import { Filter, X } from "lucide-react";
-import { useState } from "react";
+import { Filter, X, ChevronDown } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface ManagerFilterBarProps {
   onStatusChange: (status: string | null) => void;
@@ -12,6 +12,88 @@ interface ManagerFilterBarProps {
   currentSortBy: string | null;
   onClearFilters: () => void;
 }
+
+type DropdownKey = "status" | "stock" | "category" | "sort" | null;
+
+interface DropdownOption {
+  label: string;
+  onSelect: () => void;
+  dividerBefore?: boolean;
+}
+
+// A single custom dropdown, replacing Bootstrap's data-bs-toggle="dropdown" component
+const FilterDropdown = ({
+  isOpen,
+  onToggle,
+  onClose,
+  label,
+  options,
+}: {
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  label: string;
+  options: DropdownOption[];
+}) => {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Close when clicking outside the dropdown, or on Escape
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, onClose]);
+
+  return (
+    <div className="mi-dropdown" ref={wrapperRef}>
+      <button
+        className={`mi-filter-dropdown-btn mi-dropdown-toggle${isOpen ? " mi-dropdown-toggle--open" : ""}`}
+        type="button"
+        aria-expanded={isOpen}
+        onClick={onToggle}
+      >
+        <span>{label}</span>
+        <ChevronDown size={14} className="mi-dropdown-chevron" />
+      </button>
+      {isOpen && (
+        <ul className="mi-dropdown-menu">
+          {options.map((option, index) => (
+            <li key={index}>
+              {option.dividerBefore && <hr className="mi-dropdown-divider" />}
+              <button
+                className="mi-dropdown-item"
+                onClick={() => {
+                  option.onSelect();
+                  onClose();
+                }}
+              >
+                {option.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 // Collapsible filter bar for the manager inventory list
 const ManagerFilterBar = ({
@@ -26,6 +108,7 @@ const ManagerFilterBar = ({
   onClearFilters,
 }: ManagerFilterBarProps) => {
   const [showFilters, setShowFilters] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
 
   const hasActiveFilters =
     currentStatus !== null ||
@@ -39,6 +122,10 @@ const ManagerFilterBar = ({
     currentCategoryStatus,
     currentSortBy,
   ].filter(Boolean).length;
+
+  const toggleDropdown = (key: DropdownKey) =>
+    setOpenDropdown((prev) => (prev === key ? null : key));
+  const closeDropdown = () => setOpenDropdown(null);
 
   // ============================================================================
   // HELPERS
@@ -137,245 +224,131 @@ const ManagerFilterBar = ({
           {/* Product Status */}
           <div className="mi-filter-group">
             <span className="mi-filter-group-label">Product Status</span>
-            <div className="dropdown">
-              <button
-                className="mi-filter-dropdown-btn dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                {getStatusLabel()}
-              </button>
-              <ul className="dropdown-menu">
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onStatusChange(null)}
-                  >
-                    All Products
-                  </button>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onStatusChange("active")}
-                  >
-                    Active Only
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onStatusChange("inactive")}
-                  >
-                    Inactive Only
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <FilterDropdown
+              isOpen={openDropdown === "status"}
+              onToggle={() => toggleDropdown("status")}
+              onClose={closeDropdown}
+              label={getStatusLabel()}
+              options={[
+                { label: "All Products", onSelect: () => onStatusChange(null) },
+                {
+                  label: "Active Only",
+                  onSelect: () => onStatusChange("active"),
+                  dividerBefore: true,
+                },
+                {
+                  label: "Inactive Only",
+                  onSelect: () => onStatusChange("inactive"),
+                },
+              ]}
+            />
           </div>
 
           {/* Stock Level */}
           <div className="mi-filter-group">
             <span className="mi-filter-group-label">Stock Level</span>
-            <div className="dropdown">
-              <button
-                className="mi-filter-dropdown-btn dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                {getStockLabel()}
-              </button>
-              <ul className="dropdown-menu">
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onStockChange(null)}
-                  >
-                    Any Stock Level
-                  </button>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onStockChange("out-of-stock")}
-                  >
-                    Out of Stock (0)
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onStockChange("low-stock")}
-                  >
-                    Low Stock (≤3)
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <FilterDropdown
+              isOpen={openDropdown === "stock"}
+              onToggle={() => toggleDropdown("stock")}
+              onClose={closeDropdown}
+              label={getStockLabel()}
+              options={[
+                {
+                  label: "Any Stock Level",
+                  onSelect: () => onStockChange(null),
+                },
+                {
+                  label: "Out of Stock (0)",
+                  onSelect: () => onStockChange("out-of-stock"),
+                  dividerBefore: true,
+                },
+                {
+                  label: "Low Stock (≤3)",
+                  onSelect: () => onStockChange("low-stock"),
+                },
+              ]}
+            />
           </div>
 
           {/* Category Status */}
           <div className="mi-filter-group">
             <span className="mi-filter-group-label">Category Status</span>
-            <div className="dropdown">
-              <button
-                className="mi-filter-dropdown-btn dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                {getCategoryStatusLabel()}
-              </button>
-              <ul className="dropdown-menu">
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onCategoryStatusChange(null)}
-                  >
-                    All Categories
-                  </button>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onCategoryStatusChange("active")}
-                  >
-                    Active Categories
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onCategoryStatusChange("inactive")}
-                  >
-                    Inactive Categories
-                  </button>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onCategoryStatusChange("multiple")}
-                  >
-                    Multiple Categories (2+)
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <FilterDropdown
+              isOpen={openDropdown === "category"}
+              onToggle={() => toggleDropdown("category")}
+              onClose={closeDropdown}
+              label={getCategoryStatusLabel()}
+              options={[
+                {
+                  label: "All Categories",
+                  onSelect: () => onCategoryStatusChange(null),
+                },
+                {
+                  label: "Active Categories",
+                  onSelect: () => onCategoryStatusChange("active"),
+                  dividerBefore: true,
+                },
+                {
+                  label: "Inactive Categories",
+                  onSelect: () => onCategoryStatusChange("inactive"),
+                },
+                {
+                  label: "Multiple Categories (2+)",
+                  onSelect: () => onCategoryStatusChange("multiple"),
+                  dividerBefore: true,
+                },
+              ]}
+            />
           </div>
 
           {/* Sort By */}
           <div className="mi-filter-group">
             <span className="mi-filter-group-label">Sort By</span>
-            <div className="dropdown">
-              <button
-                className="mi-filter-dropdown-btn dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                {getSortLabel()}
-              </button>
-              <ul className="dropdown-menu">
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onSortChange(null)}
-                  >
-                    Default Order
-                  </button>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onSortChange("name-asc")}
-                  >
-                    Name (A-Z)
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onSortChange("name-desc")}
-                  >
-                    Name (Z-A)
-                  </button>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onSortChange("price-asc")}
-                  >
-                    Price (Low-High)
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onSortChange("price-desc")}
-                  >
-                    Price (High-Low)
-                  </button>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onSortChange("stock-asc")}
-                  >
-                    Stock (Low-High)
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onSortChange("stock-desc")}
-                  >
-                    Stock (High-Low)
-                  </button>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onSortChange("newest")}
-                  >
-                    Newest First
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => onSortChange("oldest")}
-                  >
-                    Oldest First
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <FilterDropdown
+              isOpen={openDropdown === "sort"}
+              onToggle={() => toggleDropdown("sort")}
+              onClose={closeDropdown}
+              label={getSortLabel()}
+              options={[
+                { label: "Default Order", onSelect: () => onSortChange(null) },
+                {
+                  label: "Name (A-Z)",
+                  onSelect: () => onSortChange("name-asc"),
+                  dividerBefore: true,
+                },
+                {
+                  label: "Name (Z-A)",
+                  onSelect: () => onSortChange("name-desc"),
+                },
+                {
+                  label: "Price (Low-High)",
+                  onSelect: () => onSortChange("price-asc"),
+                  dividerBefore: true,
+                },
+                {
+                  label: "Price (High-Low)",
+                  onSelect: () => onSortChange("price-desc"),
+                },
+                {
+                  label: "Stock (Low-High)",
+                  onSelect: () => onSortChange("stock-asc"),
+                  dividerBefore: true,
+                },
+                {
+                  label: "Stock (High-Low)",
+                  onSelect: () => onSortChange("stock-desc"),
+                },
+                {
+                  label: "Newest First",
+                  onSelect: () => onSortChange("newest"),
+                  dividerBefore: true,
+                },
+                {
+                  label: "Oldest First",
+                  onSelect: () => onSortChange("oldest"),
+                },
+              ]}
+            />
           </div>
         </div>
       )}

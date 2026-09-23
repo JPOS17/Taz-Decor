@@ -1,5 +1,4 @@
 import { FaExclamationTriangle } from "react-icons/fa";
-import "../../styles/components/universal/ConfirmModal.css";
 
 interface ConfirmModalProps {
   isOpen: boolean;

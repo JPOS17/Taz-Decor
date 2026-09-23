@@ -1,6 +1,5 @@
 import { FaCheckCircle, FaExclamationTriangle, FaTimes } from "react-icons/fa";
 import type { AddressValidationResult } from "../../api/checkout";
-import "../../styles/components/universal/Address.css";
 
 interface AddressValidationModalProps {
   validationResult: AddressValidationResult;

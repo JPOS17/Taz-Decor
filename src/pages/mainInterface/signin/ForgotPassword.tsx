@@ -4,9 +4,6 @@ import { forgotPassword } from "../../../api/auth";
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/signin/ForgotPassword.css";
-
 const ForgotPassword = () => {
   // ============================================================================
   // STATE

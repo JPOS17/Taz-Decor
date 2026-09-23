@@ -14,9 +14,6 @@ import ConfirmationModal from "../../../components/managerInterface/universal/Co
 
 import { HeaderFormatter } from "../../../components/managerInterface/inventory/productComponents/HeaderFormatter";
 
-import "../../../styles/pages/managerInterface/ManageInventory.css";
-import "../../../styles/components/managerInterface/ProductForms.css";
-
 const CreateProduct = () => {
   const navigate = useNavigate();
 

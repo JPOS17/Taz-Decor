@@ -10,8 +10,6 @@ import {
   formatBogoBadge,
 } from "../../../api/couponCustomer";
 
-import "../../../styles/components/customerInterface/items/ItemListing.css";
-
 interface ListItemProps {
   product: ProductPreview;
   coupon?: ProductCoupon | null;

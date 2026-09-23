@@ -1,6 +1,5 @@
 import type { FormEvent } from "react";
 import type { CreateAddressPayload } from "../../api/user";
-import "../../styles/components/universal/Address.css";
 
 interface AddressFormProps {
   addressForm: CreateAddressPayload;

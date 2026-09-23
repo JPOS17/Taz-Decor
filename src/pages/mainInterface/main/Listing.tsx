@@ -30,9 +30,6 @@ import Lightbox from "../../../components/customerInterface/items/ImageLightbox"
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/main/Listing.css";
-
 const IndividualListing = () => {
   const { variantId } = useParams<{ variantId: string }>();
   const navigate = useNavigate();
@@ -518,7 +515,7 @@ const IndividualListing = () => {
                 <h2 className="listing-info-table-title">
                   Product Information
                 </h2>
-                <table className="table table-bordered">
+                <table>
                   <tbody>
                     {product.description && (
                       <tr>
@@ -541,7 +538,7 @@ const IndividualListing = () => {
                     {product.weight_oz && (
                       <tr>
                         <th scope="row">
-                          <FaWeight className="me-2" />
+                          <FaWeight className="listing-info-icon" />
                           Weight
                         </th>
                         <td>{product.weight_oz} oz</td>
@@ -552,7 +549,7 @@ const IndividualListing = () => {
                       product.height_in && (
                         <tr>
                           <th scope="row">
-                            <FaRulerCombined className="me-2" />
+                            <FaRulerCombined className="listing-info-icon" />
                             Dimensions
                           </th>
                           <td>

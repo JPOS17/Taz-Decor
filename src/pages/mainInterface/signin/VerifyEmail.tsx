@@ -4,9 +4,6 @@ import { verifyEmail, resendVerificationEmail } from "../../../api/auth";
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/signin/VerifyEmail.css";
-
 const VerifyEmail = () => {
   // ============================================================================
   // HOOKS & ROUTING

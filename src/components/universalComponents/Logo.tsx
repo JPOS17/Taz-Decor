@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import "../../styles/components/universal/TopBar.css";
 
 // Renders the store logo as a link; shows full name on wide screens, short name on mobile
 const Logo = () => {

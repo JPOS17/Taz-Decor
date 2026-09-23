@@ -1,5 +1,3 @@
-import "../../../../styles/components/managerInterface/ProductForms.css";
-
 interface ProductAttributesFieldsProps {
   color: string;
   size: string;

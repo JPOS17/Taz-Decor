@@ -20,8 +20,6 @@ import {
 import { useAuth } from "../../../context/AuthContext";
 import { formatDate } from "../../../utils/formatDate";
 
-import "../../../styles/components/customerInterface/items/CouponBanner.css";
-
 interface CouponBannerProps {
   coupons: ProductCoupon[];
   productPrice: number;
@@ -109,11 +107,11 @@ const CouponBanner = ({
   // Returns the appropriate icon for a coupon based on its discount type
   const getCouponIcon = (coupon: ProductCoupon) => {
     if (coupon.discount_type === "bogo") {
-      return <FaGift className="text-warning" size={14} />;
+      return <FaGift className="coupon-icon-warning" size={14} />;
     }
     if (coupon.discount_type === "percentage")
-      return <FaPercent className="text-success" size={14} />;
-    return <FaTag className="text-primary" size={14} />;
+      return <FaPercent className="coupon-icon-success" size={14} />;
+    return <FaTag className="coupon-icon-primary" size={14} />;
   };
 
   // Returns the human-readable discount description for a coupon row

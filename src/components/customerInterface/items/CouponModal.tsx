@@ -9,8 +9,6 @@ import {
 import { useAuth } from "../../../context/AuthContext";
 import CouponBanner from "./CouponBanner";
 
-import "../../../styles/components/customerInterface/items/CouponModal.css";
-
 interface CouponModalProps {
   isOpen: boolean;
   onClose: () => void;

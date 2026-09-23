@@ -1,0 +1,325 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;600;700&family=Inter:wght@400;500;600;700&display=swap");
+
+/* ============================================================================
+   DESIGN TOKENS
+   Single source of truth for the ENTIRE site — customer storefront, the
+   manager dashboard, and the admin console all read from this one file.
+
+   HOW TO RETHEME:
+   Every token is named by ROLE, not by color (e.g. --color-primary, not
+   --color-wine). To swap the palette, only change the values in this file.
+   No component or page CSS file needs to be touched.
+
+   NAMESPACES IN THIS FILE:
+     1. Core palette      — shared by every interface
+     2. Manager aliases   — short names (--bg, --card, --accent, etc.)
+                             kept so the existing manager-dashboard CSS,
+                             which was written against these names, did not
+                             need to be hand-edited rule by rule.
+     3. Per-page accents  — .accent-inventory / .accent-orders / etc.,
+                             applied to a manager page wrapper.
+     4. Status badges     — generic color-named badge classes
+                             (.order-status-badge-blue, etc.) used for order
+                             lifecycle states.
+   ============================================================================ */
+
+:root {
+
+  /* ── Typography ──
+     Serif for customer-facing storefront (elegant/devotional),
+     Lato for storefront body copy, Inter for the dense manager/admin UI. */
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans:  "Lato", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-admin: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ── Page background ── */
+  --color-page-bg: #faf7f2;
+
+  /* ── Surfaces ──
+     Layered from warm gradient (richest) down to flat white (plainest). */
+  --color-surface-gradient:     linear-gradient(160deg, #fdf9f5 0%, #f6ece7 100%);
+  --color-surface-alt:          linear-gradient(160deg, #fdf9f5 0%, #f2e6e1 100%);
+  --color-surface-solid:        #ffffff;
+  --color-surface-warm:         #fdf9f5;
+  --color-surface-hero:         linear-gradient(160deg, #fdf9f5 0%, #f6ece7 100%);
+  --color-surface-image-bg:     linear-gradient(160deg, #f6ece7 0%, #ecd8d2 100%);
+  --color-surface-table-header: rgba(242, 230, 225, 0.70);
+  --color-surface-table-cell:   rgba(253, 249, 245, 0.50);
+  --color-surface-zoom-hint:    rgba(44, 24, 16, 0.82);
+  --color-surface-warm-solid:   #fdf9f5;
+  --color-surface-chip:         #f2e6e1;
+  --color-surface-hover-mid:    #ecd8d2;
+  --color-surface-hover-deep:   #e5cbc4;
+  --color-surface-hover-code:   #e6ccc4;
+
+  /* ── Borders ── */
+  --color-border:        #d9b8b1;
+  --color-border-light:  #ecdcd7;
+  --color-border-subtle: #ecd8d2;
+  --color-border-image:  #ecd6cf;
+  --color-border-hover:  #c28f87;
+  --color-border-accent: #b8863b;
+  --color-border-card:   #e0c2b8;
+  --color-border-footer: #ecd6c9;
+
+  /* ── Text palette ── */
+  --color-text-strongest:      #2c1810;
+  --color-text-strong:         #4a2f28;
+  --color-text-mid:            #6b5048;
+  --color-text-accent:         #7f2b3f;
+  --color-text-muted:          #967a72;
+  --color-text-faint:          #c2ada6;
+  --color-text-on-primary:     #faf3ee;
+  --color-text-on-primary-alt: #ffffff;
+  --color-text-placeholder:    #a68f89;
+
+  /* ── Primary color scale (Cardinal Wine) ── */
+  --color-primary:            #6d2334;
+  --color-primary-dark:       #4a1724;
+  --color-primary-hover:      #7f2b3f;
+  --color-primary-hover-dark: #5c1e2c;
+  --color-primary-deep:       #3d1420;
+  --color-primary-deepest:    #2a0e16;
+  --color-primary-tint:       #f3dde2;
+  --color-primary-mid:        #b97a89;
+  --color-primary-vivid:      #9c2f47;
+  --color-primary-text:       #7f2b3f;
+  --color-primary-bg-light:   rgba(109, 35, 52, 0.08);
+  --color-primary-bg-hover:   rgba(109, 35, 52, 0.16);
+  --color-primary-bg:         rgba(109, 35, 52, 0.10);
+  --color-primary-border:       rgba(109, 35, 52, 0.25);
+  --color-primary-border-light: rgba(185, 122, 137, 0.30);
+  --color-primary-focus-ring:   rgba(109, 35, 52, 0.20);
+  --color-primary-glow:         rgba(109, 35, 52, 0.20);
+
+  /* ── Disabled state (primary button) ── */
+  --color-primary-disabled-start: #c7b4ac;
+  --color-primary-disabled-end:   #ab9187;
+
+  /* ── Gradients ── */
+  --gradient-header:       linear-gradient(135deg, #7f2b3f 0%, #5c1e2c 60%, #6d2334 100%);
+  --gradient-header-dark:  linear-gradient(135deg, #4a1724 0%, #2a0e16 100%);
+  --gradient-hero-overlay: linear-gradient(to bottom, transparent, rgba(253, 249, 245, 0.41));
+
+  --gradient-badge-danger:  linear-gradient(135deg, #b23a2e 0%, #8a2a20 100%);
+  --gradient-badge-success: linear-gradient(135deg, #2f6b46 0%, #1f4d32 100%);
+  --gradient-badge-warning: linear-gradient(135deg, #b8863b 0%, #8f6526 100%);
+
+  /* ── Section label tints ── */
+  --color-label-bg:     rgba(150, 122, 114, 0.10);
+  --color-label-border: rgba(150, 122, 114, 0.25);
+
+  /* ── Header overlay tints (sit on --gradient-header) ── */
+  --color-header-icon:                rgba(232, 207, 160, 0.70);
+  --color-header-sub:                 rgba(232, 207, 160, 0.85);
+  --color-header-glass:               rgba(255, 255, 255, 0.15);
+  --color-header-glass-border:        rgba(255, 255, 255, 0.35);
+  --color-header-glass-hover:         rgba(255, 255, 255, 0.25);
+  --color-header-glass-border-hover:  rgba(255, 255, 255, 0.55);
+  --color-header-watermark:           rgba(255, 255, 255, 0.20);
+
+  /* ── Overlays / backdrops ── */
+  --color-overlay:      rgba(20, 10, 8, 0.50);
+  --color-overlay-dark: rgba(20, 10, 8, 0.55);
+
+  /* ── Semantic: danger / cardinal red ── */
+  --color-danger:          #b23a2e;
+  --color-danger-dark:     #8a2a20;
+  --color-danger-hover:    #9c3227;
+  --color-danger-bg:       rgba(178, 58, 46, 0.07);
+  --color-danger-border:   rgba(178, 58, 46, 0.25);
+  --color-danger-shadow:   rgba(178, 58, 46, 0.28);
+  --color-danger-bg-hover: rgba(178, 58, 46, 0.08);
+  --color-danger-focus-ring:   rgba(178, 58, 46, 0.10);
+  --color-danger-border-light: #e8b8ae;
+  /* manager compatibility (solid color / solid pastel bg / dark text on it) */
+  --color-danger-text: #8a2a20;
+
+  /* ── Semantic: success / liturgical forest green ── */
+  --color-success:        #2f6b46;
+  --color-success-dark:   #1f4d32;
+  --color-success-hover:  #3d8259;
+  --color-success-bg:     rgba(47, 107, 70, 0.10);
+  --color-success-border: rgba(47, 107, 70, 0.20);
+  --color-success-text:   #1f4d32;
+  --color-success-shadow: rgba(31, 77, 50, 0.22);
+
+  /* ── Semantic: info / Marian blue ── */
+  --color-info:        #3a5fa8;
+  --color-info-hover:  #2f4d89;
+  --color-info-bg:     #eaf0fb;
+  --color-info-border: #3a5fa8;
+  --color-info-text:   #1f3d73;
+
+  /* ── Semantic: warning / antique gold ── */
+  --color-warning:          #b8863b;
+  --color-warning-hover:    #96701f;
+  --color-warning-text:     #6b4a12;
+  --color-warning-text-mid: #85591a;
+  --color-warning-text-dark: #6b4a00;
+  --color-warning-text-mid2: #8a5c00;
+  --color-warning-bg:       rgba(184, 134, 59, 0.10);
+  --color-warning-border:   rgba(184, 134, 59, 0.30);
+
+  /* ── Shadows (warm wine tint) ── */
+  --shadow-xs:        0 1px 4px  rgba(74, 23, 36, 0.08);
+  --shadow-sm:        0 2px 10px rgba(74, 23, 36, 0.07);
+  --shadow-md:        0 4px 20px rgba(74, 23, 36, 0.10);
+  --shadow-lg:        0 8px 32px rgba(74, 23, 36, 0.15);
+  --shadow-hover:     0 10px 25px rgba(74, 23, 36, 0.12);
+  --shadow-btn:       0 4px 14px rgba(74, 23, 36, 0.28);
+  --shadow-btn-hover: 0 8px 22px rgba(74, 23, 36, 0.36);
+  --shadow-card-hover: 0 6px 20px rgba(185, 122, 137, 0.20);
+  --shadow-img-hover:  0 2px 8px  rgba(74, 23, 36, 0.15);
+  --shadow-badge:      0 2px 8px  rgba(74, 23, 36, 0.22);
+  --shadow-btn-deep:       0 3px 10px rgba(42, 14, 22, 0.18);
+  --shadow-btn-deep-hover: 0 6px 14px rgba(42, 14, 22, 0.26);
+
+  /* ── Primary alpha tints ── */
+  --color-primary-alpha-03:  rgba(109, 35, 52, 0.03);
+  --color-primary-alpha-04:  rgba(109, 35, 52, 0.04);
+  --color-primary-alpha-05:  rgba(109, 35, 52, 0.05);
+  --color-primary-alpha-06:  rgba(109, 35, 52, 0.06);
+  --color-primary-alpha-08:  rgba(109, 35, 52, 0.08);
+  --color-primary-alpha-10:  rgba(109, 35, 52, 0.10);
+  --color-primary-alpha-12:  rgba(109, 35, 52, 0.12);
+  --color-primary-alpha-14:  rgba(109, 35, 52, 0.14);
+  --color-primary-alpha-15:  rgba(109, 35, 52, 0.15);
+  --color-primary-alpha-18:  rgba(109, 35, 52, 0.18);
+
+  --color-primary-mid-alpha-06:  rgba(185, 122, 137, 0.06);
+  --color-primary-mid-alpha-18:  rgba(185, 122, 137, 0.18);
+  --color-primary-mid-alpha-20:  rgba(185, 122, 137, 0.20);
+
+  --color-primary-vivid-alpha-06: rgba(156, 47, 71, 0.06);
+
+  /* ── Secondary button gradient (dusty gold-rose neutral) ── */
+  --gradient-btn-secondary:       linear-gradient(135deg, #cbb08f 0%, #a68a68 100%);
+  --gradient-btn-secondary-start: #cbb08f;
+  --gradient-btn-secondary-end:   #a68a68;
+
+  /* ── Shimmer / shine on dark backgrounds ── */
+  --color-shimmer: rgba(255, 255, 255, 0.10);
+
+  /* ── Password strength indicator ── */
+  --color-strength-weak:   #b8863b;
+  --color-strength-strong: #2f6b46;
+
+  /* ── Status: shipped / in-transit (Marian blue family) ── */
+  --color-status-shipped:        #3a5fa8;
+  --color-status-shipped-dark:   #1f3d73;
+  --color-status-shipped-border: #a8bfe0;
+  --color-status-shipped-bg:     rgba(58, 95, 168, 0.15);
+
+  /* ── Notice / guest-alert family (terracotta, distinct from danger) ── */
+  --color-notice-bg:        #fbeee7;
+  --color-notice-border:    #d9a17c;
+  --color-notice-text:      #8a4420;
+  --color-notice-text-dark: #6e3418;
+
+  /* ── Copied / confirmed state ── */
+  --color-copied:          #2f6b52;
+  --color-copied-border:   #4caf70;
+  --color-copied-bg-start: #eef7f1;
+  --color-copied-bg-end:   #d8f0e2;
+
+  /* ── Subtle primary gradient (card header tints) ── */
+  --gradient-primary-subtle: linear-gradient(135deg, var(--color-primary-alpha-06) 0%, transparent 60%);
+
+  /* ── Shape / radius ── */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   14px;
+  --radius-2xl:  16px;
+  --radius-full: 50px;
+
+  /* ── Dark header gradient (top bar, modal headers, floating pills) ── */
+  --gradient-header-dark-bar:        linear-gradient(90deg, #2a0e16 0%, #4a1724 60%, #6d2334 100%);
+  --gradient-header-dark-bar-hover:  linear-gradient(90deg, #34121c 0%, #5c1e2c 60%, #7f2b3f 100%);
+  --gradient-header-dark-pill:       linear-gradient(135deg, #2a0e16 0%, #4a1724 100%);
+  --gradient-header-dark-pill-hover: linear-gradient(135deg, #34121c 0%, #5c1e2c 100%);
+
+  /* ============================================================
+     MANAGER / ADMIN COMPATIBILITY ALIASES
+     ============================================================ */
+  --bg:             var(--color-page-bg);
+  --card:           var(--color-surface-solid);
+  --header-bg:      #241016;
+  --border:         var(--color-border-light);
+  --text-primary:   var(--color-text-strongest);
+  --text-secondary: var(--color-text-mid);
+  --text-muted:     var(--color-text-muted);
+  --color-arrow:    #c2ada6;
+  --radius:         var(--radius-lg);
+  --font:           var(--font-admin);
+
+  /* Bootstrap-style solid badge tones the admin console reads directly */
+  --color-success-bg-solid: #e6f0ea;
+  --color-danger-bg-solid:  #f7e3e0;
+  --color-warning-bg-solid: #faf1e0;
+  --color-info-text-dark:   #16305e;
+
+  /* ── Default accent (neutral — overridden per manager page below) ── */
+  --accent:       #7f6a63;
+  --accent-dark:  #5c4a44;
+  --accent-light: #f7f2ee;
+  --accent-ring:  rgba(127, 106, 99, 0.12);
+}
+
+/* ============================================================================
+   PER-PAGE ACCENT OVERRIDES (manager dashboard)
+   Apply to the page wrapper element (e.g. .manager-dashboard, .md-page).
+   ============================================================================ */
+
+/* Inventory — cardinal wine, ties to the storefront brand color */
+.accent-inventory {
+  --accent:       #6d2334;
+  --accent-dark:  #4a1724;
+  --accent-light: #f6e9ec;
+  --accent-ring:  rgba(109, 35, 52, 0.12);
+}
+
+/* Analytics — liturgical forest green */
+.accent-analytics {
+  --accent:       #2f6b46;
+  --accent-dark:  #1f4d32;
+  --accent-light: #eaf3ee;
+  --accent-ring:  rgba(47, 107, 70, 0.12);
+}
+
+/* Orders — Marian blue */
+.accent-orders {
+  --accent:       #3a5fa8;
+  --accent-dark:  #1f3d73;
+  --accent-light: #eaf0fb;
+  --accent-ring:  rgba(58, 95, 168, 0.12);
+}
+
+/* Coupons — antique liturgical gold */
+.accent-coupons {
+  --accent:       #b8863b;
+  --accent-dark:  #8f6526;
+  --accent-light: #faf3e6;
+  --accent-ring:  rgba(184, 134, 59, 0.15);
+}
+
+/* Settings — warm slate, deliberately quiet */
+.accent-settings {
+  --accent:       #6b5650;
+  --accent-dark:  #4a3a35;
+  --accent-light: #f7f2ee;
+  --accent-ring:  rgba(107, 86, 80, 0.12);
+}
+
+/* ============================================================================
+   STATUS BADGE PALETTE
+   ============================================================================ */
+:root {
+  --badge-blue-bg:   #e7edf7; --badge-blue-text:   #2c4a80;
+  --badge-purple-bg: #efe6f0; --badge-purple-text: #5c3a63;
+  --badge-orange-bg: #f7e9de; --badge-orange-text: #8a4b1f;
+  --badge-green-bg:  #e7f0ea; --badge-green-text:  #2f6b46;
+  --badge-red-bg:    #f5e2df; --badge-red-text:    #8a2a20;
+  --badge-pink-bg:   #f5e7ea; --badge-pink-text:   #8a3a52;
+}

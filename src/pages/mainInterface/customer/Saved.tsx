@@ -27,9 +27,6 @@ import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 import { getBOGOLabel } from "../../../utils/couponUtils";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/customer/Saved.css";
-
 const Saved = () => {
   const { wishlistItems, removeFromWishlist, addToCart } = useCart();
   const { user, isLoading } = useAuth();

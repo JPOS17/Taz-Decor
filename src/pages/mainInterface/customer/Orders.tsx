@@ -14,9 +14,6 @@ import LoadingSpinner from "../../../components/universalComponents/LoadingSpinn
 import ProfileSidebar from "../../../components/universalComponents/ProfileSideBar";
 import { formatDate } from "../../../utils/formatDate";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/customer/Orders.css";
-
 const Orders = () => {
   const navigate = useNavigate();
   const { user } = useAuth();

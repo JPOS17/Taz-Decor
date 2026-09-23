@@ -17,9 +17,6 @@ import DeliveryEstimate from "../../../components/customerInterface/checkout/Del
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 import { formatDate } from "../../../utils/formatDate";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/customer/GuestOrderLookup.css";
-
 // ============================================================================
 // CONSTANTS
 // ============================================================================

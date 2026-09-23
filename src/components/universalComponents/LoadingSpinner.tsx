@@ -1,5 +1,3 @@
-import "../../styles/components/universal/LoadingSpinner.css";
-
 interface LoadingSpinnerProps {
   message?: string;
 }

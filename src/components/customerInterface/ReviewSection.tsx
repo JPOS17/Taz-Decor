@@ -58,17 +58,17 @@ const ReviewSection = ({
     const hasHalfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<FaStar key={`full-${i}`} className="text-warning" />);
+      stars.push(<FaStar key={`full-${i}`} className="rs-star" />);
     }
 
     if (hasHalfStar) {
-      stars.push(<FaStarHalfAlt key="half" className="text-warning" />);
+      stars.push(<FaStarHalfAlt key="half" className="rs-star" />);
     }
 
     // Fill the remaining slots up to 5 with empty stars
     const remainingStars = 5 - stars.length;
     for (let i = 0; i < remainingStars; i++) {
-      stars.push(<FaRegStar key={`empty-${i}`} className="text-warning" />);
+      stars.push(<FaRegStar key={`empty-${i}`} className="rs-star" />);
     }
 
     return stars;
@@ -80,9 +80,9 @@ const ReviewSection = ({
 
   if (reviewCount === 0) {
     return (
-      <div className="mt-5">
-        <h4>Customer Reviews</h4>
-        <p className="text-muted">
+      <div className="rs-section">
+        <h4 className="rs-heading">Customer Reviews</h4>
+        <p className="rs-muted">
           No reviews yet. Be the first to review this product!
         </p>
       </div>
@@ -90,19 +90,19 @@ const ReviewSection = ({
   }
 
   return (
-    <div className="mt-5">
-      <h4>Customer Reviews</h4>
+    <div className="rs-section">
+      <h4 className="rs-heading">Customer Reviews</h4>
 
       {/* Average Rating Summary */}
       {averageRating && (
-        <div className="d-flex align-items-center mb-4">
-          <div className="me-3">
-            <h2 className="mb-0">{averageRating.toFixed(1)}</h2>
+        <div className="rs-summary">
+          <div className="rs-summary-score-wrap">
+            <h2 className="rs-summary-score">{averageRating.toFixed(1)}</h2>
           </div>
           <div>
-            <div className="d-flex mb-1">{renderStars(averageRating)}</div>
+            <div className="rs-summary-stars">{renderStars(averageRating)}</div>
             {/* Pluralizes "review" correctly based on count */}
-            <p className="text-muted mb-0">
+            <p className="rs-summary-count">
               {reviewCount} {reviewCount === 1 ? "review" : "reviews"}
             </p>
           </div>
@@ -115,45 +115,45 @@ const ReviewSection = ({
       ) : (
         <div className="reviews-list">
           {reviews.map((review) => (
-            <div key={review.review_id} className="border-bottom pb-3 mb-3">
-              <div className="d-flex justify-content-between align-items-start mb-2">
+            <div key={review.review_id} className="rs-review-item">
+              <div className="rs-review-item-top">
                 <div>
                   {/* Star rating row with optional verified purchase badge */}
-                  <div className="d-flex align-items-center mb-1">
+                  <div className="rs-review-stars-row">
                     {renderStars(review.rating)}
                     {review.is_verified_purchase && (
-                      <span className="badge bg-success ms-2 d-flex align-items-center">
-                        <FaCheckCircle className="me-1" size={12} />
+                      <span className="rs-verified-badge">
+                        <FaCheckCircle className="rs-verified-icon" size={12} />
                         Verified Purchase
                       </span>
                     )}
                   </div>
                   {/* Review title */}
                   {review.review_title && (
-                    <h6 className="mb-1">{review.review_title}</h6>
+                    <h6 className="rs-review-title">{review.review_title}</h6>
                   )}
                 </div>
-                <small className="text-muted">
+                <small className="rs-muted">
                   {formatDate(review.created_at)}
                 </small>
               </div>
 
               {/* Review body text */}
               {review.review_text && (
-                <p className="mb-2">{review.review_text}</p>
+                <p className="rs-review-text">{review.review_text}</p>
               )}
 
-              <div className="d-flex justify-content-between align-items-center">
+              <div className="rs-review-item-bottom">
                 {/* Reviewer name and variant details */}
                 <div>
-                  <small className="text-muted">
+                  <small className="rs-muted">
                     By {review.user_name}
                     {review.variant_details && ` • ${review.variant_details}`}
                   </small>
                 </div>
                 {/* Helpful count */}
                 {review.helpful_count > 0 && (
-                  <small className="text-muted">
+                  <small className="rs-muted">
                     {review.helpful_count}{" "}
                     {review.helpful_count === 1 ? "person" : "people"} found
                     this helpful

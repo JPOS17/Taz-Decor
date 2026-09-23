@@ -1,5 +1,4 @@
 import { Clock, AlertTriangle } from "lucide-react";
-import "../../../styles/components/managerInterface/ShipByDate.css";
 
 interface ShipByDateProps {
   orderCreatedAt: string;

@@ -5,9 +5,6 @@ import { useCart } from "../../../context/CartContext";
 
 import PasswordInput from "../../../components/universalComponents/PasswordInput";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/signin/Login.css";
-
 const Login = () => {
   // ============================================================================
   // HOOKS & CONTEXT

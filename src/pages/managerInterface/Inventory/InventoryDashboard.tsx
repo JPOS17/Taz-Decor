@@ -1,9 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Folder, Plus, ArrowLeft, Edit, Tag, ArrowRight } from "lucide-react";
 
-import "../../../styles/pages/managerInterface/Tokens.css";
-import "../../../styles/pages/managerInterface/Components.css";
-
 // Each card in the directory grid — icon, title, description, path, and CTA label
 const directoryCards = [
   {

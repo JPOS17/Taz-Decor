@@ -1,7 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
-import "../../styles/components/universal/ProfileSideBar.css";
 
 interface ProfileSidebarProps {
   firstName: string;

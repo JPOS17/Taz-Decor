@@ -7,9 +7,6 @@ import { resendVerificationEmail } from "../../../api/auth";
 
 import PasswordInput from "../../../components/universalComponents/PasswordInput";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/signin/Register.css";
-
 const Register = () => {
   // ============================================================================
   // HOOKS & CONTEXT

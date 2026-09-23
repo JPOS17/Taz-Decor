@@ -1,5 +1,4 @@
 import React from "react";
-import "../styles/footer/footer.css";
 
 const ReturnPolicy: React.FC = () => {
   return (

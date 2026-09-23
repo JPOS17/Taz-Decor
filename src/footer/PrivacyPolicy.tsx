@@ -1,5 +1,4 @@
 import React from "react";
-import "../styles/footer/footer.css";
 
 const PrivacyPolicy: React.FC = () => {
   return (

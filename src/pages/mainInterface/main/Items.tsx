@@ -25,9 +25,6 @@ import Pagination from "../../../components/customerInterface/items/Pagination";
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/main/Items.css";
-
 const ITEMS_PER_PAGE = 20;
 
 const Items = () => {

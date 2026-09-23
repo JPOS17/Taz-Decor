@@ -35,11 +35,6 @@ import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 
 import ShipByDate from "../../components/managerInterface/orders/ShipByDate";
 
-import "../../styles/pages/managerInterface/Tokens.css";
-import "../../styles/pages/managerInterface/Components.css";
-import "../../styles/pages/managerInterface/ManagerShared.css";
-import "../../styles/pages/managerInterface/OrderStatus.css";
-
 type Order = APIOrder;
 type OrderDetails = APIOrderDetails;
 

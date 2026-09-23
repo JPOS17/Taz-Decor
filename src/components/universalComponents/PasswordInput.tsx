@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "../../styles/components/universal/PasswordInput.css";
 
 interface PasswordInputProps {
   id: string;

@@ -28,8 +28,6 @@ import ImageUploadGrid from "../productComponents/ImageUploadGrid";
 import { WarehouseSelector } from "../productComponents/WarehouseSelector";
 import CategoryHandler from "../productComponents/CategoryHandler";
 
-import "../../../../styles/components/managerInterface/ProductForms.css";
-
 interface CreateProductFormProps {
   categoryId: number;
   categories: Category[];

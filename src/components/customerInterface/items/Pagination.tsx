@@ -1,5 +1,3 @@
-import "../../../styles/components/customerInterface/items/Pagination.css";
-
 interface PaginationProps {
   currentPage: number;
   totalPages: number;

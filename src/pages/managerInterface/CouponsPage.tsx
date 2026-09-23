@@ -29,11 +29,6 @@ import { CouponPreview } from "../../components/managerInterface/coupons/CouponP
 import ConfirmationModal from "../../components/managerInterface/universal/ConfirmationModal";
 import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 
-import "../../styles/pages/managerInterface/Tokens.css";
-import "../../styles/pages/managerInterface/Components.css";
-import "../../styles/pages/managerInterface/ManagerShared.css";
-import "../../styles/pages/managerInterface/CouponsPage.css";
-
 const CouponsPage = () => {
   const navigate = useNavigate();
 

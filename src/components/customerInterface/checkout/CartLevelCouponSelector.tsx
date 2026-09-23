@@ -3,8 +3,6 @@ import { useNavigate } from "react-router";
 import { FaTag, FaTimes, FaLock, FaShippingFast } from "react-icons/fa";
 import type { ProductCoupon } from "../../../api/couponCustomer";
 
-import "../../../styles/components/customerInterface/checkout/CartLevelCouponSelector.css";
-
 interface CartLevelCouponSelectorProps {
   coupons: ProductCoupon[];
   selectedCoupon: ProductCoupon | null;

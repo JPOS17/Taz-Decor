@@ -22,8 +22,6 @@ import ProductAttributesFields from "../productInfo/ProductAttributesField";
 import ImageUploadGrid from "../productComponents/ImageUploadGrid";
 import { WarehouseSelector } from "../productComponents/WarehouseSelector";
 
-import "../../../../styles/components/managerInterface/ProductForms.css";
-
 interface CreateVariantFormProps {
   productId: number;
   productName: string;

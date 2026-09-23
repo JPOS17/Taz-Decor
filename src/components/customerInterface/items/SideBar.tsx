@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { type Category } from "../../../api/categories";
-import "../../../styles/components/customerInterface/items/SideBar.css";
 
 interface SideBarProps {
   activeCategoryId: number | null;

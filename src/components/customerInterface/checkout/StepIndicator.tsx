@@ -4,7 +4,6 @@ import {
   FaCreditCard,
   FaCheckCircle,
 } from "react-icons/fa";
-import "../../../styles/components/customerInterface/checkout/StepIndicator.css";
 
 type CheckoutStep = "cart" | "shipping" | "payment" | "review" | "success";
 

@@ -1,5 +1,4 @@
 import { FaTruck } from "react-icons/fa";
-import "../../../styles/components/customerInterface/checkout/DeliveryEstimate.css";
 
 // Total delivery = processing + transit time per method:
 //   Ground Advantage    : 1–2 + 2–5 = 3–7 business days

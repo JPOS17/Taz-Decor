@@ -1,5 +1,3 @@
-import "../../../../styles/components/managerInterface/ProductForms.css";
-
 interface ShippingFieldsProps {
   weight_oz: number | null;
   length_in: number | null;

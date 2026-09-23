@@ -16,8 +16,6 @@ import { type ProductCoupon } from "../../../api/couponCustomer";
 import { useAuth } from "../../../context/AuthContext";
 import { formatDate } from "../../../utils/formatDate";
 
-import "../../../styles/components/customerInterface/items/CartCouponBanner.css";
-
 interface CartCouponBannerProps {
   coupons: ProductCoupon[];
 }

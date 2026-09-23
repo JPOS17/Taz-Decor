@@ -4,8 +4,6 @@ import type { ProductCoupon } from "../../../api/couponCustomer";
 import CartLevelCouponSelector from "../checkout/CartLevelCouponSelector";
 import { getBOGOLabel } from "../../../utils/couponUtils";
 
-import "../../../styles/components/customerInterface/checkout/OrderSummary.css";
-
 interface OrderSummaryProps {
   cartItems: CartItem[];
   currentStep: string;

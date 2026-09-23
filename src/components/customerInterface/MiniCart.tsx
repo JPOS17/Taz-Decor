@@ -11,7 +11,6 @@ import {
   isItemLevelCoupon,
   shouldShowDiscountedPrice,
 } from "../../api/couponCustomer";
-import "../../styles/components/customerInterface/MiniCart.css";
 
 interface MiniCartProps {
   isOpen: boolean;

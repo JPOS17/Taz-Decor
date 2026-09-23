@@ -53,11 +53,6 @@ import { useUnsavedChanges } from "../../../hooks/useUnsavedChanges";
 import { useToastMessage } from "../../../hooks/useToastMessage";
 import { sanitizeFolderName } from "../../../utils/folderNameFormatter";
 
-import "../../../styles/pages/managerInterface/Tokens.css";
-import "../../../styles/pages/managerInterface/Components.css";
-import "../../../styles/pages/managerInterface/ManagerShared.css";
-import "../../../styles/pages/managerInterface/ManageInventory.css";
-
 type ViewMode = "edit" | "create-product" | "create-variant";
 
 const ManageProducts = () => {

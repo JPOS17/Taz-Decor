@@ -30,9 +30,6 @@ import CartLevelCouponSelector from "../../../components/customerInterface/check
 import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/customer/Cart.css";
-
 const Cart = () => {
   const {
     cartItems,

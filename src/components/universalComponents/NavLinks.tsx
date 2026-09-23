@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import "../../styles/components/universal/TopBar.css";
 
 // Top-level navigation destinations rendered in the TopBar
 const links = [

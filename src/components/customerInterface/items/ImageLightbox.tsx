@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-import "../../../styles/components/customerInterface/items/ImageLightbox.css";
-
 interface LightboxProps {
   isOpen: boolean;
   images: string[];

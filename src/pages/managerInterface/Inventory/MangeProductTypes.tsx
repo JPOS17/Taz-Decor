@@ -16,11 +16,6 @@ import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 import { useToastMessage } from "../../../hooks/useToastMessage";
 import { formatName } from "../../../utils/nameFormatter";
 
-import "../../../styles/pages/managerInterface/Tokens.css";
-import "../../../styles/pages/managerInterface/Components.css";
-import "../../../styles/pages/managerInterface/ManagerShared.css";
-import "../../../styles/pages/managerInterface/ManageProductType.css";
-
 type EditMode = "none" | "edit" | "create";
 
 // Types for the inline create/edit form fields

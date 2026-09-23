@@ -31,9 +31,6 @@ import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/main/Profile.css";
-
 // Types for the inline profile edit form
 interface EditingProfile {
   first_name: string;

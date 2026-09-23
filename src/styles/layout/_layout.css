@@ -1,0 +1,55 @@
+/* ==========================================================================
+   LAYOUT PRIMITIVES
+   Structural helpers shared by every interface. Page-specific layout stays
+   in that page's own file under styles/pages/ — this file only holds
+   patterns generic enough to be reused anywhere.
+
+   BREAKPOINTS:
+     - Mobile:  up to 640px
+     - Tablet:  641px – 1024px
+     - Desktop: 1025px and up
+   ========================================================================== */
+
+.page-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+@media (max-width: 640px) {
+  .page-container {
+    padding-inline: 16px;
+  }
+}
+
+/* Generic responsive image wrapper: keeps aspect ratio stable across
+   breakpoints and prevents customer product photography from ever
+   overflowing its card on small screens. */
+.responsive-media {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* Accessible visually-hidden utility (screen-reader-only text). */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Horizontal scroll containment for wide content (tables, filter rows)
+   so a dense manager table never breaks the page layout on tablet/mobile. */
+.scroll-x {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

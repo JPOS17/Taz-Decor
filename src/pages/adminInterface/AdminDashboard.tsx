@@ -8,8 +8,6 @@ import {
   type User,
 } from "../../api/admin";
 
-import "../../styles/pages/adminInterface/AdminDashboard.css";
-
 // Types for confirmation modal state
 interface ConfirmationModal {
   show: boolean;

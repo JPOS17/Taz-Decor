@@ -1,8 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { type Category } from "../../../api/categories";
 
-import "../../../styles/components/customerInterface/items/CategoryDropDown.css";
-
 interface CategoryDropDownProps {
   activeCategoryId: number | null;
   activeCategoryName: string;

@@ -8,9 +8,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import "../../styles/pages/managerInterface/Tokens.css";
-import "../../styles/pages/managerInterface/Components.css";
-
 // Each card in the dashboard grid — icon, title, description, route path, accent class, and CTA label
 const dashboardCards = [
   {

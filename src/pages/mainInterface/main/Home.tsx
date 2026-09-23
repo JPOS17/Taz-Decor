@@ -1,6 +1,3 @@
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/main/Home.css";
-
 import PrimaryImage from "../../../../public/PrimaryImage.jpeg";
 import { FaCross } from "react-icons/fa";
 

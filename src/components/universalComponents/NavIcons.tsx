@@ -3,7 +3,6 @@ import { useCart } from "../../context/CartContext";
 import { FaRegHeart } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
-import "../../styles/components/universal/TopBar.css";
 
 // Renders the profile, wishlist, and cart icon links in the TopBar
 const NavIcons = () => {

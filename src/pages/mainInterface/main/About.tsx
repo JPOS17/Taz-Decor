@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/main/About.css";
+
 import {
   FaCross,
   FaEnvelope,

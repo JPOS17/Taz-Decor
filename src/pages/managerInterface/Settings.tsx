@@ -42,11 +42,6 @@ import ConfirmationModal from "../../components/managerInterface/universal/Confi
 import { useConfirmationModal } from "../../hooks/useConfirmationModal";
 import { useToastMessage } from "../../hooks/useToastMessage";
 
-import "../../styles/pages/managerInterface/Tokens.css";
-import "../../styles/pages/managerInterface/Components.css";
-import "../../styles/pages/managerInterface/ManagerShared.css";
-import "../../styles/pages/managerInterface/Settings.css";
-
 type TabType = "locations" | "shipping";
 
 // Types for the location create/edit form fields

@@ -1,6 +1,5 @@
 import { FaEdit, FaTimes } from "react-icons/fa";
 import type { Address } from "../../api/user";
-import "../../styles/components/universal/Address.css";
 
 interface AddressCardProps {
   address: Address;

@@ -1,0 +1,93 @@
+/* ==========================================================================
+   STYLE ENTRY POINT
+
+     1. abstracts  variables only — emits no CSS rules
+     2. base       bare element defaults (reset)
+     3. layout     structural primitives shared by every interface
+     4. components reusable UI blocks, grouped by which interface uses them
+     5. pages      page-specific decoration, scoped to a page class
+
+   ========================================================================== */
+
+/* 1. ABSTRACTS ─────────────────────────────────────────────────────────── */
+@import "./abstracts/_tokens.css";
+
+/* 2. BASE ──────────────────────────────────────────────────────────────── */
+@import "./base/_reset.css";
+
+/* 3. LAYOUT ────────────────────────────────────────────────────────────── */
+@import "./layout/_layout.css";
+
+/* 4. COMPONENTS ────────────────────────────────────────────────────────── */
+
+/* -- universal (used across every interface) -- */
+@import "./components/universal/_topbar.css";
+@import "./components/universal/_profile-sidebar.css";
+@import "./components/universal/_address.css";
+@import "./components/universal/_confirm-modal.css";
+@import "./components/universal/_loading-spinner.css";
+@import "./components/universal/_password-input.css";
+
+/* -- customer-facing components -- */
+@import "./components/customer/_mini-cart.css";
+@import "./components/customer/_review-section.css";
+@import "./components/customer/_item-listing.css";
+@import "./components/customer/_product-variant.css";
+@import "./components/customer/_image-lightbox.css";
+@import "./components/customer/_category-dropdown.css";
+@import "./components/customer/_sidebar.css";
+@import "./components/customer/_pagination.css";
+@import "./components/customer/_coupon-banner.css";
+@import "./components/customer/_cart-coupon-banner.css";
+@import "./components/customer/_coupon-modal.css";
+@import "./components/customer/checkout/_step-indicator.css";
+@import "./components/customer/checkout/_delivery-estimate.css";
+@import "./components/customer/checkout/_shipping-options-selector.css";
+@import "./components/customer/checkout/_cart-level-coupon-selector.css";
+@import "./components/customer/checkout/_order-summary.css";
+@import "./components/customer/checkout/_success-screen.css";
+
+/* -- manager-facing components -- */
+@import "./components/manager/_product-forms.css";
+@import "./components/manager/_ship-by-date.css";
+
+/* -- footer (shared shell) -- */
+@import "./pages/footer/_footer.css";
+
+/* 5. PAGES ─────────────────────────────────────────────────────────────── */
+
+/* -- customer: main -- */
+@import "./pages/customer/main/_home.css";
+@import "./pages/customer/main/_about.css";
+@import "./pages/customer/main/_reviews.css";
+@import "./pages/customer/main/_items.css";
+@import "./pages/customer/main/_listing.css";
+@import "./pages/customer/main/_profile.css";
+
+/* -- customer: sign-in -- */
+@import "./pages/customer/signin/_login.css";
+@import "./pages/customer/signin/_register.css";
+@import "./pages/customer/signin/_forgot-password.css";
+@import "./pages/customer/signin/_reset-password.css";
+@import "./pages/customer/signin/_verify-email.css";
+
+/* -- customer: cart & checkout -- */
+@import "./pages/customer/checkout/_cart.css";
+@import "./pages/customer/checkout/_checkout-page.css";
+@import "./pages/customer/checkout/_orders.css";
+@import "./pages/customer/checkout/_order-confirmation.css";
+@import "./pages/customer/checkout/_saved.css";
+@import "./pages/customer/checkout/_guest-order-lookup.css";
+
+/* -- manager -- */
+@import "./pages/manager/_manager-shared.css";
+@import "./pages/manager/_components.css";
+@import "./pages/manager/_manage-inventory.css";
+@import "./pages/manager/_manage-categories.css";
+@import "./pages/manager/_manage-product-type.css";
+@import "./pages/manager/_coupons-page.css";
+@import "./pages/manager/_order-status.css";
+@import "./pages/manager/_settings.css";
+
+/* -- admin -- */
+@import "./pages/admin/_admin-dashboard.css";

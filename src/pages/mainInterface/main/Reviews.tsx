@@ -1,6 +1,3 @@
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/main/Reviews.css";
-
 // ============================================================================
 // REVIEWS COMPONENT
 // ============================================================================

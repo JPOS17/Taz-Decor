@@ -8,9 +8,6 @@ import DeliveryEstimate from "../../../components/customerInterface/checkout/Del
 
 import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
 
-import "../../../styles/pages/customerInterface/Tokens.css";
-import "../../../styles/pages/customerInterface/customer/OrderConfirmation.css";
-
 const OrderConfirmation = () => {
   const { orderNumber } = useParams<{ orderNumber: string }>();
   const navigate = useNavigate();

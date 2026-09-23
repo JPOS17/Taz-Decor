@@ -1,5 +1,3 @@
-import "../../../styles/components/customerInterface/items/ProductVariant.css";
-
 export interface ProductVariant {
   variant_id: number;
   sku: string;
