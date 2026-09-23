@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-import { useAuth } from "../../../context/AuthContext";
-import { useCart } from "../../../context/CartContext";
-import { resendVerificationEmail } from "../../../api/auth";
+import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
+import { resendVerificationEmail } from "../../api/auth";
 
-import PasswordInput from "../../../components/universalComponents/PasswordInput";
+import PasswordInput from "../../components/universalComponents/PasswordInput";
 
 const Register = () => {
   // ============================================================================

@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { verifyEmail, resendVerificationEmail } from "../../../api/auth";
+import { verifyEmail, resendVerificationEmail } from "../../api/auth";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
 
 const VerifyEmail = () => {
   // ============================================================================

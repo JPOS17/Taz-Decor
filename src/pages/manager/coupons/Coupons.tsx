@@ -20,14 +20,14 @@ import {
   type ProductOption,
   type LocationOption,
   fetchCouponById,
-} from "../../api/couponManagement";
+} from "../../../api/couponManagement";
 
-import { CouponFilters } from "../../components/managerInterface/coupons/CouponFilters";
-import { CouponsTable } from "../../components/managerInterface/coupons/CouponsTable";
-import { CouponWizard } from "../../components/managerInterface/coupons/CouponWizard";
-import { CouponPreview } from "../../components/managerInterface/coupons/CouponPreview";
-import ConfirmationModal from "../../components/managerInterface/universal/ConfirmationModal";
-import { useConfirmationModal } from "../../hooks/useConfirmationModal";
+import { CouponFilters } from "../../../components/managerInterface/coupons/CouponFilters";
+import { CouponsTable } from "../../../components/managerInterface/coupons/CouponsTable";
+import { CouponWizard } from "../../../components/managerInterface/coupons/CouponWizard";
+import { CouponPreview } from "../../../components/managerInterface/coupons/CouponPreview";
+import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
+import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 
 const CouponsPage = () => {
   const navigate = useNavigate();

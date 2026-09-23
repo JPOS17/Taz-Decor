@@ -29,18 +29,18 @@ import {
   type ShippingBox,
   type CreateLocationPayload,
   type CreateShippingBoxPayload,
-} from "../../api/settings";
+} from "../../../api/settings";
 import {
   validateAddress,
   type AddressValidationResult,
-} from "../../api/checkout";
+} from "../../../api/checkout";
 
-import AddressValidationModal from "../../components/universalComponents/AddressValidationModal";
-import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
-import { ToastNotification } from "../../components/managerInterface/universal/ToastNotifications";
-import ConfirmationModal from "../../components/managerInterface/universal/ConfirmationModal";
-import { useConfirmationModal } from "../../hooks/useConfirmationModal";
-import { useToastMessage } from "../../hooks/useToastMessage";
+import AddressValidationModal from "../../../components/universalComponents/AddressValidationModal";
+import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import { ToastNotification } from "../../../components/managerInterface/universal/ToastNotifications";
+import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
+import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
+import { useToastMessage } from "../../../hooks/useToastMessage";
 
 type TabType = "locations" | "shipping";
 

@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { resetPassword } from "../../../api/auth";
+import { resetPassword } from "../../api/auth";
 
-import PasswordInput from "../../../components/universalComponents/PasswordInput";
+import PasswordInput from "../../components/universalComponents/PasswordInput";
 
 const ResetPassword = () => {
   // ============================================================================

@@ -1,41 +1,63 @@
 import { Routes, Route, Navigate, useLocation } from "react-router";
 
-import Home from "../pages/mainInterface/main/Home";
-import About from "../pages/mainInterface/main/About";
-import Reviews from "../pages/mainInterface/main/Reviews";
-import Items from "../pages/mainInterface/main/Items";
-import Listing from "../pages/mainInterface/main/Listing";
-import Profile from "../pages/mainInterface/main/Profile";
-
-import Login from "../pages/mainInterface/signin/Login";
-import Register from "../pages/mainInterface/signin/Register";
-import VerifyEmail from "../pages/mainInterface/signin/VerifyEmail";
-import ForgotPassword from "../pages/mainInterface/signin/ForgotPassword";
-import ResetPassword from "../pages/mainInterface/signin/ResetPassword";
-
-import Cart from "../pages/mainInterface/customer/Cart";
-import WishList from "../pages/mainInterface/customer/Saved";
-import CheckoutPage from "../pages/mainInterface/customer/CheckoutPage";
-import GuestOrderLookup, {
-  GuestOrderResult,
-} from "../pages/mainInterface/customer/GuestOrderLookup";
-import OrderConfirmation from "../pages/mainInterface/customer/OrderConfirmation";
-import Orders from "../pages/mainInterface/customer/Orders";
-
-import ManagerDashboard from "../pages/managerInterface/ManagerDashboard";
-import InventoryDashboard from "../pages/managerInterface/Inventory/InventoryDashboard";
-import CreateProduct from "../pages/managerInterface/Inventory/CreateNewProduct";
-import ManageProducts from "../pages/managerInterface/Inventory/ManageInventory";
-import ManageCategories from "../pages/managerInterface/Inventory/ManageCategories";
-import ManageProductTypes from "../pages/managerInterface/Inventory/MangeProductTypes";
-import CouponsPage from "../pages/managerInterface/CouponsPage";
-import OrderStatusPage from "../pages/managerInterface/OrderStatus";
-import Settings from "../pages/managerInterface/Settings";
-
-import AdminDashboard from "../pages/adminInterface/AdminDashboard";
-
 import ProtectedRoute from "./ProtectedRoute";
 
+// Admin
+import AdminDashboard from "../pages/admin/AdminDashboard";
+
+
+// Auth
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
+import VerifyEmail from "../pages/auth/VerifyEmail";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
+
+
+// Customer
+
+// - Account
+import Profile from "../pages/customer/account/Profile";
+import OrderHistory from "../pages/customer/account/OrderHistory";
+import Wishlist from "../pages/customer/account/Wishlist";
+
+// - Storefront
+import Home from "../pages/customer/storefront/Home";
+import About from "../pages/customer/storefront/About";
+import ReviewsComingSoon from "../pages/customer/storefront/ReviewsComingSoon";
+import ProductCatalog from "../pages/customer/storefront/ProductCatalog";
+import ProductDetail from "../pages/customer/storefront/ProductDetail";
+
+// - Checkout
+import Cart from "../pages/customer/checkout/Cart";
+import Checkout from "../pages/customer/checkout/Checkout";
+import GuestOrderLookup, {
+  GuestOrderResult,
+} from "../pages/customer/checkout/GuestOrderLookup";
+import OrderConfirmation from "../pages/customer/checkout/OrderConfirmation";
+
+
+// Manager
+import ManagerDashboard from "../pages/manager/ManagerDashboard";
+
+// - Coupons
+import Coupons from "../pages/manager/coupons/Coupons";
+
+// - Inventory
+import InventoryHub from "../pages/manager/inventory/InventoryHub";
+import InventoryList from "../pages/manager/inventory/InventoryList";
+import CreateProduct from "../pages/manager/inventory/CreateProduct";
+import ProductTypes from "../pages/manager/inventory/ProductTypes";
+import Categories from "../pages/manager/inventory/Categories";
+
+// - Orders
+import OrderStatus from "../pages/manager/orders/OrderStatus";
+
+// - Settings
+import Settings from "../pages/manager/settings/Settings";
+
+
+// Footer / Legal
 import PrivacyPolicy from "../footer/PrivacyPolicy";
 import ShippingPolicy from "../footer/ShippingPolicy";
 import ReturnPolicy from "../footer/ReturnPolicy";
@@ -52,15 +74,15 @@ const AppRoutes = () => {
       <Route path="/return-policy" element={<ReturnPolicy />} />
       <Route path="/shipping-policy" element={<ShippingPolicy />} />
 
-      {/* Public — Main */}
+      {/* Public — Storefront */}
       <Route path="/" element={<Navigate to="/home" replace />} />
       <Route path="/home" element={<Home />} />
       <Route path="/about" element={<About />} />
-      <Route path="/reviews" element={<Reviews />} />
-      <Route path="/items" element={<Items />} />
+      <Route path="/reviews" element={<ReviewsComingSoon />} />
+      <Route path="/items" element={<ProductCatalog />} />
       <Route
         path="/items/:variantId"
-        element={<Listing key={location.pathname} />}
+        element={<ProductDetail key={location.pathname} />}
       />
 
       {/* Public — Auth */}
@@ -72,9 +94,9 @@ const AppRoutes = () => {
 
       {/* Public — Shopping */}
       <Route path="/cart" element={<Cart />} />
-      <Route path="/saved" element={<WishList />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
-      <Route path="/checkout/:step" element={<CheckoutPage />} />
+      <Route path="/saved" element={<Wishlist />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/checkout/:step" element={<Checkout />} />
       <Route path="/order-lookup" element={<GuestOrderLookup />} />
       <Route path="/order-lookup/:orderNumber" element={<GuestOrderResult />} />
       <Route
@@ -87,7 +109,7 @@ const AppRoutes = () => {
         path="/orders"
         element={
           <ProtectedRoute>
-            <Orders />
+            <OrderHistory />
           </ProtectedRoute>
         }
       />
@@ -113,7 +135,7 @@ const AppRoutes = () => {
         path="/manager/inventory"
         element={
           <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <InventoryDashboard />
+            <InventoryHub />
           </ProtectedRoute>
         }
       />
@@ -121,7 +143,7 @@ const AppRoutes = () => {
         path="/manager/inventory/edit"
         element={
           <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <ManageProducts />
+            <InventoryList />
           </ProtectedRoute>
         }
       />
@@ -137,7 +159,7 @@ const AppRoutes = () => {
         path="/manager/inventory/categories"
         element={
           <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <ManageCategories />
+            <Categories />
           </ProtectedRoute>
         }
       />
@@ -145,7 +167,7 @@ const AppRoutes = () => {
         path="/manager/inventory/types"
         element={
           <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <ManageProductTypes />
+            <ProductTypes />
           </ProtectedRoute>
         }
       />
@@ -153,7 +175,7 @@ const AppRoutes = () => {
         path="/manager/orders"
         element={
           <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <OrderStatusPage />
+            <OrderStatus />
           </ProtectedRoute>
         }
       />
@@ -161,7 +183,7 @@ const AppRoutes = () => {
         path="/manager/coupons"
         element={
           <ProtectedRoute requiredRoles={["manager", "admin"]}>
-            <CouponsPage />
+            <Coupons />
           </ProtectedRoute>
         }
       />

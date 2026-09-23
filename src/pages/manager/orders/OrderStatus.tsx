@@ -18,22 +18,22 @@ import {
   type OrderDetails as APIOrderDetails,
   type StatusHistoryItem,
   type UpdateOrderStatusPayload,
-} from "../../api/orders";
-import { fetchSellerLocationById } from "../../api/sellerLocation";
+} from "../../../api/orders";
+import { fetchSellerLocationById } from "../../../api/sellerLocation";
 import {
   generatePirateShipCSV,
   downloadCSV,
   generatePirateShipFilename,
-} from "../../utils/shippingLabelFormatter";
-import { formatDate } from "../../utils/formatDate";
+} from "../../../utils/shippingLabelFormatter";
+import { formatDate } from "../../../utils/formatDate";
 
-import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
-import { FormField } from "../../components/managerInterface/universal/FormField";
-import { TextInput } from "../../components/managerInterface/universal/TextInput";
-import ConfirmationModal from "../../components/managerInterface/universal/ConfirmationModal";
-import { useConfirmationModal } from "../../hooks/useConfirmationModal";
+import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import { FormField } from "../../../components/managerInterface/universal/FormField";
+import { TextInput } from "../../../components/managerInterface/universal/TextInput";
+import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
+import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 
-import ShipByDate from "../../components/managerInterface/orders/ShipByDate";
+import ShipByDate from "../../../components/managerInterface/orders/ShipByDate";
 
 type Order = APIOrder;
 type OrderDetails = APIOrderDetails;
