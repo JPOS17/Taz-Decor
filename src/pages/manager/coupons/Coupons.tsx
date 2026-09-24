@@ -22,11 +22,11 @@ import {
   fetchCouponById,
 } from "../../../api/couponManagement";
 
-import { CouponFilters } from "../../../components/managerInterface/coupons/CouponFilters";
-import { CouponsTable } from "../../../components/managerInterface/coupons/CouponsTable";
-import { CouponWizard } from "../../../components/managerInterface/coupons/CouponWizard";
-import { CouponPreview } from "../../../components/managerInterface/coupons/CouponPreview";
-import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
+import { CouponFilters } from "../../../components/manager/coupons/CouponFilters";
+import { CouponsTable } from "../../../components/manager/coupons/CouponsTable";
+import { CouponWizard } from "../../../components/manager/coupons/CouponWizard";
+import { CouponPreview } from "../../../components/manager/coupons/CouponPreview";
+import ConfirmationModal from "../../../components/manager/shared/ManagerConfirmModal";
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 
 const CouponsPage = () => {

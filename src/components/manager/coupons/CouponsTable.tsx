@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import type { Coupon } from "../../../api/couponManagement";
 
-import LoadingSpinner from "../../universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../shared/LoadingSpinner";
 import { formatDate } from "../../../utils/formatDate";
 
 interface CouponsTableProps {

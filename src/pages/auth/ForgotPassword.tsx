@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { forgotPassword } from "../../api/auth";
 
-import LoadingSpinner from "../../components/universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../components/shared/LoadingSpinner";
 
 const ForgotPassword = () => {
   // ============================================================================

@@ -1,6 +1,6 @@
 import type { Location } from "../../../../api/sellerLocation";
-import { FormField } from "../../universal/FormField";
-import { SelectInput } from "../../universal/SelectInput";
+import { FormField } from "../../shared/FormField";
+import { SelectInput } from "../../shared/SelectInput";
 
 interface WarehouseSelectorProps {
   value: string;

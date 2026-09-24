@@ -10,8 +10,8 @@ import {
 } from "react-icons/fa";
 import { fetchUserOrders, type Order } from "../../../api/orders";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
-import ProfileSidebar from "../../../components/universalComponents/ProfileSideBar";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
+import ProfileSidebar from "../../../components/customer/shared/ProfileSidebar";
 import { formatDate } from "../../../utils/formatDate";
 
 const Orders = () => {

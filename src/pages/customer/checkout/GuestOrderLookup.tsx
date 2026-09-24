@@ -12,9 +12,9 @@ import {
   type GuestOrderDetails,
 } from "../../../api/orders";
 
-import DeliveryEstimate from "../../../components/customerInterface/checkout/DeliveryEstimate";
+import DeliveryEstimate from "../../../components/customer/checkout/DeliveryEstimate";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 import { formatDate } from "../../../utils/formatDate";
 
 // ============================================================================

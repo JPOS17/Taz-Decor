@@ -1,7 +1,7 @@
 import { FaTag, FaShippingFast } from "react-icons/fa";
 import type { CartItem } from "../../../context/CartContext";
 import type { ProductCoupon } from "../../../api/couponCustomer";
-import CartLevelCouponSelector from "../checkout/CartLevelCouponSelector";
+import CartLevelCouponSelector from "./CartLevelCouponSelector";
 import { getBOGOLabel } from "../../../utils/couponUtils";
 
 interface OrderSummaryProps {

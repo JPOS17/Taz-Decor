@@ -47,18 +47,18 @@ import {
   type AddressValidationResult,
 } from "../../../api/checkout";
 
-import StepIndicator from "../../../components/customerInterface/checkout/StepIndicator";
-import OrderSummary from "../../../components/customerInterface/checkout/OrderSummary";
-import SuccessScreen from "../../../components/customerInterface/checkout/SuccessScreen";
-import ShippingOptionsSelector from "../../../components/customerInterface/checkout/ShippingOptionsSelector";
-import DeliveryEstimate from "../../../components/customerInterface/checkout/DeliveryEstimate";
+import StepIndicator from "../../../components/customer/checkout/StepIndicator";
+import OrderSummary from "../../../components/customer/checkout/OrderSummary";
+import SuccessScreen from "../../../components/customer/checkout/SuccessScreen";
+import ShippingOptionsSelector from "../../../components/customer/checkout/ShippingOptionsSelector";
+import DeliveryEstimate from "../../../components/customer/checkout/DeliveryEstimate";
 
-import AddressCard from "../../../components/universalComponents/AddressCard";
-import AddressForm from "../../../components/universalComponents/AddressForm";
-import AddressValidationModal from "../../../components/universalComponents/AddressValidationModal";
-import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
+import AddressCard from "../../../components/customer/shared/AddressCard";
+import AddressForm from "../../../components/customer/shared/AddressForm";
+import AddressValidationModal from "../../../components/shared/AddressValidationModal";
+import ConfirmModal from "../../../components/customer/shared/ConfirmModal";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 import { getBOGOLabel } from "../../../utils/couponUtils";
 
 // ============================================================================

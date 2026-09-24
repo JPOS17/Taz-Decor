@@ -21,14 +21,14 @@ import {
   shouldShowDiscountedPrice,
 } from "../../../api/couponCustomer";
 
-import MiniCart from "../../../components/customerInterface/MiniCart";
-import ReviewSection from "../../../components/customerInterface/ReviewSection";
+import MiniCart from "../../../components/customer/MiniCart";
+import ReviewSection from "../../../components/customer/ReviewSection";
 
-import CouponBanner from "../../../components/customerInterface/items/CouponBanner";
-import VariantSelector from "../../../components/customerInterface/items/ProductVariant";
-import Lightbox from "../../../components/customerInterface/items/ImageLightbox";
+import CouponBanner from "../../../components/customer/catalog/CouponBanner";
+import VariantSelector from "../../../components/customer/catalog/ProductVariantSelector";
+import Lightbox from "../../../components/customer/catalog/ImageLightbox";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 
 const IndividualListing = () => {
   const { variantId } = useParams<{ variantId: string }>();

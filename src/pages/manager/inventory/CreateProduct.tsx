@@ -7,12 +7,12 @@ import { createNewProduct } from "../../../api/inventory";
 
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 import { useToastMessage } from "../../../hooks/useToastMessage";
-import CreateNewProductForm from "../../../components/managerInterface/inventory/forms/CreateNewProductForm";
+import CreateNewProductForm from "../../../components/manager/inventory/forms/CreateProductForm";
 
-import { ToastNotification } from "../../../components/managerInterface/universal/ToastNotifications";
-import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
+import { ToastNotification } from "../../../components/manager/shared/ToastNotifications";
+import ConfirmationModal from "../../../components/manager/shared/ManagerConfirmModal";
 
-import { HeaderFormatter } from "../../../components/managerInterface/inventory/productComponents/HeaderFormatter";
+import { HeaderFormatter } from "../../../components/manager/inventory/editPanel/DetailPanelHeader";
 
 const CreateProduct = () => {
   const navigate = useNavigate();

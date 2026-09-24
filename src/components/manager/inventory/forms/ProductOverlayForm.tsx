@@ -10,15 +10,15 @@ import { useFormValidation } from "../../../../hooks/useFormValidation";
 import { validateManagerForm } from "../../../../utils/formValidator";
 import { scrollToFirstErrorSection } from "../../../../utils/scrollToError";
 
-import { FormField } from "../../universal/FormField";
-import { TextInput } from "../../universal/TextInput";
-import { SelectInput } from "../../universal/SelectInput";
+import { FormField } from "../../shared/FormField";
+import { TextInput } from "../../shared/TextInput";
+import { SelectInput } from "../../shared/SelectInput";
 
-import ShippingFields from "../productInfo/ShippingFields";
-import ProductAttributesFields from "../productInfo/ProductAttributesField";
+import ShippingFields from "../formFields/ShippingFields";
+import ProductAttributesFields from "../formFields/ProductAttributesField";
 
-import { WarehouseSelector } from "../productComponents/WarehouseSelector";
-import CategoryHandler from "../productComponents/CategoryHandler";
+import { WarehouseSelector } from "../formFields/WarehouseSelector";
+import CategoryHandler from "../formFields/CategoryHandler";
 
 interface ProductFormProps {
   variant: VariantDetails;

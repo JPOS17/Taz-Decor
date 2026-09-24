@@ -38,9 +38,9 @@ import {
   type Category,
 } from "../../../api/categories";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
-import { ToastNotification } from "../../../components/managerInterface/universal/ToastNotifications";
-import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
+import { ToastNotification } from "../../../components/manager/shared/ToastNotifications";
+import ConfirmationModal from "../../../components/manager/shared/ManagerConfirmModal";
 
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 import { useToastMessage } from "../../../hooks/useToastMessage";

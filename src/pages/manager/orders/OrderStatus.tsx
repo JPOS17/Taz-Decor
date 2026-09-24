@@ -27,13 +27,13 @@ import {
 } from "../../../utils/shippingLabelFormatter";
 import { formatDate } from "../../../utils/formatDate";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
-import { FormField } from "../../../components/managerInterface/universal/FormField";
-import { TextInput } from "../../../components/managerInterface/universal/TextInput";
-import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
+import { FormField } from "../../../components/manager/shared/FormField";
+import { TextInput } from "../../../components/manager/shared/TextInput";
+import ConfirmationModal from "../../../components/manager/shared/ManagerConfirmModal";
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 
-import ShipByDate from "../../../components/managerInterface/orders/ShipByDate";
+import ShipByDate from "../../../components/manager/orders/ShipByDate";
 
 type Order = APIOrder;
 type OrderDetails = APIOrderDetails;

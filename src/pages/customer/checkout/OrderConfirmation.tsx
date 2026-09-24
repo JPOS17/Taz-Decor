@@ -4,9 +4,9 @@ import { useAuth } from "../../../context/AuthContext";
 import { FaArrowLeft, FaShoppingBag, FaPrint, FaHome } from "react-icons/fa";
 import { fetchOrderByNumber, type OrderDetails } from "../../../api/orders";
 
-import DeliveryEstimate from "../../../components/customerInterface/checkout/DeliveryEstimate";
+import DeliveryEstimate from "../../../components/customer/checkout/DeliveryEstimate";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 
 const OrderConfirmation = () => {
   const { orderNumber } = useParams<{ orderNumber: string }>();

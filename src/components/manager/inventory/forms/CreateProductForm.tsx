@@ -16,17 +16,17 @@ import { validateProductForm } from "../../../../utils/formValidator";
 import { scrollToFirstErrorSection } from "../../../../utils/scrollToError";
 import { sanitizeFolderName } from "../../../../utils/folderNameFormatter";
 
-import { FormField } from "../../universal/FormField";
-import { TextInput } from "../../universal/TextInput";
-import { SelectInput } from "../../universal/SelectInput";
+import { FormField } from "../../shared/FormField";
+import { TextInput } from "../../shared/TextInput";
+import { SelectInput } from "../../shared/SelectInput";
 
-import SKUPreview from "../productInfo/SKUPreview";
-import ShippingFields from "../productInfo/ShippingFields";
-import ProductAttributesFields from "../productInfo/ProductAttributesField";
+import SKUPreview from "../formFields/SKUPreview";
+import ShippingFields from "../formFields/ShippingFields";
+import ProductAttributesFields from "../formFields/ProductAttributesField";
 
-import ImageUploadGrid from "../productComponents/ImageUploadGrid";
-import { WarehouseSelector } from "../productComponents/WarehouseSelector";
-import CategoryHandler from "../productComponents/CategoryHandler";
+import ImageUploadGrid from "../formFields/ImageUploadGrid";
+import { WarehouseSelector } from "../formFields/WarehouseSelector";
+import CategoryHandler from "../formFields/CategoryHandler";
 
 interface CreateProductFormProps {
   categoryId: number;

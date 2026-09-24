@@ -21,10 +21,10 @@ import {
   isItemLevelCoupon,
 } from "../../../api/couponCustomer";
 
-import MiniCart from "../../../components/customerInterface/MiniCart";
+import MiniCart from "../../../components/customer/MiniCart";
 
-import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import ConfirmModal from "../../../components/customer/shared/ConfirmModal";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 import { getBOGOLabel } from "../../../utils/couponUtils";
 
 const Saved = () => {

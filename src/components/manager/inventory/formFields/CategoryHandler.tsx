@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Plus, X, Star, ChevronDown } from "lucide-react";
 import type { Category } from "../../../../api/categories";
 import type { ProductCategory } from "../../../../api/categoriesAssignments";
-import { FormField } from "../../universal/FormField";
-import { SelectInput } from "../../universal/SelectInput";
-import ConfirmationModal from "../../universal/ConfirmationModal";
+import { FormField } from "../../shared/FormField";
+import { SelectInput } from "../../shared/SelectInput";
+import ConfirmationModal from "../../shared/ManagerConfirmModal";
 
 interface CategoryHandlerProps {
   productCategories: ProductCategory[];

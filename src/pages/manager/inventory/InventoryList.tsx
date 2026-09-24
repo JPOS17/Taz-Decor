@@ -33,19 +33,19 @@ import {
   type ProductCategory,
 } from "../../../api/categoriesAssignments";
 
-import ProductOverlayForm from "../../../components/managerInterface/inventory/forms/ProductOverlayForm";
-import CreateNewProductForm from "../../../components/managerInterface/inventory/forms/CreateNewProductForm";
-import CreateNewVariantForm from "../../../components/managerInterface/inventory/forms/CreateNewVariantForm";
+import ProductOverlayForm from "../../../components/manager/inventory/forms/ProductOverlayForm";
+import CreateNewProductForm from "../../../components/manager/inventory/forms/CreateProductForm";
+import CreateNewVariantForm from "../../../components/manager/inventory/forms/CreateVariantForm";
 
-import InventoryFilters from "../../../components/managerInterface/inventory/productComponents/InventoryFilters";
-import ItemListings from "../../../components/managerInterface/inventory/productInfo/ItemListings";
-import { HeaderFormatter } from "../../../components/managerInterface/inventory/productComponents/HeaderFormatter";
-import VariantSelector from "../../../components/managerInterface/inventory/productComponents/VariantSelector";
-import ImageManager from "../../../components/managerInterface/inventory/productComponents/ImageManager";
+import InventoryFilters from "../../../components/manager/inventory/editPanel/InventoryFilters";
+import ItemListings from "../../../components/manager/inventory/editPanel/ProductListRow";
+import { HeaderFormatter } from "../../../components/manager/inventory/editPanel/DetailPanelHeader";
+import VariantSelector from "../../../components/manager/inventory/editPanel/InventoryVariantSelector";
+import ImageManager from "../../../components/manager/inventory/formFields/ImageManager";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
-import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
-import { ToastNotification } from "../../../components/managerInterface/universal/ToastNotifications";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
+import ConfirmationModal from "../../../components/manager/shared/ManagerConfirmModal";
+import { ToastNotification } from "../../../components/manager/shared/ToastNotifications";
 
 import { useCloudinaryWidget } from "../../../hooks/useCloudinaryWidget";
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";

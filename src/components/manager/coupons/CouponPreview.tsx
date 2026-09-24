@@ -5,7 +5,7 @@ import {
   fetchDraftCouponPreview,
 } from "../../../api/couponManagement";
 
-import LoadingSpinner from "../../universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../shared/LoadingSpinner";
 import { getBOGOLabel } from "../../../utils/couponUtils";
 
 interface CouponPreviewProps {

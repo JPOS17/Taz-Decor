@@ -1,4 +1,4 @@
-import TopBar from "./components/universalComponents/TopBar";
+import TopBar from "./components/shared/TopBar";
 import Footer from "./footer/Footer";
 import AppRoutes from "./routes/AppRoutes";
 import { CartProvider } from "./context/CartContext";

@@ -17,13 +17,13 @@ import {
   type ProductCoupon,
 } from "../../../api/couponCustomer";
 
-import CategoryDropDown from "../../../components/customerInterface/items/CategoryDropDown";
-import SideBar from "../../../components/customerInterface/items/SideBar";
-import ItemListings from "../../../components/customerInterface/items/ItemListings";
-import CartCouponBanner from "../../../components/customerInterface/items/CartCouponBanner";
-import Pagination from "../../../components/customerInterface/items/Pagination";
+import CategoryDropDown from "../../../components/customer/catalog/CategoryDropdown";
+import SideBar from "../../../components/customer/catalog/ProductFilterSidebar";
+import ItemListings from "../../../components/customer/catalog/ProductCard";
+import CartCouponBanner from "../../../components/customer/catalog/CartCouponBanner";
+import Pagination from "../../../components/customer/catalog/Pagination";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 
 const ITEMS_PER_PAGE = 20;
 

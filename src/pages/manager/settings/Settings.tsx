@@ -35,10 +35,10 @@ import {
   type AddressValidationResult,
 } from "../../../api/checkout";
 
-import AddressValidationModal from "../../../components/universalComponents/AddressValidationModal";
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
-import { ToastNotification } from "../../../components/managerInterface/universal/ToastNotifications";
-import ConfirmationModal from "../../../components/managerInterface/universal/ConfirmationModal";
+import AddressValidationModal from "../../../components/shared/AddressValidationModal";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
+import { ToastNotification } from "../../../components/manager/shared/ToastNotifications";
+import ConfirmationModal from "../../../components/manager/shared/ManagerConfirmModal";
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 import { useToastMessage } from "../../../hooks/useToastMessage";
 

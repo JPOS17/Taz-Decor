@@ -24,11 +24,11 @@ import {
   isItemLevelCoupon,
 } from "../../../api/couponCustomer";
 
-import CouponModal from "../../../components/customerInterface/items/CouponModal";
-import CartLevelCouponSelector from "../../../components/customerInterface/checkout/CartLevelCouponSelector";
+import CouponModal from "../../../components/customer/catalog/CouponModal";
+import CartLevelCouponSelector from "../../../components/customer/checkout/CartLevelCouponSelector";
 
-import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import ConfirmModal from "../../../components/customer/shared/ConfirmModal";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 
 const Cart = () => {
   const {

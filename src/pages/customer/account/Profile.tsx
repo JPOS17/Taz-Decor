@@ -21,15 +21,15 @@ import {
   type AddressValidationResult,
 } from "../../../api/checkout";
 
-import AddressForm from "../../../components/universalComponents/AddressForm";
-import AddressCard from "../../../components/universalComponents/AddressCard";
-import PasswordInput from "../../../components/universalComponents/PasswordInput";
-import AddressValidationModal from "../../../components/universalComponents/AddressValidationModal";
+import AddressForm from "../../../components/customer/shared/AddressForm";
+import AddressCard from "../../../components/customer/shared/AddressCard";
+import PasswordInput from "../../../components/shared/PasswordInput";
+import AddressValidationModal from "../../../components/shared/AddressValidationModal";
 
-import ProfileSidebar from "../../../components/universalComponents/ProfileSideBar";
-import ConfirmModal from "../../../components/universalComponents/ConfirmModal";
+import ProfileSidebar from "../../../components/customer/shared/ProfileSidebar";
+import ConfirmModal from "../../../components/customer/shared/ConfirmModal";
 
-import LoadingSpinner from "../../../components/universalComponents/LoadingSpinner";
+import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 
 // Types for the inline profile edit form
 interface EditingProfile {
