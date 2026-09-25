@@ -1,9 +1,10 @@
-/* ============================================================================
+/* ==============================================================================
    DELIVERY ESTIMATE
-   Prefix: de-*
-   ============================================================================ */
+   Estimated delivery date shown during checkout.
+   Prefix: delivery-estimate-*
+   ============================================================================== */
 
-.de-delivery-estimate {
+.delivery-estimate {
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
@@ -14,7 +15,7 @@
   margin-top: 0.75rem;
 }
 
-.de-icon {
+.delivery-estimate-icon {
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -24,14 +25,14 @@
   font-size: 1rem;
 }
 
-.de-body {
+.delivery-estimate-body {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
   line-height: 1.3;
 }
 
-.de-label {
+.delivery-estimate-label {
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -39,18 +40,18 @@
   color: var(--color-success);
 }
 
-.de-range {
+.delivery-estimate-range {
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--color-success-dark);
 }
 
-.de-sub {
+.delivery-estimate-sub {
   font-size: 0.72rem;
   color: var(--color-success-text);
 }
 
-.de-disclaimer {
+.delivery-estimate-disclaimer {
   font-size: 0.68rem;
   color: var(--color-success-hover);
   font-style: italic;
@@ -59,7 +60,7 @@
 
 /* Print */
 @media print {
-  .de-delivery-estimate {
+  .delivery-estimate {
     background: none;
     border: 1px solid var(--color-border);
   }

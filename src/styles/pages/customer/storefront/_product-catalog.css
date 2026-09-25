@@ -1,0 +1,251 @@
+/* ==============================================================================
+   PRODUCT CATALOG PAGE
+   Filterable, paginated grid of products by category.
+   Prefix: product-catalog-*
+   ============================================================================== */
+
+.product-catalog-page {
+  /* min-height: 100vh; */
+  background-color: var(--color-page-bg);
+  font-family: var(--font-sans);
+}
+
+.product-catalog-container {
+  display: flex;
+  width: 100%;
+  align-product-catalog: stretch;
+}
+
+/* ============================================================================
+   MAIN CONTENT
+   ============================================================================ */
+
+.product-catalog-main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ============================================================================
+   MOBILE CATEGORY DROPDOWN
+   ============================================================================ */
+
+.product-catalog-category-dropdown-mobile {
+  display: none;
+  padding: 0.85rem 1rem;
+  background: var(--color-surface-alt);
+  border-bottom: 2px solid var(--color-border-accent);
+}
+
+/* ============================================================================
+   HEADER SECTION
+   ============================================================================ */
+
+.product-catalog-header {
+  display: flex;
+  justify-content: space-between;
+  align-product-catalog: center;
+  padding: 1.1rem 2rem 1.1rem 1.75rem;
+  background: var(--color-surface-gradient);
+  border-bottom: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.product-catalog-header-left {
+  display: flex;
+  align-product-catalog: center;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+.product-catalog-category-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+/* ============================================================================
+   CATEGORY COUPON BADGES
+   ============================================================================ */
+
+.product-catalog-category-coupon-badge {
+  display: flex;
+  align-product-catalog: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.product-catalog-discount-badge {
+  background: var(--gradient-badge-danger);
+  color: var(--color-text-on-primary-alt);
+  padding: 5px 11px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-badge);
+  letter-spacing: 0.6px;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+}
+
+.product-catalog-verification-badge {
+  background: var(--gradient-badge-warning);
+  color: var(--color-text-on-primary-alt);
+  padding: 5px 11px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-badge);
+  font-family: var(--font-sans);
+}
+
+/* ============================================================================
+   FILTER WRAPPER
+   ============================================================================ */
+
+.product-catalog-filter-wrapper {
+  display: flex;
+  align-product-catalog: center;
+}
+
+/* ============================================================================
+   CONTENT STATES
+   ============================================================================ */
+
+.product-catalog-loading-state,
+.product-catalog-error-state,
+.product-catalog-empty-state {
+  padding: 3rem 2rem;
+  text-align: center;
+  font-family: var(--font-sans);
+}
+
+.product-catalog-loading-state {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-product-catalog: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.product-catalog-error-state {
+  color: var(--color-danger);
+  font-size: 1rem;
+}
+
+.product-catalog-empty-state {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* ============================================================================
+   PRODUCTS GRID
+   Breakpoints (based on available content width):
+   - Default (desktop): 4–5 cols via auto-fill with 200px min
+   - ≤ 1024px: 3 cols
+   - ≤ 768px : 2 cols
+   - ≤ 480px : 2 cols
+   ============================================================================ */
+
+.product-catalog-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+  padding: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+/* Tablet landscape — sidebar still visible, tighten to 3 cols */
+@media (max-width: 1024px) {
+  .product-catalog-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Tablet portrait — sidebar hides, full width → still 3 cols is fine */
+@media (max-width: 768px) {
+  .product-catalog-sidebar-hidden {
+    display: none;
+  }
+
+  .product-catalog-category-dropdown-mobile {
+    display: block;
+  }
+
+  .product-catalog-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .product-catalog-header {
+    flex-direction: column;
+    align-product-catalog: flex-start;
+    gap: 0.9rem;
+    padding: 1rem;
+  }
+
+  .product-catalog-header-left {
+    flex-direction: column;
+    align-product-catalog: flex-start;
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  .product-catalog-category-title {
+    font-size: 1.55rem;
+  }
+
+  .product-catalog-filter-wrapper {
+    width: 100%;
+  }
+
+  .product-catalog-category-coupon-badge {
+    width: 100%;
+  }
+}
+
+/* Mobile — drop to 2 columns */
+@media (max-width: 560px) {
+  .product-catalog-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .product-catalog-header {
+    padding: 0.85rem;
+  }
+
+  .product-catalog-category-title {
+    font-size: 1.3rem;
+  }
+
+  .product-catalog-discount-badge,
+  .product-catalog-verification-badge {
+    font-size: 0.72rem;
+    padding: 4px 8px;
+  }
+}
+
+/* Small phones — 2 cols with tighter gap */
+@media (max-width: 380px) {
+  .product-catalog-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+}

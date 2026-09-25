@@ -1,0 +1,58 @@
+/* ==============================================================================
+   ACTION BUTTONS
+   Save / delete / activate action button group shown in the product detail
+   panel.
+   Prefix: action-buttons-*
+   ============================================================================== */
+
+.action-buttons {
+  display: flex;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.action-buttons > button {
+  border-radius: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.action-buttons > button:last-child {
+  border-right: none;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.action-buttons > button:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.action-buttons > button:disabled { opacity: 0.5; cursor: not-allowed; }
+.action-buttons > button:not(:disabled):hover { transform: translateY(-1px); filter: brightness(0.9); }
+
+.action-buttons-btn-save       { background-color: var(--color-success); color: white; }
+.action-buttons-btn-delete     { background-color: var(--color-danger); color: white; }
+.action-buttons-btn-new-variant { background-color: var(--color-primary); color: white; }
+.action-buttons-btn-activate   { background-color: var(--color-success); color: white; }
+.action-buttons-btn-deactivate { background-color: var(--color-warning); color: white; }
+.action-buttons-btn-cancel-inline { background-color: var(--text-secondary); color: white; }
+
+@media (max-width: 992px) {
+  .action-buttons { width: 100%; }
+  .action-buttons > button { flex: 1; min-width: 0; justify-content: center; }
+}

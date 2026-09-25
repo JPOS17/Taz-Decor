@@ -1,0 +1,228 @@
+/* ==============================================================================
+   PRODUCT TYPES PAGE
+   Product type table with SKU format preview.
+   Accent: apply .accent-orange to .manager-dashboard wrapper in JSX
+   Prefix: product-types-*
+   ============================================================================== */
+
+/* ── Panel alias ── */
+.product-types-panel {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+}
+
+.product-types-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.product-types-section-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+
+/* ── Button aliases ── */
+.product-types-btn {
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  transition: all 0.18s ease;
+  padding: 0.6rem 1.25rem;
+}
+
+.product-types-btn-sm               { padding: 0.4rem 0.875rem; }
+.product-types-btn:disabled         { opacity: 0.5; cursor: not-allowed; }
+.product-types-btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.product-types-btn-primary   { background-color: var(--accent);        color: white; }
+.product-types-btn-primary:not(:disabled):hover  { background-color: var(--accent-dark); }
+.product-types-btn-success   { background-color: var(--color-success); color: white; }
+.product-types-btn-success:not(:disabled):hover  { background-color: var(--color-success-dark); }
+.product-types-btn-success:disabled { background-color: var(--text-secondary); }
+.product-types-btn-secondary { background-color: var(--text-secondary); color: white; }
+.product-types-btn-secondary:not(:disabled):hover { background-color: var(--text-secondary); }
+
+/* ── Form aliases ── */
+.product-types-form {
+  background-color: var(--accent-light);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.product-types-form-title  { margin: 0 0 1rem 0; color: var(--accent); font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.product-types-form-group  { margin-bottom: 1.25rem; }
+.product-types-form-label  { display: block; font-weight: 600; font-size: 0.8125rem; margin-bottom: 0.5rem; color: var(--text-primary); letter-spacing: 0.01em; }
+
+.product-types-form-input,
+.product-types-form-textarea {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  background-color: var(--card);
+  color: var(--text-primary);
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.product-types-form-input:hover:not(:disabled),
+.product-types-form-textarea:hover:not(:disabled)  { border-color: var(--accent); }
+.product-types-form-input:focus,
+.product-types-form-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.product-types-form-input:disabled,
+.product-types-form-textarea:disabled { background-color: var(--bg); cursor: not-allowed; opacity: 0.6; }
+
+.product-types-form-textarea { resize: vertical; min-height: 80px; }
+.product-types-form-helper   { margin: 0.5rem 0 0 0; font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
+
+/* Format preview (blue info box, same as mc-name-preview) */
+.product-types-format-preview {
+  margin-top: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--color-info-bg);
+  border: 1px solid var(--color-status-shipped-border);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  color: var(--color-info-text);
+}
+
+.product-types-format-preview strong { font-weight: 700; }
+.product-types-format-preview span   { font-weight: 600; }
+.product-types-form-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+
+/* ── Table aliases ── */
+.product-types-table-container {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.product-types-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--card);
+  font-size: 0.875rem;
+}
+
+.product-types-table thead tr { background-color: var(--accent-light); border-bottom: 1px solid var(--border); }
+.product-types-table th { padding: 0.875rem 1rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+.product-types-table td { padding: 0.875rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+.product-types-table tbody tr { transition: background-color 0.18s ease; }
+.product-types-table tbody tr:hover { background-color: var(--accent-light); }
+.product-types-table tbody tr.product-types-row-editing { background-color: var(--color-warning-bg-solid); }
+.product-types-table tbody tr:last-child td { border-bottom: none; }
+
+/* ── SKU badge — UNIQUE ── */
+.product-types-sku-cell  { width: 120px; font-weight: 600; }
+
+.product-types-sku-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.625rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
+.product-types-name-cell        { font-weight: 600; color: var(--text-primary); }
+.product-types-description-cell { color: var(--text-secondary); }
+.product-types-actions-col      { width: 120px; text-align: right; }
+.product-types-actions-cell     { text-align: right; }
+
+/* ── Empty state ── */
+.product-types-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-secondary);
+  background-color: var(--accent-light);
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+}
+
+.product-types-empty p { font-size: 1rem; margin: 0; }
+
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .product-types-actions-bar { flex-direction: column; align-items: stretch; }
+  .product-types-actions-bar .product-types-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 768px) {
+  .product-types-panel { padding: 1rem; }
+  .product-types-form-actions { flex-direction: column; }
+  .product-types-form-actions .product-types-btn { width: 100%; justify-content: center; }
+
+  /* Card-flip table — UNIQUE mobile pattern */
+  .product-types-table-container { border: none; }
+
+  .product-types-table,
+  .product-types-table thead,
+  .product-types-table tbody,
+  .product-types-table th,
+  .product-types-table td,
+  .product-types-table tr { display: block; }
+
+  .product-types-table thead tr { position: absolute; top: -9999px; left: -9999px; }
+
+  .product-types-table tr {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: var(--card);
+  }
+
+  .product-types-table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    text-align: right;
+  }
+
+  .product-types-sku-cell { width: auto; text-align: right; }
+  .product-types-sku-badge { display: inline-flex; }
+
+  .product-types-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.75rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    text-align: left;
+  }
+
+  .product-types-actions-cell { padding-left: 0.75rem; text-align: left; }
+  .product-types-actions-cell .product-types-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 576px) {
+  .product-types-panel { padding: 0.75rem; }
+}

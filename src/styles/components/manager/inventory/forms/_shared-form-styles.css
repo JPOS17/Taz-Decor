@@ -1,0 +1,75 @@
+/* ==============================================================================
+   SHARED FORM STYLES
+   Wrapper, section header, info box, and category-wrapper styles shared by
+   CreateProductForm, CreateVariantForm, ProductOverlayForm, ShippingFields,
+   and ProductAttributesField.
+   Prefix: product-form-*
+   ============================================================================== */
+
+.product-form {
+  width: 100%;
+  font-family: "Inter", sans-serif;
+}
+
+.product-form .form-section-header,
+.product-form .section-title {
+  margin: 0 0 0.75rem 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  color: var(--color-primary);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.product-form .section-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  display: block;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.product-form .form-section { margin-bottom: 1.5rem; }
+.product-form .form-group { margin-bottom: 1rem; }
+
+/* FormField / TextInput / SelectInput — orange theme override */
+.product-form .form-control:hover:not(:disabled) { border-color: var(--color-primary); }
+.product-form .form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.12);
+}
+.product-form .form-control:disabled { background-color: var(--color-primary-bg-light); }
+
+.product-form .info-box {
+  background-color: var(--color-primary-bg-light);
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--color-primary);
+}
+
+.product-form .info-box h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.product-form .info-box-content {
+  display: grid;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.product-form .info-box-content strong { color: var(--text-primary); }
+
+/* ============================================================================
+   CATEGORY WRAPPER — replaces inline marginBottom in forms
+   ============================================================================ */
+
+.product-form .category-wrapper { margin-bottom: 1.5rem; }

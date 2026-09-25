@@ -1,0 +1,127 @@
+/* ==============================================================================
+   ADDRESS FORM
+   Form for entering or editing a shipping address.
+   Prefix: address-form-*
+   ============================================================================== */
+
+.address-form {
+  background: var(--color-surface-warm);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+}
+
+.address-form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.address-form-row:has(.address-form-group:nth-child(3)) {
+  grid-template-columns: 1fr 100px 150px;
+}
+
+.address-form-row:has(.address-form-group:nth-child(2)):not(:has(.address-form-group:nth-child(3))) {
+  grid-template-columns: 1fr 1fr;
+}
+
+.address-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.address-form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-mid);
+  margin-bottom: 0.5rem;
+}
+
+.address-form-group input {
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  background: var(--color-surface-solid);
+  color: var(--color-text-strongest);
+}
+
+.address-form-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-focus-ring);
+}
+
+.address-form-group-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.address-form-group-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.address-form-group-checkbox label {
+  font-size: 0.875rem;
+  color: var(--color-text-mid);
+  cursor: pointer;
+}
+
+.address-form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.address-form-btn-cancel,
+.address-form-btn-save {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.address-form-btn-cancel {
+  background: var(--color-border-light);
+  color: var(--color-text-mid);
+}
+
+.address-form-btn-cancel:hover {
+  background: var(--color-border);
+}
+
+.address-form-btn-save {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary-alt);
+}
+
+.address-form-btn-save:hover {
+  background: var(--color-primary-dark);
+}
+
+.address-form-btn-save:disabled {
+  background: var(--color-primary-disabled-end);
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .address-form-row:has(.address-form-group:nth-child(3)) {
+    grid-template-columns: 1fr;
+  }
+
+  .address-form-row:has(.address-form-group:nth-child(2)):not(:has(.address-form-group:nth-child(3))) {
+    grid-template-columns: 1fr;
+  }
+}

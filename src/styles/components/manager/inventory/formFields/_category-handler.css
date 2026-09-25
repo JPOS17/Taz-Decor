@@ -1,0 +1,351 @@
+/* ==============================================================================
+   CATEGORY HANDLER
+   Primary / additional category picker with an inline category-management
+   modal.
+   Prefix: category-handler-*
+   ============================================================================== */
+
+/* ============================================================================
+   CATEGORY HANDLER — CategoryHandler.tsx
+   ============================================================================ */
+
+/* Wrapper */
+.category-handler {
+  margin-top: -0.25rem;
+}
+
+/* Primary Category Container */
+.category-primary-container {
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.category-primary-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--color-primary-bg-light);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: "Inter", sans-serif;
+  color: var(--text-primary);
+  transition: all 0.18s ease;
+}
+
+.category-primary-button:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.08);
+}
+
+.category-primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.category-primary-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Badges */
+.category-badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.03em;
+}
+
+.category-badge-primary  { background-color: var(--color-primary); }
+.category-badge-inactive { background-color: var(--color-danger); }
+
+/* Chevron */
+.category-chevron {
+  color: var(--color-primary);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+
+.category-chevron.rotated { transform: rotate(180deg); }
+
+/* Dropdown */
+.category-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.25rem;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.category-dropdown-empty {
+  padding: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.category-dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--card);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.18s ease;
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.category-dropdown-item:last-child  { border-bottom: none; }
+.category-dropdown-item:disabled    { cursor: not-allowed; opacity: 0.6; }
+
+.category-dropdown-item:not(:disabled):hover {
+  background-color: var(--color-primary-bg-light);
+  color: var(--color-primary);
+}
+
+/* Additional Categories */
+.category-additional-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.category-additional-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--color-primary-bg-light);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.category-item-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.category-item-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Action Buttons */
+.category-action-button {
+  border: none;
+  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  color: white;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  transition: all 0.18s ease;
+}
+
+.category-action-button:disabled              { cursor: not-allowed; opacity: 0.5; }
+.category-action-button:not(:disabled):hover  { transform: translateY(-1px); }
+
+.category-action-primary                          { background-color: var(--color-warning); }
+.category-action-primary:not(:disabled):hover     { background-color: var(--color-warning-hover); }
+
+.category-action-remove                           { background-color: var(--color-danger); padding: 0.25rem 0.5rem; }
+.category-action-remove:not(:disabled):hover      { background-color: var(--color-danger-dark); }
+
+/* Add Button & Controls */
+.category-add-button {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  transition: all 0.18s ease;
+}
+
+.category-add-button:disabled                  { cursor: not-allowed; opacity: 0.5; }
+.category-add-button:not(:disabled):hover      { background-color: var(--color-primary-dark); transform: translateY(-1px); }
+
+.category-add-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.category-add-controls .form-control { flex: 1; }
+
+.category-add-confirm {
+  background-color: var(--color-success);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+}
+
+.category-add-confirm:not(:disabled):hover { background-color: var(--color-success-dark); }
+.category-add-confirm:disabled             { cursor: not-allowed; opacity: 0.5; }
+
+.category-add-cancel {
+  background-color: var(--text-secondary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+}
+
+.category-add-cancel:not(:disabled):hover { background-color: var(--text-secondary); }
+.category-add-cancel:disabled             { cursor: not-allowed; opacity: 0.5; }
+
+/* Modal */
+.category-handler-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+}
+
+.category-handler-modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--card);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  z-index: 1001;
+  min-width: 400px;
+  max-width: 500px;
+}
+
+.category-handler-modal-title {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.category-handler-modal-content {
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+.category-handler-modal-secondary-text {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.category-handler-modal-warning-text {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.category-handler-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.category-handler-modal-button {
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  transition: all 0.18s ease;
+}
+
+.category-handler-modal-button:hover           { transform: translateY(-1px); filter: brightness(0.9); }
+.category-handler-modal-button-cancel          { background-color: var(--text-secondary); }
+.category-handler-modal-button-confirm         { background-color: var(--color-primary); }
+.category-handler-modal-button-danger          { background-color: var(--color-danger); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .category-handler-modal-container {
+    min-width: 90%;
+    max-width: 90%;
+    padding: 1.5rem;
+  }
+
+  .category-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .category-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .category-add-controls { flex-wrap: wrap; }
+}

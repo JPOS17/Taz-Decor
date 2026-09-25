@@ -1,0 +1,248 @@
+/* ==============================================================================
+   PRODUCT CARD
+   Borderless gallery-style card used in product catalog grids.
+   Prefix: product-card-*
+   ============================================================================== */
+
+.product-card-list-item {
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  background: var(--color-surface-warm-solid);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card-list-item:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================================
+   IMAGE TILE — 1:1 ratio, rounded, subtle warm background
+   Image fits inside without cropping or stretching
+   ============================================================================ */
+
+.product-card-image-container {
+  width: 100%;
+  padding-bottom: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-chip);
+  transition: background 0.3s ease;
+}
+
+.product-card-list-item:hover .product-card-image-container {
+  background: var(--color-surface-hover-mid);
+}
+
+.product-card-image-container img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 82%;
+  max-height: 82%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ============================================================================
+   BADGES — inside the image tile
+   ============================================================================ */
+
+.product-card-discount-badge {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  z-index: 10;
+  background: var(--color-danger);
+  color: var(--color-text-on-primary-alt);
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* ============================================================================
+   WISHLIST BUTTON — inside image tile, top right
+   ============================================================================ */
+
+.product-card-wishlist-btn {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 20;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-surface-warm-solid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.18s ease, background 0.18s ease;
+  border: 1px solid var(--color-primary-border-light);
+}
+
+.product-card-list-item:hover .product-card-wishlist-btn {
+  opacity: 1;
+}
+
+/* Always visible when already wishlisted */
+.product-card-wishlist-btn:has(.product-card-wishlist-icon-filled) {
+  opacity: 1;
+}
+
+.product-card-wishlist-btn:hover {
+  background: var(--color-surface-solid);
+  transform: scale(1.1);
+}
+
+.product-card-wishlist-icon {
+  font-size: 13px;
+  color: var(--color-primary);
+  transition: color 0.15s ease;
+}
+
+.product-card-wishlist-icon-filled {
+  font-size: 13px;
+  color: var(--color-danger);
+}
+
+/* ============================================================================
+   TEXT BLOCK — below image tile, left-aligned
+   ============================================================================ */
+
+.product-card-text-block {
+  padding: 9px 3px 0;
+}
+
+/* Small colored label line for coupon info — replaces badge in text area */
+.product-card-coupon-label {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-danger);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 4px;
+  line-height: 1;
+}
+
+.product-card-item-name {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--color-text-strongest);
+  margin: 0 0 5px;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================================================
+   PRICE ROW
+   ============================================================================ */
+
+.product-card-price-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.product-card-price {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-primary-deep);
+  letter-spacing: 0.01em;
+}
+
+.product-card-price-original {
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.product-card-price-discounted {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-danger);
+  letter-spacing: 0.01em;
+}
+
+.product-card-lock-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-primary-vivid);
+  cursor: help;
+}
+
+/* ============================================================================
+   LEGACY / EXTERNAL STYLES (referenced outside this component)
+   ============================================================================ */
+
+.product-card-category-coupon-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.product-card-discount-badge-legacy {
+  background: var(--gradient-badge-danger);
+  color: var(--color-text-on-primary-alt);
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-badge);
+  letter-spacing: 0.5px;
+}
+
+.product-card-verification-required-badge {
+  background-color: var(--color-primary-vivid);
+  color: var(--color-text-on-primary-alt);
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-badge);
+}
+
+/* ============================================================================
+   LEGACY GRID (used outside Items page)
+   ============================================================================ */
+
+.product-card-listings-grid {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 576px) {
+  .product-card-listings-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 768px) {
+  .product-card-listings-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 992px) {
+  .product-card-listings-grid { grid-template-columns: repeat(4, 1fr); }
+}

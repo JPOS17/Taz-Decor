@@ -1,0 +1,228 @@
+/* ==============================================================================
+   CATEGORIES PAGE
+   Draggable category list with inline add/edit rows.
+   Accent: apply .accent-orange to .manager-dashboard wrapper in JSX
+   Prefix: categories-*
+   ============================================================================== */
+
+/* ── Panel (alias → mgr-panel) ── */
+.categories-panel {
+  background-color: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+}
+
+.categories-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.categories-panel-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+
+.categories-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* ── Button aliases (→ mgr-btn) ── */
+.categories-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  transition: all 0.18s ease;
+}
+
+.categories-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.categories-btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+.categories-btn-primary   { background-color: var(--accent);         color: white; }
+.categories-btn-primary:not(:disabled):hover { background-color: var(--accent-dark); }
+.categories-btn-success   { background-color: var(--color-success);  color: white; }
+.categories-btn-success:not(:disabled):hover { background-color: var(--color-success-dark); }
+.categories-btn-warning   { background-color: var(--color-warning);  color: white; }
+.categories-btn-warning:not(:disabled):hover { background-color: var(--color-warning-hover); }
+.categories-btn-danger    { background-color: var(--color-danger);   color: white; }
+.categories-btn-danger:not(:disabled):hover  { background-color: var(--color-danger-dark); }
+.categories-btn-secondary { background-color: var(--text-secondary); color: white; }
+.categories-btn-secondary:not(:disabled):hover { background-color: var(--text-secondary); }
+
+/* ── Form (alias → mgr-form) ── */
+.categories-form {
+  background-color: var(--accent-light);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.categories-form-title {
+  margin: 0 0 1rem 0;
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.categories-form-group { margin-bottom: 1rem; }
+
+.categories-form-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
+
+.categories-form-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: var(--font);
+  background-color: var(--card);
+  color: var(--text-primary);
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.categories-form-input:hover:not(:disabled) { border-color: var(--accent); }
+.categories-form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.categories-form-input:disabled { opacity: 0.6; cursor: not-allowed; background-color: var(--accent-light); }
+
+/* Name preview (unique blue info box) */
+.categories-name-preview {
+  margin-top: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--color-info-bg);
+  border: 1px solid var(--color-status-shipped-border);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  color: var(--color-info-text);
+}
+
+.categories-name-preview strong { font-weight: 700; }
+
+.categories-form-hint { margin: 0.5rem 0 0 0; font-size: 0.75rem; color: var(--text-muted); font-style: italic; }
+
+.categories-form-actions { display: flex; gap: 0.75rem; }
+
+/* ── Category list ── */
+.categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── Category row — UNIQUE: drag states ── */
+.categories-row {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--card);
+  transition: all 0.18s ease;
+  cursor: grab;
+  touch-action: none;
+}
+
+.categories-row:active               { cursor: grabbing; }
+.categories-row--editing             { background-color: var(--color-warning-bg-solid); border-color: var(--accent); }
+.categories-row--dragging            { background-color: var(--color-info-bg); border-color: var(--color-status-shipped-border); opacity: 0.7; }
+.categories-row--inactive            { background-color: var(--bg); opacity: 0.7; }
+.categories-row--no-drag             { cursor: default; }
+
+.categories-row-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.categories-drag-handle {
+  cursor: grab;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.categories-drag-handle:active { cursor: grabbing; }
+
+.categories-row-info      { display: flex; flex-direction: column; gap: 0.2rem; }
+.categories-row-name-row  { display: flex; align-items: center; gap: 0.5rem; }
+
+.categories-row-name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.categories-row-order {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.categories-badge-disabled {
+  background-color: var(--color-danger);
+  color: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.categories-row-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* ── Empty state ── */
+.categories-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-secondary);
+  background-color: var(--accent-light);
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+}
+
+.categories-empty p { font-size: 1rem; margin: 0; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .categories-panel { padding: 1rem; }
+  .categories-panel-header { flex-direction: column; align-items: flex-start; }
+  .categories-header-actions { width: 100%; flex-wrap: wrap; }
+  .categories-btn { flex: 1; justify-content: center; }
+  .categories-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .categories-row-actions { width: 100%; }
+  .categories-row-actions .categories-btn { flex: 1; justify-content: center; }
+  .categories-form-actions { flex-direction: column; }
+  .categories-form-actions .categories-btn { width: 100%; justify-content: center; }
+}

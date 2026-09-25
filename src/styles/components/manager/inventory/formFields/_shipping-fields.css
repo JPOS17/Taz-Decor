@@ -1,0 +1,13 @@
+/* ==============================================================================
+   SHIPPING FIELDS
+   Package dimension inputs used in the shipping section of the product form.
+   Prefix: product-form-*
+   ============================================================================== */
+
+.product-form .dimensions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.product-form .dimensions-grid .warning-message { font-size: 0.75rem; }

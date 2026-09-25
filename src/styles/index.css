@@ -20,26 +20,32 @@
 
 /* 4. COMPONENTS ────────────────────────────────────────────────────────── */
 
-/* -- universal (used across every interface) -- */
-@import "./components/universal/_topbar.css";
-@import "./components/universal/_profile-sidebar.css";
-@import "./components/universal/_address.css";
-@import "./components/universal/_confirm-modal.css";
-@import "./components/universal/_loading-spinner.css";
-@import "./components/universal/_password-input.css";
+/* -- shared (used across every interface) -- */
+@import "./components/shared/_top-bar.css";
+@import "./components/shared/_loading-spinner.css";
+@import "./components/shared/_password-input.css";
+@import "./components/shared/_address-validation-modal.css";
 
-/* -- customer-facing components -- */
+/* -- customer-facing: top level & shared -- */
 @import "./components/customer/_mini-cart.css";
 @import "./components/customer/_review-section.css";
-@import "./components/customer/_item-listing.css";
-@import "./components/customer/_product-variant.css";
-@import "./components/customer/_image-lightbox.css";
-@import "./components/customer/_category-dropdown.css";
-@import "./components/customer/_sidebar.css";
-@import "./components/customer/_pagination.css";
-@import "./components/customer/_coupon-banner.css";
-@import "./components/customer/_cart-coupon-banner.css";
-@import "./components/customer/_coupon-modal.css";
+@import "./components/customer/shared/_confirm-modal.css";
+@import "./components/customer/shared/_profile-sidebar.css";
+@import "./components/customer/shared/_address-card.css";
+@import "./components/customer/shared/_address-form.css";
+
+/* -- customer-facing: catalog -- */
+@import "./components/customer/catalog/_product-card.css";
+@import "./components/customer/catalog/_product-variant-selector.css";
+@import "./components/customer/catalog/_image-lightbox.css";
+@import "./components/customer/catalog/_category-dropdown.css";
+@import "./components/customer/catalog/_product-filter-sidebar.css";
+@import "./components/customer/catalog/_pagination.css";
+@import "./components/customer/catalog/_coupon-banner.css";
+@import "./components/customer/catalog/_cart-coupon-banner.css";
+@import "./components/customer/catalog/_coupon-modal.css";
+
+/* -- customer-facing: checkout -- */
 @import "./components/customer/checkout/_step-indicator.css";
 @import "./components/customer/checkout/_delivery-estimate.css";
 @import "./components/customer/checkout/_shipping-options-selector.css";
@@ -47,47 +53,63 @@
 @import "./components/customer/checkout/_order-summary.css";
 @import "./components/customer/checkout/_success-screen.css";
 
-/* -- manager-facing components -- */
-@import "./components/manager/_product-forms.css";
-@import "./components/manager/_ship-by-date.css";
+/* -- manager-facing: inventory edit panel -- */
+@import "./components/manager/inventory/editPanel/_detail-panel-header.css";
+@import "./components/manager/inventory/editPanel/_action-buttons.css";
+@import "./components/manager/inventory/editPanel/_inventory-variant-selector.css";
+
+/* -- manager-facing: inventory form fields -- */
+@import "./components/manager/inventory/formFields/_image-manager.css";
+@import "./components/manager/inventory/formFields/_image-upload-grid.css";
+@import "./components/manager/inventory/formFields/_shipping-fields.css";
+@import "./components/manager/inventory/formFields/_sku-preview.css";
+@import "./components/manager/inventory/formFields/_category-handler.css";
+
+/* -- manager-facing: inventory forms -- */
+@import "./components/manager/inventory/forms/_shared-form-styles.css";
+
+/* -- manager-facing: orders -- */
+@import "./components/manager/orders/_ship-by-date.css";
 
 /* -- footer (shared shell) -- */
 @import "./pages/footer/_footer.css";
 
 /* 5. PAGES ─────────────────────────────────────────────────────────────── */
 
-/* -- customer: main -- */
-@import "./pages/customer/main/_home.css";
-@import "./pages/customer/main/_about.css";
-@import "./pages/customer/main/_reviews.css";
-@import "./pages/customer/main/_items.css";
-@import "./pages/customer/main/_listing.css";
-@import "./pages/customer/main/_profile.css";
+/* -- customer: storefront -- */
+@import "./pages/customer/storefront/_home.css";
+@import "./pages/customer/storefront/_about.css";
+@import "./pages/customer/storefront/_reviews-coming-soon.css";
+@import "./pages/customer/storefront/_product-catalog.css";
+@import "./pages/customer/storefront/_product-detail.css";
 
-/* -- customer: sign-in -- */
-@import "./pages/customer/signin/_login.css";
-@import "./pages/customer/signin/_register.css";
-@import "./pages/customer/signin/_forgot-password.css";
-@import "./pages/customer/signin/_reset-password.css";
-@import "./pages/customer/signin/_verify-email.css";
+/* -- customer: account -- */
+@import "./pages/customer/account/_profile.css";
+@import "./pages/customer/account/_order-history.css";
+@import "./pages/customer/account/_wishlist.css";
+
+/* -- auth -- */
+@import "./pages/auth/_login.css";
+@import "./pages/auth/_register.css";
+@import "./pages/auth/_forgot-password.css";
+@import "./pages/auth/_reset-password.css";
+@import "./pages/auth/_verify-email.css";
 
 /* -- customer: cart & checkout -- */
 @import "./pages/customer/checkout/_cart.css";
-@import "./pages/customer/checkout/_checkout-page.css";
-@import "./pages/customer/checkout/_orders.css";
+@import "./pages/customer/checkout/_checkout.css";
 @import "./pages/customer/checkout/_order-confirmation.css";
-@import "./pages/customer/checkout/_saved.css";
 @import "./pages/customer/checkout/_guest-order-lookup.css";
 
 /* -- manager -- */
-@import "./pages/manager/_manager-shared.css";
-@import "./pages/manager/_components.css";
-@import "./pages/manager/_manage-inventory.css";
-@import "./pages/manager/_manage-categories.css";
-@import "./pages/manager/_manage-product-type.css";
-@import "./pages/manager/_coupons-page.css";
-@import "./pages/manager/_order-status.css";
-@import "./pages/manager/_settings.css";
+@import "./pages/manager/_legacy-aliases.css";
+@import "./pages/manager/_shared.css";
+@import "./pages/manager/inventory/_inventory-list.css";
+@import "./pages/manager/inventory/_categories.css";
+@import "./pages/manager/inventory/_product-types.css";
+@import "./pages/manager/coupons/_coupons.css";
+@import "./pages/manager/orders/_order-status.css";
+@import "./pages/manager/settings/_settings.css";
 
 /* -- admin -- */
 @import "./pages/admin/_admin-dashboard.css";

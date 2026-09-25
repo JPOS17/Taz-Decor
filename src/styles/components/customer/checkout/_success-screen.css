@@ -1,15 +1,16 @@
-/* ============================================================================
+/* ==============================================================================
    SUCCESS SCREEN
-   Prefix: ss-*
-   ============================================================================ */
+   Order confirmation screen shown after a successful checkout.
+   Prefix: success-screen-*
+   ============================================================================== */
 
-.ss-checkout-success {
+.success-screen-checkout-success {
   display: flex;
   justify-content: center;
   padding: 2rem 1rem 4rem;
 }
 
-.ss-content {
+.success-screen-content {
   max-width: 600px;
   width: 100%;
   background: var(--color-surface-gradient);
@@ -18,27 +19,27 @@
   padding: 2.5rem 2rem;
   box-shadow: var(--shadow-md);
   text-align: center;
-  animation: ss-fade-in-up 0.4s ease both;
+  animation: success-screen-fade-in-up 0.4s ease both;
 }
 
-@keyframes ss-fade-in-up {
+@keyframes success-screen-fade-in-up {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.ss-icon-large {
+.success-screen-icon-large {
   font-size: 4rem;
   color: var(--color-success);
   margin-bottom: 1.25rem;
-  animation: ss-pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both;
+  animation: success-screen-pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.1s both;
 }
 
-@keyframes ss-pop-in {
+@keyframes success-screen-pop-in {
   from { opacity: 0; transform: scale(0.5); }
   to   { opacity: 1; transform: scale(1); }
 }
 
-.ss-title {
+.success-screen-title {
   font-family: var(--font-serif);
   font-size: 2rem;
   font-weight: 700;
@@ -47,7 +48,7 @@
   letter-spacing: 0.01em;
 }
 
-.ss-message {
+.success-screen-message {
   font-size: 1rem;
   color: var(--color-text-strong);
   margin: 0 0 2rem 0;
@@ -58,7 +59,7 @@
    ORDER INFO GRID
    ============================================================================ */
 
-.ss-order-info {
+.success-screen-order-info {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
@@ -69,14 +70,14 @@
   border-radius: var(--radius-lg);
 }
 
-.ss-order-info-item {
+.success-screen-order-info-item {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   text-align: center;
 }
 
-.ss-info-label {
+.success-screen-info-label {
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -84,13 +85,13 @@
   color: var(--color-text-faint);
 }
 
-.ss-info-value {
+.success-screen-info-value {
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-text-strongest);
 }
 
-.ss-status-badge {
+.success-screen-status-badge {
   display: inline-block;
   padding: 0.2rem 0.625rem;
   background: var(--color-success-bg);
@@ -105,14 +106,14 @@
    ACTION BUTTONS
    ============================================================================ */
 
-.ss-actions {
+.success-screen-actions {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
 }
 
-.ss-btn-primary {
+.success-screen-btn-primary {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,7 +134,7 @@
   overflow: hidden;
 }
 
-.ss-btn-primary::before {
+.success-screen-btn-primary::before {
   content: "";
   position: absolute;
   top: 0; left: -100%; width: 100%; height: 100%;
@@ -141,17 +142,17 @@
   transition: left 0.4s ease;
 }
 
-.ss-btn-primary:hover::before { left: 100%; }
+.success-screen-btn-primary:hover::before { left: 100%; }
 
-.ss-btn-primary:hover {
+.success-screen-btn-primary:hover {
   background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary-hover-dark) 100%);
   box-shadow: var(--shadow-btn-hover);
   transform: translateY(-2px);
 }
 
-.ss-btn-primary:active { transform: translateY(0); }
+.success-screen-btn-primary:active { transform: translateY(0); }
 
-.ss-btn-secondary {
+.success-screen-btn-secondary {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,16 +170,16 @@
   letter-spacing: 0.02em;
 }
 
-.ss-btn-secondary:hover {
+.success-screen-btn-secondary:hover {
   background: var(--color-primary-alpha-08);
   border-color: var(--color-primary);
   color: var(--color-primary-dark);
   transform: translateY(-2px);
 }
 
-.ss-btn-secondary:active { transform: translateY(0); }
+.success-screen-btn-secondary:active { transform: translateY(0); }
 
-.ss-btn-outline {
+.success-screen-btn-outline {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -195,16 +196,16 @@
   transition: all 0.25s ease;
 }
 
-.ss-btn-outline:hover {
+.success-screen-btn-outline:hover {
   background: var(--color-primary-alpha-05);
   border-color: var(--color-border-hover);
   color: var(--color-text-strongest);
   transform: translateY(-2px);
 }
 
-.ss-btn-outline:active { transform: translateY(0); }
+.success-screen-btn-outline:active { transform: translateY(0); }
 
-.ss-btn-large {
+.success-screen-btn-large {
   width: 100%;
   padding: 1rem 1.5rem;
   font-size: 1.0625rem;
@@ -214,7 +215,7 @@
    NOTES
    ============================================================================ */
 
-.ss-note {
+.success-screen-note {
   padding: 1.25rem;
   background: var(--color-primary-alpha-05);
   border: 1.5px solid var(--color-border);
@@ -222,26 +223,26 @@
   text-align: left;
 }
 
-.ss-note p {
+.success-screen-note p {
   font-size: 0.9375rem;
   font-weight: 700;
   color: var(--color-text-strongest);
   margin: 0 0 0.625rem 0;
 }
 
-.ss-note ul {
+.success-screen-note ul {
   margin: 0;
   padding-left: 1.25rem;
 }
 
-.ss-note li {
+.success-screen-note li {
   font-size: 0.875rem;
   color: var(--color-text-strong);
   margin-bottom: 0.35rem;
   line-height: 1.5;
 }
 
-.ss-guest-note {
+.success-screen-guest-note {
   padding: 1rem 1.25rem;
   background: var(--color-warning-bg);
   border: 1.5px solid var(--color-warning-border);
@@ -250,14 +251,14 @@
   text-align: left;
 }
 
-.ss-guest-note p {
+.success-screen-guest-note p {
   font-size: 0.9375rem;
   color: var(--color-warning-text);
   margin: 0 0 0.25rem 0;
   line-height: 1.5;
 }
 
-.ss-order-number-highlight {
+.success-screen-order-number-highlight {
   font-family: monospace;
   font-size: 1rem;
   font-weight: 700;
@@ -267,7 +268,7 @@
   border-radius: var(--radius-sm);
 }
 
-.ss-review-delivery-estimate {
+.success-screen-review-delivery-estimate {
   margin-top: 0.75rem;
 }
 
@@ -276,21 +277,21 @@
    ============================================================================ */
 
 @media (max-width: 968px) {
-  .ss-order-info {
+  .success-screen-order-info {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 576px) {
-  .ss-order-info {
+  .success-screen-order-info {
     grid-template-columns: 1fr;
   }
 
-  .ss-content {
+  .success-screen-content {
     padding: 1.75rem 1.25rem;
   }
 
-  .ss-title {
+  .success-screen-title {
     font-size: 1.5rem;
   }
 }

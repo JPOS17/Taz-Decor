@@ -1,9 +1,10 @@
-/* ============================================================================
+/* ==============================================================================
    CART LEVEL COUPON SELECTOR
-   Prefix: clcs-*
-   ============================================================================ */
+   Coupon picker applied at the cart level during checkout.
+   Prefix: cart-level-coupon-selector-*
+   ============================================================================== */
 
-.clcs-section {
+.cart-level-coupon-selector-section {
   background: var(--color-surface-warm-solid);
   border: 1.5px solid var(--color-border-accent);
   border-radius: var(--radius-lg);
@@ -16,14 +17,14 @@
    HEADER
    ============================================================================ */
 
-.clcs-header {
+.cart-level-coupon-selector-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
 }
 
-.clcs-title {
+.cart-level-coupon-selector-title {
   color: var(--color-text-strongest);
   font-size: 1.1rem;
   font-weight: 600;
@@ -37,7 +38,7 @@
    SELECTED COUPON
    ============================================================================ */
 
-.clcs-selected-coupon {
+.cart-level-coupon-selector-selected-coupon {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -47,19 +48,19 @@
   border-radius: var(--radius-md);
 }
 
-.clcs-selected-coupon-details {
+.cart-level-coupon-selector-selected-coupon-details {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.clcs-coupon-code {
+.cart-level-coupon-selector-coupon-code {
   color: var(--color-text-strong);
   font-weight: 700;
   font-size: 0.95rem;
 }
 
-.clcs-coupon-value {
+.cart-level-coupon-selector-coupon-value {
   color: var(--color-primary);
   font-size: 0.9rem;
   font-weight: 600;
@@ -69,8 +70,8 @@
    BUTTONS
    ============================================================================ */
 
-.clcs-btn-change,
-.clcs-btn-add {
+.cart-level-coupon-selector-btn-change,
+.cart-level-coupon-selector-btn-add {
   background: var(--color-primary-mid);
   color: var(--color-text-on-primary-alt);
   border: none;
@@ -83,14 +84,14 @@
   box-shadow: var(--shadow-xs);
 }
 
-.clcs-btn-change:hover,
-.clcs-btn-add:hover {
+.cart-level-coupon-selector-btn-change:hover,
+.cart-level-coupon-selector-btn-add:hover {
   background: var(--color-primary-tint);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.clcs-btn-remove {
+.cart-level-coupon-selector-btn-remove {
   background: var(--color-danger-bg);
   color: var(--color-danger);
   border: 1px solid var(--color-danger-border);
@@ -103,12 +104,12 @@
   justify-content: center;
 }
 
-.clcs-btn-remove:hover {
+.cart-level-coupon-selector-btn-remove:hover {
   background: var(--color-danger-bg-hover);
   border-color: var(--color-danger-border);
 }
 
-.clcs-btn-select {
+.cart-level-coupon-selector-btn-select {
   background: var(--color-primary);
   color: var(--color-text-on-primary-alt);
   border: none;
@@ -123,13 +124,13 @@
   box-shadow: var(--shadow-btn-deep);
 }
 
-.clcs-btn-select:hover:not(:disabled) {
+.cart-level-coupon-selector-btn-select:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-btn-deep-hover);
   background: var(--color-primary-hover);
 }
 
-.clcs-btn-select:disabled {
+.cart-level-coupon-selector-btn-select:disabled {
   background: var(--color-primary-disabled-start);
   cursor: not-allowed;
   opacity: 0.6;
@@ -140,7 +141,7 @@
    COUPON LIST
    ============================================================================ */
 
-.clcs-coupon-list {
+.cart-level-coupon-selector-coupon-list {
   margin-top: 16px;
   display: flex;
   flex-direction: column;
@@ -153,21 +154,21 @@
   scrollbar-color: var(--color-primary-mid) var(--color-surface-chip);
 }
 
-.clcs-coupon-list::-webkit-scrollbar {
+.cart-level-coupon-selector-coupon-list::-webkit-scrollbar {
   width: 5px;
 }
 
-.clcs-coupon-list::-webkit-scrollbar-track {
+.cart-level-coupon-selector-coupon-list::-webkit-scrollbar-track {
   background: var(--color-surface-chip);
   border-radius: var(--radius-sm);
 }
 
-.clcs-coupon-list::-webkit-scrollbar-thumb {
+.cart-level-coupon-selector-coupon-list::-webkit-scrollbar-thumb {
   background: var(--color-primary-mid);
   border-radius: var(--radius-sm);
 }
 
-.clcs-coupon-list::-webkit-scrollbar-thumb:hover {
+.cart-level-coupon-selector-coupon-list::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
 
@@ -175,7 +176,7 @@
    COUPON ITEM
    ============================================================================ */
 
-.clcs-coupon-item {
+.cart-level-coupon-selector-coupon-item {
   background: var(--color-surface-warm-solid);
   border: 1.5px solid var(--color-border-card);
   border-radius: var(--radius-md);
@@ -183,27 +184,27 @@
   transition: all 0.22s ease;
 }
 
-.clcs-coupon-item:hover:not(.clcs-ineligible) {
+.cart-level-coupon-selector-coupon-item:hover:not(.cart-level-coupon-selector-ineligible) {
   border-color: var(--color-primary-mid);
   box-shadow: var(--shadow-xs);
 }
 
-.clcs-coupon-item-selected {
+.cart-level-coupon-selector-coupon-item-selected {
   border-color: var(--color-primary);
   background: var(--color-surface-warm);
   box-shadow: var(--shadow-sm);
 }
 
-.clcs-coupon-item-selected .clcs-btn-select {
+.cart-level-coupon-selector-coupon-item-selected .cart-level-coupon-selector-btn-select {
   background: var(--color-success);
   box-shadow: var(--color-success-shadow);
 }
 
-.clcs-coupon-item-selected .clcs-btn-select:hover {
+.cart-level-coupon-selector-coupon-item-selected .cart-level-coupon-selector-btn-select:hover {
   background: var(--color-success-hover);
 }
 
-.clcs-ineligible {
+.cart-level-coupon-selector-ineligible {
   opacity: 0.55;
   background: var(--color-primary-alpha-05);
 }
@@ -212,7 +213,7 @@
    COUPON ITEM CONTENT
    ============================================================================ */
 
-.clcs-coupon-item-content {
+.cart-level-coupon-selector-coupon-item-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -220,7 +221,7 @@
   flex-wrap: wrap;
 }
 
-.clcs-coupon-details {
+.cart-level-coupon-selector-coupon-details {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -228,7 +229,7 @@
   gap: 6px;
 }
 
-.clcs-coupon-code-row {
+.cart-level-coupon-selector-coupon-code-row {
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -240,26 +241,26 @@
    TYPOGRAPHY
    ============================================================================ */
 
-.clcs-coupon-code-text {
+.cart-level-coupon-selector-coupon-code-text {
   font-weight: 700;
   font-size: 1rem;
   color: var(--color-primary-text);
   font-family: 'Courier New', monospace;
 }
 
-.clcs-coupon-discount {
+.cart-level-coupon-selector-coupon-discount {
   font-weight: 700;
   color: var(--color-success-dark);
   font-size: 1.05rem;
 }
 
-.clcs-coupon-requirement {
+.cart-level-coupon-selector-coupon-requirement {
   color: var(--color-text-muted);
   font-size: 0.85rem;
   margin: 0;
 }
 
-.clcs-coupon-ineligible-reason {
+.cart-level-coupon-selector-coupon-ineligible-reason {
   color: var(--color-danger);
   font-size: 0.85rem;
   font-weight: 500;
@@ -269,7 +270,7 @@
   gap: 6px;
 }
 
-.clcs-no-coupons-message {
+.cart-level-coupon-selector-no-coupons-message {
   color: var(--color-text-muted);
   text-align: center;
   padding: 20px;
@@ -281,7 +282,7 @@
    GUEST / SIGNED-OUT NOTICE
    ============================================================================ */
 
-.clcs-guest-notice {
+.cart-level-coupon-selector-guest-notice {
   margin-bottom: 0;
   display: flex;
   align-items: flex-start;
@@ -296,18 +297,18 @@
   line-height: 1.5;
 }
 
-.clcs-guest-icon {
+.cart-level-coupon-selector-guest-icon {
   flex-shrink: 0;
   margin-top: 0.2rem;
   font-size: 1rem;
   color: var(--color-danger);
 }
 
-.clcs-guest-notice p {
+.cart-level-coupon-selector-guest-notice p {
   margin: 0;
 }
 
-.clcs-btn-sign-in {
+.cart-level-coupon-selector-btn-sign-in {
   background: none;
   border: none;
   padding: 0;
@@ -321,7 +322,7 @@
   transition: color 0.15s ease;
 }
 
-.clcs-btn-sign-in:hover {
+.cart-level-coupon-selector-btn-sign-in:hover {
   color: var(--color-danger-dark);
 }
 
@@ -330,17 +331,17 @@
    ============================================================================ */
 
 @media (max-width: 768px) {
-  .clcs-section {
+  .cart-level-coupon-selector-section {
     padding: 14px;
   }
 
-  .clcs-header {
+  .cart-level-coupon-selector-header {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
 
-  .clcs-selected-coupon {
+  .cart-level-coupon-selector-selected-coupon {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -348,24 +349,24 @@
     gap: 8px;
   }
 
-  .clcs-btn-change,
-  .clcs-btn-add {
+  .cart-level-coupon-selector-btn-change,
+  .cart-level-coupon-selector-btn-add {
     width: 100%;
     text-align: center;
   }
 
-  .clcs-coupon-item-content {
+  .cart-level-coupon-selector-coupon-item-content {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
 
-  .clcs-btn-select {
+  .cart-level-coupon-selector-btn-select {
     width: 100%;
     text-align: center;
   }
 
-  .clcs-coupon-code-row {
+  .cart-level-coupon-selector-coupon-code-row {
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;

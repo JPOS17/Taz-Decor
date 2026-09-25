@@ -1,15 +1,16 @@
-/* ============================================================================
+/* ==============================================================================
    SHIPPING OPTIONS SELECTOR
-   Prefix: sos-*
-   ============================================================================ */
+   Carrier and shipping method picker shown during checkout.
+   Prefix: shipping-options-selector-*
+   ============================================================================== */
 
-.sos-container {
+.shipping-options-selector-container {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
   border-top: 1.5px solid var(--color-border);
 }
 
-.sos-title {
+.shipping-options-selector-title {
   font-family: var(--font-serif);
   font-size: 1.15rem;
   font-weight: 600;
@@ -22,13 +23,13 @@
    OPTIONS LIST
    ============================================================================ */
 
-.sos-options-list {
+.shipping-options-selector-options-list {
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
 }
 
-.sos-option {
+.shipping-options-selector-option {
   display: flex;
   align-items: center;
   gap: 0.875rem;
@@ -40,45 +41,45 @@
   transition: all 0.25s ease;
 }
 
-.sos-option:hover {
+.shipping-options-selector-option:hover {
   border-color: var(--color-border-hover);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
-.sos-option--selected {
+.shipping-options-selector-option--selected {
   border-color: var(--color-primary);
   background: var(--color-primary-alpha-04);
   box-shadow: 0 0 0 3px var(--color-primary-alpha-10);
 }
 
-.sos-radio {
+.shipping-options-selector-radio {
   accent-color: var(--color-primary);
   width: 16px;
   height: 16px;
   flex-shrink: 0;
 }
 
-.sos-option-details {
+.shipping-options-selector-option-details {
   flex: 1;
   min-width: 0;
 }
 
-.sos-option-header {
+.shipping-options-selector-option-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
 }
 
-.sos-carrier-name {
+.shipping-options-selector-carrier-name {
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--color-text-strongest);
   margin: 0;
 }
 
-.sos-price {
+.shipping-options-selector-price {
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-primary-text);
@@ -86,7 +87,7 @@
   white-space: nowrap;
 }
 
-.sos-estimate {
+.shipping-options-selector-estimate {
   font-size: 0.8125rem;
   color: var(--color-text-faint);
   margin: 0.2rem 0 0 0;
@@ -96,7 +97,7 @@
    ERROR & PLACEHOLDER STATES
    ============================================================================ */
 
-.sos-error {
+.shipping-options-selector-error {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -110,7 +111,7 @@
   font-size: 0.9375rem;
 }
 
-.sos-placeholder {
+.shipping-options-selector-placeholder {
   padding: 1.5rem;
   text-align: center;
   color: var(--color-text-faint);
@@ -121,7 +122,7 @@
   border-radius: var(--radius-md);
 }
 
-.sos-btn-retry {
+.shipping-options-selector-btn-retry {
   padding: 0.5rem 1.25rem;
   background: transparent;
   border: 1.5px solid var(--color-danger-border);
@@ -134,7 +135,7 @@
   transition: all 0.25s ease;
 }
 
-.sos-btn-retry:hover {
+.shipping-options-selector-btn-retry:hover {
   background: var(--color-danger-bg-hover);
   border-color: var(--color-danger);
 }
@@ -143,7 +144,7 @@
    FREE SHIPPING COUPON NOTICE
    ============================================================================ */
 
-.sos-free-shipping-notice {
+.shipping-options-selector-free-shipping-notice {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
@@ -153,13 +154,13 @@
   border-radius: var(--radius-md);
 }
 
-.sos-free-shipping-icon-wrap {
+.shipping-options-selector-free-shipping-icon-wrap {
   position: relative;
   color: var(--color-success);
   flex-shrink: 0;
 }
 
-.sos-check-overlay {
+.shipping-options-selector-check-overlay {
   position: absolute;
   bottom: -2px;
   right: -4px;
@@ -168,7 +169,7 @@
   color: var(--color-success);
 }
 
-.sos-free-shipping-message h4 {
+.shipping-options-selector-free-shipping-message h4 {
   font-family: var(--font-serif);
   font-size: 1.1rem;
   font-weight: 600;
@@ -176,14 +177,14 @@
   margin: 0 0 0.25rem 0;
 }
 
-.sos-free-shipping-message p {
+.shipping-options-selector-free-shipping-message p {
   font-size: 0.875rem;
   color: var(--color-success-text);
   margin: 0;
   line-height: 1.5;
 }
 
-.sos-free-shipping-text {
+.shipping-options-selector-free-shipping-text {
   display: inline-flex;
   align-items: center;
   color: var(--color-success);

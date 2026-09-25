@@ -1,15 +1,16 @@
-/* ============================================================================
+/* ==============================================================================
    ORDER CONFIRMATION PAGE
-   Prefix: order-confirm-*
-   ============================================================================ */
+   Post-purchase order confirmation page.
+   Prefix: order-confirmation-*
+   ============================================================================== */
 
-.order-confirm-page {
+.order-confirmation-page {
   min-height: 120vh;
   background-color: var(--color-page-bg);
   font-family: var(--font-sans);
 }
 
-.order-confirm-layout {
+.order-confirmation-layout {
   max-width: 900px;
   margin: 0 auto;
   padding: 1.25rem;
@@ -20,14 +21,14 @@
    LOADING & ERROR STATES
    ============================================================================ */
 
-.order-confirm-loading {
+.order-confirmation-loading {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
 }
 
-.order-confirm-error {
+.order-confirmation-error {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -39,7 +40,7 @@
   border-radius: var(--radius-2xl);
 }
 
-.order-confirm-error h2 {
+.order-confirmation-error h2 {
   font-family: var(--font-serif);
   font-size: 1.75rem;
   color: var(--color-danger-dark);
@@ -47,7 +48,7 @@
   font-weight: 700;
 }
 
-.order-confirm-error p {
+.order-confirmation-error p {
   font-size: 1rem;
   color: var(--color-text-muted);
   margin-bottom: 2rem;
@@ -57,7 +58,7 @@
    MAIN CONTENT
    ============================================================================ */
 
-.order-confirm-main {
+.order-confirmation-main {
   display: flex;
   flex-direction: column;
   max-width: 900px;
@@ -70,11 +71,11 @@
    BACK NAVIGATION
    ============================================================================ */
 
-.order-confirm-back-nav {
+.order-confirmation-back-nav {
   padding: 0.75rem 0 0.5rem;
 }
 
-.order-confirm-back-link {
+.order-confirmation-back-link {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -91,12 +92,12 @@
   letter-spacing: 0.02em;
 }
 
-.order-confirm-back-link:hover {
+.order-confirmation-back-link:hover {
   color: var(--color-text-strong);
   transform: translateX(-2px);
 }
 
-.order-confirm-container {
+.order-confirmation-container {
   background: var(--color-surface-gradient);
   border: 1.5px solid var(--color-border-accent);
   border-radius: var(--radius-2xl);
@@ -107,7 +108,7 @@
    CONFIRMATION HEADER
    ============================================================================ */
 
-.order-confirm-header {
+.order-confirmation-header {
   background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
   color: var(--color-text-on-primary-alt);
   padding: 1.75rem 2rem;
@@ -115,13 +116,13 @@
   border-radius: 14px 14px 0 0;
 }
 
-@keyframes order-confirm-success-bounce {
+@keyframes order-confirmation-success-bounce {
   0%   { transform: scale(0) rotate(-180deg); }
   50%  { transform: scale(1.2) rotate(10deg); }
   100% { transform: scale(1) rotate(0); }
 }
 
-.order-confirm-header h1 {
+.order-confirmation-header h1 {
   font-family: var(--font-serif);
   font-size: 2.5rem;
   font-weight: 700;
@@ -129,14 +130,14 @@
   letter-spacing: 0.01em;
 }
 
-.order-confirm-message {
+.order-confirmation-message {
   font-size: 1.0625rem;
   opacity: 0.9;
   margin-bottom: 0.75rem;
   font-weight: 400;
 }
 
-.order-confirm-number-display {
+.order-confirmation-number-display {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
@@ -146,7 +147,7 @@
   border: 1px solid var(--color-header-glass-border);
 }
 
-.order-confirm-number-display .label {
+.order-confirmation-number-display .label {
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -154,7 +155,7 @@
   opacity: 0.85;
 }
 
-.order-confirm-number-display .number {
+.order-confirmation-number-display .number {
   font-size: 1.125rem;
   font-weight: 700;
   font-family: var(--font-sans);
@@ -165,20 +166,20 @@
    ORDER DETAILS SECTION
    ============================================================================ */
 
-.order-confirm-details-section {
+.order-confirmation-details-section {
   padding: 1.25rem;
   margin-top: 1rem;
   background: transparent;
 }
 
-.order-confirm-details-grid {
+.order-confirmation-details-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 0.5rem;
 }
 
-.order-confirm-detail-card {
+.order-confirmation-detail-card {
   padding: 1rem;
   background: var(--color-surface-solid);
   border: 1.5px solid var(--color-border);
@@ -186,13 +187,13 @@
   transition: all 0.22s ease;
 }
 
-.order-confirm-detail-card:hover {
+.order-confirmation-detail-card:hover {
   border-color: var(--color-primary-mid);
   box-shadow: 0 6px 20px var(--color-primary-mid-alpha-20);
   transform: translateY(-2px);
 }
 
-.order-confirm-detail-card h3 {
+.order-confirmation-detail-card h3 {
   font-family: var(--font-serif);
   font-size: 1.125rem;
   font-weight: 700;
@@ -202,21 +203,21 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.order-confirm-address-info p,
-.order-confirm-delivery-info p {
+.order-confirmation-address-info p,
+.order-confirmation-delivery-info p {
   font-size: 0.9375rem;
   color: var(--color-primary-deep);
   margin: 0.5rem 0;
   line-height: 1.6;
 }
 
-.order-confirm-address-info strong,
-.order-confirm-delivery-info strong {
+.order-confirmation-address-info strong,
+.order-confirmation-delivery-info strong {
   color: var(--color-text-strongest);
   font-weight: 600;
 }
 
-.order-confirm-info-note {
+.order-confirmation-info-note {
   margin-top: 1rem;
   padding: 0.75rem;
   background: var(--color-primary-bg-light);
@@ -226,7 +227,7 @@
   color: var(--color-primary-text);
 }
 
-.order-confirm-status-badge {
+.order-confirmation-status-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   background: var(--color-primary-bg-light);
@@ -244,7 +245,7 @@
    DELIVERY ESTIMATE OVERRIDE
    ============================================================================ */
 
-.order-confirm-delivery-estimate-override {
+.order-confirmation-delivery-estimate-override {
   margin-top: 1rem;
 }
 
@@ -252,13 +253,13 @@
    SUMMARY INFO
    ============================================================================ */
 
-.order-confirm-summary-info {
+.order-confirmation-summary-info {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.order-confirm-summary-row {
+.order-confirmation-summary-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -267,12 +268,12 @@
   font-weight: 500;
 }
 
-.order-confirm-discount {
+.order-confirmation-discount {
   color: var(--color-success);
   font-weight: 700;
 }
 
-.order-confirm-total {
+.order-confirmation-total {
   padding-top: 0.5rem;
   border-top: 1px solid var(--color-border);
   font-size: 1.25rem;
@@ -280,7 +281,7 @@
   font-weight: 700;
 }
 
-.order-confirm-summary-divider {
+.order-confirmation-summary-divider {
   display: none;
 }
 
@@ -288,12 +289,12 @@
    ORDER ITEMS SECTION
    ============================================================================ */
 
-.order-confirm-items-section {
+.order-confirmation-items-section {
   padding: 0 1.25rem 1.25rem;
   background: transparent;
 }
 
-.order-confirm-items-section h3 {
+.order-confirmation-items-section h3 {
   font-family: var(--font-serif);
   font-size: 1.4rem;
   font-weight: 700;
@@ -302,13 +303,13 @@
   letter-spacing: 0.01em;
 }
 
-.order-confirm-items-list {
+.order-confirmation-items-list {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.order-confirm-item {
+.order-confirmation-item {
   display: grid;
   grid-template-columns: 100px 1fr auto;
   gap: 1rem;
@@ -319,13 +320,13 @@
   transition: all 0.22s ease;
 }
 
-.order-confirm-item:hover {
+.order-confirmation-item:hover {
   border-color: var(--color-primary-mid);
   box-shadow: 0 6px 20px var(--color-primary-mid-alpha-20);
   transform: translateY(-2px);
 }
 
-.order-confirm-item-image {
+.order-confirmation-item-image {
   width: 100px;
   height: 100px;
   object-fit: contain;
@@ -336,7 +337,7 @@
   box-sizing: border-box;
 }
 
-.order-confirm-item-details h4 {
+.order-confirmation-item-details h4 {
   font-family: var(--font-serif);
   font-size: 1.125rem;
   font-weight: 700;
@@ -344,15 +345,15 @@
   margin-bottom: 0.5rem;
 }
 
-.order-confirm-variant-info,
-.order-confirm-quantity {
+.order-confirmation-variant-info,
+.order-confirmation-quantity {
   font-size: 0.9375rem;
   color: var(--color-text-muted);
   margin: 0.25rem 0;
   font-weight: 500;
 }
 
-.order-confirm-item-price {
+.order-confirmation-item-price {
   display: flex;
   align-items: center;
   font-size: 1.125rem;
@@ -364,7 +365,7 @@
    CONFIRMATION ACTIONS
    ============================================================================ */
 
-.order-confirm-actions {
+.order-confirmation-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
@@ -374,9 +375,9 @@
   background: var(--color-primary-mid-alpha-06);
 }
 
-.order-confirm-btn-primary,
-.order-confirm-btn-secondary,
-.order-confirm-btn-outline {
+.order-confirmation-btn-primary,
+.order-confirmation-btn-secondary,
+.order-confirmation-btn-outline {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -392,36 +393,36 @@
   transition: all 0.22s ease;
 }
 
-.order-confirm-btn-primary {
+.order-confirmation-btn-primary {
   background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
   color: var(--color-text-on-primary-alt);
   box-shadow: var(--shadow-btn);
 }
 
-.order-confirm-btn-primary:hover {
+.order-confirmation-btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-btn-hover);
 }
 
-.order-confirm-btn-secondary {
+.order-confirmation-btn-secondary {
   background: linear-gradient(135deg, var(--color-primary-deep) 0%, var(--color-primary-deepest) 100%);
   color: var(--color-primary-tint);
   box-shadow: var(--shadow-btn-deep);
 }
 
-.order-confirm-btn-secondary:hover {
+.order-confirmation-btn-secondary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-btn-deep-hover);
   background: linear-gradient(135deg, var(--color-primary-text) 0%, var(--color-primary-deep) 100%);
 }
 
-.order-confirm-btn-outline {
+.order-confirmation-btn-outline {
   background: transparent;
   color: var(--color-primary-text);
   border: 1.5px solid var(--color-border);
 }
 
-.order-confirm-btn-outline:hover {
+.order-confirmation-btn-outline:hover {
   background: var(--color-primary-bg-light);
   border-color: var(--color-primary-mid);
   transform: translateY(-2px);
@@ -432,37 +433,37 @@
    ============================================================================ */
 
 @media print {
-  .order-confirm-back-nav,
-  .order-confirm-actions {
+  .order-confirmation-back-nav,
+  .order-confirmation-actions {
     display: none !important;
   }
 
-  .order-confirm-page {
+  .order-confirmation-page {
     background: var(--color-surface-solid);
   }
 
-  .order-confirm-main {
+  .order-confirmation-main {
     padding: 0;
     max-width: 100%;
   }
 
-  .order-confirm-container {
+  .order-confirmation-container {
     box-shadow: none;
     border: none;
     background: var(--color-surface-solid);
   }
 
-  .order-confirm-details-grid {
+  .order-confirmation-details-grid {
     grid-template-columns: repeat(3, 1fr) !important;
   }
 
-  .order-confirm-items-section {
+  .order-confirmation-items-section {
     page-break-before: always;
     break-before: page;
   }
 
-  .order-confirm-item:hover,
-  .order-confirm-detail-card:hover {
+  .order-confirmation-item:hover,
+  .order-confirmation-detail-card:hover {
     box-shadow: none;
     transform: none;
   }
@@ -473,54 +474,54 @@
    ============================================================================ */
 
 @media (max-width: 1024px) {
-  .order-confirm-main {
+  .order-confirmation-main {
     padding: 1rem 2rem 4rem;
   }
 
-  .order-confirm-details-grid {
+  .order-confirmation-details-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .order-confirm-main {
+  .order-confirmation-main {
     padding: 1rem 1.5rem 3rem;
   }
 
-  .order-confirm-header {
+  .order-confirmation-header {
     padding: 2rem 1.5rem;
   }
 
-  .order-confirm-header h1 {
+  .order-confirmation-header h1 {
     font-size: 2rem;
   }
 
-  .order-confirm-number-display {
+  .order-confirmation-number-display {
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem 1.5rem;
   }
 
-  .order-confirm-details-section {
+  .order-confirmation-details-section {
     padding: 1.5rem 1rem;
   }
 
-  .order-confirm-items-section {
+  .order-confirmation-items-section {
     padding: 0 1rem 1.5rem;
   }
 
-  .order-confirm-item {
+  .order-confirmation-item {
     grid-template-columns: 80px 1fr;
     gap: 1rem;
     padding: 1rem;
   }
 
-  .order-confirm-item-image {
+  .order-confirmation-item-image {
     width: 80px;
     height: 80px;
   }
 
-  .order-confirm-item-price {
+  .order-confirmation-item-price {
     grid-column: 1 / -1;
     justify-content: flex-start;
     margin-top: 0.5rem;
@@ -528,42 +529,42 @@
     border-top: 1px solid var(--color-border);
   }
 
-  .order-confirm-actions {
+  .order-confirmation-actions {
     flex-direction: column;
     padding: 1.5rem 1rem;
   }
 
-  .order-confirm-btn-primary,
-  .order-confirm-btn-secondary,
-  .order-confirm-btn-outline {
+  .order-confirmation-btn-primary,
+  .order-confirmation-btn-secondary,
+  .order-confirmation-btn-outline {
     width: 100%;
   }
 }
 
 @media (max-width: 640px) {
-  .order-confirm-header {
+  .order-confirmation-header {
     padding: 1.5rem 1rem;
   }
 
-  .order-confirm-header h1 {
+  .order-confirmation-header h1 {
     font-size: 1.75rem;
   }
 
-  .order-confirm-message {
+  .order-confirmation-message {
     font-size: 1rem;
   }
 
-  .order-confirm-number-display .number {
+  .order-confirmation-number-display .number {
     font-size: 1rem;
   }
 
-  .order-confirm-detail-card {
+  .order-confirmation-detail-card {
     padding: 1rem;
   }
 }
 
 @media (max-width: 576px) {
-  .order-confirm-main {
+  .order-confirmation-main {
     padding: 1rem 1rem 2rem;
   }
 }
