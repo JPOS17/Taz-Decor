@@ -368,15 +368,15 @@ const Items = () => {
 
   if (loading) {
     return (
-      <div className="items-page items-loading-state">
+      <div className="product-catalog-page product-catalog-loading-state">
         <LoadingSpinner message="Loading products..." />
       </div>
     );
   }
 
   return (
-    <div className="items-page">
-      <div className="items-container">
+    <div className="product-catalog-page">
+      <div className="product-catalog-container">
         {/* Sidebar — hidden on small screens, visible on medium+ */}
         <SideBar
           activeCategoryId={activeCategoryId}
@@ -392,9 +392,9 @@ const Items = () => {
           onReset={handleReset}
         />
 
-        <div className="items-main-content">
+        <div className="product-catalog-main-content">
           {/* Category dropdown — only visible on small screens */}
-          <div className="items-category-dropdown-mobile">
+          <div className="product-catalog-category-dropdown-mobile">
             <CategoryDropDown
               activeCategoryId={activeCategoryId}
               activeCategoryName={activeCategoryName}
@@ -407,21 +407,21 @@ const Items = () => {
           <CartCouponBanner coupons={coupons ? coupons.all : []} />
 
           {/* Header with active category name and coupon badge */}
-          <div className="items-header">
-            <div className="items-header-left">
-              <h3 className="items-category-title">{activeCategoryName}</h3>
+          <div className="product-catalog-header">
+            <div className="product-catalog-header-left">
+              <h3 className="product-catalog-category-title">{activeCategoryName}</h3>
 
               {/* Category-level coupon badge */}
               {categoryCoupon && (
-                <div className="items-category-coupon-badge">
+                <div className="product-catalog-category-coupon-badge">
                   {getCategoryBadgeText(categoryCoupon) && (
-                    <span className="items-discount-badge">
+                    <span className="product-catalog-discount-badge">
                       {getCategoryBadgeText(categoryCoupon)}
                     </span>
                   )}
                   {categoryCoupon.requires_verified_email &&
                     !user?.isEmailVerified && (
-                      <span className="items-verification-badge">
+                      <span className="product-catalog-verification-badge">
                         Login Required
                       </span>
                     )}
@@ -432,17 +432,17 @@ const Items = () => {
 
           {/* Content states */}
           {error ? (
-            <div className="items-error-state">
+            <div className="product-catalog-error-state">
               <p>Error: {error}</p>
             </div>
           ) : products.length === 0 ? (
-            <div className="items-empty-state">
+            <div className="product-catalog-empty-state">
               <p>No products found in this category.</p>
             </div>
           ) : (
             <>
               {/* Product grid */}
-              <div className="items-products-grid">
+              <div className="product-catalog-products-grid">
                 {paginatedProducts.map((product) => {
                   const bestCoupon = getBestCouponForProduct(product);
                   return (
@@ -450,7 +450,7 @@ const Items = () => {
                       key={product.variant_id}
                       product={product}
                       coupon={bestCoupon}
-                      fromPath={`/items${location.search}`}
+                      fromPath={`/product-catalog${location.search}`}
                     />
                   );
                 })}

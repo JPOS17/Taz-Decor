@@ -114,20 +114,20 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
     <>
       {/* Header bar */}
       <div
-        className="ccb-header-bar"
+        className="cart-coupon-banner-header-bar"
         onClick={() => setIsModalOpen(true)}
         role="button"
         aria-label="View cart deals"
       >
-        <div className="ccb-header-bar-left">
+        <div className="cart-coupon-banner-header-bar-left">
           <FaShoppingCart size={13} />
-          <span className="ccb-header-bar-title">
+          <span className="cart-coupon-banner-header-bar-title">
             {cartCoupons.length} Cart Deal{cartCoupons.length > 1 ? "s" : ""}{" "}
             Available
           </span>
-          <div className="ccb-header-bar-badges">
+          <div className="cart-coupon-banner-header-bar-badges">
             {cartCoupons.map((c) => (
-              <span key={c.coupon_id} className="ccb-mini-badge">
+              <span key={c.coupon_id} className="cart-coupon-banner-mini-badge">
                 {getBadgeText(c)}
               </span>
             ))}
@@ -137,7 +137,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
 
       {/* Floating pill */}
       <button
-        className="ccb-floating-pill"
+        className="cart-coupon-banner-floating-pill"
         onClick={() => setIsModalOpen(true)}
         aria-label="View cart deals"
       >
@@ -145,31 +145,31 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
         <span>
           {cartCoupons.length} Cart Deal{cartCoupons.length > 1 ? "s" : ""}
         </span>
-        <span className="ccb-pill-badge">{cartCoupons.length}</span>
+        <span className="cart-coupon-banner-pill-badge">{cartCoupons.length}</span>
       </button>
 
       {/* Modal overlay */}
       {isModalOpen && (
         <div
-          className="ccb-overlay"
+          className="cart-coupon-banner-overlay"
           onClick={() => setIsModalOpen(false)}
           role="dialog"
           aria-modal="true"
           aria-label="Cart deals"
         >
-          <div className="ccb-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="cart-coupon-banner-modal" onClick={(e) => e.stopPropagation()}>
             {/* Modal header */}
-            <div className="ccb-modal-header">
-              <div className="ccb-modal-header-left">
+            <div className="cart-coupon-banner-modal-header">
+              <div className="cart-coupon-banner-modal-header-left">
                 <FaShoppingCart size={14} />
-                <span className="ccb-modal-title">
+                <span className="cart-coupon-banner-modal-title">
                   {cartCoupons.length === 1
                     ? "Cart Deal Available"
                     : `${cartCoupons.length} Cart Deals Available`}
                 </span>
               </div>
               <button
-                className="ccb-modal-close"
+                className="cart-coupon-banner-modal-close"
                 onClick={() => setIsModalOpen(false)}
                 aria-label="Close deals modal"
               >
@@ -177,18 +177,18 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
               </button>
             </div>
 
-            <p className="ccb-modal-subtitle">
+            <p className="cart-coupon-banner-modal-subtitle">
               These codes apply to your entire cart at checkout.
             </p>
 
             {/* Sign-in notice — only shown to unauthenticated users */}
             {!isAuthenticated && (
-              <div className="ccb-guest-notice">
+              <div className="cart-coupon-banner-guest-notice">
                 <FaLock size={13} />
                 <span>
                   Coupons are only applicable for signed-in users.{" "}
                   <button
-                    className="ccb-guest-login-link"
+                    className="cart-coupon-banner-guest-login-link"
                     onClick={() => {
                       setIsModalOpen(false);
                       navigate("/login");
@@ -201,26 +201,26 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
             )}
 
             {/* Coupon cards */}
-            <div className="ccb-modal-cards">
+            <div className="cart-coupon-banner-modal-cards">
               {cartCoupons.map((coupon) => (
-                <div key={coupon.coupon_id} className="ccb-card">
-                  <div className="ccb-card-strip" />
+                <div key={coupon.coupon_id} className="cart-coupon-banner-card">
+                  <div className="cart-coupon-banner-card-strip" />
 
-                  <div className="ccb-card-inner">
+                  <div className="cart-coupon-banner-card-inner">
                     {/* Card top — icon, badge, description */}
-                    <div className="ccb-card-top">
-                      <div className="ccb-card-icon-wrap">
+                    <div className="cart-coupon-banner-card-top">
+                      <div className="cart-coupon-banner-card-icon-wrap">
                         {getCouponIcon(coupon)}
                       </div>
-                      <div className="ccb-card-info">
-                        <span className="ccb-discount-badge">
+                      <div className="cart-coupon-banner-card-info">
+                        <span className="cart-coupon-banner-discount-badge">
                           {getBadgeText(coupon)}
                         </span>
-                        <p className="ccb-discount-label">
+                        <p className="cart-coupon-banner-discount-label">
                           {getDiscountLabel(coupon)}
                         </p>
                         {coupon.description && (
-                          <p className="ccb-description">
+                          <p className="cart-coupon-banner-description">
                             {coupon.description}
                           </p>
                         )}
@@ -228,15 +228,15 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
                     </div>
 
                     {/* Meta chips — min purchase and expiry when present */}
-                    <div className="ccb-card-meta">
+                    <div className="cart-coupon-banner-card-meta">
                       {coupon.min_purchase_amount && (
-                        <span className="ccb-meta-item">
+                        <span className="cart-coupon-banner-meta-item">
                           <FaShoppingCart size={10} />
                           Min. ${coupon.min_purchase_amount.toFixed(2)}
                         </span>
                       )}
                       {coupon.valid_until && (
-                        <span className="ccb-meta-item">
+                        <span className="cart-coupon-banner-meta-item">
                           <FaCalendarAlt size={10} />
                           Expires{" "}
                           {formatDate(coupon.valid_until, false, "short")}
@@ -247,8 +247,8 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
                     {/* Copy code button — currently commented out pending design review */}
                     {/* <button
                       className={[
-                        "ccb-code-btn",
-                        copiedCode === coupon.coupon_code ? "ccb-code-btn-copied" : "",
+                        "cart-coupon-banner-code-btn",
+                        copiedCode === coupon.coupon_code ? "cart-coupon-banner-code-btn-copied" : "",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -261,10 +261,10 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
                         </>
                       ) : (
                         <>
-                          <span className="ccb-code-text">
+                          <span className="cart-coupon-banner-code-text">
                             {coupon.coupon_code}
                           </span>
-                          <span className="ccb-code-copy-hint">
+                          <span className="cart-coupon-banner-code-copy-hint">
                             <FaCopy size={11} /> Copy code
                           </span>
                         </>
@@ -276,7 +276,7 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
             </div>
 
             {/* Footer */}
-            <div className="ccb-modal-footer">
+            <div className="cart-coupon-banner-modal-footer">
               <FaTag size={10} />
               <span>Apply code at checkout · Valid on your entire cart</span>
             </div>

@@ -232,3 +232,9 @@
     padding: 1rem;
   }
 }
+
+/* Wraps the coupon list; applied when the viewer's email isn't verified yet */
+.coupon-modal-disabled-overlay {
+  pointer-events: none;
+  opacity: 0.75;
+}

@@ -613,13 +613,7 @@ const Profile = () => {
             </div>
 
             {/* Delete Account */}
-            <div
-              style={{
-                marginTop: "1.5rem",
-                paddingTop: "1.5rem",
-                borderTop: "1px solid #d9c2a3",
-              }}
-            >
+            <div className="profile-delete-account-wrapper">
               <button
                 onClick={() => setShowDeleteAccountConfirm(true)}
                 className={"profile-delete-account-link"}

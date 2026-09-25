@@ -183,10 +183,8 @@ const CouponModal = ({
             <>
               {/* Coupon list */}
               <div
-                style={
-                  !isEmailVerified
-                    ? { pointerEvents: "none", opacity: 0.75 }
-                    : undefined
+                className={
+                  !isEmailVerified ? "coupon-modal-disabled-overlay" : undefined
                 }
               >
                 {/* userCouponUsage is passed down so CouponBanner skips its own fetch */}

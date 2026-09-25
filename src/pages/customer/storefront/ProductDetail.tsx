@@ -310,7 +310,7 @@ const IndividualListing = () => {
 
   if (loading) {
     return (
-      <div className="listing-page listing-loading-state">
+      <div className="product-detail-page product-detail-loading-state">
         <LoadingSpinner message="Loading product details..." />
       </div>
     );
@@ -318,13 +318,13 @@ const IndividualListing = () => {
 
   if (error || !product) {
     return (
-      <div className="listing-page">
-        <div className="listing-error-container">
-          <div className="listing-error-alert">
+      <div className="product-detail-page">
+        <div className="product-detail-error-container">
+          <div className="product-detail-error-alert">
             Error: {error || "Product not found"}
           </div>
           <button
-            className="listing-error-back-btn"
+            className="product-detail-error-back-btn"
             onClick={() => navigate("/items")}
           >
             Back to Items
@@ -336,21 +336,21 @@ const IndividualListing = () => {
 
   return (
     <>
-      <div className="listing-page">
-        <div className="listing-container">
+      <div className="product-detail-page">
+        <div className="product-detail-container">
           {/* Back Button */}
-          <button className="listing-back-btn" onClick={() => navigate(from)}>
+          <button className="product-detail-back-btn" onClick={() => navigate(from)}>
             ← Back to{" "}
             {from === "/cart" ? "Cart" : from === "/saved" ? "Saved" : "Items"}
           </button>
 
           {/* Main Product Layout */}
-          <div className="listing-product-layout">
+          <div className="product-detail-product-layout">
             {/* Image Section */}
-            <div className="listing-image-section">
+            <div className="product-detail-image-section">
               {/* Main image — click opens lightbox */}
               <div
-                className="listing-main-image-container"
+                className="product-detail-main-image-container"
                 onClick={() =>
                   openLightbox(product.images.indexOf(selectedImage))
                 }
@@ -358,20 +358,20 @@ const IndividualListing = () => {
                 <img
                   src={selectedImage}
                   alt={product.name}
-                  className="listing-main-image"
+                  className="product-detail-main-image"
                 />
-                <div className="listing-zoom-hint">Click to view full size</div>
+                <div className="product-detail-zoom-hint">Click to view full size</div>
               </div>
 
               {/* Thumbnail strip */}
               {product.images.length > 1 && (
-                <div className="listing-thumbnail-gallery">
+                <div className="product-detail-thumbnail-gallery">
                   {product.images.map((img, index) => (
                     <img
                       key={index}
                       src={img}
                       alt={`${product.name} - ${index + 1}`}
-                      className={`listing-thumbnail-img${selectedImage === img ? " active" : ""}`}
+                      className={`product-detail-thumbnail-img${selectedImage === img ? " active" : ""}`}
                       onMouseEnter={() => setSelectedImage(img)}
                       onClick={() => setSelectedImage(img)}
                     />
@@ -380,7 +380,7 @@ const IndividualListing = () => {
               )}
 
               {/* Variant Selector */}
-              <div className="listing-variant-selector-wrapper">
+              <div className="product-detail-variant-selector-wrapper">
                 {product.variants && (
                   <VariantSelector
                     variants={product.variants}
@@ -392,36 +392,36 @@ const IndividualListing = () => {
             </div>
 
             {/* Product Info Section */}
-            <div className="listing-info-section">
-              <div className="listing-header-row">
-                <div className="listing-header-main">
+            <div className="product-detail-info-section">
+              <div className="product-detail-header-row">
+                <div className="product-detail-header-main">
                   {/* Category Badge */}
-                  <div className="listing-category-badge">
+                  <div className="product-detail-category-badge">
                     {product.category}
                   </div>
 
                   {/* Product Title */}
-                  <h1 className="listing-product-title">{product.name}</h1>
+                  <h1 className="product-detail-product-title">{product.name}</h1>
 
                   {/* Price */}
                   {hasDiscount ? (
-                    <div className="listing-product-price listing-product-price-discounted">
-                      <span className="listing-price-original">
+                    <div className="product-detail-product-price product-detail-product-price-discounted">
+                      <span className="product-detail-price-original">
                         ${product.price.toFixed(2)}
                       </span>
-                      <span className="listing-price-sale">
+                      <span className="product-detail-price-sale">
                         ${displayedPrice.toFixed(2)}
                       </span>
                     </div>
                   ) : (
-                    <div className="listing-product-price">
+                    <div className="product-detail-product-price">
                       ${displayedPrice.toFixed(2)}
                       {/* Lock icon shown when coupon requires email verification */}
                       {selectedCoupon?.requires_verified_email &&
                         !isEmailVerified && (
                           <FaLock
                             size={14}
-                            className="listing-lock-icon"
+                            className="product-detail-lock-icon"
                             title="Login or verify email to use this coupon"
                           />
                         )}
@@ -430,13 +430,13 @@ const IndividualListing = () => {
 
                   {/* Stock Alerts */}
                   {isOutOfStock && (
-                    <div className="listing-stock-alert listing-stock-alert-danger">
+                    <div className="product-detail-stock-alert product-detail-stock-alert-danger">
                       <FaExclamationTriangle />
                       <span>Out of Stock</span>
                     </div>
                   )}
                   {isLowStock && (
-                    <div className="listing-stock-alert listing-stock-alert-warning">
+                    <div className="product-detail-stock-alert product-detail-stock-alert-warning">
                       <FaExclamationTriangle />
                       <span>Only {product.quantity} left!</span>
                     </div>
@@ -445,9 +445,9 @@ const IndividualListing = () => {
                   {/* Popularity Stats — wishlist and cart counts */}
                   {stats &&
                     (stats.wishlistCount > 0 || stats.cartCount > 0) && (
-                      <div className="listing-popularity-stats">
+                      <div className="product-detail-popularity-stats">
                         {stats.wishlistCount > 0 && (
-                          <div className="listing-popularity-stat">
+                          <div className="product-detail-popularity-stat">
                             ❤️
                             <span>
                               {stats.wishlistCount}
@@ -459,7 +459,7 @@ const IndividualListing = () => {
                           </div>
                         )}
                         {stats.cartCount > 0 && (
-                          <div className="listing-popularity-stat">
+                          <div className="product-detail-popularity-stat">
                             🛒
                             <span>
                               {stats.cartCount}
@@ -476,7 +476,7 @@ const IndividualListing = () => {
 
                 {/* Coupons Section */}
                 {coupons.length > 0 && (
-                  <div className="listing-header-coupons">
+                  <div className="product-detail-header-coupons">
                     <CouponBanner
                       coupons={coupons}
                       productPrice={product.price}
@@ -490,20 +490,20 @@ const IndividualListing = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="listing-product-actions">
+              <div className="product-detail-product-actions">
                 <button
-                  className="listing-btn-add-to-cart"
+                  className="product-detail-btn-add-to-cart"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
                 >
                   {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                 </button>
                 <button
-                  className={`listing-btn-wishlist${isProductInWishlist ? " active" : ""}`}
+                  className={`product-detail-btn-wishlist${isProductInWishlist ? " active" : ""}`}
                   onClick={handleToggleWishlist}
                 >
                   {isProductInWishlist ? (
-                    <FaHeart className="listing-wishlist-icon-active" />
+                    <FaHeart className="product-detail-wishlist-icon-active" />
                   ) : (
                     <FaRegHeart />
                   )}
@@ -511,8 +511,8 @@ const IndividualListing = () => {
               </div>
 
               {/* Product Information Table */}
-              <div className="listing-info-table">
-                <h2 className="listing-info-table-title">
+              <div className="product-detail-info-table">
+                <h2 className="product-detail-info-table-title">
                   Product Information
                 </h2>
                 <table>
@@ -538,7 +538,7 @@ const IndividualListing = () => {
                     {product.weight_oz && (
                       <tr>
                         <th scope="row">
-                          <FaWeight className="listing-info-icon" />
+                          <FaWeight className="product-detail-info-icon" />
                           Weight
                         </th>
                         <td>{product.weight_oz} oz</td>
@@ -549,7 +549,7 @@ const IndividualListing = () => {
                       product.height_in && (
                         <tr>
                           <th scope="row">
-                            <FaRulerCombined className="listing-info-icon" />
+                            <FaRulerCombined className="product-detail-info-icon" />
                             Dimensions
                           </th>
                           <td>
@@ -563,9 +563,9 @@ const IndividualListing = () => {
               </div>
 
               {/* Shipping Info */}
-              <div className="listing-shipping-info">
-                <div className="listing-shipping-item">
-                  <FaWarehouse className="listing-shipping-icon" />
+              <div className="product-detail-shipping-info">
+                <div className="product-detail-shipping-item">
+                  <FaWarehouse className="product-detail-shipping-icon" />
                   <span>
                     <strong>Ships from:</strong> {product.location_city},{" "}
                     {product.location_state}
@@ -577,7 +577,7 @@ const IndividualListing = () => {
 
           {/* Reviews Section — only shown when at least one review exists */}
           {stats && stats.reviewCount > 0 && (
-            <div className="listing-reviews-section">
+            <div className="product-detail-reviews-section">
               <ReviewSection
                 productId={product.product_id}
                 averageRating={stats.averageRating}

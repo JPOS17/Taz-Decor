@@ -214,13 +214,13 @@ const ManageProductTypes = () => {
       {/* Main Content */}
       <div className="mgr-container">
         <div className="mgr-body">
-          <div className="mpt-panel">
+          <div className="product-types-panel">
             {/* Actions bar */}
-            <div className="mpt-actions-bar">
-              <h2 className="mpt-section-title">Product Types</h2>
+            <div className="product-types-actions-bar">
+              <h2 className="product-types-section-title">Product Types</h2>
               {editMode === "none" && (
                 <button
-                  className="mpt-btn mpt-btn-primary"
+                  className="product-types-btn product-types-btn-primary"
                   onClick={handleCreateNew}
                   disabled={loading}
                 >
@@ -232,21 +232,21 @@ const ManageProductTypes = () => {
 
             {/* Create / Edit form */}
             {editMode !== "none" && (
-              <div className="mpt-form">
-                <h3 className="mpt-form-title">
+              <div className="product-types-form">
+                <h3 className="product-types-form-title">
                   {editMode === "create"
                     ? "Create New Product Type"
                     : "Edit Product Type"}
                 </h3>
 
                 {/* SKU Prefix */}
-                <div className="mpt-form-group">
-                  <label className="mpt-form-label">
+                <div className="product-types-form-group">
+                  <label className="product-types-form-label">
                     SKU Prefix * {editMode === "edit" && "(Read-only)"}
                   </label>
                   <input
                     type="text"
-                    className="mpt-form-input"
+                    className="product-types-form-input"
                     value={formData.sku_prefix}
                     onChange={(e) => {
                       const value = e.target.value.toUpperCase().slice(0, 3);
@@ -256,19 +256,19 @@ const ManageProductTypes = () => {
                     disabled={loading || editMode === "edit"}
                     maxLength={3}
                   />
-                  <p className="mpt-form-helper">
+                  <p className="product-types-form-helper">
                     Must be exactly 3 uppercase letters
                   </p>
                 </div>
 
                 {/* Type Name */}
-                <div className="mpt-form-group">
-                  <label className="mpt-form-label">
+                <div className="product-types-form-group">
+                  <label className="product-types-form-label">
                     Type Name * {editMode === "edit" && "(Read-only)"}
                   </label>
                   <input
                     type="text"
-                    className="mpt-form-input"
+                    className="product-types-form-input"
                     value={formData.type_name}
                     onChange={(e) =>
                       setFormData({ ...formData, type_name: e.target.value })
@@ -281,7 +281,7 @@ const ManageProductTypes = () => {
                     formData.type_name.trim() &&
                     formData.type_name.trim() !==
                       formatName(formData.type_name) && (
-                      <div className="mpt-format-preview">
+                      <div className="product-types-format-preview">
                         <strong>Will be saved as:</strong>{" "}
                         <span>{formatName(formData.type_name)}</span>
                       </div>
@@ -289,10 +289,10 @@ const ManageProductTypes = () => {
                 </div>
 
                 {/* Description */}
-                <div className="mpt-form-group">
-                  <label className="mpt-form-label">Description *</label>
+                <div className="product-types-form-group">
+                  <label className="product-types-form-label">Description *</label>
                   <textarea
-                    className="mpt-form-textarea"
+                    className="product-types-form-textarea"
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
@@ -305,21 +305,21 @@ const ManageProductTypes = () => {
                   {formData.description.trim() &&
                     formData.description.trim() !==
                       formatName(formData.description) && (
-                      <div className="mpt-format-preview">
+                      <div className="product-types-format-preview">
                         <strong>Will be saved as:</strong>{" "}
                         <span>{formatName(formData.description)}</span>
                       </div>
                     )}
-                  <p className="mpt-form-helper">
+                  <p className="product-types-form-helper">
                     Note: Words like "of", "in", "on", "the", "and" will be
                     lowercase (except at start/end)
                   </p>
                 </div>
 
                 {/* Form action buttons */}
-                <div className="mpt-form-actions">
+                <div className="product-types-form-actions">
                   <button
-                    className="mpt-btn mpt-btn-success"
+                    className="product-types-btn product-types-btn-success"
                     onClick={handleRequestSave}
                     disabled={
                       loading ||
@@ -334,7 +334,7 @@ const ManageProductTypes = () => {
                     {editMode === "create" ? "Create" : "Save Changes"}
                   </button>
                   <button
-                    className="mpt-btn mpt-btn-secondary"
+                    className="product-types-btn product-types-btn-secondary"
                     onClick={handleCancelEdit}
                     disabled={loading}
                   >
@@ -350,14 +350,14 @@ const ManageProductTypes = () => {
               <LoadingSpinner message="Loading product types..." />
             ) : (
               /* Product types table */
-              <div className="mpt-table-container">
-                <table className="mpt-table">
+              <div className="product-types-table-container">
+                <table className="product-types-table">
                   <thead>
                     <tr>
                       <th>SKU Prefix</th>
                       <th>Type Name</th>
                       <th>Description</th>
-                      <th className="mpt-actions-col">Actions</th>
+                      <th className="product-types-actions-col">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -368,28 +368,28 @@ const ManageProductTypes = () => {
                         className={
                           editingType?.product_type_id ===
                           productType.product_type_id
-                            ? "mpt-row-editing"
+                            ? "product-types-row-editing"
                             : ""
                         }
                       >
-                        <td className="mpt-sku-cell" data-label="SKU Prefix">
-                          <span className="mpt-sku-badge">
+                        <td className="product-types-sku-cell" data-label="SKU Prefix">
+                          <span className="product-types-sku-badge">
                             {productType.sku_prefix}
                           </span>
                         </td>
-                        <td className="mpt-name-cell" data-label="Type Name">
+                        <td className="product-types-name-cell" data-label="Type Name">
                           {productType.type_name}
                         </td>
                         <td
-                          className="mpt-description-cell"
+                          className="product-types-description-cell"
                           data-label="Description"
                         >
                           {productType.description}
                         </td>
-                        <td className="mpt-actions-cell" data-label="Actions">
+                        <td className="product-types-actions-cell" data-label="Actions">
                           {/* Edit opens the form in edit mode */}
                           <button
-                            className="mpt-btn mpt-btn-primary mpt-btn-sm"
+                            className="product-types-btn product-types-btn-primary product-types-btn-sm"
                             onClick={() => handleEdit(productType)}
                             disabled={loading || editMode !== "none"}
                             title="Edit description"
@@ -407,7 +407,7 @@ const ManageProductTypes = () => {
 
             {/* Empty state */}
             {!loading && productTypes.length === 0 && (
-              <div className="mpt-empty">
+              <div className="product-types-empty">
                 <p>
                   No product types found. Create your first product type to get
                   started!

@@ -235,7 +235,7 @@ const Saved = () => {
 
   if (isLoading) {
     return (
-      <div className="saved-page saved-loading-state">
+      <div className="wishlist-page wishlist-loading-state">
         <LoadingSpinner message="Loading your wishlist..." />
       </div>
     );
@@ -243,14 +243,14 @@ const Saved = () => {
 
   if (wishlistItems.length === 0) {
     return (
-      <div className="saved-page">
-        <div className="saved-container">
-          <div className="saved-empty">
-            <FaHeart className="saved-empty-icon" />
-            <h2 className="saved-empty-title">Your Wishlist is Empty</h2>
-            <p className="saved-empty-text">Save your favorite items here!</p>
+      <div className="wishlist-page">
+        <div className="wishlist-container">
+          <div className="wishlist-empty">
+            <FaHeart className="wishlist-empty-icon" />
+            <h2 className="wishlist-empty-title">Your Wishlist is Empty</h2>
+            <p className="wishlist-empty-text">Save your favorite items here!</p>
             <button
-              className="saved-btn-browse"
+              className="wishlist-btn-browse"
               onClick={() => navigate("/items")}
             >
               Browse Products
@@ -262,16 +262,16 @@ const Saved = () => {
   }
 
   return (
-    <div className="saved-page">
-      <div className="saved-container">
-        <div className="saved-header">
-          <h2 className="saved-title">My Wishlist</h2>
-          <span className="saved-count-badge">
+    <div className="wishlist-page">
+      <div className="wishlist-container">
+        <div className="wishlist-header">
+          <h2 className="wishlist-title">My Wishlist</h2>
+          <span className="wishlist-count-badge">
             {wishlistItems.length} items
           </span>
         </div>
 
-        <div className="saved-grid">
+        <div className="wishlist-grid">
           {wishlistItems
             .sort((a, b) => b.addedAt - a.addedAt)
             .map((item) => {
@@ -289,31 +289,31 @@ const Saved = () => {
                 itemCoupon?.requires_verified_email && !isEmailVerified;
 
               return (
-                <div key={item.variant_id} className="saved-card">
-                  <div className="saved-card-image-wrapper">
+                <div key={item.variant_id} className="wishlist-card">
+                  <div className="wishlist-card-image-wrapper">
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="saved-card-image"
+                      className="wishlist-card-image"
                       onClick={() =>
                         navigate(`/items/${item.variant_id}`, {
-                          state: { from: "/saved" },
+                          state: { from: "/wishlist" },
                         })
                       }
                     />
                   </div>
-                  <div className="saved-card-body">
+                  <div className="wishlist-card-body">
                     {/* Left column: category, name, variant details */}
-                    <div className="saved-card-info">
-                      <span className="saved-card-category">
+                    <div className="wishlist-card-info">
+                      <span className="wishlist-card-category">
                         {item.category}
                       </span>
 
                       <h5
-                        className="saved-card-title"
+                        className="wishlist-card-title"
                         onClick={() =>
                           navigate(`/items/${item.variant_id}`, {
-                            state: { from: "/saved" },
+                            state: { from: "/wishlist" },
                           })
                         }
                       >
@@ -321,7 +321,7 @@ const Saved = () => {
                       </h5>
 
                       {(item.color || item.size) && (
-                        <p className="saved-card-details">
+                        <p className="wishlist-card-details">
                           {item.color && <span>Color: {item.color}</span>}
                           {item.color && item.size && <span> | </span>}
                           {item.size && <span>Size: {item.size}</span>}
@@ -330,31 +330,31 @@ const Saved = () => {
                     </div>
 
                     {/* Middle column: price and coupon info */}
-                    <div className="saved-card-pricing">
+                    <div className="wishlist-card-pricing">
                       {/* Price — shows strikethrough original and discounted price when a coupon applies */}
-                      <div className="saved-card-price-container">
+                      <div className="wishlist-card-price-container">
                         {hasDiscount && discountInfo ? (
                           <>
-                            <p className="saved-card-price-original">
+                            <p className="wishlist-card-price-original">
                               ${item.price.toFixed(2)}
                             </p>
-                            <div className="saved-card-price-with-deal">
-                              <p className="saved-card-price-discounted">
+                            <div className="wishlist-card-price-with-deal">
+                              <p className="wishlist-card-price-discounted">
                                 ${discountInfo.discountedPrice.toFixed(2)}
                               </p>
-                              <div className="saved-card-deal-badges">
+                              <div className="wishlist-card-deal-badges">
                                 {itemCoupon.discount_type === "percentage" && (
-                                  <span className="saved-deal-badge">
+                                  <span className="wishlist-deal-badge">
                                     {itemCoupon.discount_value}% OFF
                                   </span>
                                 )}
                                 {itemCoupon.discount_type === "fixed" && (
-                                  <span className="saved-deal-badge">
+                                  <span className="wishlist-deal-badge">
                                     ${itemCoupon.discount_value} OFF
                                   </span>
                                 )}
                                 {itemCoupon.free_shipping && (
-                                  <span className="saved-deal-badge saved-deal-badge-shipping">
+                                  <span className="wishlist-deal-badge wishlist-deal-badge-shipping">
                                     + Free Shipping
                                   </span>
                                 )}
@@ -362,14 +362,14 @@ const Saved = () => {
                             </div>
                           </>
                         ) : (
-                          <div className="saved-card-price-with-deal">
-                            <p className="saved-card-price">
+                          <div className="wishlist-card-price-with-deal">
+                            <p className="wishlist-card-price">
                               ${item.price.toFixed(2)}
                             </p>
                             {itemCoupon && (
-                              <div className="saved-card-deal-badges">
+                              <div className="wishlist-card-deal-badges">
                                 {itemCoupon.discount_type === "bogo" && (
-                                  <span className="saved-deal-badge saved-deal-badge-bogo">
+                                  <span className="wishlist-deal-badge wishlist-deal-badge-bogo">
                                     {getBOGOLabel(
                                       itemCoupon.bogo_buy_quantity,
                                       itemCoupon.bogo_get_quantity,
@@ -378,7 +378,7 @@ const Saved = () => {
                                   </span>
                                 )}
                                 {itemCoupon.free_shipping && (
-                                  <span className="saved-deal-badge saved-deal-badge-shipping">
+                                  <span className="wishlist-deal-badge wishlist-deal-badge-shipping">
                                     + Free Shipping
                                   </span>
                                 )}
@@ -390,25 +390,25 @@ const Saved = () => {
 
                       {/* Coupon info — expiry notices and coupon code badge */}
                       {itemCoupon && (
-                        <div className="saved-card-coupon-info">
+                        <div className="wishlist-card-coupon-info">
                           {isExpired && (
-                            <div className="saved-coupon-expired-notice">
+                            <div className="wishlist-coupon-expired-notice">
                               <FaExclamationTriangle size={12} />
                               <span>Saved coupon expired</span>
                             </div>
                           )}
                           {fallbackToBest && !isExpired && (
-                            <div className="saved-coupon-fallback-notice">
+                            <div className="wishlist-coupon-fallback-notice">
                               <FaExclamationTriangle size={12} />
                               <span>Saved coupon no longer available</span>
                             </div>
                           )}
-                          <div className="saved-coupon-code-badge">
+                          <div className="wishlist-coupon-code-badge">
                             <FaTag size={10} />
                             <span>{itemCoupon.coupon_code}</span>
                           </div>
                           {requiresVerification && (
-                            <div className="saved-coupon-verification-notice">
+                            <div className="wishlist-coupon-verification-notice">
                               <FaLock size={10} />
                               <span>Login required</span>
                             </div>
@@ -418,22 +418,22 @@ const Saved = () => {
                     </div>
 
                     {/* Right column: action buttons */}
-                    <div className="saved-card-actions">
+                    <div className="wishlist-card-actions">
                       <button
-                        className="saved-btn-add-to-cart"
+                        className="wishlist-btn-add-to-cart"
                         onClick={() => handleAddToCart(item)}
                       >
-                        <FaShoppingCart className="saved-btn-icon" />
+                        <FaShoppingCart className="wishlist-btn-icon" />
                         <span>Add to Cart</span>
                       </button>
 
                       <button
-                        className="saved-btn-remove"
+                        className="wishlist-btn-remove"
                         onClick={() =>
                           handleRemoveFromWishlist(item.variant_id)
                         }
                       >
-                        <FaTrash className="saved-btn-icon" />
+                        <FaTrash className="wishlist-btn-icon" />
                         <span>Remove</span>
                       </button>
                     </div>
@@ -452,7 +452,7 @@ const Saved = () => {
           }}
           justAddedItem={justAddedItem}
           isNewItem={isNewItem}
-          fromPath="/saved"
+          fromPath="/wishlist"
         />
 
         {/* Remove confirmation modal */}

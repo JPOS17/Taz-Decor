@@ -85,18 +85,18 @@ const Orders = () => {
     switch (status.toLowerCase()) {
       case "delivered":
         return (
-          <FaCheckCircle className="orders-status-icon orders-status-icon-delivered" />
+          <FaCheckCircle className="order-history-status-icon order-history-status-icon-delivered" />
         );
       case "shipped":
       case "ready_to_ship":
         return (
-          <FaTruck className="orders-status-icon orders-status-icon-shipped" />
+          <FaTruck className="order-history-status-icon order-history-status-icon-shipped" />
         );
       case "processing":
       case "pending":
       default:
         return (
-          <FaShoppingBag className="orders-status-icon orders-status-icon-pending" />
+          <FaShoppingBag className="order-history-status-icon order-history-status-icon-pending" />
         );
     }
   };
@@ -105,14 +105,14 @@ const Orders = () => {
   const getStatusBadgeClass = (status: string) => {
     switch (status.toLowerCase()) {
       case "delivered":
-        return "orders-status-badge orders-status-badge-delivered";
+        return "order-history-status-badge order-history-status-badge-delivered";
       case "shipped":
       case "ready_to_ship":
-        return "orders-status-badge orders-status-badge-shipped";
+        return "order-history-status-badge order-history-status-badge-shipped";
       case "pending":
       case "processing":
       default:
-        return "orders-status-badge orders-status-badge-pending";
+        return "order-history-status-badge order-history-status-badge-pending";
     }
   };
 
@@ -122,7 +122,7 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="orders-page orders-loading-state">
+      <div className="order-history-page order-history-loading-state">
         <LoadingSpinner message="Loading your orders..." />
       </div>
     );
@@ -130,12 +130,12 @@ const Orders = () => {
 
   if (error) {
     return (
-      <div className="orders-page">
-        <div className="orders-layout">
-          <div className="orders-error-state">
-            <h2 className="orders-error-state-title">Error Loading Orders</h2>
-            <p className="orders-error-state-text">{error}</p>
-            <button className="orders-btn-primary" onClick={loadData}>
+      <div className="order-history-page">
+        <div className="order-history-layout">
+          <div className="order-history-error-state">
+            <h2 className="order-history-error-state-title">Error Loading Orders</h2>
+            <p className="order-history-error-state-text">{error}</p>
+            <button className="order-history-btn-primary" onClick={loadData}>
               Try Again
             </button>
           </div>
@@ -145,8 +145,8 @@ const Orders = () => {
   }
 
   return (
-    <div className="orders-page">
-      <div className="orders-layout">
+    <div className="order-history-page">
+      <div className="order-history-layout">
         {/* Sidebar */}
         <ProfileSidebar
           firstName={user?.firstName ?? ""}
@@ -155,12 +155,12 @@ const Orders = () => {
         />
 
         {/* Main content */}
-        <main className="orders-main">
-          <div className="orders-header">
-            <div className="orders-header-inner">
-              <h1 className="orders-header-title">My Orders</h1>
+        <main className="order-history-main">
+          <div className="order-history-header">
+            <div className="order-history-header-inner">
+              <h1 className="order-history-header-title">My Orders</h1>
             </div>
-            <span className="orders-header-count">
+            <span className="order-history-header-count">
               {orders.length === 0
                 ? "No orders yet"
                 : `${orders.length} item${orders.length !== 1 ? "s" : ""}`}
@@ -168,57 +168,57 @@ const Orders = () => {
           </div>
 
           {orders.length === 0 ? (
-            <div className="orders-empty">
-              <FaShoppingBag className="orders-empty-icon" />
-              <h2 className="orders-empty-title">No Orders Yet</h2>
-              <p className="orders-empty-text">
+            <div className="order-history-empty">
+              <FaShoppingBag className="order-history-empty-icon" />
+              <h2 className="order-history-empty-title">No Orders Yet</h2>
+              <p className="order-history-empty-text">
                 When you place orders, they will appear here.
               </p>
               <button
-                className="orders-btn-primary"
+                className="order-history-btn-primary"
                 onClick={() => navigate("/items")}
               >
                 Start Shopping
               </button>
             </div>
           ) : (
-            <div className="orders-list-card">
+            <div className="order-history-list-card">
               {orders.map((order) => {
                 const isExpanded = expandedOrders.has(order.order_id);
                 return (
-                  <div key={order.order_id} className="orders-row">
+                  <div key={order.order_id} className="order-history-row">
                     {/* Clickable row header — expands/collapses order details */}
                     <div
-                      className={`orders-row-header${order.tracking_number ? " orders-row-header-with-tracking" : ""} orders-row-header-clickable`}
+                      className={`order-history-row-header${order.tracking_number ? " order-history-row-header-with-tracking" : ""} order-history-row-header-clickable`}
                       onClick={() => toggleOrder(order.order_id)}
                       role="button"
                       aria-expanded={isExpanded}
                     >
-                      <div className="orders-number-section">
+                      <div className="order-history-number-section">
                         {getStatusIcon(order.status)}
                         <div>
-                          <h3 className="orders-id-label">
+                          <h3 className="order-history-id-label">
                             {order.order_number}
                           </h3>
-                          <p className="orders-date">
+                          <p className="order-history-date">
                             Placed on {formatDate(order.created_at)}
                           </p>
                         </div>
                       </div>
-                      <div className="orders-row-header-right">
+                      <div className="order-history-row-header-right">
                         <span className={getStatusBadgeClass(order.status)}>
                           {formatStatus(order.status)}
                         </span>
                         <FaChevronDown
-                          className={`orders-dropdown-chevron${isExpanded ? " orders-dropdown-chevron-open" : ""}`}
+                          className={`order-history-dropdown-chevron${isExpanded ? " order-history-dropdown-chevron-open" : ""}`}
                         />
                       </div>
                     </div>
 
                     {/* Tracking number row — only shown when a tracking number exists */}
                     {order.tracking_number && (
-                      <div className="orders-tracking-row">
-                        <span className="orders-info-label">
+                      <div className="order-history-tracking-row">
+                        <span className="order-history-info-label">
                           Tracking Number
                         </span>
                         <a
@@ -226,7 +226,7 @@ const Orders = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="orders-tracking-number"
+                          className="order-history-tracking-number"
                         >
                           {order.tracking_number}
                         </a>
@@ -235,32 +235,32 @@ const Orders = () => {
 
                     {/* Collapsible order details */}
                     <div
-                      className={`orders-collapsible${isExpanded ? " orders-collapsible-open" : ""}`}
+                      className={`order-history-collapsible${isExpanded ? " order-history-collapsible-open" : ""}`}
                     >
                       {/* Info grid */}
-                      <div className="orders-row-body">
-                        <div className="orders-info-grid">
-                          <div className="orders-info-item">
-                            <span className="orders-info-label">
+                      <div className="order-history-row-body">
+                        <div className="order-history-info-grid">
+                          <div className="order-history-info-item">
+                            <span className="order-history-info-label">
                               Total Amount
                             </span>
-                            <span className="orders-info-value">
+                            <span className="order-history-info-value">
                               ${order.total_price.toFixed(2)}
                             </span>
                           </div>
-                          <div className="orders-info-item">
-                            <span className="orders-info-label">Items</span>
-                            <span className="orders-info-value">
+                          <div className="order-history-info-item">
+                            <span className="order-history-info-label">Items</span>
+                            <span className="order-history-info-value">
                               {order.item_count || 0} item
                               {order.item_count !== 1 ? "s" : ""}
                             </span>
                           </div>
                           {order.address_line1 && (
-                            <div className="orders-info-item">
-                              <span className="orders-info-label">
+                            <div className="order-history-info-item">
+                              <span className="order-history-info-label">
                                 Shipping To
                               </span>
-                              <span className="orders-info-value">
+                              <span className="order-history-info-value">
                                 {order.city}, {order.state}
                               </span>
                             </div>
@@ -270,10 +270,10 @@ const Orders = () => {
                     </div>
 
                     {/* Footer — always visible; shows shipping/delivery dates and view details button */}
-                    <div className="orders-row-footer">
-                      <div className="orders-footer-left">
+                    <div className="order-history-row-footer">
+                      <div className="order-history-footer-left">
                         {order.shipped_at && (
-                          <div className="orders-shipping-date">
+                          <div className="order-history-shipping-date">
                             <FaTruck />
                             <span>
                               Shipped on {formatDate(order.shipped_at)}
@@ -281,7 +281,7 @@ const Orders = () => {
                           </div>
                         )}
                         {order.delivered_at && (
-                          <div className="orders-delivery-date">
+                          <div className="order-history-delivery-date">
                             <FaCheckCircle />
                             <span>
                               Delivered on {formatDate(order.delivered_at)}
@@ -290,7 +290,7 @@ const Orders = () => {
                         )}
                       </div>
                       <button
-                        className="orders-btn-view-details"
+                        className="order-history-btn-view-details"
                         onClick={() =>
                           navigate(`/order-confirmation/${order.order_number}`)
                         }

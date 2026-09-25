@@ -47,11 +47,11 @@ const OrderSummary = ({
   isGuest,
 }: OrderSummaryProps) => {
   return (
-    <div className="os-checkout-order-summary">
-      <h3 className="os-summary-title">Order Summary</h3>
+    <div className="order-summary-checkout-order-summary">
+      <h3 className="order-summary-title">Order Summary</h3>
 
       {/* Cart item list */}
-      <div className="os-summary-items">
+      <div className="order-summary-items">
         {cartItems.map((item) => {
           const validatedDiscount = couponValidation?.validated_discounts?.find(
             (d: any) => d.variant_id === item.variant_id,
@@ -65,48 +65,48 @@ const OrderSummary = ({
               : itemOriginalPrice;
 
           return (
-            <div key={item.variant_id} className="os-summary-item">
+            <div key={item.variant_id} className="order-summary-item">
               <img
                 src={item.image}
                 alt={item.name}
-                className="os-summary-item-image"
+                className="order-summary-item-image"
               />
-              <div className="os-summary-item-details">
+              <div className="order-summary-item-details">
                 <h4>{item.name}</h4>
-                <p className="os-summary-item-variant">
+                <p className="order-summary-item-variant">
                   {item.color} {item.color && item.size && "•"} {item.size}
                 </p>
-                <p className="os-summary-item-quantity">Qty: {item.quantity}</p>
+                <p className="order-summary-item-quantity">Qty: {item.quantity}</p>
 
                 {/* Applied coupon badge */}
                 {itemCoupon && (
-                  <div className="os-summary-item-coupon-display">
-                    <div className="os-summary-coupon-code-badge">
+                  <div className="order-summary-item-coupon-display">
+                    <div className="order-summary-coupon-code-badge">
                       <FaTag size={10} />
                       <span>{itemCoupon.coupon_code}</span>
                     </div>
                     {itemCoupon.discount_type !== "bogo" && (
-                      <div className="os-summary-coupon-savings">
+                      <div className="order-summary-coupon-savings">
                         {itemCoupon.discount_type === "percentage" && (
-                          <span className="os-savings-badge">
+                          <span className="order-summary-savings-badge">
                             {itemCoupon.discount_value}% OFF
                           </span>
                         )}
                         {itemCoupon.discount_type === "fixed" && (
-                          <span className="os-savings-badge">
+                          <span className="order-summary-savings-badge">
                             ${itemCoupon.discount_value} OFF
                           </span>
                         )}
                         {itemCoupon.free_shipping && (
-                          <span className="os-savings-badge os-shipping">
+                          <span className="order-summary-savings-badge order-summary-shipping">
                             Free Shipping
                           </span>
                         )}
                       </div>
                     )}
                     {itemCoupon.discount_type === "bogo" && (
-                      <div className="os-summary-coupon-savings">
-                        <span className="os-savings-badge os-bogo">
+                      <div className="order-summary-coupon-savings">
+                        <span className="order-summary-savings-badge order-summary-bogo">
                           {getBOGOLabel(
                             itemCoupon.bogo_buy_quantity,
                             itemCoupon.bogo_get_quantity,
@@ -114,7 +114,7 @@ const OrderSummary = ({
                           )}
                         </span>
                         {itemCoupon.free_shipping && (
-                          <span className="os-savings-badge os-shipping">
+                          <span className="order-summary-savings-badge order-summary-shipping">
                             + Free Shipping
                           </span>
                         )}
@@ -125,18 +125,18 @@ const OrderSummary = ({
               </div>
 
               {/* Item price — shows original and discounted price when a discount applies */}
-              <div className="os-summary-item-price">
+              <div className="order-summary-item-price">
                 {itemDiscountAmount > 0 ? (
                   <>
-                    <div className="os-price-original-summary">
+                    <div className="order-summary-price-original-summary">
                       ${itemOriginalPrice.toFixed(2)}
                     </div>
-                    <div className="os-price-final-summary">
+                    <div className="order-summary-price-final-summary">
                       ${itemFinalPrice.toFixed(2)}
                     </div>
                   </>
                 ) : (
-                  <div className="os-price-final-summary">
+                  <div className="order-summary-price-final-summary">
                     ${itemOriginalPrice.toFixed(2)}
                   </div>
                 )}
@@ -147,36 +147,36 @@ const OrderSummary = ({
       </div>
 
       {/* Totals breakdown */}
-      <div className="os-summary-totals">
-        <div className="os-summary-row">
+      <div className="order-summary-totals">
+        <div className="order-summary-row">
           <span>Subtotal:</span>
           <span>${subtotal.toFixed(2)}</span>
         </div>
 
         {discountAmount > 0 && (
-          <div className="os-summary-row os-discount">
+          <div className="order-summary-row order-summary-discount">
             <span>Discount:</span>
             <span>-${discountAmount.toFixed(2)}</span>
           </div>
         )}
 
         {/* Shipping row */}
-        <div className="os-summary-row">
+        <div className="order-summary-row">
           <span>Shipping:</span>
           <span>
             {isFreeShipping ? (
-              <span className="os-free-shipping-text">
-                <FaShippingFast size={14} style={{ marginRight: "4px" }} />
+              <span className="order-summary-free-shipping-text">
+                <FaShippingFast size={14} className="order-summary-free-shipping-icon" />
                 FREE
               </span>
             ) : currentStep === "cart" ? (
-              <span className="os-summary-value-muted">
+              <span className="order-summary-value-muted">
                 Calculated at checkout
               </span>
             ) : shippingCost > 0 ? (
               `$${shippingCost.toFixed(2)}`
             ) : (
-              <span className="os-summary-value-muted">
+              <span className="order-summary-value-muted">
                 Calculated at checkout
               </span>
             )}
@@ -184,20 +184,20 @@ const OrderSummary = ({
         </div>
 
         {currentStep !== "cart" && (
-          <div className="os-summary-row">
+          <div className="order-summary-row">
             <span>Tax:</span>
             <span>${taxAmount.toFixed(2)}</span>
           </div>
         )}
 
-        <div className="os-summary-row os-summary-total">
+        <div className="order-summary-row order-summary-total">
           <strong>Total:</strong>
-          <strong className="os-summary-value-total">
+          <strong className="order-summary-value-total">
             ${total.toFixed(2)}
           </strong>
         </div>
 
-        <div className="os-summary-divider"></div>
+        <div className="order-summary-divider"></div>
 
         {/* Cart-level coupon */}
         {coupons && (

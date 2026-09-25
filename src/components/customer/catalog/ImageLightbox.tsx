@@ -43,11 +43,11 @@ const Lightbox = ({
   // ============================================================================
 
   return (
-    <div className="lightbox-overlay" onClick={onClose}>
+    <div className="image-lightbox-overlay" onClick={onClose}>
       {/* Row 1 — close button */}
-      <div className="lightbox-row-top">
+      <div className="image-lightbox-row-top">
         <button
-          className="lightbox-close"
+          className="image-lightbox-close"
           onClick={(e) => {
             e.stopPropagation();
             onClose();
@@ -58,23 +58,23 @@ const Lightbox = ({
       </div>
 
       {/* Row 2 — main image */}
-      <div className="lightbox-row-middle">
+      <div className="image-lightbox-row-middle">
         <div
-          className="lightbox-main-image-wrap"
+          className="image-lightbox-main-image-wrap"
           onClick={(e) => e.stopPropagation()}
         >
           <img
             src={images[currentIndex]}
             alt={`${productName} view ${currentIndex + 1}`}
-            className="lightbox-image"
+            className="image-lightbox-image"
           />
         </div>
       </div>
 
       {/* Row 3 — thumbnail strip */}
-      <div className="lightbox-row-thumbnails">
+      <div className="image-lightbox-row-thumbnails">
         <div
-          className="lightbox-thumbnails-strip"
+          className="image-lightbox-thumbnails-strip"
           onClick={(e) => e.stopPropagation()}
         >
           {images.map((img, index) => (
@@ -82,7 +82,7 @@ const Lightbox = ({
               key={index}
               src={img}
               alt={`Thumbnail ${index + 1}`}
-              className={`lightbox-thumbnail${currentIndex === index ? " lightbox-thumbnail-active" : ""}`}
+              className={`image-lightbox-thumbnail${currentIndex === index ? " image-lightbox-thumbnail-active" : ""}`}
               onClick={(e) => {
                 e.stopPropagation();
                 onSelectIndex(index);
@@ -93,10 +93,10 @@ const Lightbox = ({
       </div>
 
       {/* Row 4 — prev / counter / next */}
-      <div className="lightbox-row-bottom">
-        <div className="lightbox-controls" onClick={(e) => e.stopPropagation()}>
+      <div className="image-lightbox-row-bottom">
+        <div className="image-lightbox-controls" onClick={(e) => e.stopPropagation()}>
           <button
-            className="lightbox-nav-button"
+            className="image-lightbox-nav-button"
             onClick={(e) => {
               e.stopPropagation();
               onPrev();
@@ -104,11 +104,11 @@ const Lightbox = ({
           >
             <FaChevronLeft />
           </button>
-          <div className="lightbox-counter">
+          <div className="image-lightbox-counter">
             {currentIndex + 1} / {images.length}
           </div>
           <button
-            className="lightbox-nav-button"
+            className="image-lightbox-nav-button"
             onClick={(e) => {
               e.stopPropagation();
               onNext();

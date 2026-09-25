@@ -12,12 +12,12 @@ const NavBar = () => {
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <nav className="tb-topbar">
-      <div className="tb-topbar-container">
+    <nav className="top-bar">
+      <div className="top-bar-container">
         {/* Left section — mobile hamburger toggle and logo */}
-        <div className="tb-topbar-left">
+        <div className="top-bar-left">
           <button
-            className="tb-topbar-mobile-toggle"
+            className="top-bar-mobile-toggle"
             type="button"
             onClick={toggleMenu}
             aria-label="Toggle navigation"
@@ -30,14 +30,14 @@ const NavBar = () => {
 
         {/* Center section — main nav links; closing the menu on any link click */}
         <div
-          className={`tb-topbar-nav-links ${isMenuOpen ? "tb-topbar-nav-links-open" : ""}`}
+          className={`top-bar-nav-links ${isMenuOpen ? "top-bar-nav-links-open" : ""}`}
           onClick={closeMenu}
         >
           <NavLinks />
         </div>
 
         {/* Right section — profile, wishlist, and cart icons */}
-        <div className="tb-topbar-icons">
+        <div className="top-bar-icons">
           <NavIcons />
         </div>
       </div>

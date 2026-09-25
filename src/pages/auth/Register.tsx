@@ -171,7 +171,7 @@ const Register = () => {
   if (isRegistered) {
     return (
       <div className="register-container">
-        <div className="register-card" style={{ textAlign: "center" }}>
+        <div className="register-card register-card--centered">
           <div className="register-success-icon">✓</div>
           <h1 className="register-title">Check your inbox</h1>
           <p className="register-subtitle">We sent a verification link to</p>
@@ -184,12 +184,7 @@ const Register = () => {
           </p>
           <Link
             to={redirectTo}
-            className="register-submit-btn"
-            style={{
-              display: "block",
-              textDecoration: "none",
-              marginBottom: "12px",
-            }}
+            className="register-submit-btn register-submit-btn--link"
           >
             {redirectLabel}
           </Link>

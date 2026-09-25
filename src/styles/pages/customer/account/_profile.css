@@ -682,6 +682,12 @@
    DELETE ACCOUNT LINK
    ============================================================================ */
 
+.profile-delete-account-wrapper {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #d9c2a3;
+}
+
 .profile-delete-account-link {
   display: block;
   width: fit-content;

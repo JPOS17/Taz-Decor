@@ -63,23 +63,23 @@ const FilterDropdown = ({
   }, [isOpen, onClose]);
 
   return (
-    <div className="mi-dropdown" ref={wrapperRef}>
+    <div className="inventory-list-dropdown" ref={wrapperRef}>
       <button
-        className={`mi-filter-dropdown-btn mi-dropdown-toggle${isOpen ? " mi-dropdown-toggle--open" : ""}`}
+        className={`inventory-list-filter-dropdown-btn inventory-list-dropdown-toggle${isOpen ? " inventory-list-dropdown-toggle--open" : ""}`}
         type="button"
         aria-expanded={isOpen}
         onClick={onToggle}
       >
         <span>{label}</span>
-        <ChevronDown size={14} className="mi-dropdown-chevron" />
+        <ChevronDown size={14} className="inventory-list-dropdown-chevron" />
       </button>
       {isOpen && (
-        <ul className="mi-dropdown-menu">
+        <ul className="inventory-list-dropdown-menu">
           {options.map((option, index) => (
             <li key={index}>
-              {option.dividerBefore && <hr className="mi-dropdown-divider" />}
+              {option.dividerBefore && <hr className="inventory-list-dropdown-divider" />}
               <button
-                className="mi-dropdown-item"
+                className="inventory-list-dropdown-item"
                 onClick={() => {
                   option.onSelect();
                   onClose();
@@ -200,9 +200,9 @@ const ManagerFilterBar = ({
   return (
     <div>
       {/* Filter toggle bar */}
-      <div className="mi-filter-bar">
+      <div className="inventory-list-filter-bar">
         <button
-          className={`mi-filter-toggle ${hasActiveFilters ? "mi-filter-toggle--active" : ""}`}
+          className={`inventory-list-filter-toggle ${hasActiveFilters ? "inventory-list-filter-toggle--active" : ""}`}
           onClick={() => setShowFilters(!showFilters)}
         >
           <Filter size={16} />
@@ -211,7 +211,7 @@ const ManagerFilterBar = ({
 
         {/* Clear All */}
         {hasActiveFilters && (
-          <button className="mi-filter-clear" onClick={onClearFilters}>
+          <button className="inventory-list-filter-clear" onClick={onClearFilters}>
             <X size={16} />
             Clear All
           </button>
@@ -220,10 +220,10 @@ const ManagerFilterBar = ({
 
       {/* Collapsible filter panel */}
       {showFilters && (
-        <div className="mi-filter-panel">
+        <div className="inventory-list-filter-panel">
           {/* Product Status */}
-          <div className="mi-filter-group">
-            <span className="mi-filter-group-label">Product Status</span>
+          <div className="inventory-list-filter-group">
+            <span className="inventory-list-filter-group-label">Product Status</span>
             <FilterDropdown
               isOpen={openDropdown === "status"}
               onToggle={() => toggleDropdown("status")}
@@ -245,8 +245,8 @@ const ManagerFilterBar = ({
           </div>
 
           {/* Stock Level */}
-          <div className="mi-filter-group">
-            <span className="mi-filter-group-label">Stock Level</span>
+          <div className="inventory-list-filter-group">
+            <span className="inventory-list-filter-group-label">Stock Level</span>
             <FilterDropdown
               isOpen={openDropdown === "stock"}
               onToggle={() => toggleDropdown("stock")}
@@ -271,8 +271,8 @@ const ManagerFilterBar = ({
           </div>
 
           {/* Category Status */}
-          <div className="mi-filter-group">
-            <span className="mi-filter-group-label">Category Status</span>
+          <div className="inventory-list-filter-group">
+            <span className="inventory-list-filter-group-label">Category Status</span>
             <FilterDropdown
               isOpen={openDropdown === "category"}
               onToggle={() => toggleDropdown("category")}
@@ -302,8 +302,8 @@ const ManagerFilterBar = ({
           </div>
 
           {/* Sort By */}
-          <div className="mi-filter-group">
-            <span className="mi-filter-group-label">Sort By</span>
+          <div className="inventory-list-filter-group">
+            <span className="inventory-list-filter-group-label">Sort By</span>
             <FilterDropdown
               isOpen={openDropdown === "sort"}
               onToggle={() => toggleDropdown("sort")}

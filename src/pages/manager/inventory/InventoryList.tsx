@@ -965,12 +965,12 @@ const ManageProducts = () => {
         </div>
       </div>
 
-      <div className="mi-container">
+      <div className="inventory-list-container">
         {/* Warehouse Location Selector */}
-        <div className="mi-category-section">
-          <label className="mi-category-label">Select Warehouse</label>
+        <div className="inventory-list-category-section">
+          <label className="inventory-list-category-label">Select Warehouse</label>
           <select
-            className="mi-category-select"
+            className="inventory-list-category-select"
             value={selectedLocation === null ? "" : selectedLocation}
             onChange={(e) => {
               const value = e.target.value;
@@ -987,10 +987,10 @@ const ManageProducts = () => {
         </div>
 
         {/* Category Selector */}
-        <div className="mi-category-section">
-          <label className="mi-category-label">Select Category</label>
+        <div className="inventory-list-category-section">
+          <label className="inventory-list-category-label">Select Category</label>
           <select
-            className="mi-category-select"
+            className="inventory-list-category-select"
             value={selectedCategory === null ? "" : selectedCategory}
             onChange={(e) => {
               const value = e.target.value;
@@ -1023,20 +1023,20 @@ const ManageProducts = () => {
         {loading && !variantDetails && viewMode === "edit" ? (
           <LoadingSpinner message="Loading products..." />
         ) : (
-          <div className="mi-dashboard-content">
+          <div className="inventory-list-dashboard-content">
             {/* Left Column — Product List */}
-            <div className="mi-products-column">
+            <div className="inventory-list-products-column">
               <h2>Products</h2>
-              <div className="mi-products-list">
+              <div className="inventory-list-products-list">
                 {/* Create New Product Card */}
                 <div
-                  className={`mi-add-new-card ${
+                  className={`inventory-list-add-new-card ${
                     viewMode === "create-product" ? "active" : ""
                   }`}
                   onClick={handleNewProduct}
                 >
-                  <Plus className="mi-add-new-icon" size={48} />
-                  <p className="mi-add-new-text">Create New Product</p>
+                  <Plus className="inventory-list-add-new-icon" size={48} />
+                  <p className="inventory-list-add-new-text">Create New Product</p>
                 </div>
 
                 {/* Existing product cards */}
@@ -1052,7 +1052,7 @@ const ManageProducts = () => {
             </div>
 
             {/* Right Column — Forms */}
-            <div className="mi-details-column" ref={detailsColumnRef}>
+            <div className="inventory-list-details-column" ref={detailsColumnRef}>
               {/* Create Product View */}
               {viewMode === "create-product" && (
                 <>
@@ -1159,9 +1159,9 @@ const ManageProducts = () => {
 
               {/* Empty State */}
               {viewMode === "edit" && !variantDetails && (
-                <div className="mi-empty-state">
-                  <Package className="mi-empty-state-icon" size={80} />
-                  <p className="mi-empty-state-text">
+                <div className="inventory-list-empty-state">
+                  <Package className="inventory-list-empty-state-icon" size={80} />
+                  <p className="inventory-list-empty-state-text">
                     Select a product to edit
                   </p>
                 </div>

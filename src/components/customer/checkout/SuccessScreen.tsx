@@ -29,41 +29,41 @@ const SuccessScreen = ({
   if (!orderResult) return null;
 
   return (
-    <div className="ss-checkout-success">
-      <div className="ss-content">
-        <div className="ss-icon-large">
+    <div className="success-screen-checkout-success">
+      <div className="success-screen-content">
+        <div className="success-screen-icon-large">
           <FaCheckCircle />
         </div>
-        <h1 className="ss-title">Order Successfully Placed!</h1>
-        <p className="ss-message">
+        <h1 className="success-screen-title">Order Successfully Placed!</h1>
+        <p className="success-screen-message">
           Thank you for your order. We've sent a confirmation email to{" "}
           <strong>{userEmail}</strong>.
         </p>
 
         {/* Order summary — number, total, and current status */}
-        <div className="ss-order-info">
-          <div className="ss-order-info-item">
-            <span className="ss-info-label">Order Number</span>
-            <span className="ss-info-value">{orderResult.order_number}</span>
+        <div className="success-screen-order-info">
+          <div className="success-screen-order-info-item">
+            <span className="success-screen-info-label">Order Number</span>
+            <span className="success-screen-info-value">{orderResult.order_number}</span>
           </div>
-          <div className="ss-order-info-item">
-            <span className="ss-info-label">Total Amount</span>
-            <span className="ss-info-value">
+          <div className="success-screen-order-info-item">
+            <span className="success-screen-info-label">Total Amount</span>
+            <span className="success-screen-info-value">
               ${orderResult.total_price.toFixed(2)}
             </span>
           </div>
-          <div className="ss-order-info-item">
-            <span className="ss-info-label">Status</span>
-            <span className="ss-info-value ss-status-badge">
+          <div className="success-screen-order-info-item">
+            <span className="success-screen-info-label">Status</span>
+            <span className="success-screen-info-value success-screen-status-badge">
               {orderResult.status}
             </span>
           </div>
         </div>
 
         {/* CTAs — guest users see order lookup; authenticated users see order history */}
-        <div className="ss-actions">
+        <div className="success-screen-actions">
           <button
-            className="ss-btn-primary ss-btn-large"
+            className="success-screen-btn-primary success-screen-btn-large"
             onClick={() =>
               isGuest
                 ? navigate(`/order-lookup`)
@@ -74,14 +74,14 @@ const SuccessScreen = ({
           </button>
           {!isGuest && (
             <button
-              className="ss-btn-secondary ss-btn-large"
+              className="success-screen-btn-secondary success-screen-btn-large"
               onClick={() => navigate("/orders")}
             >
               View All Orders
             </button>
           )}
           <button
-            className="ss-btn-outline ss-btn-large"
+            className="success-screen-btn-outline success-screen-btn-large"
             onClick={() => navigate("/")}
           >
             <FaHome /> Continue Shopping
@@ -90,10 +90,10 @@ const SuccessScreen = ({
 
         {/* Guest order number reminder */}
         {isGuest && (
-          <div className="ss-guest-note">
+          <div className="success-screen-guest-note">
             <p>
               <strong>Save your order number:</strong>{" "}
-              <span className="ss-order-number-highlight">
+              <span className="success-screen-order-number-highlight">
                 {orderResult.order_number}
               </span>
             </p>
@@ -104,7 +104,7 @@ const SuccessScreen = ({
           </div>
         )}
 
-        <div className="ss-note">
+        <div className="success-screen-note">
           <p>
             <strong>What happens next?</strong>
           </p>
@@ -113,7 +113,7 @@ const SuccessScreen = ({
             {shippingMethodName && (
               <DeliveryEstimate
                 shippingMethodName={shippingMethodName}
-                className="ss-review-delivery-estimate"
+                className="success-screen-review-delivery-estimate"
               />
             )}
           </ul>

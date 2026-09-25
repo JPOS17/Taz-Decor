@@ -101,7 +101,7 @@ const OrderConfirmation = () => {
 
   if (loading) {
     return (
-      <div className="order-confirm-loading">
+      <div className="order-confirmation-loading">
         <LoadingSpinner message="Loading your order..." />
       </div>
     );
@@ -109,12 +109,12 @@ const OrderConfirmation = () => {
 
   if (error || !order) {
     return (
-      <div className="order-confirm-page">
-        <div className="order-confirm-error">
+      <div className="order-confirmation-page">
+        <div className="order-confirmation-error">
           <h2>Order Not Found</h2>
           <p>{error || "Unable to find order details"}</p>
           <button
-            className="order-confirm-btn-primary"
+            className="order-confirmation-btn-primary"
             onClick={() => navigate("/")}
           >
             Return to Home
@@ -125,39 +125,39 @@ const OrderConfirmation = () => {
   }
 
   return (
-    <div className="order-confirm-page">
-      <main className="order-confirm-main">
+    <div className="order-confirmation-page">
+      <main className="order-confirmation-main">
         {/* Back to orders nav */}
-        <div className="order-confirm-back-nav">
+        <div className="order-confirmation-back-nav">
           <button
-            className="order-confirm-back-link"
+            className="order-confirmation-back-link"
             onClick={() => navigate("/orders")}
           >
             <FaArrowLeft /> Back to Orders
           </button>
         </div>
 
-        <div className="order-confirm-container">
+        <div className="order-confirmation-container">
           {/* Success header */}
-          <div className="order-confirm-header">
+          <div className="order-confirmation-header">
             <h1>Order Confirmed!</h1>
-            <p className="order-confirm-message">
+            <p className="order-confirmation-message">
               Thank you for your order. We've sent a confirmation email to your
               inbox.
             </p>
-            <div className="order-confirm-number-display">
+            <div className="order-confirmation-number-display">
               <span className="label">Order Number:</span>
               <span className="number">{orderNumber}</span>
             </div>
           </div>
 
           {/* Order detail cards — shipping address, delivery info, and summary */}
-          <div className="order-confirm-details-section">
-            <div className="order-confirm-details-grid">
+          <div className="order-confirmation-details-section">
+            <div className="order-confirmation-details-grid">
               {/* Shipping address */}
-              <div className="order-confirm-detail-card">
+              <div className="order-confirmation-detail-card">
                 <h3>Shipping Address</h3>
-                <div className="order-confirm-address-info">
+                <div className="order-confirmation-address-info">
                   <p>
                     <strong>
                       {order.first_name} {order.last_name}
@@ -173,12 +173,12 @@ const OrderConfirmation = () => {
               </div>
 
               {/* Delivery info */}
-              <div className="order-confirm-detail-card">
+              <div className="order-confirmation-detail-card">
                 <h3>Delivery Information</h3>
-                <div className="order-confirm-delivery-info">
+                <div className="order-confirmation-delivery-info">
                   <p>
                     <strong>Status:</strong>{" "}
-                    <span className="order-confirm-status-badge">
+                    <span className="order-confirmation-status-badge">
                       {formatStatus(order.status)}
                     </span>
                   </p>
@@ -186,7 +186,7 @@ const OrderConfirmation = () => {
                     <DeliveryEstimate
                       shippingMethodName={order.shipping_service}
                       orderDate={new Date(order.created_at)}
-                      className="order-confirm-delivery-estimate-override"
+                      className="order-confirmation-delivery-estimate-override"
                     />
                   )}
                   {order.tracking_number && (
@@ -194,7 +194,7 @@ const OrderConfirmation = () => {
                       <strong>Tracking Number:</strong> {order.tracking_number}
                     </p>
                   )}
-                  <p className="order-confirm-info-note">
+                  <p className="order-confirmation-info-note">
                     We'll send you an email with tracking information once your
                     order ships.
                   </p>
@@ -202,20 +202,20 @@ const OrderConfirmation = () => {
               </div>
 
               {/* Order summary */}
-              <div className="order-confirm-detail-card">
+              <div className="order-confirmation-detail-card">
                 <h3>Order Summary</h3>
-                <div className="order-confirm-summary-info">
-                  <div className="order-confirm-summary-row">
+                <div className="order-confirmation-summary-info">
+                  <div className="order-confirmation-summary-row">
                     <span>Subtotal:</span>
                     <span>${order.subtotal.toFixed(2)}</span>
                   </div>
                   {order.discount_amount > 0 && (
-                    <div className="order-confirm-summary-row order-confirm-discount">
+                    <div className="order-confirmation-summary-row order-confirmation-discount">
                       <span>Discount:</span>
                       <span>-${order.discount_amount.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="order-confirm-summary-row">
+                  <div className="order-confirmation-summary-row">
                     <span>Shipping:</span>
                     <span>
                       {order.shipping_cost === 0
@@ -223,12 +223,12 @@ const OrderConfirmation = () => {
                         : `$${order.shipping_cost.toFixed(2)}`}
                     </span>
                   </div>
-                  <div className="order-confirm-summary-row">
+                  <div className="order-confirmation-summary-row">
                     <span>Tax:</span>
                     <span>${order.tax_amount.toFixed(2)}</span>
                   </div>
-                  <div className="order-confirm-summary-divider"></div>
-                  <div className="order-confirm-summary-row order-confirm-total">
+                  <div className="order-confirmation-summary-divider"></div>
+                  <div className="order-confirmation-summary-row order-confirmation-total">
                     <strong>Total:</strong>
                     <strong>${order.total_price.toFixed(2)}</strong>
                   </div>
@@ -238,28 +238,28 @@ const OrderConfirmation = () => {
           </div>
 
           {/* Order items list */}
-          <div className="order-confirm-items-section">
+          <div className="order-confirmation-items-section">
             <h3>Order Items</h3>
-            <div className="order-confirm-items-list">
+            <div className="order-confirmation-items-list">
               {order.items.map((item) => (
-                <div key={item.order_item_id} className="order-confirm-item">
+                <div key={item.order_item_id} className="order-confirmation-item">
                   <img
                     src={item.img_url || "/placeholder-image.png"}
                     alt={item.product_name}
-                    className="order-confirm-item-image"
+                    className="order-confirmation-item-image"
                   />
-                  <div className="order-confirm-item-details">
+                  <div className="order-confirmation-item-details">
                     <h4>{item.product_name}</h4>
                     {item.variant_details && (
-                      <p className="order-confirm-variant-info">
+                      <p className="order-confirmation-variant-info">
                         {item.variant_details}
                       </p>
                     )}
-                    <p className="order-confirm-quantity">
+                    <p className="order-confirmation-quantity">
                       Quantity: {item.quantity}
                     </p>
                   </div>
-                  <div className="order-confirm-item-price">
+                  <div className="order-confirmation-item-price">
                     <span>
                       ${(item.price_at_purchase * item.quantity).toFixed(2)}
                     </span>
@@ -270,21 +270,21 @@ const OrderConfirmation = () => {
           </div>
 
           {/* Action buttons — print, view orders, continue shopping */}
-          <div className="order-confirm-actions">
+          <div className="order-confirmation-actions">
             <button
-              className="order-confirm-btn-secondary"
+              className="order-confirmation-btn-secondary"
               onClick={handlePrint}
             >
               <FaPrint /> Print Receipt
             </button>
             <button
-              className="order-confirm-btn-primary"
+              className="order-confirmation-btn-primary"
               onClick={() => navigate("/orders")}
             >
               <FaShoppingBag /> View All Orders
             </button>
             <button
-              className="order-confirm-btn-outline"
+              className="order-confirmation-btn-outline"
               onClick={() => navigate("/items")}
             >
               <FaHome /> Continue Shopping

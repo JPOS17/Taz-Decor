@@ -32,11 +32,7 @@ export const ToastNotification = ({
       {/* Render each line as its own <p> */}
       <div className="toast-content">
         {messageLines.map((line, index) => (
-          <p
-            key={index}
-            className="toast-message"
-            style={{ margin: index > 0 ? "0.25rem 0 0 0" : "0" }}
-          >
+          <p key={index} className="toast-message">
             {line}
           </p>
         ))}

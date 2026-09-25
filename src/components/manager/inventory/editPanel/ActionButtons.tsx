@@ -33,9 +33,9 @@ export const ActionButtons = ({
   // Create modes each return their own minimal button set
   if (viewMode === "create-product") {
     return (
-      <div className="mi-action-buttons">
+      <div className="action-buttons">
         <button
-          className="mi-btn-save"
+          className="action-buttons-btn-save"
           onClick={(e) => {
             e.preventDefault();
             onSubmitForm?.();
@@ -46,7 +46,7 @@ export const ActionButtons = ({
           Create Product
         </button>
         <button
-          className="mi-btn-cancel-inline"
+          className="action-buttons-btn-cancel-inline"
           onClick={onCancel}
           disabled={loading}
         >
@@ -59,9 +59,9 @@ export const ActionButtons = ({
 
   if (viewMode === "create-variant") {
     return (
-      <div className="mi-action-buttons">
+      <div className="action-buttons">
         <button
-          className="mi-btn-save"
+          className="action-buttons-btn-save"
           onClick={(e) => {
             e.preventDefault();
             onSubmitForm?.();
@@ -72,7 +72,7 @@ export const ActionButtons = ({
           Create Variant
         </button>
         <button
-          className="mi-btn-cancel-inline"
+          className="action-buttons-btn-cancel-inline"
           onClick={onCancel}
           disabled={loading}
         >
@@ -85,10 +85,10 @@ export const ActionButtons = ({
 
   // Default edit mode
   return (
-    <div className="mi-action-buttons">
+    <div className="action-buttons">
       {/* New Variant */}
       <button
-        className="mi-btn-new-variant"
+        className="action-buttons-btn-new-variant"
         onClick={onNewVariant}
         disabled={loading || hasUnsavedChanges}
       >
@@ -98,7 +98,7 @@ export const ActionButtons = ({
 
       {/* Toggle button label and style swap based on current active state */}
       <button
-        className={isActive ? "mi-btn-deactivate" : "mi-btn-activate"}
+        className={isActive ? "action-buttons-btn-deactivate" : "action-buttons-btn-activate"}
         onClick={onToggleStatus}
         disabled={loading}
       >
@@ -117,7 +117,7 @@ export const ActionButtons = ({
 
       {/* Save */}
       <button
-        className="mi-btn-save"
+        className="action-buttons-btn-save"
         onClick={onSave}
         disabled={loading || !hasUnsavedChanges || !isFormValid}
       >
@@ -125,7 +125,7 @@ export const ActionButtons = ({
         Save Changes
       </button>
 
-      <button className="mi-btn-delete" onClick={onDelete} disabled={loading}>
+      <button className="action-buttons-btn-delete" onClick={onDelete} disabled={loading}>
         <Trash2 size={18} />
         Delete
       </button>

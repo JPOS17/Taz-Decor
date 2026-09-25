@@ -55,10 +55,10 @@ const CategoryDropDown = ({
 
   // Renders the dropdown button and menu
   return (
-    <div className="cdd-container">
-      <div className="cdd-wrapper" ref={dropdownRef}>
+    <div className="category-dropdown-container">
+      <div className="category-dropdown-wrapper" ref={dropdownRef}>
         <button
-          className={["cdd-toggle", isOpen ? "cdd-toggle--open" : ""]
+          className={["category-dropdown-toggle", isOpen ? "category-dropdown-toggle--open" : ""]
             .filter(Boolean)
             .join(" ")}
           onClick={handleToggle}
@@ -66,19 +66,19 @@ const CategoryDropDown = ({
           aria-expanded={isOpen}
         >
           Category: {activeCategoryName}
-          <span className="cdd-icon">▼</span>
+          <span className="category-dropdown-icon">▼</span>
         </button>
 
         <ul
-          className={["cdd-menu", isOpen ? "cdd-menu--open" : ""]
+          className={["category-dropdown-menu", isOpen ? "category-dropdown-menu--open" : ""]
             .filter(Boolean)
             .join(" ")}
         >
-          <li className="cdd-item">
+          <li className="category-dropdown-item">
             <button
               className={[
-                "cdd-item-btn",
-                activeCategoryId === null ? "cdd-item-btn--active" : "",
+                "category-dropdown-item-btn",
+                activeCategoryId === null ? "category-dropdown-item-btn--active" : "",
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -89,12 +89,12 @@ const CategoryDropDown = ({
           </li>
 
           {categories.map((category) => (
-            <li key={category.category_id} className="cdd-item">
+            <li key={category.category_id} className="category-dropdown-item">
               <button
                 className={[
-                  "cdd-item-btn",
+                  "category-dropdown-item-btn",
                   activeCategoryId === category.category_id
-                    ? "cdd-item-btn--active"
+                    ? "category-dropdown-item-btn--active"
                     : "",
                 ]
                   .filter(Boolean)

@@ -1088,11 +1088,15 @@
 .toast-content { flex: 1; }
  
 .toast-message {
-  margin: 0;
+  margin: 0.25rem 0 0 0;
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--text-primary);
   line-height: 1.45;
+}
+
+.toast-message:first-child {
+  margin: 0;
 }
  
 @media (max-width: 640px) {

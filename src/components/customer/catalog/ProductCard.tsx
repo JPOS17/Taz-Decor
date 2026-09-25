@@ -99,53 +99,53 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
   // ============================================================================
 
   return (
-    <div className="item-listing-list-item" onClick={handleClick}>
+    <div className="product-card-list-item" onClick={handleClick}>
       {/* Image tile */}
-      <div className="item-listing-image-container">
+      <div className="product-card-image-container">
         <img src={product.primary_image} alt={product.name} />
 
         {/* Discount badge */}
         {coupon &&
           (coupon.discount_value || coupon.discount_type === "bogo") && (
-            <div className="item-listing-discount-badge">
+            <div className="product-card-discount-badge">
               {isBogo ? formatBogoBadge(coupon) : getDiscountBadgeText(coupon)}
             </div>
           )}
 
         {/* Wishlist button */}
         <div
-          className="item-listing-wishlist-btn"
+          className="product-card-wishlist-btn"
           onClick={handleWishlistClick}
         >
           {isInWishlistState ? (
-            <FaHeart className="item-listing-wishlist-icon-filled" />
+            <FaHeart className="product-card-wishlist-icon-filled" />
           ) : (
-            <FaRegHeart className="item-listing-wishlist-icon" />
+            <FaRegHeart className="product-card-wishlist-icon" />
           )}
         </div>
       </div>
 
       {/* Text block */}
-      <div className="item-listing-text-block">
+      <div className="product-card-text-block">
         {couponLabelText && (
-          <p className="item-listing-coupon-label">{couponLabelText}</p>
+          <p className="product-card-coupon-label">{couponLabelText}</p>
         )}
 
-        <p className="item-listing-item-name">{product.name}</p>
+        <p className="product-card-item-name">{product.name}</p>
 
         {/* Price row */}
-        <div className="item-listing-price-row">
+        <div className="product-card-price-row">
           {hasDiscountedPrice && discountInfo ? (
             <>
-              <span className="item-listing-price-original">
+              <span className="product-card-price-original">
                 ${product.price.toFixed(2)}
               </span>
-              <span className="item-listing-price-discounted">
+              <span className="product-card-price-discounted">
                 ${discountInfo.discountedPrice.toFixed(2)}
               </span>
             </>
           ) : (
-            <span className="item-listing-price">
+            <span className="product-card-price">
               ${product.price.toFixed(2)}
             </span>
           )}
@@ -153,7 +153,7 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
           {/* Lock icon */}
           {requiresVerification && (
             <span
-              className="item-listing-lock-icon"
+              className="product-card-lock-icon"
               title="Login or verify email to use this coupon"
             >
               <FaLock size={11} />

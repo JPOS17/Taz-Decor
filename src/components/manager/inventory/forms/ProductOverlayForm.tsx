@@ -238,7 +238,7 @@ const ProductForm = ({
 
         {/* Category */}
         {onAddCategory && onRemoveCategory && onSetPrimaryCategory ? (
-          <div className="pf-category-wrapper">
+          <div className="category-wrapper">
             <CategoryHandler
               productCategories={productCategories}
               availableCategories={categories}

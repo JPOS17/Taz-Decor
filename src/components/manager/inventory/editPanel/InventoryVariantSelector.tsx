@@ -43,13 +43,13 @@ const VariantSelector = ({
   // ============================================================================
 
   return (
-    <div className="mi-variant-selector-container">
-      <label className="mi-variant-selector-label">
+    <div className="inventory-variant-selector-container">
+      <label className="inventory-variant-selector-label">
         Product Variant ({variants.length} variants)
       </label>
-      <div className="mi-variant-selector-wrapper">
+      <div className="inventory-variant-selector-wrapper">
         <select
-          className="mi-variant-selector-select"
+          className="inventory-variant-selector-select"
           value={currentVariantId}
           onChange={(e) => onVariantChange(Number(e.target.value))}
           disabled={disabled}
@@ -61,9 +61,9 @@ const VariantSelector = ({
             </option>
           ))}
         </select>
-        <ChevronDown className="mi-variant-selector-icon" size={20} />
+        <ChevronDown className="inventory-variant-selector-icon" size={20} />
       </div>
-      <p className="mi-variant-selector-help">
+      <p className="inventory-variant-selector-help">
         Switch between product variants to edit different colors, sizes, or
         options
       </p>

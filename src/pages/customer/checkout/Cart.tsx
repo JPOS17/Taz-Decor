@@ -560,7 +560,6 @@ const Cart = () => {
                 <div
                   className={"cart-verification-banner"}
                   onClick={() => navigate("/login")}
-                  style={{ cursor: "pointer" }}
                 >
                   <FaLock className={"cart-banner-icon"} />
                   <div className={"cart-banner-content"}>

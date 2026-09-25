@@ -21,12 +21,12 @@ const AddressCard = ({
 }: AddressCardProps) => {
   return (
     <div
-      className={`ac-address-card ${isSelected ? "ac-address-card-selected" : ""} ${!showRadio ? "ac-address-card-no-radio" : ""}`}
+      className={`address-card ${isSelected ? "address-card-selected" : ""} ${!showRadio ? "address-card-no-radio" : ""}`}
       onClick={onSelect}
     >
       {/* Radio indicator */}
       {showRadio && (
-        <div className="ac-address-radio">
+        <div className="address-card-address-radio">
           <input
             type="radio"
             name="shipping_address"
@@ -37,7 +37,7 @@ const AddressCard = ({
       )}
 
       {/* Address details */}
-      <div className="ac-address-info">
+      <div className="address-card-address-info">
         <h4>{address.address_name}</h4>
         <p>{address.address_line1}</p>
         {address.address_line2 && <p>{address.address_line2}</p>}
@@ -45,14 +45,14 @@ const AddressCard = ({
           {address.city}, {address.state} {address.zip}
         </p>
         {address.is_default && (
-          <span className="ac-default-badge">Default</span>
+          <span className="address-card-default-badge">Default</span>
         )}
       </div>
 
       {/* Edit and delete action buttons */}
-      <div className="ac-address-actions">
+      <div className="address-card-address-actions">
         <button
-          className="ac-btn-icon"
+          className="address-card-btn-icon"
           onClick={(e) => {
             e.stopPropagation();
             onEdit();
@@ -61,7 +61,7 @@ const AddressCard = ({
           <FaEdit />
         </button>
         <button
-          className="ac-btn-icon ac-btn-delete"
+          className="address-card-btn-icon address-card-btn-delete"
           onClick={(e) => {
             e.stopPropagation();
             onDelete();

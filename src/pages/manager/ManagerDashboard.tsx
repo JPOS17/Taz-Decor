@@ -89,11 +89,7 @@ const ManagerDashboard = () => {
                   <div className="mgr-card-top">
                     {/* Accent-colored section icon */}
                     <div className="mgr-card-icon">
-                      <Icon
-                        size={20}
-                        strokeWidth={2}
-                        style={{ color: "var(--accent)" }}
-                      />
+                      <Icon size={20} strokeWidth={2} />
                     </div>
                     <ArrowRight size={16} className="mgr-card-arrow" />
                   </div>

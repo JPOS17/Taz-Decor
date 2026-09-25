@@ -36,47 +36,47 @@ const AddressValidationModal = ({
       validated_address.zip !== originalZip);
 
   return (
-    <div className="avm-overlay">
-      <div className="avm-modal">
+    <div className="address-validation-modal-overlay">
+      <div className="address-validation-modal">
         {/* Header */}
-        <div className="avm-header">
+        <div className="address-validation-modal-header">
           <h3>
             {is_valid ? (
               <>
-                <FaCheckCircle className="avm-header-icon-success" /> Address
+                <FaCheckCircle className="address-validation-modal-header-icon-success" /> Address
                 Verification
               </>
             ) : (
               <>
-                <FaExclamationTriangle className="avm-header-icon-warning" />{" "}
+                <FaExclamationTriangle className="address-validation-modal-header-icon-warning" />{" "}
                 Address Issue Detected
               </>
             )}
           </h3>
-          <button className="avm-close" onClick={onCancel}>
+          <button className="address-validation-modal-close" onClick={onCancel}>
             <FaTimes />
           </button>
         </div>
 
-        <div className="avm-body">
+        <div className="address-validation-modal-body">
           {/* State 1: valid, no corrections needed */}
           {is_valid && !hasCorrections && (
-            <div className="avm-validation-success">
+            <div className="address-validation-modal-validation-success">
               <p>Your address has been verified successfully!</p>
             </div>
           )}
 
           {/* State 2: valid, but USPS suggests a correction — shows a side-by-side comparison */}
           {is_valid && hasCorrections && (
-            <div className="avm-validation-correction">
-              <p className="avm-correction-notice">
+            <div className="address-validation-modal-validation-correction">
+              <p className="address-validation-modal-correction-notice">
                 We found a suggested correction for your address:
               </p>
-              <div className="avm-address-comparison">
+              <div className="address-validation-modal-address-comparison">
                 {/* Original address as entered by the user */}
-                <div className="avm-address-column">
+                <div className="address-validation-modal-address-column">
                   <h4>You Entered:</h4>
-                  <div className="avm-address-box avm-address-box-original">
+                  <div className="address-validation-modal-address-box address-validation-modal-address-box-original">
                     <p>{originalStreet1}</p>
                     {originalStreet2 && <p>{originalStreet2}</p>}
                     <p>
@@ -86,9 +86,9 @@ const AddressValidationModal = ({
                 </div>
 
                 {/* USPS-corrected address */}
-                <div className="avm-address-column">
+                <div className="address-validation-modal-address-column">
                   <h4>Suggested:</h4>
-                  <div className="avm-address-box avm-address-box-corrected">
+                  <div className="address-validation-modal-address-box address-validation-modal-address-box-corrected">
                     <p>{validated_address.street1}</p>
                     {validated_address.street2 && (
                       <p>{validated_address.street2}</p>
@@ -105,19 +105,19 @@ const AddressValidationModal = ({
 
           {/* State 3: invalid — shows USPS error messages and the address as entered */}
           {!is_valid && (
-            <div className="avm-validation-error">
-              <p className="avm-error-notice">
+            <div className="address-validation-modal-validation-error">
+              <p className="address-validation-modal-error-notice">
                 We couldn't verify this address. Please review your address
                 before continuing!
               </p>
               {validation_results.messages.length > 0 && (
-                <ul className="avm-validation-messages">
+                <ul className="address-validation-modal-validation-messages">
                   {validation_results.messages.map((msg, idx) => (
                     <li key={idx}>{msg.text || "Validation issue detected"}</li>
                   ))}
                 </ul>
               )}
-              <div className="avm-address-box avm-address-box-original">
+              <div className="address-validation-modal-address-box address-validation-modal-address-box-original">
                 <p>{originalStreet1}</p>
                 {originalStreet2 && <p>{originalStreet2}</p>}
                 <p>
@@ -129,10 +129,10 @@ const AddressValidationModal = ({
         </div>
 
         {/* Actions */}
-        <div className="avm-actions">
+        <div className="address-validation-modal-actions">
           {/* Valid, no corrections — single continue button */}
           {is_valid && !hasCorrections && (
-            <button className="avm-btn-accept" onClick={onAcceptOriginal}>
+            <button className="address-validation-modal-btn-accept" onClick={onAcceptOriginal}>
               Continue
             </button>
           )}
@@ -141,13 +141,13 @@ const AddressValidationModal = ({
           {is_valid && hasCorrections && (
             <>
               <button
-                className="avm-btn-accept-original"
+                className="address-validation-modal-btn-accept-original"
                 onClick={onAcceptOriginal}
               >
                 Use Original Address
               </button>
               <button
-                className="avm-btn-accept-corrected"
+                className="address-validation-modal-btn-accept-corrected"
                 onClick={onAcceptCorrected}
               >
                 Use Suggested Address
@@ -158,11 +158,11 @@ const AddressValidationModal = ({
           {/* Invalid — allow going back to edit or saving as-is */}
           {!is_valid && (
             <>
-              <button className="avm-btn-cancel" onClick={onCancel}>
+              <button className="address-validation-modal-btn-cancel" onClick={onCancel}>
                 Go Back & Edit
               </button>
               <button
-                className="avm-btn-accept-anyway"
+                className="address-validation-modal-btn-accept-anyway"
                 onClick={onAcceptOriginal}
               >
                 Save Anyway

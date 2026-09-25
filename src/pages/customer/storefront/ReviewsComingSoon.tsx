@@ -4,10 +4,10 @@
 
 const Reviews = () => {
   return (
-    <div className="reviews-page">
-      <div className="reviews-container">
-        <div className="reviews-header">
-          <h1 className="reviews-title">Reviews</h1>
+    <div className="reviews-coming-soon-page">
+      <div className="reviews-coming-soon-container">
+        <div className="reviews-coming-soon-header">
+          <h1 className="reviews-coming-soon-title">Reviews</h1>
         </div>
 
         <div className="reviews-coming-soon">

@@ -37,6 +37,11 @@
   margin-bottom: 0.75rem;
 }
 
+/* Used on the "order not found" error icon */
+.guest-order-lookup-icon--error {
+  color: #8c2515;
+}
+
 .guest-order-lookup-header h1 {
   font-family: var(--font-serif);
   font-size: 2rem;

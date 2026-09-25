@@ -17,7 +17,7 @@ export const NavLinks = () => {
           key={to}
           to={to}
           className={({ isActive }) =>
-            isActive ? "tb-nav-link tb-nav-link-active" : "tb-nav-link"
+            isActive ? "top-bar-nav-link top-bar-nav-link-active" : "top-bar-nav-link"
           }
         >
           {label}

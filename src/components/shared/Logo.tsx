@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 // Renders the store logo as a link; shows full name on wide screens, short name on mobile
 const Logo = () => {
   return (
-    <Link className="tb-topbar-logo" to="/items">
-      <span className="tb-logo-full">Taz Decor's Catholic Shop</span>
-      <span className="tb-logo-short">Taz Decor</span>
+    <Link className="top-bar-logo" to="/items">
+      <span className="top-bar-logo-full">Taz Decor's Catholic Shop</span>
+      <span className="top-bar-logo-short">Taz Decor</span>
     </Link>
   );
 };

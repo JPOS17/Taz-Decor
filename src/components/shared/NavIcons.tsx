@@ -37,15 +37,15 @@ const NavIcons = () => {
     <>
       {icons.map(({ to, icon, label, count }) => (
         <Link
-          className="tb-topbar-icon-link"
+          className="top-bar-icon-link"
           key={to}
           to={to}
           data-label={label}
         >
-          <span className="tb-topbar-icon-wrapper">
+          <span className="top-bar-icon-wrapper">
             {icon}
             {/* Badge */}
-            {count > 0 && <span className="tb-topbar-icon-badge">{count}</span>}
+            {count > 0 && <span className="top-bar-icon-badge">{count}</span>}
           </span>
         </Link>
       ))}

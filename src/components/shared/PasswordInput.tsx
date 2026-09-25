@@ -22,12 +22,12 @@ const PasswordInput = ({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="pwd-input-wrapper">
+    <div className="password-input-wrapper">
       <input
         type={showPassword ? "text" : "password"}
         id={id}
         name={name}
-        className="pwd-input-field"
+        className="password-input-field"
         value={value}
         onChange={onChange}
         placeholder={placeholder}
@@ -37,7 +37,7 @@ const PasswordInput = ({
       {/* Toggle button */}
       <button
         type="button"
-        className="pwd-input-toggle"
+        className="password-input-toggle"
         onClick={() => setShowPassword(!showPassword)}
         aria-label={showPassword ? "Hide password" : "Show password"}
       >
@@ -70,7 +70,7 @@ const PasswordInput = ({
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
         )}

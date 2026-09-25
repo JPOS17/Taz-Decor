@@ -25,6 +25,11 @@
   animation: register-slide-up 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* Used on the post-registration success view */
+.register-card--centered {
+  text-align: center;
+}
+
 @keyframes register-slide-up {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -202,6 +207,13 @@
 .register-submit-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+/* Used when the button is rendered as a <Link> instead of a <button> */
+.register-submit-btn--link {
+  display: block;
+  text-decoration: none;
+  margin-bottom: 12px;
 }
 
 .register-footer {

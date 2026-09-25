@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { fetchAllCouponCodes } from "../../../api/couponManagement";
 import type {
   Coupon,
@@ -180,7 +181,7 @@ export const CouponWizard = ({
             <div className="coupon-progress-bar">
               <div
                 className="coupon-progress-fill"
-                style={{ width: `${(modalStep / TOTAL_STEPS) * 100}%` }}
+                style={{ "--fill-pct": `${(modalStep / TOTAL_STEPS) * 100}%` } as CSSProperties}
               />
             </div>
           </div>

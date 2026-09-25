@@ -157,18 +157,18 @@ const DeliveryEstimate = ({
   const dayLabel = config.useCalendarDaysForTransit ? "days" : "business days";
 
   return (
-    <div className={`de-delivery-estimate ${className}`}>
-      <div className="de-icon">
+    <div className={`delivery-estimate ${className}`}>
+      <div className="delivery-estimate-icon">
         <FaTruck />
       </div>
-      <div className="de-body">
-        <span className="de-label">Estimated Delivery</span>
-        <span className="de-range">{rangeText}</span>
-        <span className="de-sub">
+      <div className="delivery-estimate-body">
+        <span className="delivery-estimate-label">Estimated Delivery</span>
+        <span className="delivery-estimate-range">{rangeText}</span>
+        <span className="delivery-estimate-sub">
           {totalDaysMin}–{totalDaysMax} {dayLabel}
         </span>
-        <span className="de-sub">{processingNote}</span>
-        <span className="de-disclaimer">
+        <span className="delivery-estimate-sub">{processingNote}</span>
+        <span className="delivery-estimate-disclaimer">
           Based on {config.label} service standards
         </span>
       </div>

@@ -45,10 +45,10 @@ const STATUS_ICONS: Record<string, JSX.Element> = {
 
 // Maps the status key returned by getStatusClass() to its scoped CSS class
 const STATUS_STYLES: Record<string, string> = {
-  pending: "guest-lookup-status-pending",
-  shipped: "guest-lookup-status-shipped",
-  delivered: "guest-lookup-status-delivered",
-  cancelled: "guest-lookup-status-cancelled",
+  pending: "guest-order-lookup-status-pending",
+  shipped: "guest-order-lookup-status-shipped",
+  delivered: "guest-order-lookup-status-delivered",
+  cancelled: "guest-order-lookup-status-cancelled",
 };
 
 // ============================================================================
@@ -136,10 +136,10 @@ const LookupForm = () => {
   // ============================================================================
 
   return (
-    <div className={"guest-lookup-page"}>
-      <div className={"guest-lookup-container"}>
-        <div className={"guest-lookup-header"}>
-          <FaSearch size={40} className={"guest-lookup-icon"} />
+    <div className={"guest-order-lookup-page"}>
+      <div className={"guest-order-lookup-container"}>
+        <div className={"guest-order-lookup-header"}>
+          <FaSearch size={40} className={"guest-order-lookup-icon"} />
           <h1>Track Your Order</h1>
           <p>
             Enter your order number and the email address you used at checkout.
@@ -147,11 +147,11 @@ const LookupForm = () => {
         </div>
 
         <form
-          className={"guest-lookup-form"}
+          className={"guest-order-lookup-form"}
           onSubmit={handleLookup}
           noValidate
         >
-          <div className={"guest-lookup-form-group"}>
+          <div className={"guest-order-lookup-form-group"}>
             <label htmlFor="lookup-order-number">Order Number</label>
             <input
               id="lookup-order-number"
@@ -160,18 +160,18 @@ const LookupForm = () => {
               onChange={(e) => setOrderNumber(e.target.value)}
               placeholder="ORD-1234567890-ABCDEFGHI"
               className={
-                fieldErrors.orderNumber ? "guest-lookup-input-error" : ""
+                fieldErrors.orderNumber ? "guest-order-lookup-input-error" : ""
               }
               autoComplete="off"
             />
             {fieldErrors.orderNumber && (
-              <span className={"guest-lookup-field-error"}>
+              <span className={"guest-order-lookup-field-error"}>
                 {fieldErrors.orderNumber}
               </span>
             )}
           </div>
 
-          <div className={"guest-lookup-form-group"}>
+          <div className={"guest-order-lookup-form-group"}>
             <label htmlFor="lookup-email">Email Address</label>
             <input
               id="lookup-email"
@@ -179,11 +179,11 @@ const LookupForm = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className={fieldErrors.email ? "guest-lookup-input-error" : ""}
+              className={fieldErrors.email ? "guest-order-lookup-input-error" : ""}
               autoComplete="email"
             />
             {fieldErrors.email && (
-              <span className={"guest-lookup-field-error"}>
+              <span className={"guest-order-lookup-field-error"}>
                 {fieldErrors.email}
               </span>
             )}
@@ -191,7 +191,7 @@ const LookupForm = () => {
 
           {/* Error banner */}
           {error && (
-            <div className={"guest-lookup-error"}>
+            <div className={"guest-order-lookup-error"}>
               <FaTimesCircle />
               <span>{error}</span>
             </div>
@@ -201,7 +201,7 @@ const LookupForm = () => {
 
           <button
             type="submit"
-            className={"guest-lookup-btn"}
+            className={"guest-order-lookup-btn"}
             disabled={loading}
           >
             {loading ? (
@@ -214,7 +214,7 @@ const LookupForm = () => {
           </button>
         </form>
 
-        <p className={"guest-lookup-help-text"}>
+        <p className={"guest-order-lookup-help-text"}>
           Your order number was included in your confirmation email.
         </p>
       </div>
@@ -282,7 +282,7 @@ const OrderResult = () => {
 
   if (loading) {
     return (
-      <div className={"guest-lookup-loading-state"}>
+      <div className={"guest-order-lookup-loading-state"}>
         <LoadingSpinner message="Loading your order..." />
       </div>
     );
@@ -290,19 +290,18 @@ const OrderResult = () => {
 
   if (error || !order) {
     return (
-      <div className={"guest-lookup-page"}>
-        <div className={"guest-lookup-container"}>
-          <div className={"guest-lookup-header"}>
+      <div className={"guest-order-lookup-page"}>
+        <div className={"guest-order-lookup-container"}>
+          <div className={"guest-order-lookup-header"}>
             <FaTimesCircle
               size={40}
-              className={"guest-lookup-icon"}
-              style={{ color: "#8c2515" }}
+              className={"guest-order-lookup-icon guest-order-lookup-icon--error"}
             />
             <h1>Order Not Found</h1>
             <p>{error || "We couldn't find that order."}</p>
           </div>
           <button
-            className={"guest-lookup-btn"}
+            className={"guest-order-lookup-btn"}
             onClick={() => navigate("/order-lookup")}
           >
             <FaSearch /> Try Again
@@ -317,31 +316,31 @@ const OrderResult = () => {
   const statusClass = getStatusClass(order.status);
 
   return (
-    <div className={"guest-lookup-page"}>
-      <div className={"guest-lookup-container guest-lookup-result"}>
-        <div className={"guest-lookup-result-header"}>
+    <div className={"guest-order-lookup-page"}>
+      <div className={"guest-order-lookup-container guest-order-lookup-result"}>
+        <div className={"guest-order-lookup-result-header"}>
           <button
-            className={"guest-lookup-btn-back"}
+            className={"guest-order-lookup-btn-back"}
             onClick={() => navigate("/order-lookup")}
           >
             ← Look up another order
           </button>
-          <div className={"guest-lookup-result-header-row"}>
+          <div className={"guest-order-lookup-result-header-row"}>
             <div>
               <h1>Order {order.order_number}</h1>
-              <p className={"guest-lookup-placed-date"}>
+              <p className={"guest-order-lookup-placed-date"}>
                 Placed on {formatDate(order.created_at)}
               </p>
             </div>
-            <div className={"guest-lookup-result-header-estimate"}>
+            <div className={"guest-order-lookup-result-header-estimate"}>
               {order.delivered_at ? (
-                <div className={"guest-lookup-delivered-badge"}>
+                <div className={"guest-order-lookup-delivered-badge"}>
                   <FaCheckCircle />
                   <div>
-                    <span className={"guest-lookup-delivered-label"}>
+                    <span className={"guest-order-lookup-delivered-label"}>
                       Delivered
                     </span>
-                    <span className={"guest-lookup-delivered-date"}>
+                    <span className={"guest-order-lookup-delivered-date"}>
                       {formatDate(order.delivered_at)}
                     </span>
                   </div>
@@ -351,7 +350,7 @@ const OrderResult = () => {
                   <DeliveryEstimate
                     shippingMethodName={order.shipping_service}
                     orderDate={new Date(order.created_at)}
-                    className={"guest-lookup-header-delivery-estimate"}
+                    className={"guest-order-lookup-header-delivery-estimate"}
                   />
                 )
               )}
@@ -361,7 +360,7 @@ const OrderResult = () => {
 
         {/* Status banner */}
         <div
-          className={`guest-lookup-status-banner ${STATUS_STYLES[statusClass] ?? ""}`}
+          className={`guest-order-lookup-status-banner ${STATUS_STYLES[statusClass] ?? ""}`}
         >
           {statusIcon}
           <span>{statusLabel}</span>
@@ -369,14 +368,14 @@ const OrderResult = () => {
 
         {/* Tracking info — only shown when a tracking number is present */}
         {order.tracking_number && (
-          <div className={"guest-lookup-tracking-section"}>
+          <div className={"guest-order-lookup-tracking-section"}>
             <h3>Tracking Information</h3>
             <p>
               <strong>Carrier:</strong> {order.shipping_carrier}
             </p>
             <p>
               <strong>Tracking Number:</strong>{" "}
-              <span className={"guest-lookup-tracking-number"}>
+              <span className={"guest-order-lookup-tracking-number"}>
                 {order.tracking_number}
               </span>
             </p>
@@ -394,37 +393,37 @@ const OrderResult = () => {
         )}
 
         {/* Two-column layout: items on the left, summary and address on the right */}
-        <div className={"guest-lookup-result-body"}>
+        <div className={"guest-order-lookup-result-body"}>
           {/* Items ordered */}
-          <div className={"guest-lookup-items-section"}>
+          <div className={"guest-order-lookup-items-section"}>
             <h3>Items Ordered</h3>
-            <div className={"guest-lookup-items-list"}>
+            <div className={"guest-order-lookup-items-list"}>
               {order.items.map((item) => (
                 <div
                   key={item.order_item_id}
-                  className={"guest-lookup-item-row"}
+                  className={"guest-order-lookup-item-row"}
                 >
                   {item.img_url && (
                     <img
                       src={item.img_url}
                       alt={item.product_name}
-                      className={"guest-lookup-item-img"}
+                      className={"guest-order-lookup-item-img"}
                     />
                   )}
-                  <div className={"guest-lookup-item-info"}>
-                    <p className={"guest-lookup-item-name"}>
+                  <div className={"guest-order-lookup-item-info"}>
+                    <p className={"guest-order-lookup-item-name"}>
                       {item.product_name}
                     </p>
                     {item.variant_details && (
-                      <p className={"guest-lookup-item-variant"}>
+                      <p className={"guest-order-lookup-item-variant"}>
                         {item.variant_details}
                       </p>
                     )}
-                    <p className={"guest-lookup-item-qty"}>
+                    <p className={"guest-order-lookup-item-qty"}>
                       Qty: {item.quantity}
                     </p>
                   </div>
-                  <p className={"guest-lookup-item-price"}>
+                  <p className={"guest-order-lookup-item-price"}>
                     ${(item.price_at_purchase * item.quantity).toFixed(2)}
                   </p>
                 </div>
@@ -433,24 +432,24 @@ const OrderResult = () => {
           </div>
 
           {/* Order summary and shipping address */}
-          <div className={"guest-lookup-summary-sidebar"}>
-            <div className={"guest-lookup-price-summary"}>
+          <div className={"guest-order-lookup-summary-sidebar"}>
+            <div className={"guest-order-lookup-price-summary"}>
               <h3>Order Summary</h3>
-              <div className={"guest-lookup-summary-row"}>
+              <div className={"guest-order-lookup-summary-row"}>
                 <span>Subtotal</span>
                 <span>${order.subtotal.toFixed(2)}</span>
               </div>
               {order.discount_amount > 0 && (
                 <div
                   className={
-                    "guest-lookup-summary-row guest-lookup-summary-discount"
+                    "guest-order-lookup-summary-row guest-order-lookup-summary-discount"
                   }
                 >
                   <span>Discount</span>
                   <span>-${order.discount_amount.toFixed(2)}</span>
                 </div>
               )}
-              <div className={"guest-lookup-summary-row"}>
+              <div className={"guest-order-lookup-summary-row"}>
                 <span>Shipping</span>
                 <span>
                   {order.shipping_cost === 0
@@ -458,14 +457,14 @@ const OrderResult = () => {
                     : `$${order.shipping_cost.toFixed(2)}`}
                 </span>
               </div>
-              <div className={"guest-lookup-summary-row"}>
+              <div className={"guest-order-lookup-summary-row"}>
                 <span>Tax</span>
                 <span>${order.tax_amount.toFixed(2)}</span>
               </div>
-              <hr className={"guest-lookup-summary-divider"} />
+              <hr className={"guest-order-lookup-summary-divider"} />
               <div
                 className={
-                  "guest-lookup-summary-row guest-lookup-summary-total"
+                  "guest-order-lookup-summary-row guest-order-lookup-summary-total"
                 }
               >
                 <strong>Total</strong>
@@ -473,7 +472,7 @@ const OrderResult = () => {
               </div>
             </div>
 
-            <div className={"guest-lookup-address-summary"}>
+            <div className={"guest-order-lookup-address-summary"}>
               <h3>Shipping To</h3>
               <p>
                 <strong>

@@ -466,7 +466,7 @@ const CreateProductForm = ({
         <h4 className="form-section-header">Product Information</h4>
 
         {/* Category Manager */}
-        <div className="pf-category-wrapper">
+        <div className="category-wrapper">
           <CategoryHandler
             productCategories={formData.productCategories}
             availableCategories={categories}

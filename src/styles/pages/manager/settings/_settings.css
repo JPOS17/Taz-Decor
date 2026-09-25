@@ -118,3 +118,15 @@
   .settings-filters { flex-direction: column; }
   .settings-filter-select { width: 100%; }
 }
+
+/* ============================================================================
+   DRAGGABLE SHIPPING BOX ROW
+   ============================================================================ */
+
+.settings-draggable-row {
+  cursor: grab;
+}
+
+.settings-draggable-row.dragging {
+  opacity: 0.5;
+}

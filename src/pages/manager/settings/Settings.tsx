@@ -717,12 +717,11 @@ const Settings = () => {
                     onDrop={(e) => handleDrop(e, box)}
                     onDragEnd={handleDragEnd}
                     // Dims the row while it is being dragged
-                    className={
+                    className={`settings-draggable-row${
                       isDragging && draggedBox?.box_id === box.box_id
-                        ? "dragging"
+                        ? " dragging"
                         : ""
-                    }
-                    style={{ cursor: "grab" }}
+                    }`}
                   >
                     <td>
                       {/* Drag handle, box icon, name, and sort order badge */}

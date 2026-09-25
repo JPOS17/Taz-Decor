@@ -91,13 +91,13 @@ const SortableRow = ({
   const isDragDisabled = editMode !== "none" || loading;
 
   const rowClasses = [
-    "mc-row",
+    "categories-row",
     editingCategory?.category_id === category.category_id
-      ? "mc-row--editing"
+      ? "categories-row--editing"
       : "",
-    isDragging ? "mc-row--dragging" : "",
-    !category.is_active ? "mc-row--inactive" : "",
-    isDragDisabled ? "mc-row--no-drag" : "",
+    isDragging ? "categories-row--dragging" : "",
+    !category.is_active ? "categories-row--inactive" : "",
+    isDragDisabled ? "categories-row--no-drag" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -109,31 +109,31 @@ const SortableRow = ({
       className={rowClasses}
       {...(!isDragDisabled ? { ...attributes, ...listeners } : {})}
     >
-      <div className="mc-row-left">
+      <div className="categories-row-left">
         {/* Drag handle */}
         {!isDragDisabled && (
-          <div className="mc-drag-handle">
+          <div className="categories-drag-handle">
             <GripVertical size={20} />
           </div>
         )}
-        <div className="mc-row-info">
-          <div className="mc-row-name-row">
-            <h4 className="mc-row-name">{category.category_name}</h4>
+        <div className="categories-row-info">
+          <div className="categories-row-name-row">
+            <h4 className="categories-row-name">{category.category_name}</h4>
             {/* Disabled badge  */}
             {!category.is_active && (
-              <span className="mc-badge-disabled">Disabled</span>
+              <span className="categories-badge-disabled">Disabled</span>
             )}
           </div>
-          <p className="mc-row-order">
+          <p className="categories-row-order">
             Display Order: {category.display_order}
           </p>
         </div>
       </div>
 
       {/* Row actions */}
-      <div className="mc-row-actions">
+      <div className="categories-row-actions">
         <button
-          className={`mc-btn ${category.is_active ? "mc-btn-warning" : "mc-btn-success"}`}
+          className={`categories-btn ${category.is_active ? "categories-btn-warning" : "categories-btn-success"}`}
           onClick={() => onRequestToggleActive(category)}
           disabled={loading || editMode !== "none" || hasOrderChanged}
           title={category.is_active ? "Disable category" : "Enable category"}
@@ -142,7 +142,7 @@ const SortableRow = ({
           {category.is_active ? "Disable" : "Enable"}
         </button>
         <button
-          className="mc-btn mc-btn-primary"
+          className="categories-btn categories-btn-primary"
           onClick={() => onEdit(category)}
           disabled={loading || editMode !== "none" || hasOrderChanged}
         >
@@ -150,7 +150,7 @@ const SortableRow = ({
           Edit
         </button>
         <button
-          className="mc-btn mc-btn-danger"
+          className="categories-btn categories-btn-danger"
           onClick={() => onRequestDelete(category)}
           disabled={loading || editMode !== "none" || hasOrderChanged}
         >
@@ -458,15 +458,15 @@ const ManageCategories = () => {
       {/* Main Content */}
       <div className="mgr-container">
         <div className="mgr-body">
-          <div className="mc-panel">
+          <div className="categories-panel">
             {/* Panel header */}
-            <div className="mc-panel-header">
-              <h2 className="mc-panel-title">Categories</h2>
-              <div className="mc-header-actions">
+            <div className="categories-panel-header">
+              <h2 className="categories-panel-title">Categories</h2>
+              <div className="categories-header-actions">
                 {hasOrderChanged && (
                   <>
                     <button
-                      className="mc-btn mc-btn-secondary"
+                      className="categories-btn categories-btn-secondary"
                       onClick={handleCancelOrder}
                       disabled={loading}
                     >
@@ -474,7 +474,7 @@ const ManageCategories = () => {
                       Cancel Order
                     </button>
                     <button
-                      className="mc-btn mc-btn-success"
+                      className="categories-btn categories-btn-success"
                       onClick={handleSaveOrder}
                       disabled={loading}
                     >
@@ -485,7 +485,7 @@ const ManageCategories = () => {
                 )}
                 {editMode === "none" && !hasOrderChanged && (
                   <button
-                    className="mc-btn mc-btn-primary"
+                    className="categories-btn categories-btn-primary"
                     onClick={handleCreateNew}
                     disabled={loading}
                   >
@@ -498,17 +498,17 @@ const ManageCategories = () => {
 
             {/* Create / Edit form */}
             {editMode !== "none" && (
-              <div className="mc-form">
-                <h3 className="mc-form-title">
+              <div className="categories-form">
+                <h3 className="categories-form-title">
                   {editMode === "create"
                     ? "Create New Category"
                     : "Edit Category"}
                 </h3>
-                <div className="mc-form-group">
-                  <label className="mc-form-label">Category Name *</label>
+                <div className="categories-form-group">
+                  <label className="categories-form-label">Category Name *</label>
                   <input
                     type="text"
-                    className="mc-form-input"
+                    className="categories-form-input"
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
                     placeholder="Enter category name"
@@ -521,20 +521,20 @@ const ManageCategories = () => {
                   {/* Formatted name preview */}
                   {categoryName.trim() &&
                     categoryName.trim() !== formatName(categoryName) && (
-                      <div className="mc-name-preview">
+                      <div className="categories-name-preview">
                         <strong>Will be saved as:</strong>{" "}
                         {formatName(categoryName)}
                       </div>
                     )}
-                  <p className="mc-form-hint">
+                  <p className="categories-form-hint">
                     Note: Words like "of", "in", "on", "the", "and" will be
                     lowercase (except at start/end)
                   </p>
                 </div>
                 {/* Form action buttons */}
-                <div className="mc-form-actions">
+                <div className="categories-form-actions">
                   <button
-                    className="mc-btn mc-btn-success"
+                    className="categories-btn categories-btn-success"
                     onClick={handleSave}
                     disabled={loading || !categoryName.trim()}
                   >
@@ -542,7 +542,7 @@ const ManageCategories = () => {
                     {editMode === "create" ? "Create" : "Save Changes"}
                   </button>
                   <button
-                    className="mc-btn mc-btn-secondary"
+                    className="categories-btn categories-btn-secondary"
                     onClick={handleCancelEdit}
                     disabled={loading}
                   >
@@ -568,7 +568,7 @@ const ManageCategories = () => {
                   strategy={verticalListSortingStrategy}
                 >
                   {/* Draggable category rows */}
-                  <div className="mc-list">
+                  <div className="categories-list">
                     {categories.map((category) => (
                       <SortableRow
                         key={category.category_id}
@@ -589,7 +589,7 @@ const ManageCategories = () => {
 
             {/* Empty state */}
             {!loading && categories.length === 0 && (
-              <div className="mc-empty">
+              <div className="categories-empty">
                 <p>
                   No categories found. Create your first category to get
                   started!

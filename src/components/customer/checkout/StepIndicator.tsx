@@ -23,7 +23,7 @@ const StepIndicator = ({ currentStep }: StepIndicatorProps) => {
   const currentStepIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
-    <div className="si-steps">
+    <div className="step-indicator-steps">
       {steps.map((step, index) => {
         const StepIcon = step.icon;
         const isActive = currentStep === step.key;
@@ -33,17 +33,17 @@ const StepIndicator = ({ currentStep }: StepIndicatorProps) => {
           <div
             key={step.key}
             className={[
-              "si-step",
-              isActive ? "si-step--active" : "",
-              isCompleted ? "si-step--completed" : "",
+              "step-indicator-step",
+              isActive ? "step-indicator-step--active" : "",
+              isCompleted ? "step-indicator-step--completed" : "",
             ]
               .filter(Boolean)
               .join(" ")}
           >
-            <div className="si-icon">
+            <div className="step-indicator-icon">
               <StepIcon />
             </div>
-            <span className="si-label">{step.label}</span>
+            <span className="step-indicator-label">{step.label}</span>
           </div>
         );
       })}

@@ -36,14 +36,14 @@ const ShippingOptionsSelector = ({
   // Free shipping coupon applied — skip rate selection and show a confirmation banner
   if (isFreeShippingCoupon) {
     return (
-      <div className="sos-container">
-        <h3 className="sos-title">Shipping Method</h3>
-        <div className="sos-free-shipping-notice">
-          <div className="sos-free-shipping-icon-wrap">
+      <div className="shipping-options-selector-container">
+        <h3 className="shipping-options-selector-title">Shipping Method</h3>
+        <div className="shipping-options-selector-free-shipping-notice">
+          <div className="shipping-options-selector-free-shipping-icon-wrap">
             <FaShippingFast size={32} />
-            <FaCheck className="sos-check-overlay" size={16} />
+            <FaCheck className="shipping-options-selector-check-overlay" size={16} />
           </div>
-          <div className="sos-free-shipping-message">
+          <div className="shipping-options-selector-free-shipping-message">
             <h4>Shipping is covered!</h4>
             <p>
               Your free shipping coupon has been applied. Our team will select
@@ -58,8 +58,8 @@ const ShippingOptionsSelector = ({
 
   if (loadingShipping) {
     return (
-      <div className="sos-container">
-        <h3 className="sos-title">Shipping Method</h3>
+      <div className="shipping-options-selector-container">
+        <h3 className="shipping-options-selector-title">Shipping Method</h3>
         <LoadingSpinner message="Calculating shipping rates..." />
       </div>
     );
@@ -67,12 +67,12 @@ const ShippingOptionsSelector = ({
 
   if (shippingError) {
     return (
-      <div className="sos-container">
-        <h3 className="sos-title">Shipping Method</h3>
-        <div className="sos-error">
+      <div className="shipping-options-selector-container">
+        <h3 className="shipping-options-selector-title">Shipping Method</h3>
+        <div className="shipping-options-selector-error">
           <FaExclamationTriangle />
           <p>{shippingError}</p>
-          <button onClick={onRetryCalculation} className="sos-btn-retry">
+          <button onClick={onRetryCalculation} className="shipping-options-selector-btn-retry">
             Try again
           </button>
         </div>
@@ -82,9 +82,9 @@ const ShippingOptionsSelector = ({
 
   if (shippingOptions.length === 0) {
     return (
-      <div className="sos-container">
-        <h3 className="sos-title">Shipping Method</h3>
-        <div className="sos-placeholder">
+      <div className="shipping-options-selector-container">
+        <h3 className="shipping-options-selector-title">Shipping Method</h3>
+        <div className="shipping-options-selector-placeholder">
           <p>No Current Carriers Available</p>
         </div>
       </div>
@@ -92,21 +92,21 @@ const ShippingOptionsSelector = ({
   }
 
   return (
-    <div className="sos-container">
-      <h3 className="sos-title">
+    <div className="shipping-options-selector-container">
+      <h3 className="shipping-options-selector-title">
         Shipping Method ({shippingOptions.length} option
         {shippingOptions.length !== 1 ? "s" : ""} available)
       </h3>
 
       {/* Shipping rate options — each rendered as a radio button card */}
-      <div className="sos-options-list">
+      <div className="shipping-options-selector-options-list">
         {shippingOptions.map((option) => (
           <label
             key={option.rate_id}
             className={[
-              "sos-option",
+              "shipping-options-selector-option",
               selectedShipping?.rate_id === option.rate_id
-                ? "sos-option--selected"
+                ? "shipping-options-selector-option--selected"
                 : "",
             ]
               .filter(Boolean)
@@ -118,22 +118,22 @@ const ShippingOptionsSelector = ({
               value={option.rate_id}
               checked={selectedShipping?.rate_id === option.rate_id}
               onChange={() => onShippingOptionSelect(option)}
-              className="sos-radio"
+              className="shipping-options-selector-radio"
             />
-            <div className="sos-option-details">
-              <div className="sos-option-header">
-                <p className="sos-carrier-name">
+            <div className="shipping-options-selector-option-details">
+              <div className="shipping-options-selector-option-header">
+                <p className="shipping-options-selector-carrier-name">
                   {SERVICE_DISPLAY_MAP[option.service]?.carrier ??
                     option.carrier}{" "}
                   -{" "}
                   {SERVICE_DISPLAY_MAP[option.service]?.name ??
                     option.service_level_name}
                 </p>
-                <p className="sos-price">
+                <p className="shipping-options-selector-price">
                   ${parseFloat(option.amount).toFixed(2)}
                 </p>
               </div>
-              <p className="sos-estimate">
+              <p className="shipping-options-selector-estimate">
                 {option.estimated_days
                   ? `Estimated delivery: ${option.estimated_days} business day${option.estimated_days !== 1 ? "s" : ""}`
                   : "Delivery time varies"}

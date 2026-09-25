@@ -53,9 +53,9 @@ const VariantSelector = ({
   // ============================================================================
 
   return (
-    <div className="pv-variant-selector">
-      <div className="pv-variant-section">
-        <div className="pv-variant-grid">
+    <div className="product-variant-selector">
+      <div className="product-variant-selector-variant-section">
+        <div className="product-variant-selector-variant-grid">
           {sortedVariants.map((variant, index) => {
             const isSelected = variant.variant_id === selectedVariantId;
             const isOutOfStock = variant.quantity === 0;
@@ -65,9 +65,9 @@ const VariantSelector = ({
               <button
                 key={variant.variant_id}
                 className={[
-                  "pv-variant-card",
-                  isSelected ? "pv-variant-card-selected" : "",
-                  isOutOfStock ? "pv-variant-card-unavailable" : "",
+                  "product-variant-selector-variant-card",
+                  isSelected ? "product-variant-selector-variant-card-selected" : "",
+                  isOutOfStock ? "product-variant-selector-variant-card-unavailable" : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -76,11 +76,11 @@ const VariantSelector = ({
                 aria-label={`Select variant ${variantNumber}: ${formatVariantDetails(variant)}`}
                 aria-pressed={isSelected}
               >
-                <div className="pv-variant-card-details">
+                <div className="product-variant-selector-variant-card-details">
                   {formatVariantDetails(variant)}
                 </div>
                 {isOutOfStock && (
-                  <div className="pv-variant-card-stock-badge">
+                  <div className="product-variant-selector-variant-card-stock-badge">
                     Out of Stock
                   </div>
                 )}

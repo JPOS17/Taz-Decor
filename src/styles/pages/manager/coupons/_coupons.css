@@ -257,6 +257,7 @@
 
 .coupon-progress-fill {
   height: 100%;
+  width: var(--fill-pct, 0%);
   background-color: var(--accent);
   border-radius: 2px;
   transition: width 0.3s ease;

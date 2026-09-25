@@ -23,13 +23,13 @@ const AddressForm = ({
   loading,
 }: AddressFormProps) => {
   return (
-    <form className="af-address-form" onSubmit={onSubmit}>
+    <form className="address-form" onSubmit={onSubmit}>
       {/* Title changes based on whether we're creating or editing */}
       <h3>{isEditing ? "Edit Address" : "Add New Address"}</h3>
 
       {/* Address name */}
-      <div className="af-form-row">
-        <div className="af-form-group">
+      <div className="address-form-row">
+        <div className="address-form-group">
           <label>Address Name (optional)</label>
           <input
             type="text"
@@ -41,8 +41,8 @@ const AddressForm = ({
       </div>
 
       {/* Primary street address */}
-      <div className="af-form-row">
-        <div className="af-form-group">
+      <div className="address-form-row">
+        <div className="address-form-group">
           <label>Street Address *</label>
           <input
             type="text"
@@ -55,8 +55,8 @@ const AddressForm = ({
       </div>
 
       {/* Optional secondary line */}
-      <div className="af-form-row">
-        <div className="af-form-group">
+      <div className="address-form-row">
+        <div className="address-form-group">
           <label>Apt, Suite, etc. (optional)</label>
           <input
             type="text"
@@ -68,8 +68,8 @@ const AddressForm = ({
       </div>
 
       {/* City, state, and ZIP on a single row */}
-      <div className="af-form-row">
-        <div className="af-form-group">
+      <div className="address-form-row">
+        <div className="address-form-group">
           <label>City *</label>
           <input
             type="text"
@@ -78,7 +78,7 @@ const AddressForm = ({
             required
           />
         </div>
-        <div className="af-form-group">
+        <div className="address-form-group">
           <label>State *</label>
           <input
             type="text"
@@ -89,7 +89,7 @@ const AddressForm = ({
             required
           />
         </div>
-        <div className="af-form-group">
+        <div className="address-form-group">
           <label>ZIP Code *</label>
           <input
             type="text"
@@ -101,8 +101,8 @@ const AddressForm = ({
       </div>
 
       {/* Default address checkbox */}
-      <div className="af-form-row">
-        <div className="af-form-group-checkbox">
+      <div className="address-form-row">
+        <div className="address-form-group-checkbox">
           <input
             type="checkbox"
             id="is_default"
@@ -114,11 +114,11 @@ const AddressForm = ({
       </div>
 
       {/* Form actions */}
-      <div className="af-form-actions">
-        <button type="button" className="af-btn-cancel" onClick={onCancel}>
+      <div className="address-form-actions">
+        <button type="button" className="address-form-btn-cancel" onClick={onCancel}>
           Cancel
         </button>
-        <button type="submit" className="af-btn-save" disabled={loading}>
+        <button type="submit" className="address-form-btn-save" disabled={loading}>
           {loading
             ? "Saving..."
             : isEditing

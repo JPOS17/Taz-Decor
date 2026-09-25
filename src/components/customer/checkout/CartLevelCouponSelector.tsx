@@ -118,34 +118,34 @@ const CartLevelCouponSelector = ({
   // ============================================================================
 
   return (
-    <div className="clcs-section">
-      <div className="clcs-header">
-        <h3 className="clcs-title">
+    <div className="cart-level-coupon-selector-section">
+      <div className="cart-level-coupon-selector-header">
+        <h3 className="cart-level-coupon-selector-title">
           <FaTag /> Cart Discount
         </h3>
 
         {/* Selected coupon details or an add button */}
         {selectedCoupon ? (
-          <div className="clcs-selected-coupon">
-            <div className="clcs-selected-coupon-details">
-              <span className="clcs-coupon-code">
+          <div className="cart-level-coupon-selector-selected-coupon">
+            <div className="cart-level-coupon-selector-selected-coupon-details">
+              <span className="cart-level-coupon-selector-coupon-code">
                 {selectedCoupon.coupon_code}
               </span>
-              <span className="clcs-coupon-value">
+              <span className="cart-level-coupon-selector-coupon-value">
                 {isFreeShippingCoupon(selectedCoupon) && (
-                  <FaShippingFast size={12} style={{ marginRight: "4px" }} />
+                  <FaShippingFast size={12} className="cart-level-coupon-selector-shipping-icon" />
                 )}
                 {getDiscountDisplay(selectedCoupon)}
               </span>
             </div>
             <button
-              className="clcs-btn-change"
+              className="cart-level-coupon-selector-btn-change"
               onClick={() => setIsExpanded(!isExpanded)}
             >
               Change
             </button>
             <button
-              className="clcs-btn-remove"
+              className="cart-level-coupon-selector-btn-remove"
               onClick={handleRemoveCoupon}
               title="Remove coupon"
             >
@@ -154,7 +154,7 @@ const CartLevelCouponSelector = ({
           </div>
         ) : (
           <button
-            className="clcs-btn-add"
+            className="cart-level-coupon-selector-btn-add"
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? "Hide Coupons" : "Add Cart Discount"}
@@ -167,12 +167,12 @@ const CartLevelCouponSelector = ({
         <>
           {/* Sign-in notice — shown when the user's email is not verified */}
           {!isEmailVerified && (
-            <div className="clcs-guest-notice">
-              <FaLock className="clcs-guest-icon" />
+            <div className="cart-level-coupon-selector-guest-notice">
+              <FaLock className="cart-level-coupon-selector-guest-icon" />
               <p>
                 Coupons are only applicable for signed-in users.{" "}
                 <button
-                  className="clcs-btn-sign-in"
+                  className="cart-level-coupon-selector-btn-sign-in"
                   onClick={() => navigate("/login")}
                 >
                   Sign in to redeem.
@@ -183,15 +183,15 @@ const CartLevelCouponSelector = ({
 
           {/* Coupon list — pointer events disabled for unverified users */}
           <div
-            style={
+            className={
               !isEmailVerified
-                ? { pointerEvents: "none", opacity: 0.75 }
+                ? "cart-level-coupon-selector-disabled-overlay"
                 : undefined
             }
           >
-            <div className="clcs-coupon-list">
+            <div className="cart-level-coupon-selector-coupon-list">
               {cartLevelCoupons.length === 0 ? (
-                <p className="clcs-no-coupons-message">
+                <p className="cart-level-coupon-selector-no-coupons-message">
                   No cart-level coupons available
                 </p>
               ) : (
@@ -208,27 +208,27 @@ const CartLevelCouponSelector = ({
                     <div
                       key={coupon.coupon_id}
                       className={[
-                        "clcs-coupon-item",
-                        !eligible ? "clcs-ineligible" : "",
-                        isSelected ? "clcs-coupon-item-selected" : "",
-                        isFreeShipping ? "clcs-free-shipping-coupon" : "",
+                        "cart-level-coupon-selector-coupon-item",
+                        !eligible ? "cart-level-coupon-selector-ineligible" : "",
+                        isSelected ? "cart-level-coupon-selector-coupon-item-selected" : "",
+                        isFreeShipping ? "cart-level-coupon-selector-free-shipping-coupon" : "",
                       ]
                         .filter(Boolean)
                         .join(" ")}
                     >
-                      <div className="clcs-coupon-item-content">
-                        <div className="clcs-coupon-details">
-                          <div className="clcs-coupon-code-row">
-                            <span className="clcs-coupon-code-text">
+                      <div className="cart-level-coupon-selector-coupon-item-content">
+                        <div className="cart-level-coupon-selector-coupon-details">
+                          <div className="cart-level-coupon-selector-coupon-code-row">
+                            <span className="cart-level-coupon-selector-coupon-code-text">
                               {coupon.coupon_code}
                             </span>
-                            <span className="clcs-coupon-discount">
+                            <span className="cart-level-coupon-selector-coupon-discount">
                               {getDiscountDisplay(coupon)}
                             </span>
                           </div>
 
                           {coupon.min_purchase_amount && eligible && (
-                            <p className="clcs-coupon-requirement">
+                            <p className="cart-level-coupon-selector-coupon-requirement">
                               {isFreeShipping
                                 ? "Min. purchase for free shipping: "
                                 : "Min. purchase: "}
@@ -237,14 +237,14 @@ const CartLevelCouponSelector = ({
                           )}
 
                           {isEmailVerified && !eligible && (
-                            <p className="clcs-coupon-ineligible-reason">
+                            <p className="cart-level-coupon-selector-coupon-ineligible-reason">
                               {ineligibilityReason}
                             </p>
                           )}
                         </div>
 
                         <button
-                          className="clcs-btn-select"
+                          className="cart-level-coupon-selector-btn-select"
                           onClick={() => handleCouponSelect(coupon)}
                           disabled={!eligible}
                         >

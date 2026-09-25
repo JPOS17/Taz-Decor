@@ -63,16 +63,16 @@ const Pagination = ({
   // ============================================================================
 
   return (
-    <div className="pg-pagination-wrapper">
+    <div className="pagination-wrapper">
       {/* Item count summary */}
-      <span className="pg-pagination-summary">
+      <span className="pagination-summary">
         Showing {startItem}–{endItem} of {totalItems} items
       </span>
 
-      <div className="pg-pagination-controls">
+      <div className="pagination-controls">
         {/* Prev button */}
         <button
-          className="pg-pagination-btn pg-pagination-btn-nav"
+          className="pagination-btn pagination-btn-nav"
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           aria-label="Previous page"
@@ -89,23 +89,23 @@ const Pagination = ({
           >
             <polyline points="9 2 4 7 9 12" />
           </svg>
-          <span className="pg-pagination-btn-nav-label">Prev</span>
+          <span className="pagination-btn-nav-label">Prev</span>
         </button>
 
         {/* Page number buttons with ellipsis */}
-        <div className="pg-pagination-pages">
+        <div className="pagination-pages">
           {pageNumbers.map((page, idx) =>
             page === "..." ? (
-              <span key={`ellipsis-${idx}`} className="pg-pagination-ellipsis">
+              <span key={`ellipsis-${idx}`} className="pagination-ellipsis">
                 …
               </span>
             ) : (
               <button
                 key={page}
                 className={[
-                  "pg-pagination-btn",
-                  "pg-pagination-btn-page",
-                  page === currentPage ? "pg-pagination-btn-active" : "",
+                  "pagination-btn",
+                  "pagination-btn-page",
+                  page === currentPage ? "pagination-btn-active" : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -120,18 +120,18 @@ const Pagination = ({
         </div>
 
         {/* Mobile page indicator */}
-        <span className="pg-pagination-mobile-indicator">
+        <span className="pagination-mobile-indicator">
           Page {currentPage} of {totalPages}
         </span>
 
         {/* Next button */}
         <button
-          className="pg-pagination-btn pg-pagination-btn-nav"
+          className="pagination-btn pagination-btn-nav"
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           aria-label="Next page"
         >
-          <span className="pg-pagination-btn-nav-label">Next</span>
+          <span className="pagination-btn-nav-label">Next</span>
           <svg
             width="14"
             height="14"

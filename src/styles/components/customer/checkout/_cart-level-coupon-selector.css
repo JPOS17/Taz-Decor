@@ -60,6 +60,10 @@
   font-size: 0.95rem;
 }
 
+.cart-level-coupon-selector-shipping-icon {
+  margin-right: 4px;
+}
+
 .cart-level-coupon-selector-coupon-value {
   color: var(--color-primary);
   font-size: 0.9rem;
@@ -371,4 +375,10 @@
     justify-content: space-between;
     align-items: flex-start;
   }
+}
+
+/* Wraps the coupon list; applied when the viewer's email isn't verified yet */
+.cart-level-coupon-selector-disabled-overlay {
+  pointer-events: none;
+  opacity: 0.75;
 }

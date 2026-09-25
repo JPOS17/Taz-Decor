@@ -36,8 +36,8 @@ export const HeaderFormatter = ({
   };
 
   return (
-    <div className="mi-details-header">
-      <h2 className="mi-details-title">{getTitle()}</h2>
+    <div className="detail-panel-header">
+      <h2 className="detail-panel-header-title">{getTitle()}</h2>
       {/* All remaining props forwarded directly to ActionButtons */}
       <ActionButtons viewMode={viewMode} {...buttonProps} />
     </div>

@@ -21,33 +21,33 @@ const ImageUploadGrid = ({
   helperText = "You can add images now or later after creating the product",
 }: ImageUploadGridProps) => {
   return (
-    <div className="mi-iug-wrapper">
-      <label className="mi-iug-label">Product Images</label>
+    <div className="image-upload-grid-wrapper">
+      <label className="image-upload-grid-label">Product Images</label>
 
       {/* Image grid */}
       {images.length > 0 && (
-        <div className="mi-iug-grid">
+        <div className="image-upload-grid">
           {images.map((img, index) => (
             <div
               key={index}
-              className={`mi-iug-cell ${primaryImageIndex === index ? "mi-iug-cell--primary" : ""}`}
+              className={`image-upload-grid-cell ${primaryImageIndex === index ? "image-upload-grid-cell--primary" : ""}`}
             >
               <img
                 src={img}
                 alt={`Product ${index + 1}`}
-                className="mi-iug-img"
+                className="image-upload-grid-img"
               />
 
               {/* Primary badge */}
               {primaryImageIndex === index && (
-                <div className="mi-iug-primary-badge">Primary</div>
+                <div className="image-upload-grid-primary-badge">Primary</div>
               )}
 
               {/* Overlay actions */}
-              <div className="mi-iug-overlay">
+              <div className="image-upload-grid-overlay">
                 <button
                   type="button"
-                  className="mi-iug-icon-btn"
+                  className="image-upload-grid-icon-btn"
                   onClick={() => onSetPrimary(index)}
                   title="Set as primary"
                 >
@@ -60,7 +60,7 @@ const ImageUploadGrid = ({
 
                 <button
                   type="button"
-                  className="mi-iug-icon-btn"
+                  className="image-upload-grid-icon-btn"
                   onClick={() => onDeleteImage(index)}
                   title="Delete image"
                 >
@@ -77,13 +77,13 @@ const ImageUploadGrid = ({
         type="button"
         onClick={onUploadClick}
         disabled={uploadDisabled}
-        className="mi-iug-upload-btn"
+        className="image-upload-grid-upload-btn"
       >
         <Upload size={18} />
         {images.length > 0 ? "Add More Images" : "Upload Images"}
       </button>
 
-      <span className="mi-iug-helper">{helperText}</span>
+      <span className="image-upload-grid-helper">{helperText}</span>
     </div>
   );
 };
