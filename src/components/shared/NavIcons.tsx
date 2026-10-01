@@ -1,8 +1,9 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { User, Heart, ShoppingBag } from "lucide-react";
 import { useCart } from "../../context/CartContext";
-import { FaRegHeart } from "react-icons/fa";
-import { FiShoppingCart } from "react-icons/fi";
-import { CgProfile } from "react-icons/cg";
+
+// Caps the badge text so large counts never stretch the pill
+const formatCount = (count: number): string => (count > 99 ? "99+" : String(count));
 
 // Renders the profile, wishlist, and cart icon links in the TopBar
 const NavIcons = () => {
@@ -15,19 +16,19 @@ const NavIcons = () => {
   const icons = [
     {
       to: "/profile",
-      icon: <CgProfile size={20} />,
+      icon: <User size={22} strokeWidth={1.75} />,
       label: "Profile",
       count: 0,
     },
     {
       to: "/saved",
-      icon: <FaRegHeart size={20} />,
+      icon: <Heart size={22} strokeWidth={1.75} />,
       label: "Saved",
       count: wishlistCount,
     },
     {
       to: "/cart",
-      icon: <FiShoppingCart size={20} />,
+      icon: <ShoppingBag size={22} strokeWidth={1.75} />,
       label: "Cart",
       count: cartCount,
     },
@@ -36,18 +37,31 @@ const NavIcons = () => {
   return (
     <>
       {icons.map(({ to, icon, label, count }) => (
-        <Link
-          className="top-bar-icon-link"
+        <NavLink
           key={to}
           to={to}
           data-label={label}
+          aria-label={
+            count > 0
+              ? `${label}, ${count} ${count === 1 ? "item" : "items"}`
+              : label
+          }
+          className={({ isActive }) =>
+            isActive
+              ? "top-bar-icon-link top-bar-icon-link-active"
+              : "top-bar-icon-link"
+          }
         >
           <span className="top-bar-icon-wrapper">
             {icon}
             {/* Badge */}
-            {count > 0 && <span className="top-bar-icon-badge">{count}</span>}
+            {count > 0 && (
+              <span className="top-bar-icon-badge" aria-hidden="true">
+                {formatCount(count)}
+              </span>
+            )}
           </span>
-        </Link>
+        </NavLink>
       ))}
     </>
   );

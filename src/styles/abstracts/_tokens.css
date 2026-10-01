@@ -234,6 +234,12 @@
   --radius-2xl:  16px;
   --radius-full: 50px;
 
+  /* ── Layout ──
+     Height of the sticky top bar. Read by the bar itself and by anything that
+     has to sit below it (e.g. the catalog sidebar's sticky offset).
+     The mobile value is set in the media query after this block. */
+  --top-bar-height: 64px;
+
   /* ── Dark header gradient (top bar, modal headers, floating pills) ── */
   --gradient-header-dark-bar:        linear-gradient(90deg, #2a0e16 0%, #4a1724 60%, #6d2334 100%);
   --gradient-header-dark-bar-hover:  linear-gradient(90deg, #34121c 0%, #5c1e2c 60%, #7f2b3f 100%);
@@ -265,6 +271,13 @@
   --accent-dark:  #5c4a44;
   --accent-light: #f7f2ee;
   --accent-ring:  rgba(127, 106, 99, 0.12);
+}
+
+/* Top bar is shorter on mobile */
+@media (max-width: 767px) {
+  :root {
+    --top-bar-height: 56px;
+  }
 }
 
 /* ============================================================================

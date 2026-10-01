@@ -1,36 +1,40 @@
 /* ==============================================================================
    TOP BAR NAVIGATION
-   Site-wide top navigation bar.
+   Site-wide top navigation bar. Sticks to the top of the viewport.
    Prefix: top-bar-*
+
+   Height comes from --top-bar-height in abstracts/_tokens.css.
    ============================================================================== */
 
 .top-bar {
-  width: 100%;
-  background: var(--color-surface-warm-solid);
-  border-bottom: 2px solid var(--color-border-accent);
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 999;
+  width: 100%;
+  height: var(--top-bar-height);
+  background: var(--color-surface-warm-solid);
+  background: color-mix(in srgb, var(--color-surface-warm-solid) 94%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-border-accent);
+  transition: box-shadow 0.25s ease;
 }
 
-/* Subtle gold shimmer line at very bottom */
-.top-bar::after {
-  content: "";
-  position: absolute;
-  bottom: -3px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  opacity: 0.45;
-  pointer-events: none;
+/* Added once the page has scrolled, separating the bar from the content below */
+.top-bar-scrolled {
+  box-shadow: var(--shadow-md);
 }
 
+/* Three flex regions: left and right share the leftover space equally so the
+   nav links stay centered whenever there is room for them to be */
 .top-bar-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  display: flex;
   align-items: center;
-  padding: 0.55rem 1.25rem;
-  max-width: 100%;
-  margin: 0 auto;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  padding-inline: clamp(1rem, 2.5vw, 3rem);
 }
 
 /* ============================================================================
@@ -39,9 +43,10 @@
 
 .top-bar-left {
   display: flex;
+  flex: 1 1 0;
   align-items: center;
-  gap: 1rem;
   justify-content: flex-start;
+  gap: 0.75rem;
 }
 
 /* ============================================================================
@@ -50,12 +55,13 @@
 
 .top-bar-logo {
   font-family: var(--font-serif);
-  text-decoration: none;
-  color: var(--color-text-strongest);
   font-size: 1.3rem;
   font-weight: 700;
-  white-space: nowrap;
+  line-height: 1.2;
   letter-spacing: 0.02em;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--color-text-strongest);
   transition: color 0.22s ease;
 }
 
@@ -63,42 +69,54 @@
   color: var(--color-primary);
 }
 
+.top-bar-logo-full {
+  display: inline;
+}
+
+.top-bar-logo-short {
+  display: none;
+}
+
 /* ============================================================================
    CENTER NAV LINKS
    ============================================================================ */
 
 .top-bar-nav-links {
-  display: none;
+  display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 0.25rem;
   justify-content: center;
+  gap: 0.25rem;
 }
 
+/* Weight stays constant between states so switching pages never shifts the
+   neighbouring links; the underline and color carry the active state */
 .top-bar-nav-link {
-  text-decoration: none;
-  color: var(--color-text-strong);
-  padding: 0.5rem 1rem;
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  padding: 0.5rem 1rem;
   font-family: var(--font-sans);
   font-size: 0.95rem;
   font-weight: 500;
   letter-spacing: 0.03em;
-  transition: color 0.25s ease;
+  text-decoration: none;
+  color: var(--color-text-strong);
   border-radius: var(--radius-sm);
+  transition: color 0.25s ease;
 }
 
 .top-bar-nav-link::after {
   content: "";
-  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-mid));
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
   width: 0;
   height: 2px;
-  bottom: 2px;
-  position: absolute;
-  transition: width 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   border-radius: 2px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-mid));
+  transform: translateX(-50%);
+  transition: width 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .top-bar-nav-link:hover {
@@ -112,7 +130,6 @@
 
 .top-bar-nav-link-active {
   color: var(--color-text-strongest);
-  font-weight: 600;
 }
 
 /* ============================================================================
@@ -121,23 +138,32 @@
 
 .top-bar-icons {
   display: flex;
+  flex: 1 1 0;
   align-items: center;
-  gap: 0.15rem;
   justify-content: flex-end;
+  gap: 0.25rem;
 }
 
 .top-bar-icon-link {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
+  text-decoration: none;
   color: var(--color-text-strong);
   background-color: transparent;
-  transition: color 0.22s ease;
-  text-decoration: none;
+  transition: background-color 0.22s ease, color 0.22s ease;
+}
+
+.top-bar-icon-link:hover {
+  background-color: var(--color-primary-alpha-06);
+  color: var(--color-primary);
+}
+
+.top-bar-icon-link-active {
+  color: var(--color-primary);
 }
 
 .top-bar-icon-wrapper {
@@ -147,74 +173,54 @@
   justify-content: center;
 }
 
-/* Badge */
+/* Count badge — the ring in the bar's color cuts it cleanly out of the icon */
 .top-bar-icon-badge {
   position: absolute;
-  top: -14px;
-  right: -10px;
-  color: var(--color-text-on-primary-alt);
-  min-width: 18px;
-  height: 18px;
+  top: -6px;
+  right: -9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: var(--color-primary);
-  border-radius: var(--radius-full);
+  min-width: 18px;
+  height: 18px;
   padding: 0 4px;
   font-family: var(--font-sans);
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1;
   letter-spacing: 0.02em;
-  box-shadow: var(--shadow-xs);
+  color: var(--color-text-on-primary-alt);
+  background: var(--color-primary);
+  border: 2px solid var(--color-surface-warm-solid);
+  border-radius: var(--radius-full);
+  box-sizing: content-box;
 }
 
-/* Hover bubble */
-.top-bar-icon-link::before {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-color: var(--color-primary-mid-alpha-20);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  z-index: -1;
-  backface-visibility: hidden;
-  will-change: transform;
-}
+/* Label tooltip — pointer devices only; touch devices rely on the aria-label */
+@media (hover: hover) {
+  .top-bar-icon-link::after {
+    content: attr(data-label);
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    z-index: 1001;
+    padding: 4px 10px;
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    white-space: nowrap;
+    color: var(--color-surface-warm-solid);
+    background: var(--color-surface-zoom-hint);
+    border-radius: var(--radius-md);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%);
+    transition: opacity 0.2s ease;
+  }
 
-.top-bar-icon-link:hover::before {
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.top-bar-icon-link:hover {
-  color: var(--color-text-strongest);
-}
-
-/* Tooltip */
-.top-bar-icon-link::after {
-  content: attr(data-label);
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--color-surface-zoom-hint);
-  color: var(--color-surface-warm-solid);
-  padding: 4px 10px;
-  border-radius: var(--radius-md);
-  font-size: 0.72rem;
-  font-family: var(--font-sans);
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 1001;
-}
-
-.top-bar-icon-link:hover::after {
-  opacity: 1;
+  .top-bar-icon-link:hover::after,
+  .top-bar-icon-link:focus-visible::after {
+    opacity: 1;
+  }
 }
 
 /* ============================================================================
@@ -222,50 +228,126 @@
    ============================================================================ */
 
 .top-bar-mobile-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
+  display: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
   padding: 0;
+  color: var(--color-text-strongest);
   background-color: transparent;
-  border: 1.5px solid var(--color-border-accent);
-  border-radius: 7px;
-  color: var(--color-primary-text);
-  font-size: 1.15rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.22s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .top-bar-mobile-toggle:hover {
-  background: var(--color-primary-mid-alpha-06);
-  border-color: var(--color-primary);
-  color: var(--color-text-strongest);
-  box-shadow: var(--shadow-xs);
-}
-
-.top-bar-mobile-toggle:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-focus-ring);
-}
-
-.top-bar-mobile-toggle:active {
-  background: var(--color-primary-mid-alpha-18);
+  background: var(--color-primary-alpha-06);
+  border-color: var(--color-primary-mid);
 }
 
 /* ============================================================================
-   RESPONSIVE
+   FOCUS
    ============================================================================ */
 
-.top-bar-logo-full {
-  display: inline;
+.top-bar-logo:focus-visible,
+.top-bar-nav-link:focus-visible,
+.top-bar-icon-link:focus-visible,
+.top-bar-mobile-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
-.top-bar-logo-short {
-  display: none;
+/* ============================================================================
+   TABLET — 768px to 991px
+   ============================================================================ */
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .top-bar-logo {
+    font-size: 1.1rem;
+  }
+
+  .top-bar-nav-link {
+    padding-inline: 0.7rem;
+    font-size: 0.9rem;
+  }
 }
 
+/* ============================================================================
+   DESKTOP — 992px and up
+   ============================================================================ */
+
+@media (min-width: 992px) {
+  .top-bar-logo {
+    font-size: 1.5rem;
+  }
+}
+
+/* ============================================================================
+   MOBILE — 767px and under
+   Nav links collapse into a dropdown panel under the bar.
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  .top-bar-mobile-toggle {
+    display: grid;
+  }
+
+  .top-bar-nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0.4rem 0;
+    background: var(--color-surface-warm-solid);
+    border-bottom: 1px solid var(--color-border-accent);
+    box-shadow: var(--shadow-md);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+  }
+
+  .top-bar-nav-links-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s;
+  }
+
+  .top-bar-nav-link {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    font-size: 0.95rem;
+    border-left: 3px solid transparent;
+    border-radius: 0;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .top-bar-nav-link::after {
+    display: none;
+  }
+
+  .top-bar-nav-link:hover {
+    background: var(--color-primary-alpha-06);
+    border-left-color: var(--color-primary-alpha-18);
+  }
+
+  .top-bar-nav-link-active {
+    background: var(--color-primary-alpha-08);
+    border-left-color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .top-bar-nav-link:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+/* Phones — short logo name */
 @media (max-width: 464px) {
   .top-bar-logo-full {
     display: none;
@@ -276,132 +358,12 @@
   }
 }
 
-@media (max-width: 767px) {
-  .top-bar {
-    flex-wrap: wrap;
-  }
-
-  .top-bar-container {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .top-bar-nav-links {
-    display: flex;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--color-surface-alt);
-    border-bottom: 2px solid var(--color-border-accent);
-    box-shadow: var(--shadow-md);
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0.4rem 0;
-    gap: 0;
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transition: max-height 0.3s ease, opacity 0.25s ease, visibility 0.25s ease;
-  }
-
+/* Reduced motion: drop the larger movements (dropdown slide, bar shadow).
+   The short underline grow on hover is deliberately left animated. */
+@media (prefers-reduced-motion: reduce) {
+  .top-bar,
+  .top-bar-nav-links,
   .top-bar-nav-links-open {
-    max-height: 400px;
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .top-bar-nav-link {
-    width: 100%;
-    padding: 0.8rem 1.5rem;
-    text-align: left;
-    border-left: 3px solid transparent;
-    border-radius: 0;
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
-  }
-
-  .top-bar-nav-link::after {
-    display: none;
-  }
-
-  .top-bar-nav-link:hover {
-    background: var(--color-primary-mid-alpha-18);
-    border-left-color: var(--color-primary-alpha-18);
-    color: var(--color-text-strongest);
-  }
-
-  .top-bar-nav-link-active {
-    background: linear-gradient(
-      90deg,
-      var(--color-primary-bg-hover) 0%,
-      var(--color-primary-alpha-05) 100%
-    );
-    border-left-color: var(--color-primary);
-    font-weight: 600;
-    color: var(--color-text-strongest);
-  }
-}
-
-@media (min-width: 768px) {
-  .top-bar-mobile-toggle {
-    display: none;
-  }
-
-  .top-bar-nav-links {
-    display: flex;
-  }
-
-  .top-bar-left {
-    gap: 1.5rem;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  .top-bar-logo {
-    font-size: 1.1rem;
-  }
-}
-
-@media (min-width: 992px) {
-  .top-bar-container {
-    padding: 0.55rem 1.75rem;
-  }
-
-  .top-bar-logo {
-    font-size: 1.5rem;
-  }
-}
-
-@media (min-width: 992px) {
-  .top-bar-container {
-    padding: 0.55rem 1.75rem;
-  }
-
-  .top-bar-logo {
-    font-size: 1.5rem;
-  }
-}
-
-@media (min-width: 1200px) {
-  .top-bar-container {
-    max-width: 1400px;
-    padding: 0.55rem 2rem;
-    margin: 0 auto;
-  }
-}
-
-@media (min-width: 1400px) {
-  .top-bar-container {
-    max-width: 1600px;
-  }
-}
-
-@media (min-width: 1920px) {
-  .top-bar-container {
-    max-width: none;
-    width: 100%;
-    padding: 0.55rem 3rem;
+    transition: none;
   }
 }

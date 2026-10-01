@@ -25,13 +25,14 @@
   }
 }
 
+/* Sticks just below the top bar, so the nav stays visible while scrolling */
 .product-filter-sidebar {
   position: sticky;
-  top: 0;
+  top: var(--top-bar-height, 0px);
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: 100vh;
+  max-height: calc(100vh - var(--top-bar-height, 0px));
   padding: 1.5rem 0 2rem;
   overflow-y: auto;
   overscroll-behavior: contain;
