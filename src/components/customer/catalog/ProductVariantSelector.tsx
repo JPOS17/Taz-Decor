@@ -54,40 +54,44 @@ const VariantSelector = ({
 
   return (
     <div className="product-variant-selector">
-      <div className="product-variant-selector-variant-section">
-        <div className="product-variant-selector-variant-grid">
-          {sortedVariants.map((variant, index) => {
-            const isSelected = variant.variant_id === selectedVariantId;
-            const isOutOfStock = variant.quantity === 0;
-            const variantNumber = index + 1;
+      <p className="product-variant-selector-label">Options</p>
+      <div
+        className="product-variant-selector-grid"
+        role="group"
+        aria-label="Product options"
+      >
+        {sortedVariants.map((variant, index) => {
+          const isSelected = variant.variant_id === selectedVariantId;
+          const isOutOfStock = variant.quantity === 0;
+          const variantNumber = index + 1;
 
-            return (
-              <button
-                key={variant.variant_id}
-                className={[
-                  "product-variant-selector-variant-card",
-                  isSelected ? "product-variant-selector-variant-card-selected" : "",
-                  isOutOfStock ? "product-variant-selector-variant-card-unavailable" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                onClick={() => handleVariantSelect(variant.variant_id)}
-                disabled={isOutOfStock}
-                aria-label={`Select variant ${variantNumber}: ${formatVariantDetails(variant)}`}
-                aria-pressed={isSelected}
-              >
-                <div className="product-variant-selector-variant-card-details">
-                  {formatVariantDetails(variant)}
-                </div>
-                {isOutOfStock && (
-                  <div className="product-variant-selector-variant-card-stock-badge">
-                    Out of Stock
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
+          return (
+            <button
+              key={variant.variant_id}
+              type="button"
+              className={[
+                "product-variant-selector-card",
+                isSelected ? "product-variant-selector-card-selected" : "",
+                isOutOfStock ? "product-variant-selector-card-unavailable" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              onClick={() => handleVariantSelect(variant.variant_id)}
+              disabled={isOutOfStock}
+              aria-label={`Select variant ${variantNumber}: ${formatVariantDetails(variant).replace("\n", ", ")}${isOutOfStock ? " (out of stock)" : ""}`}
+              aria-pressed={isSelected}
+            >
+              <span className="product-variant-selector-card-details">
+                {formatVariantDetails(variant)}
+              </span>
+              {isOutOfStock && (
+                <span className="product-variant-selector-card-stock-badge">
+                  Out of Stock
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

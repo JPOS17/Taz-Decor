@@ -22,6 +22,8 @@ const Lightbox = ({
   onPrev,
   onSelectIndex,
 }: LightboxProps) => {
+  const hasMultipleImages = images.length > 1;
+
   // Keyboard navigation — Escape closes, arrow keys step through images
   useEffect(() => {
     if (!isOpen) return;
@@ -36,6 +38,17 @@ const Lightbox = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose, onNext, onPrev]);
 
+  // Prevent the page behind the lightbox from scrolling while it is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   // ============================================================================
@@ -43,22 +56,47 @@ const Lightbox = ({
   // ============================================================================
 
   return (
-    <div className="image-lightbox-overlay" onClick={onClose}>
-      {/* Row 1 — close button */}
+    <div
+      className="image-lightbox-overlay"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${productName} image viewer`}
+    >
+      {/* Row 1 — counter and close button */}
       <div className="image-lightbox-row-top">
+        <span className="image-lightbox-counter" aria-live="polite">
+          {currentIndex + 1} / {images.length}
+        </span>
         <button
+          type="button"
           className="image-lightbox-close"
           onClick={(e) => {
             e.stopPropagation();
             onClose();
           }}
+          aria-label="Close image viewer"
         >
           <FaTimes />
         </button>
       </div>
 
-      {/* Row 2 — main image */}
+      {/* Row 2 — previous, main image, next */}
       <div className="image-lightbox-row-middle">
+        {hasMultipleImages && (
+          <button
+            type="button"
+            className="image-lightbox-nav-button image-lightbox-nav-prev"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPrev();
+            }}
+            aria-label="Previous image"
+          >
+            <FaChevronLeft />
+          </button>
+        )}
+
         <div
           className="image-lightbox-main-image-wrap"
           onClick={(e) => e.stopPropagation()}
@@ -69,55 +107,47 @@ const Lightbox = ({
             className="image-lightbox-image"
           />
         </div>
-      </div>
 
-      {/* Row 3 — thumbnail strip */}
-      <div className="image-lightbox-row-thumbnails">
-        <div
-          className="image-lightbox-thumbnails-strip"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {images.map((img, index) => (
-            <img
-              key={index}
-              src={img}
-              alt={`Thumbnail ${index + 1}`}
-              className={`image-lightbox-thumbnail${currentIndex === index ? " image-lightbox-thumbnail-active" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelectIndex(index);
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Row 4 — prev / counter / next */}
-      <div className="image-lightbox-row-bottom">
-        <div className="image-lightbox-controls" onClick={(e) => e.stopPropagation()}>
+        {hasMultipleImages && (
           <button
-            className="image-lightbox-nav-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onPrev();
-            }}
-          >
-            <FaChevronLeft />
-          </button>
-          <div className="image-lightbox-counter">
-            {currentIndex + 1} / {images.length}
-          </div>
-          <button
-            className="image-lightbox-nav-button"
+            type="button"
+            className="image-lightbox-nav-button image-lightbox-nav-next"
             onClick={(e) => {
               e.stopPropagation();
               onNext();
             }}
+            aria-label="Next image"
           >
             <FaChevronRight />
           </button>
-        </div>
+        )}
       </div>
+
+      {/* Row 3 — thumbnail strip */}
+      {hasMultipleImages && (
+        <div className="image-lightbox-row-thumbnails">
+          <div
+            className="image-lightbox-thumbnails-strip"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {images.map((img, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`image-lightbox-thumbnail${currentIndex === index ? " image-lightbox-thumbnail-active" : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectIndex(index);
+                }}
+                aria-label={`Show image ${index + 1}`}
+                aria-current={currentIndex === index ? "true" : undefined}
+              >
+                <img src={img} alt="" className="image-lightbox-thumbnail-img" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -50,7 +50,8 @@ const ReviewSection = ({
   // HELPERS
   // ============================================================================
 
-  // Renders a 5-star row for a given rating, using full, half, and empty star icons
+  // Renders a 5-star row for a given rating, using full, half, and empty star icons.
+  // The row is exposed to assistive tech as a single labelled image.
   const renderStars = (rating: number) => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -58,20 +59,34 @@ const ReviewSection = ({
     const hasHalfStar = rating % 1 >= 0.5;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<FaStar key={`full-${i}`} className="review-section-star" />);
+      stars.push(
+        <FaStar key={`full-${i}`} className="review-section-star" aria-hidden="true" />,
+      );
     }
 
     if (hasHalfStar) {
-      stars.push(<FaStarHalfAlt key="half" className="review-section-star" />);
+      stars.push(
+        <FaStarHalfAlt key="half" className="review-section-star" aria-hidden="true" />,
+      );
     }
 
     // Fill the remaining slots up to 5 with empty stars
     const remainingStars = 5 - stars.length;
     for (let i = 0; i < remainingStars; i++) {
-      stars.push(<FaRegStar key={`empty-${i}`} className="review-section-star" />);
+      stars.push(
+        <FaRegStar key={`empty-${i}`} className="review-section-star" aria-hidden="true" />,
+      );
     }
 
-    return stars;
+    return (
+      <span
+        className="review-section-stars"
+        role="img"
+        aria-label={`${rating} out of 5 stars`}
+      >
+        {stars}
+      </span>
+    );
   };
 
   // ============================================================================
@@ -81,7 +96,7 @@ const ReviewSection = ({
   if (reviewCount === 0) {
     return (
       <div className="review-section">
-        <h4 className="review-section-heading">Customer Reviews</h4>
+        <h2 className="review-section-heading">Customer Reviews</h2>
         <p className="review-section-muted">
           No reviews yet. Be the first to review this product!
         </p>
@@ -91,13 +106,13 @@ const ReviewSection = ({
 
   return (
     <div className="review-section">
-      <h4 className="review-section-heading">Customer Reviews</h4>
+      <h2 className="review-section-heading">Customer Reviews</h2>
 
       {/* Average Rating Summary */}
       {averageRating && (
         <div className="review-section-summary">
           <div className="review-section-summary-score-wrap">
-            <h2 className="review-section-summary-score">{averageRating.toFixed(1)}</h2>
+            <p className="review-section-summary-score">{averageRating.toFixed(1)}</p>
           </div>
           <div>
             <div className="review-section-summary-stars">{renderStars(averageRating)}</div>
@@ -111,7 +126,7 @@ const ReviewSection = ({
 
       {/* Reviews List */}
       {loading ? (
-        <p>Loading reviews...</p>
+        <p className="review-section-muted">Loading reviews...</p>
       ) : (
         <div className="review-section-list">
           {reviews.map((review) => (
@@ -130,12 +145,12 @@ const ReviewSection = ({
                   </div>
                   {/* Review title */}
                   {review.review_title && (
-                    <h6 className="review-section-review-title">{review.review_title}</h6>
+                    <h3 className="review-section-review-title">{review.review_title}</h3>
                   )}
                 </div>
-                <small className="review-section-muted">
+                <time className="review-section-date">
                   {formatDate(review.created_at)}
-                </small>
+                </time>
               </div>
 
               {/* Review body text */}
@@ -146,18 +161,18 @@ const ReviewSection = ({
               <div className="review-section-review-item-bottom">
                 {/* Reviewer name and variant details */}
                 <div>
-                  <small className="review-section-muted">
+                  <span className="review-section-meta">
                     By {review.user_name}
                     {review.variant_details && ` • ${review.variant_details}`}
-                  </small>
+                  </span>
                 </div>
                 {/* Helpful count */}
                 {review.helpful_count > 0 && (
-                  <small className="review-section-muted">
+                  <span className="review-section-meta">
                     {review.helpful_count}{" "}
                     {review.helpful_count === 1 ? "person" : "people"} found
                     this helpful
-                  </small>
+                  </span>
                 )}
               </div>
             </div>

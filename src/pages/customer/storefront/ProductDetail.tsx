@@ -10,13 +10,15 @@ import {
   FaWeight,
   FaRulerCombined,
   FaLock,
+  FaArrowLeft,
+  FaSearchPlus,
+  FaShoppingCart,
 } from "react-icons/fa";
 import { fetchProductDetail, type ProductDetail } from "../../../api/listings";
 import { fetchProductStats, type ProductStats } from "../../../api/reviews";
 import {
   fetchApplicableCouponsForVariant,
   type ProductCoupon,
-  findBestCoupon,
   calculateDiscount,
   shouldShowDiscountedPrice,
 } from "../../../api/couponCustomer";
@@ -125,6 +127,9 @@ const IndividualListing = () => {
     shouldShowDiscountedPrice(selectedCoupon) &&
     selectedCoupon.discount_type !== "bogo" &&
     isEmailVerified;
+
+  // Amount saved by the selected coupon, shown next to the sale price
+  const savings = hasDiscount && product ? product.price - displayedPrice : 0;
 
   // ============================================================================
   // DATA LOADING
@@ -319,29 +324,52 @@ const IndividualListing = () => {
   if (error || !product) {
     return (
       <div className="product-detail-page">
-        <div className="product-detail-error-container">
-          <div className="product-detail-error-alert">
-            Error: {error || "Product not found"}
+        <div className="product-detail-container">
+          <div className="product-detail-error-container" role="alert">
+            <div className="product-detail-error-alert">
+              Error: {error || "Product not found"}
+            </div>
+            <button
+              type="button"
+              className="product-detail-error-back-btn"
+              onClick={() => navigate("/items")}
+            >
+              Back to Items
+            </button>
           </div>
-          <button
-            className="product-detail-error-back-btn"
-            onClick={() => navigate("/items")}
-          >
-            Back to Items
-          </button>
         </div>
       </div>
     );
   }
+
+  const backLabel =
+    from === "/cart" ? "Cart" : from === "/saved" ? "Saved" : "Items";
+  const hasDimensions = !!(
+    product.length_in &&
+    product.width_in &&
+    product.height_in
+  );
+  const hasSpecs = !!(
+    product.color ||
+    product.size ||
+    product.weight_oz ||
+    hasDimensions
+  );
+  const hasPopularity =
+    !!stats && (stats.wishlistCount > 0 || stats.cartCount > 0);
 
   return (
     <>
       <div className="product-detail-page">
         <div className="product-detail-container">
           {/* Back Button */}
-          <button className="product-detail-back-btn" onClick={() => navigate(from)}>
-            ← Back to{" "}
-            {from === "/cart" ? "Cart" : from === "/saved" ? "Saved" : "Items"}
+          <button
+            type="button"
+            className="product-detail-back-btn"
+            onClick={() => navigate(from)}
+          >
+            <FaArrowLeft size={12} aria-hidden="true" />
+            Back to {backLabel}
           </button>
 
           {/* Main Product Layout */}
@@ -349,149 +377,188 @@ const IndividualListing = () => {
             {/* Image Section */}
             <div className="product-detail-image-section">
               {/* Main image — click opens lightbox */}
-              <div
+              <button
+                type="button"
                 className="product-detail-main-image-container"
                 onClick={() =>
                   openLightbox(product.images.indexOf(selectedImage))
                 }
+                aria-label="View full size image"
               >
                 <img
                   src={selectedImage}
                   alt={product.name}
                   className="product-detail-main-image"
                 />
-                <div className="product-detail-zoom-hint">Click to view full size</div>
-              </div>
+                <span className="product-detail-zoom-hint" aria-hidden="true">
+                  <FaSearchPlus size={14} />
+                </span>
+              </button>
 
               {/* Thumbnail strip */}
               {product.images.length > 1 && (
-                <div className="product-detail-thumbnail-gallery">
+                <div
+                  className="product-detail-thumbnail-gallery"
+                  role="group"
+                  aria-label="Product images"
+                >
                   {product.images.map((img, index) => (
-                    <img
+                    <button
                       key={index}
-                      src={img}
-                      alt={`${product.name} - ${index + 1}`}
-                      className={`product-detail-thumbnail-img${selectedImage === img ? " active" : ""}`}
+                      type="button"
+                      className={`product-detail-thumbnail-btn${selectedImage === img ? " product-detail-thumbnail-active" : ""}`}
                       onMouseEnter={() => setSelectedImage(img)}
+                      onFocus={() => setSelectedImage(img)}
                       onClick={() => setSelectedImage(img)}
-                    />
+                      aria-label={`Show image ${index + 1} of ${product.images.length}`}
+                      aria-pressed={selectedImage === img}
+                    >
+                      <img
+                        src={img}
+                        alt=""
+                        className="product-detail-thumbnail-img"
+                      />
+                    </button>
                   ))}
                 </div>
               )}
-
-              {/* Variant Selector */}
-              <div className="product-detail-variant-selector-wrapper">
-                {product.variants && (
-                  <VariantSelector
-                    variants={product.variants}
-                    selectedVariantId={Number(variantId)}
-                    onVariantChange={handleVariantChange}
-                  />
-                )}
-              </div>
             </div>
 
             {/* Product Info Section */}
             <div className="product-detail-info-section">
-              <div className="product-detail-header-row">
-                <div className="product-detail-header-main">
-                  {/* Category Badge */}
-                  <div className="product-detail-category-badge">
-                    {product.category}
-                  </div>
+              {/* Title block */}
+              <div className="product-detail-header-main">
+                {/* Category */}
+                <p className="product-detail-category-badge">
+                  {product.category}
+                </p>
 
-                  {/* Product Title */}
-                  <h1 className="product-detail-product-title">{product.name}</h1>
+                {/* Product Title */}
+                <h1 className="product-detail-product-title">{product.name}</h1>
 
-                  {/* Price */}
-                  {hasDiscount ? (
-                    <div className="product-detail-product-price product-detail-product-price-discounted">
-                      <span className="product-detail-price-original">
-                        ${product.price.toFixed(2)}
-                      </span>
-                      <span className="product-detail-price-sale">
-                        ${displayedPrice.toFixed(2)}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="product-detail-product-price">
+                {/* Price */}
+                {hasDiscount ? (
+                  <div className="product-detail-product-price">
+                    <span className="product-detail-price-sale">
                       ${displayedPrice.toFixed(2)}
-                      {/* Lock icon shown when coupon requires email verification */}
-                      {selectedCoupon?.requires_verified_email &&
-                        !isEmailVerified && (
-                          <FaLock
-                            size={14}
-                            className="product-detail-lock-icon"
-                            title="Login or verify email to use this coupon"
-                          />
-                        )}
-                    </div>
-                  )}
-
-                  {/* Stock Alerts */}
-                  {isOutOfStock && (
-                    <div className="product-detail-stock-alert product-detail-stock-alert-danger">
-                      <FaExclamationTriangle />
-                      <span>Out of Stock</span>
-                    </div>
-                  )}
-                  {isLowStock && (
-                    <div className="product-detail-stock-alert product-detail-stock-alert-warning">
-                      <FaExclamationTriangle />
-                      <span>Only {product.quantity} left!</span>
-                    </div>
-                  )}
-
-                  {/* Popularity Stats — wishlist and cart counts */}
-                  {stats &&
-                    (stats.wishlistCount > 0 || stats.cartCount > 0) && (
-                      <div className="product-detail-popularity-stats">
-                        {stats.wishlistCount > 0 && (
-                          <div className="product-detail-popularity-stat">
-                            ❤️
-                            <span>
-                              {stats.wishlistCount}
-                              {stats.wishlistCount === 1
-                                ? " person has "
-                                : " people have "}
-                              this in their wishlist
-                            </span>
-                          </div>
-                        )}
-                        {stats.cartCount > 0 && (
-                          <div className="product-detail-popularity-stat">
-                            🛒
-                            <span>
-                              {stats.cartCount}
-                              {stats.cartCount === 1
-                                ? " person has "
-                                : " people have "}
-                              this in their cart
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                    </span>
+                    <span className="product-detail-price-original">
+                      ${product.price.toFixed(2)}
+                    </span>
+                    {savings > 0 && (
+                      <span className="product-detail-price-save">
+                        Save ${savings.toFixed(2)}
+                      </span>
                     )}
-                </div>
-
-                {/* Coupons Section */}
-                {coupons.length > 0 && (
-                  <div className="product-detail-header-coupons">
-                    <CouponBanner
-                      coupons={coupons}
-                      productPrice={product.price}
-                      isEmailVerified={isEmailVerified}
-                      onVerifyEmailClick={handleVerifyEmailClick}
-                      onCouponSelect={handleCouponSelect}
-                      selectedCoupon={selectedCoupon}
-                    />
+                  </div>
+                ) : (
+                  <div className="product-detail-product-price">
+                    <span>${displayedPrice.toFixed(2)}</span>
+                    {/* Lock icon shown when coupon requires email verification */}
+                    {selectedCoupon?.requires_verified_email &&
+                      !isEmailVerified && (
+                        <FaLock
+                          size={14}
+                          className="product-detail-lock-icon"
+                          title="Login or verify email to use this coupon"
+                        />
+                      )}
                   </div>
                 )}
+
+                {/* Stock status */}
+                {isOutOfStock && (
+                  <div
+                    className="product-detail-stock-alert product-detail-stock-alert-danger"
+                    role="status"
+                  >
+                    <FaExclamationTriangle aria-hidden="true" />
+                    <span>Out of Stock</span>
+                  </div>
+                )}
+                {isLowStock && (
+                  <div
+                    className="product-detail-stock-alert product-detail-stock-alert-warning"
+                    role="status"
+                  >
+                    <FaExclamationTriangle aria-hidden="true" />
+                    <span>Only {product.quantity} left!</span>
+                  </div>
+                )}
+                {!isOutOfStock && !isLowStock && (
+                  <p className="product-detail-stock-ok">
+                    <span
+                      className="product-detail-stock-ok-dot"
+                      aria-hidden="true"
+                    />
+                    In stock
+                  </p>
+                )}
+
+                {/* Popularity Stats — wishlist and cart counts */}
+                {hasPopularity && stats && (
+                  <ul className="product-detail-popularity-stats">
+                    {stats.wishlistCount > 0 && (
+                      <li className="product-detail-popularity-stat">
+                        <FaHeart
+                          className="product-detail-popularity-icon"
+                          aria-hidden="true"
+                        />
+                        <span>
+                          {stats.wishlistCount}
+                          {stats.wishlistCount === 1
+                            ? " person has "
+                            : " people have "}
+                          this in their wishlist
+                        </span>
+                      </li>
+                    )}
+                    {stats.cartCount > 0 && (
+                      <li className="product-detail-popularity-stat">
+                        <FaShoppingCart
+                          className="product-detail-popularity-icon"
+                          aria-hidden="true"
+                        />
+                        <span>
+                          {stats.cartCount}
+                          {stats.cartCount === 1
+                            ? " person has "
+                            : " people have "}
+                          this in their cart
+                        </span>
+                      </li>
+                    )}
+                  </ul>
+                )}
               </div>
+
+              {/* Variant Selector — renders nothing for single-variant products */}
+              {product.variants && (
+                <VariantSelector
+                  variants={product.variants}
+                  selectedVariantId={Number(variantId)}
+                  onVariantChange={handleVariantChange}
+                />
+              )}
+
+              {/* Coupons Section */}
+              {coupons.length > 0 && (
+                <div className="product-detail-coupons">
+                  <CouponBanner
+                    coupons={coupons}
+                    productPrice={product.price}
+                    isEmailVerified={isEmailVerified}
+                    onVerifyEmailClick={handleVerifyEmailClick}
+                    onCouponSelect={handleCouponSelect}
+                    selectedCoupon={selectedCoupon}
+                  />
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="product-detail-product-actions">
                 <button
+                  type="button"
                   className="product-detail-btn-add-to-cart"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
@@ -499,8 +566,15 @@ const IndividualListing = () => {
                   {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                 </button>
                 <button
-                  className={`product-detail-btn-wishlist${isProductInWishlist ? " active" : ""}`}
+                  type="button"
+                  className={`product-detail-btn-wishlist${isProductInWishlist ? " product-detail-btn-wishlist-active" : ""}`}
                   onClick={handleToggleWishlist}
+                  aria-pressed={isProductInWishlist}
+                  aria-label={
+                    isProductInWishlist
+                      ? "Remove from wishlist"
+                      : "Add to wishlist"
+                  }
                 >
                   {isProductInWishlist ? (
                     <FaHeart className="product-detail-wishlist-icon-active" />
@@ -510,67 +584,74 @@ const IndividualListing = () => {
                 </button>
               </div>
 
-              {/* Product Information Table */}
-              <div className="product-detail-info-table">
-                <h2 className="product-detail-info-table-title">
-                  Product Information
-                </h2>
-                <table>
-                  <tbody>
-                    {product.description && (
-                      <tr>
-                        <th scope="row">Description</th>
-                        <td>{product.description}</td>
-                      </tr>
-                    )}
+              {/* Description */}
+              {product.description && (
+                <section className="product-detail-section">
+                  <h2 className="product-detail-section-title">Description</h2>
+                  <p className="product-detail-description">
+                    {product.description}
+                  </p>
+                </section>
+              )}
+
+              {/* Product Details */}
+              {hasSpecs && (
+                <section className="product-detail-section">
+                  <h2 className="product-detail-section-title">Details</h2>
+                  <dl className="product-detail-specs">
                     {product.color && (
-                      <tr>
-                        <th scope="row">Color</th>
-                        <td>{product.color}</td>
-                      </tr>
+                      <div className="product-detail-spec-row">
+                        <dt>Color</dt>
+                        <dd>{product.color}</dd>
+                      </div>
                     )}
                     {product.size && (
-                      <tr>
-                        <th scope="row">Size</th>
-                        <td>{product.size}</td>
-                      </tr>
+                      <div className="product-detail-spec-row">
+                        <dt>Size</dt>
+                        <dd>{product.size}</dd>
+                      </div>
                     )}
                     {product.weight_oz && (
-                      <tr>
-                        <th scope="row">
-                          <FaWeight className="product-detail-info-icon" />
+                      <div className="product-detail-spec-row">
+                        <dt>
+                          <FaWeight
+                            className="product-detail-info-icon"
+                            aria-hidden="true"
+                          />
                           Weight
-                        </th>
-                        <td>{product.weight_oz} oz</td>
-                      </tr>
+                        </dt>
+                        <dd>{product.weight_oz} oz</dd>
+                      </div>
                     )}
-                    {product.length_in &&
-                      product.width_in &&
-                      product.height_in && (
-                        <tr>
-                          <th scope="row">
-                            <FaRulerCombined className="product-detail-info-icon" />
-                            Dimensions
-                          </th>
-                          <td>
-                            {product.length_in}" × {product.width_in}" ×{" "}
-                            {product.height_in}"
-                          </td>
-                        </tr>
-                      )}
-                  </tbody>
-                </table>
-              </div>
+                    {hasDimensions && (
+                      <div className="product-detail-spec-row">
+                        <dt>
+                          <FaRulerCombined
+                            className="product-detail-info-icon"
+                            aria-hidden="true"
+                          />
+                          Dimensions
+                        </dt>
+                        <dd>
+                          {product.length_in}" × {product.width_in}" ×{" "}
+                          {product.height_in}"
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+                </section>
+              )}
 
               {/* Shipping Info */}
               <div className="product-detail-shipping-info">
-                <div className="product-detail-shipping-item">
-                  <FaWarehouse className="product-detail-shipping-icon" />
-                  <span>
-                    <strong>Ships from:</strong> {product.location_city},{" "}
-                    {product.location_state}
-                  </span>
-                </div>
+                <FaWarehouse
+                  className="product-detail-shipping-icon"
+                  aria-hidden="true"
+                />
+                <span>
+                  <strong>Ships from:</strong> {product.location_city},{" "}
+                  {product.location_state}
+                </span>
               </div>
             </div>
           </div>

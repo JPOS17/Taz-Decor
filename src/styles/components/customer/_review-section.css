@@ -1,24 +1,32 @@
 /* ==============================================================================
    REVIEW SECTION
-   Customer review list and rating summary shown on a product page.
+   Customer review list and rating summary shown on a product page
    Prefix: review-section-*
    ============================================================================== */
 
+/* The page wraps this component in its own card, so no outer margin here */
 .review-section {
-  margin-top: 3rem;
+  margin: 0;
 }
 
 .review-section-heading {
+  margin: 0 0 1.25rem;
   font-family: var(--font-serif);
-  font-size: 1.375rem;
+  font-size: 1.6rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
   color: var(--color-text-strongest);
-  margin: 0 0 1rem 0;
 }
 
 .review-section-muted {
-  color: var(--color-text-muted);
   margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.review-section-stars {
+  display: inline-flex;
+  gap: 0.15rem;
 }
 
 .review-section-star {
@@ -32,8 +40,14 @@
 .review-section-summary {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 1.25rem;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 1.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-surface-warm);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
 }
 
 .review-section-summary-score-wrap {
@@ -43,42 +57,45 @@
 .review-section-summary-score {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: 700;
+  line-height: 1;
   color: var(--color-text-strongest);
 }
 
 .review-section-summary-stars {
   display: flex;
-  gap: 0.15rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
+  font-size: 1.05rem;
 }
 
 .review-section-summary-count {
   margin: 0;
-  color: var(--color-text-muted);
   font-size: 0.875rem;
+  color: var(--color-text-muted);
 }
 
 /* ============================================================================
    REVIEW LIST
    ============================================================================ */
 
-.reviews-list {
+.review-section-list {
   display: flex;
   flex-direction: column;
 }
 
 .review-section-review-item {
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
+  padding: 1.25rem 0;
   border-bottom: 1px solid var(--color-border-light);
 }
 
+.review-section-review-item:first-child {
+  padding-top: 0;
+}
+
 .review-section-review-item:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
   padding-bottom: 0;
+  border-bottom: none;
 }
 
 .review-section-review-item-top {
@@ -92,38 +109,50 @@
 .review-section-review-stars-row {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.25rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
 }
 
 .review-section-verified-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  background: var(--gradient-badge-success);
-  color: var(--color-text-on-primary-alt);
-  border-radius: var(--radius-full);
   padding: 0.15rem 0.6rem;
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  color: var(--color-success-text);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-full);
 }
 
 .review-section-verified-icon {
   flex-shrink: 0;
+  color: var(--color-success);
 }
 
 .review-section-review-title {
-  margin: 0 0 0.25rem 0;
+  margin: 0;
+  font-family: var(--font-sans);
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-text-strongest);
 }
 
+.review-section-date {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
 .review-section-review-text {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.65;
   color: var(--color-text-strong);
-  line-height: 1.6;
 }
 
 .review-section-review-item-bottom {
@@ -134,21 +163,30 @@
   gap: 0.5rem;
 }
 
+.review-section-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
 /* ============================================================================
    RESPONSIVE
    ============================================================================ */
 
 @media (max-width: 576px) {
-  .review-section {
-    margin-top: 2rem;
+  .review-section-heading {
+    font-size: 1.35rem;
+  }
+
+  .review-section-summary {
+    width: 100%;
   }
 
   .review-section-summary-score {
-    font-size: 1.6rem;
+    font-size: 2.5rem;
   }
 
   .review-section-review-item-top {
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.35rem;
   }
 }
