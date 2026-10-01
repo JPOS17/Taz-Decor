@@ -7,60 +7,89 @@
 
 /* ============================================================================
    TOP HEADER BAR
+   Slim announcement strip above the catalog header. A <button>, so it is
+   keyboard-focusable; its children are spans for valid HTML.
    ============================================================================ */
 
 .cart-coupon-banner-header-bar {
-  width: 100%;
   display: flex;
   align-items: center;
-  padding: 0.55rem 1.75rem;
+  width: 100%;
+  padding: 0.6rem var(--catalog-gutter, 1.75rem);
   background: var(--gradient-header-dark-bar);
-  border-bottom: 1.5px solid var(--color-primary-deepest);
+  border: none;
+  border-bottom: 1px solid var(--color-primary-deepest);
+  font-family: var(--font-sans);
+  text-align: left;
   cursor: pointer;
   user-select: none;
   transition: background 0.2s ease;
-  box-shadow: var(--shadow-btn-deep);
 }
 
 .cart-coupon-banner-header-bar:hover {
   background: var(--gradient-header-dark-bar-hover);
 }
 
+.cart-coupon-banner-header-bar:focus-visible {
+  outline: 2px solid var(--color-header-sub);
+  outline-offset: -3px;
+}
+
 .cart-coupon-banner-header-bar-left {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: var(--color-border-accent);
   flex: 1;
+  gap: 0.75rem;
   min-width: 0;
+  color: var(--color-header-sub);
 }
 
 .cart-coupon-banner-header-bar-title {
   font-family: var(--font-sans);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-surface-warm-solid);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
 .cart-coupon-banner-header-bar-badges {
   display: flex;
-  gap: 0.4rem;
   flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
+/* Outlined gold chips read better on the dark bar than solid red */
 .cart-coupon-banner-mini-badge {
-  background: var(--gradient-badge-danger);
-  color: var(--color-text-on-primary-alt);
-  font-size: 0.68rem;
+  padding: 2px 9px;
+  background: var(--color-header-glass);
+  border: 1px solid var(--color-header-icon);
+  border-radius: var(--radius-full);
+  color: var(--color-surface-warm-solid);
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-sans);
   white-space: nowrap;
+}
+
+.cart-coupon-banner-header-bar-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  padding-left: 1rem;
+  color: var(--color-header-sub);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.cart-coupon-banner-header-bar:hover .cart-coupon-banner-header-bar-cta {
+  color: var(--color-surface-warm-solid);
 }
 
 /* ============================================================================

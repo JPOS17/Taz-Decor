@@ -63,7 +63,7 @@ const Pagination = ({
   // ============================================================================
 
   return (
-    <div className="pagination-wrapper">
+    <nav className="pagination-wrapper" aria-label="Pagination">
       {/* Item count summary */}
       <span className="pagination-summary">
         Showing {startItem}–{endItem} of {totalItems} items
@@ -146,7 +146,7 @@ const Pagination = ({
           </svg>
         </button>
       </div>
-    </div>
+    </nav>
   );
 };
 

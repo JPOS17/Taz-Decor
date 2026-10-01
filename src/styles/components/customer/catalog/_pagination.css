@@ -8,11 +8,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem 1.5rem;
-  gap: 1rem;
   flex-wrap: wrap;
-  border-top: 1.5px solid var(--color-border-subtle);
-  background: var(--color-surface-gradient);
+  gap: 1rem;
+  margin: 0 var(--catalog-gutter, 1.25rem);
+  padding: 1.5rem 0 2.5rem;
+  border-top: 1px solid var(--color-border-light);
 }
 
 /* ============================================================================
@@ -20,12 +20,11 @@
    ============================================================================ */
 
 .pagination-summary {
-  font-family: var(--font-sans);
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  font-style: italic;
-  white-space: nowrap;
   flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 /* ============================================================================
@@ -35,9 +34,15 @@
 .pagination-controls {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  flex-wrap: wrap;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 /* ============================================================================
@@ -48,26 +53,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  font-family: var(--font-sans);
-  font-weight: 600;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  gap: 0.35rem;
+  height: 38px;
   background: var(--color-surface-solid);
-  color: var(--color-primary-deep);
-  cursor: pointer;
-  transition:
-    background 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease,
-    transform 0.15s ease,
-    box-shadow 0.18s ease;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
   line-height: 1;
+  color: var(--color-text-strong);
   user-select: none;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.pagination-btn:hover:not(:disabled):not(.pagination-btn-active) {
+  background: var(--color-primary-alpha-06);
+  border-color: var(--color-primary-mid);
+  color: var(--color-primary);
 }
 
 .pagination-btn:focus-visible {
-  outline: 2px solid var(--color-border-accent);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -75,60 +82,31 @@
    PAGE NUMBER BUTTONS
    ============================================================================ */
 
-.pagination-pages {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
 .pagination-btn-page {
-  min-width: 36px;
-  height: 36px;
-  font-size: 0.82rem;
-  padding: 0 0.25rem;
-}
-
-.pagination-btn-page:hover:not(:disabled):not(.pagination-btn-active) {
-  background: var(--color-surface-image-bg);
-  border-color: var(--color-primary-mid);
-  color: var(--color-text-strongest);
+  min-width: 38px;
+  padding: 0 0.4rem;
 }
 
 .pagination-btn-active {
-  background: var(--gradient-badge-danger);
-  border-color: var(--color-danger-dark);
-  color: var(--color-surface-solid);
-  box-shadow: 0 2px 8px var(--color-danger-shadow);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-btn-deep);
+  color: var(--color-text-on-primary);
   cursor: default;
   pointer-events: none;
 }
 
 /* ============================================================================
-   PREV / NEXT NAV BUTTONS
+   PREV / NEXT
    ============================================================================ */
 
 .pagination-btn-nav {
-  height: 36px;
-  padding: 0 0.85rem;
-  font-size: 0.8rem;
-  gap: 0.35rem;
+  padding: 0 0.9rem;
   letter-spacing: 0.02em;
 }
 
-.pagination-btn-nav:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--color-primary-deepest) 0%, var(--color-primary-deep) 100%);
-  border-color: var(--color-primary-deepest);
-  color: var(--color-primary-tint);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-btn-deep);
-}
-
-.pagination-btn-nav:active:not(:disabled) {
-  transform: translateY(0);
-}
-
 .pagination-btn-nav:disabled {
-  opacity: 0.38;
+  opacity: 0.4;
   cursor: not-allowed;
   color: var(--color-text-faint);
 }
@@ -141,13 +119,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 36px;
+  width: 28px;
+  height: 38px;
   font-family: var(--font-sans);
-  font-size: 0.9rem;
   color: var(--color-text-faint);
   user-select: none;
-  padding-bottom: 4px;
 }
 
 /* ============================================================================
@@ -165,37 +141,22 @@
 @media (max-width: 767px) {
   .pagination-wrapper {
     flex-direction: column;
-    align-items: center;
     gap: 0.75rem;
-    padding: 0.85rem 1rem 1.25rem;
+    padding: 1.25rem 0 2rem;
   }
 
-  .pagination-summary {
-    font-size: 0.74rem;
+  .pagination-btn,
+  .pagination-ellipsis {
+    height: 36px;
   }
 
   .pagination-btn-page {
-    min-width: 34px;
-    height: 34px;
-    font-size: 0.78rem;
-  }
-
-  .pagination-btn-nav {
-    height: 34px;
-    padding: 0 0.7rem;
-    font-size: 0.76rem;
+    min-width: 36px;
   }
 }
 
 @media (max-width: 500px) {
-  .pagination-wrapper {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.85rem 1rem 1.25rem;
-  }
-
-  /* Hide page number buttons, show the compact indicator instead */
+  /* Swap the page numbers for a compact "Page X of Y" indicator */
   .pagination-pages {
     display: none;
   }
@@ -203,29 +164,23 @@
   .pagination-mobile-indicator {
     display: inline;
     font-family: var(--font-sans);
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    color: var(--color-primary-deep);
+    color: var(--color-text-strongest);
     white-space: nowrap;
   }
 
-  /* Hide Prev/Next text labels, keep arrow icons only */
+  .pagination-controls {
+    gap: 0.75rem;
+  }
+
+  /* Keep only the arrow icons on Prev/Next */
   .pagination-btn-nav-label {
     display: none;
   }
 
   .pagination-btn-nav {
-    padding: 0 0.55rem;
     min-width: 36px;
-    height: 36px;
-  }
-
-  /* Controls row: < [Page X of Y] > all centered together */
-  .pagination-controls {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
+    padding: 0 0.55rem;
   }
 }

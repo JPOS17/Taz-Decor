@@ -25,11 +25,18 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
   // HANDLERS
   // ============================================================================
 
-  // Navigates to the items page
+  // Navigates to the product detail page
   const handleClick = () => {
     navigate(`/items/${product.variant_id}`, {
       state: { from: fromPath || "/items" },
     });
+  };
+
+  // Lets keyboard users open the card with Enter; ignores keys pressed on the
+  // nested wishlist button so it doesn't also trigger navigation
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === "Enter") handleClick();
   };
 
   // Stops card click propagation so the wishlist toggle doesn't also navigate
@@ -80,68 +87,71 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
     return "DISCOUNT";
   };
 
-  // Builds the combined coupon label shown in the text block (e.g. "10% OFF · Free Shipping")
-  const getCouponLabelText = (): string | null => {
-    if (!coupon) return null;
-    const parts: string[] = [];
-    if (coupon.discount_value || coupon.discount_type === "bogo") {
-      parts.push(
-        isBogo ? formatBogoBadge(coupon) : getDiscountBadgeText(coupon),
-      );
-    }
-    return parts.length > 0 ? parts.join(" · ") : null;
-  };
-
-  const couponLabelText = getCouponLabelText();
+  // Label shown in the image badge
+  const couponLabelText: string | null =
+    coupon && (coupon.discount_value || isBogo)
+      ? isBogo
+        ? formatBogoBadge(coupon)
+        : getDiscountBadgeText(coupon)
+      : null;
 
   // ============================================================================
   // RENDER
   // ============================================================================
 
   return (
-    <div className="product-card-list-item" onClick={handleClick}>
+    <div
+      className="product-card-list-item"
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="link"
+      tabIndex={0}
+    >
       {/* Image tile */}
       <div className="product-card-image-container">
-        <img src={product.primary_image} alt={product.name} />
+        <img
+          src={product.primary_image}
+          alt={product.name}
+          loading="lazy"
+          decoding="async"
+        />
 
         {/* Discount badge */}
-        {coupon &&
-          (coupon.discount_value || coupon.discount_type === "bogo") && (
-            <div className="product-card-discount-badge">
-              {isBogo ? formatBogoBadge(coupon) : getDiscountBadgeText(coupon)}
-            </div>
-          )}
+        {couponLabelText && (
+          <div className="product-card-discount-badge">{couponLabelText}</div>
+        )}
 
         {/* Wishlist button */}
-        <div
+        <button
+          type="button"
           className="product-card-wishlist-btn"
           onClick={handleWishlistClick}
+          aria-pressed={isInWishlistState}
+          aria-label={
+            isInWishlistState ? "Remove from wishlist" : "Add to wishlist"
+          }
         >
           {isInWishlistState ? (
             <FaHeart className="product-card-wishlist-icon-filled" />
           ) : (
             <FaRegHeart className="product-card-wishlist-icon" />
           )}
-        </div>
+        </button>
       </div>
 
       {/* Text block */}
       <div className="product-card-text-block">
-        {couponLabelText && (
-          <p className="product-card-coupon-label">{couponLabelText}</p>
-        )}
-
         <p className="product-card-item-name">{product.name}</p>
 
         {/* Price row */}
         <div className="product-card-price-row">
           {hasDiscountedPrice && discountInfo ? (
             <>
-              <span className="product-card-price-original">
-                ${product.price.toFixed(2)}
-              </span>
               <span className="product-card-price-discounted">
                 ${discountInfo.discountedPrice.toFixed(2)}
+              </span>
+              <span className="product-card-price-original">
+                ${product.price.toFixed(2)}
               </span>
             </>
           ) : (

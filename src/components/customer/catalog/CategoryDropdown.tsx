@@ -18,7 +18,7 @@ const CategoryDropDown = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close the dropdown when the user clicks outside of it
+  // Close the dropdown when the user clicks outside of it or presses Escape
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -29,12 +29,18 @@ const CategoryDropDown = ({
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
 
@@ -65,8 +71,22 @@ const CategoryDropDown = ({
           type="button"
           aria-expanded={isOpen}
         >
-          Category: {activeCategoryName}
-          <span className="category-dropdown-icon">▼</span>
+          <span className="category-dropdown-label">Category</span>
+          <span className="category-dropdown-value">{activeCategoryName}</span>
+          <svg
+            className="category-dropdown-icon"
+            width="14"
+            height="14"
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="2 4 6 8 10 4" />
+          </svg>
         </button>
 
         <ul

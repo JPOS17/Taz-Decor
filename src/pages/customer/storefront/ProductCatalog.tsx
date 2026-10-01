@@ -22,6 +22,10 @@ import SideBar from "../../../components/customer/catalog/ProductFilterSidebar";
 import ItemListings from "../../../components/customer/catalog/ProductCard";
 import CartCouponBanner from "../../../components/customer/catalog/CartCouponBanner";
 import Pagination from "../../../components/customer/catalog/Pagination";
+import {
+  getPriceLabel,
+  getSortLabel,
+} from "../../../components/customer/catalog/catalogFilterOptions";
 
 import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 
@@ -130,10 +134,10 @@ const Items = () => {
     loadData();
   }, [activeCategoryId, minPrice, maxPrice, sortBy, onSaleOnly]);
 
-  // Scroll to top after React re-renders with the new page
+  // Scroll to top when the category or results page changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [activeCategoryId]);
+  }, [activeCategoryId, currentPage]);
 
   // ============================================================================
   // COUPON LOGIC
@@ -266,6 +270,13 @@ const Items = () => {
   );
 
   // ============================================================================
+  // ACTIVE FILTERS
+  // ============================================================================
+
+  const hasPriceFilter = minPrice !== null || maxPrice !== null;
+  const hasActiveFilters = hasPriceFilter || !!sortBy || onSaleOnly;
+
+  // ============================================================================
   // EVENT HANDLERS
   // ============================================================================
 
@@ -362,6 +373,31 @@ const Items = () => {
     setSearchParams(newParams);
   };
 
+  // Removable chips summarising every active filter, shown under the page title
+  const activeFilterChips: { key: string; label: string; onRemove: () => void }[] = [];
+  if (hasPriceFilter) {
+    activeFilterChips.push({
+      key: "price",
+      label: getPriceLabel(minPrice, maxPrice),
+      onRemove: () => handlePriceChange(null, null),
+    });
+  }
+  const sortLabel = getSortLabel(sortBy);
+  if (sortBy && sortLabel) {
+    activeFilterChips.push({
+      key: "sort",
+      label: sortLabel,
+      onRemove: () => handleSortChange(null),
+    });
+  }
+  if (onSaleOnly) {
+    activeFilterChips.push({
+      key: "sale",
+      label: "On sale",
+      onRemove: () => handleSaleFilterChange(false),
+    });
+  }
+
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -406,10 +442,20 @@ const Items = () => {
           {/* Site-wide cart coupon banner */}
           <CartCouponBanner coupons={coupons ? coupons.all : []} />
 
-          {/* Header with active category name and coupon badge */}
-          <div className="product-catalog-header">
-            <div className="product-catalog-header-left">
-              <h3 className="product-catalog-category-title">{activeCategoryName}</h3>
+          {/* Header — category title, result count, coupon badge, active filters */}
+          <header className="product-catalog-header">
+            <div className="product-catalog-header-top">
+              <div className="product-catalog-header-text">
+                <h1 className="product-catalog-category-title">
+                  {activeCategoryName}
+                </h1>
+                {!error && (
+                  <p className="product-catalog-result-count">
+                    {sortedProducts.length}{" "}
+                    {sortedProducts.length === 1 ? "item" : "items"}
+                  </p>
+                )}
+              </div>
 
               {/* Category-level coupon badge */}
               {categoryCoupon && (
@@ -428,16 +474,68 @@ const Items = () => {
                 </div>
               )}
             </div>
-          </div>
+
+            {/* Active filter chips */}
+            {activeFilterChips.length > 0 && (
+              <div className="product-catalog-active-filters">
+                {activeFilterChips.map((chip) => (
+                  <button
+                    key={chip.key}
+                    type="button"
+                    className="product-catalog-filter-chip"
+                    onClick={chip.onRemove}
+                    aria-label={`Remove filter: ${chip.label}`}
+                  >
+                    {chip.label}
+                    <svg
+                      className="product-catalog-filter-chip-icon"
+                      width="10"
+                      height="10"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      aria-hidden="true"
+                    >
+                      <line x1="2" y1="2" x2="10" y2="10" />
+                      <line x1="10" y1="2" x2="2" y2="10" />
+                    </svg>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className="product-catalog-clear-filters"
+                  onClick={handleReset}
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+          </header>
 
           {/* Content states */}
           {error ? (
-            <div className="product-catalog-error-state">
+            <div className="product-catalog-error-state" role="alert">
               <p>Error: {error}</p>
             </div>
           ) : products.length === 0 ? (
             <div className="product-catalog-empty-state">
-              <p>No products found in this category.</p>
+              <h2 className="product-catalog-empty-title">No products found</h2>
+              <p className="product-catalog-empty-text">
+                {hasActiveFilters
+                  ? "Try adjusting or clearing your filters."
+                  : "There are no products in this category yet."}
+              </p>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  className="product-catalog-empty-action"
+                  onClick={handleReset}
+                >
+                  Clear filters
+                </button>
+              )}
             </div>
           ) : (
             <>

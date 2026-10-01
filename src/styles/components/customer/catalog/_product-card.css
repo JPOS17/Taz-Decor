@@ -1,186 +1,205 @@
 /* ==============================================================================
    PRODUCT CARD
-   Borderless gallery-style card used in product catalog grids.
+   Gallery-style card used in the product catalog grid.
    Prefix: product-card-*
    ============================================================================== */
 
+/* Card is a flex column so every card in a grid row shares one height and the
+   price row can sit on the same baseline across the row. */
 .product-card-list-item {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0.65rem;
   font-family: var(--font-sans);
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 10px;
-  background: var(--color-surface-warm-solid);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .product-card-list-item:hover {
-  border-color: var(--color-border-hover);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-3px);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-hover);
+}
+
+.product-card-list-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
 }
 
 /* ============================================================================
-   IMAGE TILE — 1:1 ratio, rounded, subtle warm background
-   Image fits inside without cropping or stretching
+   IMAGE TILE — 1:1, product shown whole (contain) on a warm tile.
+   Multiply blending lets light photo backgrounds melt into the tile.
    ============================================================================ */
 
 .product-card-image-container {
-  width: 100%;
-  padding-bottom: 100%;
   position: relative;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-chip);
-  transition: background 0.3s ease;
-}
-
-.product-card-list-item:hover .product-card-image-container {
-  background: var(--color-surface-hover-mid);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-warm);
 }
 
 .product-card-image-container img {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 82%;
-  max-height: 82%;
-  width: auto;
-  height: auto;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 9%;
   object-fit: contain;
-  transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  mix-blend-mode: multiply;
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.product-card-list-item:hover .product-card-image-container img {
+  transform: scale(1.05);
 }
 
 /* ============================================================================
-   BADGES — inside the image tile
+   DISCOUNT BADGE — top left of the image tile
    ============================================================================ */
 
 .product-card-discount-badge {
   position: absolute;
-  top: 9px;
-  left: 9px;
-  z-index: 10;
-  background: var(--color-danger);
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 2;
+  padding: 0.25rem 0.6rem;
+  background: var(--gradient-badge-danger);
   color: var(--color-text-on-primary-alt);
-  padding: 3px 7px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xs);
   font-family: var(--font-sans);
-  font-size: 0.65rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  line-height: 1.2;
 }
 
 /* ============================================================================
-   WISHLIST BUTTON — inside image tile, top right
+   WISHLIST BUTTON — top right of the image tile
+   Revealed on hover/focus on pointer devices, always visible on touch.
    ============================================================================ */
 
 .product-card-wishlist-btn {
   position: absolute;
-  top: 9px;
-  right: 9px;
-  z-index: 20;
-  width: 30px;
-  height: 30px;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--color-border-light);
   border-radius: 50%;
-  background: var(--color-surface-warm-solid);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: var(--shadow-xs);
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.2s ease, transform 0.18s ease, background 0.18s ease;
-  border: 1px solid var(--color-primary-border-light);
+  transform: scale(0.92);
+  transition: opacity 0.2s ease, transform 0.18s ease;
 }
 
-.product-card-list-item:hover .product-card-wishlist-btn {
+.product-card-list-item:hover .product-card-wishlist-btn,
+.product-card-wishlist-btn:focus-visible,
+.product-card-wishlist-btn[aria-pressed="true"] {
   opacity: 1;
-}
-
-/* Always visible when already wishlisted */
-.product-card-wishlist-btn:has(.product-card-wishlist-icon-filled) {
-  opacity: 1;
+  transform: scale(1);
 }
 
 .product-card-wishlist-btn:hover {
-  background: var(--color-surface-solid);
   transform: scale(1.1);
 }
 
+.product-card-wishlist-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .product-card-wishlist-icon {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-primary);
-  transition: color 0.15s ease;
 }
 
 .product-card-wishlist-icon-filled {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-danger);
 }
 
+@media (hover: none) {
+  .product-card-wishlist-btn {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ============================================================================
-   TEXT BLOCK — below image tile, left-aligned
+   TEXT BLOCK
    ============================================================================ */
 
 .product-card-text-block {
-  padding: 9px 3px 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 0.85rem 0.25rem 0.25rem;
 }
 
-/* Small colored label line for coupon info — replaces badge in text area */
-.product-card-coupon-label {
-  font-family: var(--font-sans);
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: var(--color-danger);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin: 0 0 4px;
-  line-height: 1;
-}
-
+/* Name clamps to two lines and reserves that height so cards stay aligned */
 .product-card-item-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  min-height: 2.7em;
+  margin: 0 0 0.55rem;
+  overflow: hidden;
   font-family: var(--font-serif);
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-text-strongest);
-  margin: 0 0 5px;
   line-height: 1.35;
   letter-spacing: 0.01em;
+  color: var(--color-text-strongest);
 }
 
 /* ============================================================================
-   PRICE ROW
+   PRICE ROW — pinned to the bottom of the card
    ============================================================================ */
 
 .product-card-price-row {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: baseline;
   flex-wrap: wrap;
+  gap: 0.2rem 0.5rem;
+  margin-top: auto;
 }
 
 .product-card-price {
   font-family: var(--font-sans);
   font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--color-primary-deep);
+  font-weight: 700;
   letter-spacing: 0.01em;
-}
-
-.product-card-price-original {
-  font-family: var(--font-sans);
-  font-size: 0.92rem;
-  font-weight: 400;
-  color: var(--color-text-muted);
-  text-decoration: line-through;
+  color: var(--color-primary-deep);
 }
 
 .product-card-price-discounted {
   font-family: var(--font-sans);
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--color-danger);
   letter-spacing: 0.01em;
+  color: var(--color-danger);
+}
+
+.product-card-price-original {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
 }
 
 .product-card-lock-icon {
@@ -188,6 +207,31 @@
   align-items: center;
   color: var(--color-primary-vivid);
   cursor: help;
+}
+
+@media (max-width: 560px) {
+  .product-card-list-item {
+    padding: 0.5rem;
+  }
+
+  .product-card-item-name {
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card-list-item,
+  .product-card-image-container img {
+    transition: none;
+  }
+
+  .product-card-list-item:hover {
+    transform: none;
+  }
+
+  .product-card-list-item:hover .product-card-image-container img {
+    transform: none;
+  }
 }
 
 /* ============================================================================

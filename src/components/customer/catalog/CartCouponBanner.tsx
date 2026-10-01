@@ -11,6 +11,7 @@ import {
   FaCalendarAlt,
   FaShoppingCart,
   FaLock,
+  FaChevronRight,
 } from "react-icons/fa";
 import { type ProductCoupon } from "../../../api/couponCustomer";
 import { useAuth } from "../../../context/AuthContext";
@@ -113,27 +114,31 @@ const CartCouponBanner = ({ coupons }: CartCouponBannerProps) => {
   return (
     <>
       {/* Header bar */}
-      <div
+      <button
+        type="button"
         className="cart-coupon-banner-header-bar"
         onClick={() => setIsModalOpen(true)}
-        role="button"
         aria-label="View cart deals"
       >
-        <div className="cart-coupon-banner-header-bar-left">
+        <span className="cart-coupon-banner-header-bar-left">
           <FaShoppingCart size={13} />
           <span className="cart-coupon-banner-header-bar-title">
             {cartCoupons.length} Cart Deal{cartCoupons.length > 1 ? "s" : ""}{" "}
             Available
           </span>
-          <div className="cart-coupon-banner-header-bar-badges">
+          <span className="cart-coupon-banner-header-bar-badges">
             {cartCoupons.map((c) => (
               <span key={c.coupon_id} className="cart-coupon-banner-mini-badge">
                 {getBadgeText(c)}
               </span>
             ))}
-          </div>
-        </div>
-      </div>
+          </span>
+        </span>
+        <span className="cart-coupon-banner-header-bar-cta">
+          View deals
+          <FaChevronRight size={10} />
+        </span>
+      </button>
 
       {/* Floating pill */}
       <button
