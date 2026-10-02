@@ -79,9 +79,9 @@ const AppRoutes = () => {
       <Route path="/home" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/reviews" element={<ReviewsComingSoon />} />
-      <Route path="/items" element={<ProductCatalog />} />
+      <Route path="/product-catalog" element={<ProductCatalog />} />
       <Route
-        path="/items/:variantId"
+        path="/product/:variantId"
         element={<ProductDetail key={location.pathname} />}
       />
 

@@ -82,13 +82,13 @@ const IndividualListing = () => {
   // HELPERS
   // ============================================================================
 
-  // Normalizes the back-navigation path — defaults to /items if coming from another product page
+  // Normalizes the back-navigation path — defaults to /product-catalog if coming from another product page
   const getFromPath = () => {
     const fromState = location.state?.from;
-    if (typeof fromState === "string" && fromState.startsWith("/items/")) {
-      return "/items";
+    if (typeof fromState === "string" && fromState.startsWith("/product-catalog/")) {
+      return "/product-catalog";
     }
-    return fromState || "/items";
+    return fromState || "/product-catalog";
   };
 
   const from = getFromPath();
@@ -242,7 +242,7 @@ const IndividualListing = () => {
 
   // Navigates to the selected variant's listing page
   const handleVariantChange = (newVariantId: number) => {
-    navigate(`/items/${newVariantId}`, { state: { from: "/items" } });
+    navigate(`/product/${newVariantId}`, { state: { from: "/product-catalog" } });
   };
 
   // Adds the current variant to the cart and opens the mini cart flyout
@@ -332,7 +332,7 @@ const IndividualListing = () => {
             <button
               type="button"
               className="product-detail-error-back-btn"
-              onClick={() => navigate("/items")}
+              onClick={() => navigate("/product-catalog")}
             >
               Back to Items
             </button>

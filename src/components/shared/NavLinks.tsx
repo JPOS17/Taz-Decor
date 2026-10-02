@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 // Top-level navigation destinations rendered in the TopBar
 const links = [
   { to: "/home", label: "Home" },
-  { to: "/items", label: "Items" },
+  { to: "/product-catalog", label: "Items" },
   { to: "/reviews", label: "Reviews" },
   { to: "/about", label: "About" },
 ];

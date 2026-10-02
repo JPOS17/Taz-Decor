@@ -38,7 +38,7 @@ const Home = () => {
 
           {/* Call to action */}
           <div className="home-cta">
-            <a href="/items" className="home-shop-btn">
+            <a href="/product-catalog" className="home-shop-btn">
               Browse Our Collection
               <span className="home-btn-arrow">→</span>
             </a>
