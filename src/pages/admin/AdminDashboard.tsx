@@ -131,11 +131,11 @@ const AdminDashboard = () => {
   const getRoleBadgeClass = (role: string) => {
     switch (role) {
       case "admin":
-        return "admin-badge admin-badge--admin";
+        return "admin-dashboard-badge admin-dashboard-badge--admin";
       case "manager":
-        return "admin-badge admin-badge--manager";
+        return "admin-dashboard-badge admin-dashboard-badge--manager";
       default:
-        return "admin-badge admin-badge--customer";
+        return "admin-dashboard-badge admin-dashboard-badge--customer";
     }
   };
 
@@ -159,11 +159,11 @@ const AdminDashboard = () => {
   // Renders a stacked date/time cell, or a muted "Never" when there is no value
   const renderDateCell = (dateString: string | null) => {
     const parts = formatDateParts(dateString);
-    if (!parts) return <span className="admin-muted">Never</span>;
+    if (!parts) return <span className="admin-dashboard-muted">Never</span>;
     return (
       <>
-        <span className="admin-date-day">{parts.day}</span>
-        <span className="admin-date-time">{parts.time}</span>
+        <span className="admin-dashboard-date-day">{parts.day}</span>
+        <span className="admin-dashboard-date-time">{parts.time}</span>
       </>
     );
   };
@@ -341,8 +341,8 @@ const AdminDashboard = () => {
   if (isLoading) {
     return (
       <div className="admin-dashboard">
-        <div className="admin-state" role="status">
-          <span className="admin-spinner" aria-hidden="true" />
+        <div className="admin-dashboard-state" role="status">
+          <span className="admin-dashboard-spinner" aria-hidden="true" />
           <p>Loading users…</p>
         </div>
       </div>
@@ -352,11 +352,11 @@ const AdminDashboard = () => {
   if (error) {
     return (
       <div className="admin-dashboard">
-        <div className="admin-state admin-state--error" role="alert">
+        <div className="admin-dashboard-state admin-dashboard-state--error" role="alert">
           <AlertCircle size={28} aria-hidden="true" />
           <h2>Something went wrong</h2>
           <p>{error}</p>
-          <button onClick={fetchUsers} className="admin-btn admin-btn--primary">
+          <button onClick={fetchUsers} className="admin-dashboard-btn admin-dashboard-btn--primary">
             Try again
           </button>
         </div>
@@ -398,28 +398,28 @@ const AdminDashboard = () => {
       {/* Toast notification */}
       {toast && (
         <div
-          className={`admin-toast admin-toast--${toast.type}`}
+          className={`admin-dashboard-toast admin-dashboard-toast--${toast.type}`}
           role="status"
           aria-live="polite"
         >
-          <span className="admin-toast-icon" aria-hidden="true">
+          <span className="admin-dashboard-toast-icon" aria-hidden="true">
             {toast.type === "success" ? <Check size={14} /> : <X size={14} />}
           </span>
-          <p className="admin-toast-message">{toast.message}</p>
+          <p className="admin-dashboard-toast-message">{toast.message}</p>
         </div>
       )}
 
       {/* Confirmation modal */}
       {confirmModal.show && (
-        <div className="admin-modal-overlay" onClick={handleCancelAction}>
+        <div className="admin-dashboard-modal-overlay" onClick={handleCancelAction}>
           <div
-            className="admin-modal admin-modal--sm"
+            className="admin-dashboard-modal admin-dashboard-modal--sm"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="admin-confirm-title"
+            aria-labelledby="admin-dashboard-confirm-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="admin-confirm-title" className="admin-modal-title">
+            <h3 id="admin-dashboard-confirm-title" className="admin-dashboard-modal-title">
               {confirmModal.type === "role"
                 ? "Change role"
                 : isDeactivating
@@ -427,7 +427,7 @@ const AdminDashboard = () => {
                   : "Activate account"}
             </h3>
             {confirmModal.type === "role" ? (
-              <p className="admin-modal-text">
+              <p className="admin-dashboard-modal-text">
                 Change <strong>{confirmModal.userName}</strong>&rsquo;s role
                 from{" "}
                 <span
@@ -446,21 +446,21 @@ const AdminDashboard = () => {
                 ?
               </p>
             ) : (
-              <p className="admin-modal-text">
+              <p className="admin-dashboard-modal-text">
                 Are you sure you want to{" "}
                 <strong>{confirmModal.newValue ? "activate" : "deactivate"}</strong>{" "}
                 <strong>{confirmModal.userName}</strong>&rsquo;s account?
                 {isDeactivating && " They will no longer be able to sign in."}
               </p>
             )}
-            <div className="admin-modal-actions">
-              <button onClick={handleCancelAction} className="admin-btn">
+            <div className="admin-dashboard-modal-actions">
+              <button onClick={handleCancelAction} className="admin-dashboard-btn">
                 Cancel
               </button>
               <button
                 onClick={handleConfirmAction}
-                className={`admin-btn ${
-                  isDeactivating ? "admin-btn--danger" : "admin-btn--primary"
+                className={`admin-dashboard-btn ${
+                  isDeactivating ? "admin-dashboard-btn--danger" : "admin-dashboard-btn--primary"
                 }`}
               >
                 Confirm
@@ -472,62 +472,62 @@ const AdminDashboard = () => {
 
       {/* Email modal */}
       {emailModal.show && (
-        <div className="admin-modal-overlay" onClick={handleCloseEmailModal}>
+        <div className="admin-dashboard-modal-overlay" onClick={handleCloseEmailModal}>
           <div
-            className="admin-modal"
+            className="admin-dashboard-modal"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="admin-email-title"
+            aria-labelledby="admin-dashboard-email-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="admin-email-title" className="admin-modal-title">
+            <h3 id="admin-dashboard-email-title" className="admin-dashboard-modal-title">
               Send email
             </h3>
-            <p className="admin-recipient">
-              <span className="admin-recipient-label">To</span>
-              <span className="admin-recipient-name">
+            <p className="admin-dashboard-recipient">
+              <span className="admin-dashboard-recipient-label">To</span>
+              <span className="admin-dashboard-recipient-name">
                 {emailModal.userName}
               </span>
-              <span className="admin-recipient-email">
+              <span className="admin-dashboard-recipient-email">
                 {emailModal.userEmail}
               </span>
             </p>
 
-            <div className="admin-field">
-              <label className="admin-field-label" htmlFor="admin-email-subject">
+            <div className="admin-dashboard-field">
+              <label className="admin-dashboard-field-label" htmlFor="admin-dashboard-email-subject">
                 Subject
               </label>
               <input
-                id="admin-email-subject"
+                id="admin-dashboard-email-subject"
                 type="text"
                 value={emailSubject}
                 onChange={(e) => setEmailSubject(e.target.value)}
                 placeholder="Enter email subject"
-                className="admin-input"
+                className="admin-dashboard-input"
               />
             </div>
 
-            <div className="admin-field">
-              <label className="admin-field-label" htmlFor="admin-email-message">
+            <div className="admin-dashboard-field">
+              <label className="admin-dashboard-field-label" htmlFor="admin-dashboard-email-message">
                 Message
               </label>
               <textarea
-                id="admin-email-message"
+                id="admin-dashboard-email-message"
                 value={emailMessage}
                 onChange={(e) => setEmailMessage(e.target.value)}
                 placeholder="Write your message"
-                className="admin-input admin-textarea"
+                className="admin-dashboard-input admin-dashboard-textarea"
                 rows={8}
               />
             </div>
 
-            <div className="admin-modal-actions">
-              <button onClick={handleCloseEmailModal} className="admin-btn">
+            <div className="admin-dashboard-modal-actions">
+              <button onClick={handleCloseEmailModal} className="admin-dashboard-btn">
                 Cancel
               </button>
               <button
                 onClick={handleSendEmail}
-                className="admin-btn admin-btn--primary"
+                className="admin-dashboard-btn admin-dashboard-btn--primary"
                 disabled={isSendingEmail}
               >
                 {isSendingEmail ? "Sending…" : "Send email"}
@@ -538,39 +538,39 @@ const AdminDashboard = () => {
       )}
 
       {/* Page header */}
-      <header className="admin-header">
-        <div className="admin-container">
-          <p className="admin-eyebrow">Admin console</p>
-          <h1 className="admin-title">User management</h1>
-          <p className="admin-subtitle">
+      <header className="admin-dashboard-header">
+        <div className="admin-dashboard-container">
+          <p className="admin-dashboard-eyebrow">Admin console</p>
+          <h1 className="admin-dashboard-title">User management</h1>
+          <p className="admin-dashboard-subtitle">
             Manage accounts, roles and access for your store.
           </p>
         </div>
       </header>
 
-      <main className="admin-container admin-main">
+      <main className="admin-dashboard-container admin-dashboard-main">
         {/* Stats summary cards */}
-        <section className="admin-stats" aria-label="User summary">
+        <section className="admin-dashboard-stats" aria-label="User summary">
           {stats.map(({ label, value, icon: Icon }) => (
-            <div className="admin-stat" key={label}>
-              <span className="admin-stat-icon" aria-hidden="true">
+            <div className="admin-dashboard-stat" key={label}>
+              <span className="admin-dashboard-stat-icon" aria-hidden="true">
                 <Icon size={18} strokeWidth={1.8} />
               </span>
               <div>
-                <div className="admin-stat-value">{value}</div>
-                <div className="admin-stat-label">{label}</div>
+                <div className="admin-dashboard-stat-value">{value}</div>
+                <div className="admin-dashboard-stat-label">{label}</div>
               </div>
             </div>
           ))}
         </section>
 
         {/* Table card: toolbar + table */}
-        <section className="admin-card">
+        <section className="admin-dashboard-card">
           {/* Search and filter controls */}
-          <div className="admin-toolbar">
-            <div className="admin-search">
+          <div className="admin-dashboard-toolbar">
+            <div className="admin-dashboard-search">
               <Search
-                className="admin-search-icon"
+                className="admin-dashboard-search-icon"
                 size={16}
                 aria-hidden="true"
               />
@@ -580,19 +580,19 @@ const AdminDashboard = () => {
                 aria-label="Search users"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="admin-input admin-search-input"
+                className="admin-dashboard-input admin-dashboard-search-input"
               />
             </div>
 
-            <div className="admin-filter">
-              <label className="admin-field-label" htmlFor="admin-filter-role">
+            <div className="admin-dashboard-filter">
+              <label className="admin-dashboard-field-label" htmlFor="admin-dashboard-filter-role">
                 Role
               </label>
               <select
-                id="admin-filter-role"
+                id="admin-dashboard-filter-role"
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value)}
-                className="admin-input admin-select"
+                className="admin-dashboard-input admin-dashboard-select"
               >
                 <option value="all">All roles</option>
                 <option value="customer">Customer</option>
@@ -601,15 +601,15 @@ const AdminDashboard = () => {
               </select>
             </div>
 
-            <div className="admin-filter">
-              <label className="admin-field-label" htmlFor="admin-filter-status">
+            <div className="admin-dashboard-filter">
+              <label className="admin-dashboard-field-label" htmlFor="admin-dashboard-filter-status">
                 Status
               </label>
               <select
-                id="admin-filter-status"
+                id="admin-dashboard-filter-status"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="admin-input admin-select"
+                className="admin-dashboard-input admin-dashboard-select"
               >
                 <option value="all">All statuses</option>
                 <option value="active">Active</option>
@@ -620,7 +620,7 @@ const AdminDashboard = () => {
             {hasActiveFilters && (
               <button
                 type="button"
-                className="admin-btn admin-btn--ghost"
+                className="admin-dashboard-btn admin-dashboard-btn--ghost"
                 onClick={() => {
                   setSearchTerm("");
                   setFilterRole("all");
@@ -632,14 +632,14 @@ const AdminDashboard = () => {
             )}
           </div>
 
-          <div className="admin-result-count">
+          <div className="admin-dashboard-result-count">
             Showing {filteredUsers.length} of {users.length}{" "}
             {users.length === 1 ? "user" : "users"}
           </div>
 
           {/* Users table */}
-          <div className="admin-table-scroll">
-            <table className="admin-table">
+          <div className="admin-dashboard-table-scroll">
+            <table className="admin-dashboard-table">
               <thead>
                 <tr>
                   <th>User</th>
@@ -650,7 +650,7 @@ const AdminDashboard = () => {
                   <th>Email</th>
                   <th>Created</th>
                   <th>Last login</th>
-                  <th className="admin-th-actions">Actions</th>
+                  <th className="admin-dashboard-th-actions">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -661,22 +661,22 @@ const AdminDashboard = () => {
                   return (
                     <tr
                       key={user.userId}
-                      className={!user.isActive ? "admin-row--inactive" : ""}
+                      className={!user.isActive ? "admin-dashboard-row--inactive" : ""}
                     >
                       {/* Avatar (initials) + full name */}
                       <td>
-                        <div className="admin-user">
-                          <div className="admin-avatar" aria-hidden="true">
+                        <div className="admin-dashboard-user">
+                          <div className="admin-dashboard-avatar" aria-hidden="true">
                             {user.firstName.charAt(0)}
                             {user.lastName.charAt(0)}
                           </div>
-                          <span className="admin-user-name">{fullName}</span>
+                          <span className="admin-dashboard-user-name">{fullName}</span>
                         </div>
                       </td>
                       <td>
                         <button
                           type="button"
-                          className="admin-email-link"
+                          className="admin-dashboard-email-link"
                           onClick={() =>
                             showEmailModal(user.userId, fullName, user.email)
                           }
@@ -685,8 +685,8 @@ const AdminDashboard = () => {
                           {user.email}
                         </button>
                       </td>
-                      <td className="admin-cell-muted">
-                        {user.phone || <span className="admin-muted">—</span>}
+                      <td className="admin-dashboard-cell-muted">
+                        {user.phone || <span className="admin-dashboard-muted">—</span>}
                       </td>
 
                       {/* Role badge */}
@@ -699,10 +699,10 @@ const AdminDashboard = () => {
                       {/* Active/Inactive status */}
                       <td>
                         <span
-                          className={`admin-status ${
+                          className={`admin-dashboard-status ${
                             user.isActive
-                              ? "admin-status--active"
-                              : "admin-status--inactive"
+                              ? "admin-dashboard-status--active"
+                              : "admin-dashboard-status--inactive"
                           }`}
                         >
                           {user.isActive ? "Active" : "Inactive"}
@@ -712,10 +712,10 @@ const AdminDashboard = () => {
                       {/* Email verification status */}
                       <td>
                         <span
-                          className={`admin-verified ${
+                          className={`admin-dashboard-verified ${
                             user.isEmailVerified
-                              ? "admin-verified--yes"
-                              : "admin-verified--no"
+                              ? "admin-dashboard-verified--yes"
+                              : "admin-dashboard-verified--no"
                           }`}
                         >
                           {user.isEmailVerified ? (
@@ -726,18 +726,18 @@ const AdminDashboard = () => {
                           {user.isEmailVerified ? "Verified" : "Unverified"}
                         </span>
                       </td>
-                      <td className="admin-date-cell">
+                      <td className="admin-dashboard-date-cell">
                         {renderDateCell(user.createdAt)}
                       </td>
-                      <td className="admin-date-cell">
+                      <td className="admin-dashboard-date-cell">
                         {renderDateCell(user.lastLogin)}
                       </td>
 
                       {/* Actions — replaced by a "You" tag for the current admin */}
                       <td>
-                        <div className="admin-actions">
+                        <div className="admin-dashboard-actions">
                           {isSelf ? (
-                            <span className="admin-you">You</span>
+                            <span className="admin-dashboard-you">You</span>
                           ) : (
                             <>
                               {/* Role select — opens confirmation modal on change */}
@@ -752,7 +752,7 @@ const AdminDashboard = () => {
                                     user.role,
                                   )
                                 }
-                                className="admin-input admin-select admin-select--sm"
+                                className="admin-dashboard-input admin-dashboard-select admin-dashboard-select--sm"
                               >
                                 <option value="customer">Customer</option>
                                 <option value="manager">Manager</option>
@@ -768,10 +768,10 @@ const AdminDashboard = () => {
                                     user.isActive,
                                   )
                                 }
-                                className={`admin-btn admin-btn--sm ${
+                                className={`admin-dashboard-btn admin-dashboard-btn--sm ${
                                   user.isActive
-                                    ? "admin-btn--outline-danger"
-                                    : "admin-btn--primary"
+                                    ? "admin-dashboard-btn--outline-danger"
+                                    : "admin-dashboard-btn--primary"
                                 }`}
                               >
                                 {user.isActive ? "Deactivate" : "Activate"}
@@ -788,10 +788,10 @@ const AdminDashboard = () => {
 
             {/* Empty state */}
             {filteredUsers.length === 0 && (
-              <div className="admin-empty">
+              <div className="admin-dashboard-empty">
                 <Search size={22} aria-hidden="true" />
-                <p className="admin-empty-title">No users found</p>
-                <p className="admin-empty-text">
+                <p className="admin-dashboard-empty-title">No users found</p>
+                <p className="admin-dashboard-empty-text">
                   Try adjusting your search or filters.
                 </p>
               </div>
