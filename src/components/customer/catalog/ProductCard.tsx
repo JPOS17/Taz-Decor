@@ -27,8 +27,8 @@ const ListItem = ({ product, coupon, fromPath }: ListItemProps) => {
 
   // Navigates to the product detail page
   const handleClick = () => {
-    navigate(`/items/${product.variant_id}`, {
-      state: { from: fromPath || "/items" },
+    navigate(`/product/${product.variant_id}`, {
+      state: { from: fromPath || "/product-catalog" },
     });
   };
 
