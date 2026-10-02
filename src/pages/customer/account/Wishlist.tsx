@@ -190,7 +190,7 @@ const Saved = () => {
 
   // Opens the product detail page, remembering that we came from the wishlist
   const handleOpenProduct = (variantId: number) => {
-    navigate(`/items/${variantId}`, { state: { from: WISHLIST_PATH } });
+    navigate(`/product/${variantId}`, { state: { from: WISHLIST_PATH } });
   };
 
   // Adds the wishlist item to the cart (with its best coupon) and opens the mini cart
@@ -264,7 +264,7 @@ const Saved = () => {
             <button
               type="button"
               className="wishlist-btn-browse"
-              onClick={() => navigate("/items")}
+              onClick={() => navigate("/product-catalog")}
             >
               Browse Products
             </button>

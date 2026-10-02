@@ -32,7 +32,7 @@ const MiniCart = ({
   onClose,
   justAddedItem,
   isNewItem,
-  fromPath = "/items",
+  fromPath = "/product-catalog",
 }: MiniCartProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();

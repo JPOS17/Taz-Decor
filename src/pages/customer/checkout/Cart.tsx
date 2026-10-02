@@ -512,7 +512,7 @@ const Cart = () => {
 
   // Opens the product page, remembering that we came from the cart
   const handleOpenProduct = (variantId: number) => {
-    navigate(`/items/${variantId}`, { state: { from: "/cart" } });
+    navigate(`/product/${variantId}`, { state: { from: "/cart" } });
   };
 
   // Empties the whole cart once the user confirms
@@ -548,7 +548,7 @@ const Cart = () => {
             <button
               type="button"
               className="cart-btn-browse"
-              onClick={() => navigate("/items")}
+              onClick={() => navigate("/product-catalog")}
             >
               Browse Products
             </button>
@@ -987,7 +987,7 @@ const Cart = () => {
               <button
                 type="button"
                 className="cart-btn-continue-shopping"
-                onClick={() => navigate("/items")}
+                onClick={() => navigate("/product-catalog")}
               >
                 Continue Shopping
               </button>
