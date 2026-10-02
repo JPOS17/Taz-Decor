@@ -285,7 +285,7 @@ const OrderConfirmation = () => {
             </button>
             <button
               className="order-confirmation-btn-outline"
-              onClick={() => navigate("/items")}
+              onClick={() => navigate("/product-catalog")}
             >
               <FaHome /> Continue Shopping
             </button>

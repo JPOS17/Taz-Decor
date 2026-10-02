@@ -177,7 +177,7 @@ const Orders = () => {
               <p className="order-history-empty-text">
                 When you place orders, they will appear here.
               </p>
-              <Link to="/items" className="order-history-btn-primary">
+              <Link to="/product-catalog" className="order-history-btn-primary">
                 Start Shopping
               </Link>
             </div>
