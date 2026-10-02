@@ -10,6 +10,8 @@ import {
   FaTag,
   FaLock,
   FaExclamationTriangle,
+  FaShoppingBag,
+  FaChevronRight,
 } from "react-icons/fa";
 import {
   fetchProductCouponsPreview,
@@ -37,7 +39,6 @@ const Cart = () => {
     updateQuantity,
     updateCartCoupon,
     clearCart,
-    getCartTotal,
     cartLevelCouponId,
     setCartLevelCouponId,
   } = useCart();
@@ -72,6 +73,9 @@ const Cart = () => {
   // Removal warning state
   const [showRemovalWarning, setShowRemovalWarning] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<number | null>(null);
+
+  // Clear-cart confirmation state
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const isEmailVerified = user?.isEmailVerified ?? false;
 
@@ -506,6 +510,17 @@ const Cart = () => {
     setItemToRemove(null);
   };
 
+  // Opens the product page, remembering that we came from the cart
+  const handleOpenProduct = (variantId: number) => {
+    navigate(`/items/${variantId}`, { state: { from: "/cart" } });
+  };
+
+  // Empties the whole cart once the user confirms
+  const handleConfirmClear = () => {
+    clearCart();
+    setShowClearConfirm(false);
+  };
+
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -520,16 +535,19 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className={"cart-page"}>
-        <div className={"cart-container"}>
-          <div className={"cart-empty"}>
-            <FaTag className={"cart-empty-icon"} />
-            <h2 className={"cart-empty-title"}>Your cart is empty</h2>
-            <p className={"cart-empty-text"}>
-              Add some items to your cart to get started!
+      <div className="cart-page">
+        <div className="cart-container">
+          <div className="cart-empty">
+            <span className="cart-empty-icon-wrap" aria-hidden="true">
+              <FaShoppingBag className="cart-empty-icon" />
+            </span>
+            <h1 className="cart-empty-title">Your cart is empty</h1>
+            <p className="cart-empty-text">
+              Add a few pieces you love and they will be waiting here.
             </p>
             <button
-              className={"cart-btn-browse"}
+              type="button"
+              className="cart-btn-browse"
               onClick={() => navigate("/items")}
             >
               Browse Products
@@ -540,15 +558,27 @@ const Cart = () => {
     );
   }
 
+  // Total units across all lines, shown next to the page title
+  const totalUnits = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <div className={"cart-page"}>
       <div className={"cart-container"}>
-        <div className={"cart-header"}>
-          <h1 className={"cart-title"}>Shopping Cart</h1>
-          <button className={"cart-btn-clear"} onClick={clearCart}>
+        <header className="cart-header">
+          <div className="cart-header-text">
+            <h1 className="cart-title">Shopping Cart</h1>
+            <p className="cart-count">
+              {totalUnits} {totalUnits === 1 ? "item" : "items"}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="cart-btn-clear"
+            onClick={() => setShowClearConfirm(true)}
+          >
             Clear Cart
           </button>
-        </div>
+        </header>
 
         <div className={"cart-layout"}>
           {/* LEFT COLUMN — all cart items */}
@@ -557,23 +587,29 @@ const Cart = () => {
               cartItems.some(
                 (item) => getApplicableCouponsForItem(item).length > 0,
               ) && (
-                <div
-                  className={"cart-verification-banner"}
+                <button
+                  type="button"
+                  className="cart-verification-banner"
                   onClick={() => navigate("/login")}
                 >
-                  <FaLock className={"cart-banner-icon"} />
-                  <div className={"cart-banner-content"}>
-                    <h4 className={"cart-banner-title"}>
-                      Email Verification Required for Discounts!
-                    </h4>
-                    <p className={"cart-banner-message"}>
-                      Please create and verify your email address to see apply
-                      coupons.
-                    </p>
-                  </div>
-                </div>
+                  <FaLock className="cart-banner-icon" aria-hidden="true" />
+                  <span className="cart-banner-content">
+                    <span className="cart-banner-title">
+                      Verify your email to unlock discounts
+                    </span>
+                    <span className="cart-banner-message">
+                      Create an account and verify your email address to apply
+                      coupons to your items.
+                    </span>
+                  </span>
+                  <FaChevronRight
+                    className="cart-banner-chevron"
+                    aria-hidden="true"
+                  />
+                </button>
               )}
 
+            <ul className="cart-items-list">
             {cartItems
               .filter((item) => item.quantity > 0)
               .map((item) => {
@@ -610,31 +646,32 @@ const Cart = () => {
                 }
 
                 return (
-                  <div key={item.variant_id} className={"cart-item-card"}>
-                    <div className={"cart-item-image-wrapper"}>
+                  <li key={item.variant_id} className="cart-item-card">
+                    <button
+                      type="button"
+                      className="cart-item-image-wrapper"
+                      onClick={() => handleOpenProduct(item.variant_id)}
+                      aria-label={`View ${item.name}`}
+                    >
                       <img
                         src={item.image}
-                        alt={item.name}
-                        className={"cart-item-image"}
-                        onClick={() =>
-                          navigate(`/items/${item.variant_id}`, {
-                            state: { from: "/cart" },
-                          })
-                        }
+                        alt=""
+                        className="cart-item-image"
+                        loading="lazy"
+                        decoding="async"
                       />
-                    </div>
+                    </button>
 
-                    <div className={"cart-item-details"}>
-                      <h5
-                        className={"cart-item-name"}
-                        onClick={() =>
-                          navigate(`/items/${item.variant_id}`, {
-                            state: { from: "/cart" },
-                          })
-                        }
-                      >
-                        {item.name}
-                      </h5>
+                    <div className="cart-item-details">
+                      <h2 className="cart-item-name">
+                        <button
+                          type="button"
+                          className="cart-item-name-btn"
+                          onClick={() => handleOpenProduct(item.variant_id)}
+                        >
+                          {item.name}
+                        </button>
+                      </h2>
                       <div className={"cart-item-meta"}>
                         {item.color && <span>Color: {item.color}</span>}
                         {item.color && item.size && <span> | </span>}
@@ -765,6 +802,7 @@ const Cart = () => {
                               getApplicableCouponsForItem(item).length > 0
                             : getApplicableCouponsForItem(item).length > 0) && (
                             <button
+                              type="button"
                               className={"cart-btn-change-coupon"}
                               onClick={() => handleOpenCouponModal(item)}
                             >
@@ -780,19 +818,22 @@ const Cart = () => {
                     <div className={"cart-item-quantity"}>
                       <div className={"cart-quantity-control"}>
                         <button
-                          className={"cart-quantity-btn cart-quantity-decrease"}
+                          type="button"
+                          className="cart-quantity-btn cart-quantity-decrease"
                           onClick={() =>
                             handleDecreaseQuantity(
                               item.variant_id,
                               item.quantity,
                             )
                           }
+                          aria-label={`Decrease quantity of ${item.name}`}
                         >
-                          <FaMinus />
+                          <FaMinus aria-hidden="true" />
                         </button>
                         <input
                           type="number"
-                          className={"cart-quantity-input"}
+                          className="cart-quantity-input"
+                          aria-label={`Quantity of ${item.name}`}
                           value={item.quantity}
                           onChange={(e) =>
                             updateQuantity(
@@ -803,12 +844,14 @@ const Cart = () => {
                           min="1"
                         />
                         <button
-                          className={"cart-quantity-btn cart-quantity-increase"}
+                          type="button"
+                          className="cart-quantity-btn cart-quantity-increase"
                           onClick={() =>
                             updateQuantity(item.variant_id, item.quantity + 1)
                           }
+                          aria-label={`Increase quantity of ${item.name}`}
                         >
-                          <FaPlus />
+                          <FaPlus aria-hidden="true" />
                         </button>
                       </div>
                     </div>
@@ -836,25 +879,28 @@ const Cart = () => {
 
                     <div className={"cart-item-actions"}>
                       <button
-                        className={"cart-btn-remove-item"}
+                        type="button"
+                        className="cart-btn-remove-item"
                         onClick={() => {
                           setItemToRemove(item.variant_id);
                           setShowRemovalWarning(true);
                         }}
+                        aria-label={`Remove ${item.name} from cart`}
                         title="Remove from cart"
                       >
-                        <FaTrash />
+                        <FaTrash aria-hidden="true" />
                       </button>
                     </div>
-                  </div>
+                  </li>
                 );
               })}
+            </ul>
           </div>
 
           {/* RIGHT COLUMN — sticky order summary */}
           <div className={"cart-summary-section"}>
             <div className={"cart-summary-card"}>
-              <h4 className={"cart-summary-title"}>Order Summary</h4>
+              <h2 className="cart-summary-title">Order Summary</h2>
 
               <div className={"cart-summary-row"}>
                 <span className={"cart-summary-label"}>Subtotal</span>
@@ -931,14 +977,16 @@ const Cart = () => {
               )}
 
               <button
-                className={"cart-btn-checkout"}
+                type="button"
+                className="cart-btn-checkout"
                 onClick={() => navigate("/checkout")}
               >
                 Proceed to Checkout
               </button>
 
               <button
-                className={"cart-btn-continue-shopping"}
+                type="button"
+                className="cart-btn-continue-shopping"
                 onClick={() => navigate("/items")}
               >
                 Continue Shopping
@@ -980,6 +1028,18 @@ const Cart = () => {
         variant="danger"
         onConfirm={handleConfirmRemoval}
         onCancel={handleCancelRemoval}
+      />
+
+      {/* Clear cart confirmation modal */}
+      <ConfirmModal
+        isOpen={showClearConfirm}
+        title="Clear Your Cart?"
+        message="All items will be removed from your cart. Are you sure you want to continue?"
+        confirmLabel="Clear Cart"
+        cancelLabel="Keep Items"
+        variant="danger"
+        onConfirm={handleConfirmClear}
+        onCancel={() => setShowClearConfirm(false)}
       />
     </div>
   );

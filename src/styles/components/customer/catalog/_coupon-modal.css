@@ -1,6 +1,6 @@
 /* ==============================================================================
    COUPON MODAL
-   Modal for browsing and applying available coupons.
+   Modal for browsing and applying available coupons
    Prefix: coupon-modal-*
    ============================================================================== */
 
@@ -11,6 +11,8 @@
   right: 0;
   bottom: 0;
   background-color: var(--color-overlay);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,7 +22,8 @@
 
 .coupon-modal-container {
   background: var(--color-surface-solid);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
@@ -43,26 +46,42 @@
 
 .coupon-modal-title {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
   color: var(--color-text-strongest);
 }
 
 .coupon-modal-btn-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  margin-left: 1rem;
+  padding: 0;
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  border-radius: 50%;
+  font-size: 0.9rem;
   color: var(--color-text-muted);
   cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .coupon-modal-btn-close:hover {
-  color: var(--color-text-strongest);
+  background: var(--color-danger-bg-hover);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.coupon-modal-btn-close:focus-visible,
+.coupon-modal-btn-remove:focus-visible,
+.coupon-modal-btn-sign-in:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ============================================================================
@@ -90,7 +109,7 @@
   width: 3rem;
   height: 3rem;
   border: 0.25rem solid var(--color-border-light);
-  border-right-color: var(--color-info-border);
+  border-right-color: var(--color-primary);
   border-radius: 50%;
   animation: coupon-modal-spin 0.75s linear infinite;
 }
@@ -152,10 +171,10 @@
 }
 
 .coupon-modal-btn-remove-selected {
-  border-color: var(--color-info-border);
-  background: var(--color-info-bg);
-  color: var(--color-info-text);
-  font-weight: 600;
+  border-color: var(--color-primary);
+  background: var(--color-primary-alpha-06);
+  color: var(--color-primary-dark);
+  font-weight: 700;
 }
 
 /* ============================================================================

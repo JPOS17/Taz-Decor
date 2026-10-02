@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useNavigate } from "react-router";
 import { FaTag, FaTimes, FaLock, FaShippingFast } from "react-icons/fa";
 import type { ProductCoupon } from "../../../api/couponCustomer";
@@ -25,6 +25,7 @@ const CartLevelCouponSelector = ({
 }: CartLevelCouponSelectorProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
+  const listId = useId();
 
   // Only show coupons that apply to the entire cart
   const cartLevelCoupons = coupons.filter((c) => c.applies_to_type === "all");
@@ -121,7 +122,7 @@ const CartLevelCouponSelector = ({
     <div className="cart-level-coupon-selector-section">
       <div className="cart-level-coupon-selector-header">
         <h3 className="cart-level-coupon-selector-title">
-          <FaTag /> Cart Discount
+          <FaTag aria-hidden="true" /> Cart Discount
         </h3>
 
         {/* Selected coupon details or an add button */}
@@ -133,29 +134,41 @@ const CartLevelCouponSelector = ({
               </span>
               <span className="cart-level-coupon-selector-coupon-value">
                 {isFreeShippingCoupon(selectedCoupon) && (
-                  <FaShippingFast size={12} className="cart-level-coupon-selector-shipping-icon" />
+                  <FaShippingFast
+                    size={12}
+                    className="cart-level-coupon-selector-shipping-icon"
+                    aria-hidden="true"
+                  />
                 )}
                 {getDiscountDisplay(selectedCoupon)}
               </span>
             </div>
             <button
+              type="button"
               className="cart-level-coupon-selector-btn-change"
               onClick={() => setIsExpanded(!isExpanded)}
+              aria-expanded={isExpanded}
+              aria-controls={listId}
             >
               Change
             </button>
             <button
+              type="button"
               className="cart-level-coupon-selector-btn-remove"
               onClick={handleRemoveCoupon}
+              aria-label="Remove cart coupon"
               title="Remove coupon"
             >
-              <FaTimes />
+              <FaTimes aria-hidden="true" />
             </button>
           </div>
         ) : (
           <button
+            type="button"
             className="cart-level-coupon-selector-btn-add"
             onClick={() => setIsExpanded(!isExpanded)}
+            aria-expanded={isExpanded}
+            aria-controls={listId}
           >
             {isExpanded ? "Hide Coupons" : "Add Cart Discount"}
           </button>
@@ -168,10 +181,14 @@ const CartLevelCouponSelector = ({
           {/* Sign-in notice — shown when the user's email is not verified */}
           {!isEmailVerified && (
             <div className="cart-level-coupon-selector-guest-notice">
-              <FaLock className="cart-level-coupon-selector-guest-icon" />
+              <FaLock
+                className="cart-level-coupon-selector-guest-icon"
+                aria-hidden="true"
+              />
               <p>
                 Coupons are only applicable for signed-in users.{" "}
                 <button
+                  type="button"
                   className="cart-level-coupon-selector-btn-sign-in"
                   onClick={() => navigate("/login")}
                 >
@@ -183,6 +200,7 @@ const CartLevelCouponSelector = ({
 
           {/* Coupon list — pointer events disabled for unverified users */}
           <div
+            id={listId}
             className={
               !isEmailVerified
                 ? "cart-level-coupon-selector-disabled-overlay"
@@ -244,9 +262,12 @@ const CartLevelCouponSelector = ({
                         </div>
 
                         <button
+                          type="button"
                           className="cart-level-coupon-selector-btn-select"
                           onClick={() => handleCouponSelect(coupon)}
                           disabled={!eligible}
+                          aria-pressed={isSelected}
+                          aria-label={`${isSelected ? "Selected" : "Select"} coupon ${coupon.coupon_code}`}
                         >
                           {isSelected ? "Selected" : "Select"}
                         </button>

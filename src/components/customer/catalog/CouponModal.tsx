@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { useNavigate } from "react-router";
 import { FaTimes, FaLock } from "react-icons/fa";
 import {
@@ -40,6 +40,7 @@ const CouponModal = ({
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
+  const titleId = useId();
 
   // ============================================================================
   // STATE MANAGEMENT
@@ -98,6 +99,24 @@ const CouponModal = ({
     loadCoupons();
   }, [isOpen, variantId, productId, categoryId, productTypeId]);
 
+  // While open: Escape closes the modal and the page behind it stops scrolling
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen, onClose]);
+
   // ============================================================================
   // HELPERS
   // ============================================================================
@@ -138,14 +157,22 @@ const CouponModal = ({
     <div className="coupon-modal-overlay" onClick={onClose}>
       <div
         className="coupon-modal-container"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="coupon-modal-header">
-          <h3 className="coupon-modal-title">
+          <h2 id={titleId} className="coupon-modal-title">
             Select Coupon for {productName}
-          </h3>
-          <button className="coupon-modal-btn-close" onClick={onClose}>
-            <FaTimes />
+          </h2>
+          <button
+            type="button"
+            className="coupon-modal-btn-close"
+            onClick={onClose}
+            aria-label="Close coupon selector"
+          >
+            <FaTimes aria-hidden="true" />
           </button>
         </div>
 
@@ -153,10 +180,11 @@ const CouponModal = ({
           {/* Sign-in notice */}
           {!isEmailVerified && (
             <div className="coupon-modal-guest-notice">
-              <FaLock className="coupon-modal-guest-icon" />
+              <FaLock className="coupon-modal-guest-icon" aria-hidden="true" />
               <p>
                 Coupons are only applicable for signed-in users.{" "}
                 <button
+                  type="button"
                   className="coupon-modal-btn-sign-in"
                   onClick={() => {
                     onClose();
@@ -204,8 +232,10 @@ const CouponModal = ({
               {isEmailVerified && (
                 <div className="coupon-modal-remove-option">
                   <button
+                    type="button"
                     className={`coupon-modal-btn-remove${!selectedCoupon ? " coupon-modal-btn-remove-selected" : ""}`}
                     onClick={handleRemoveCoupon}
+                    aria-pressed={!selectedCoupon}
                   >
                     {!selectedCoupon ? "✓ " : ""}No Coupon
                   </button>
