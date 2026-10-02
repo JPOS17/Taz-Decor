@@ -1,0 +1,324 @@
+/* ==============================================================================
+   MANAGER DASHBOARD PAGE
+   Landing page of the manager area: a grid of cards linking to each section.
+   Neutral (white / grey / black) base with one color per section:
+   red = inventory, blue = orders, yellow = coupons, green = analytics,
+   grey = settings.
+
+   Self-contained: does NOT use the shared .manager-page / .mgr-* classes in
+   _shared.css (other manager pages still rely on those, so they are untouched).
+   Re-theme from the --manager-dashboard-* variables in the first block.
+   Prefix: manager-dashboard-*
+
+   BREAKPOINTS
+     - Tablet: up to 900px
+     - Mobile: up to 600px
+   ============================================================================== */
+
+.manager-dashboard-page {
+  /* Neutral palette */
+  --manager-dashboard-bg: #f5f5f6;
+  --manager-dashboard-surface: #ffffff;
+  --manager-dashboard-border: #e6e6e8;
+  --manager-dashboard-border-strong: #d2d2d6;
+  --manager-dashboard-text: #111113;
+  --manager-dashboard-text-2: #52525b;
+  --manager-dashboard-text-3: #8a8a93;
+  --manager-dashboard-ink: #111113;
+
+  --manager-dashboard-radius: 12px;
+  --manager-dashboard-shadow: 0 1px 2px rgba(17, 17, 19, 0.04), 0 1px 3px rgba(17, 17, 19, 0.04);
+  --manager-dashboard-shadow-hover: 0 8px 24px rgba(17, 17, 19, 0.08);
+  --manager-dashboard-ring: 0 0 0 3px rgba(17, 17, 19, 0.14);
+
+  /* Section colors — main / light tint / dark text-safe shade */
+  --manager-dashboard-red: #d1382e;
+  --manager-dashboard-red-light: #fdeeed;
+  --manager-dashboard-red-dark: #a82a21;
+
+  --manager-dashboard-blue: #2f6fe0;
+  --manager-dashboard-blue-light: #eaf1fd;
+  --manager-dashboard-blue-dark: #1f4fb0;
+
+  --manager-dashboard-yellow: #e0a410;
+  --manager-dashboard-yellow-light: #fdf5de;
+  --manager-dashboard-yellow-dark: #9a6b00;
+
+  --manager-dashboard-green: #1f8a4c;
+  --manager-dashboard-green-light: #e8f6ee;
+  --manager-dashboard-green-dark: #166a39;
+
+  --manager-dashboard-grey: #5b5b66;
+  --manager-dashboard-grey-light: #efeff1;
+  --manager-dashboard-grey-dark: #3f3f46;
+
+  min-height: 100vh;
+  background: var(--manager-dashboard-bg);
+  color: var(--manager-dashboard-text);
+  font-family: var(--font-admin);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+.manager-dashboard-page h1,
+.manager-dashboard-page h2,
+.manager-dashboard-page h3 {
+  margin: 0;
+  font-family: var(--font-admin);
+  color: var(--manager-dashboard-text);
+}
+
+.manager-dashboard-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* ==============================================================================
+   HEADER
+   ============================================================================== */
+
+.manager-dashboard-header {
+  padding: 2rem 0 1.75rem;
+  background: var(--manager-dashboard-surface);
+  border-bottom: 1px solid var(--manager-dashboard-border);
+}
+
+.manager-dashboard-eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--manager-dashboard-text-3);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.manager-dashboard-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.manager-dashboard-subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--manager-dashboard-text-2);
+  font-size: 0.92rem;
+}
+
+.manager-dashboard-main {
+  padding-block: 2rem 4rem;
+}
+
+.manager-dashboard-section-label {
+  margin-bottom: 1rem;
+  color: var(--manager-dashboard-text-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ==============================================================================
+   CARD GRID
+   ============================================================================== */
+
+.manager-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.1rem;
+}
+
+.manager-dashboard-card {
+  /* Defaults (overridden by the color modifiers below) */
+  --card-color: var(--manager-dashboard-grey);
+  --card-light: var(--manager-dashboard-grey-light);
+  --card-dark: var(--manager-dashboard-grey-dark);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+  padding: 1.35rem;
+  overflow: hidden;
+  background: var(--manager-dashboard-surface);
+  border: 1px solid var(--manager-dashboard-border);
+  border-radius: var(--manager-dashboard-radius);
+  box-shadow: var(--manager-dashboard-shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+/* Thin colored bar along the top edge, revealed on hover / focus */
+.manager-dashboard-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--card-color);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.manager-dashboard-card:hover,
+.manager-dashboard-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--manager-dashboard-border-strong);
+  box-shadow: var(--manager-dashboard-shadow-hover);
+}
+
+.manager-dashboard-card:hover::before,
+.manager-dashboard-card:focus-visible::before {
+  opacity: 1;
+}
+
+.manager-dashboard-card:focus-visible {
+  outline: none;
+  box-shadow: var(--manager-dashboard-shadow-hover), var(--manager-dashboard-ring);
+}
+
+.manager-dashboard-card--red {
+  --card-color: var(--manager-dashboard-red);
+  --card-light: var(--manager-dashboard-red-light);
+  --card-dark: var(--manager-dashboard-red-dark);
+}
+
+.manager-dashboard-card--blue {
+  --card-color: var(--manager-dashboard-blue);
+  --card-light: var(--manager-dashboard-blue-light);
+  --card-dark: var(--manager-dashboard-blue-dark);
+}
+
+.manager-dashboard-card--yellow {
+  --card-color: var(--manager-dashboard-yellow);
+  --card-light: var(--manager-dashboard-yellow-light);
+  --card-dark: var(--manager-dashboard-yellow-dark);
+}
+
+.manager-dashboard-card--green {
+  --card-color: var(--manager-dashboard-green);
+  --card-light: var(--manager-dashboard-green-light);
+  --card-dark: var(--manager-dashboard-green-dark);
+}
+
+.manager-dashboard-card--grey {
+  --card-color: var(--manager-dashboard-grey);
+  --card-light: var(--manager-dashboard-grey-light);
+  --card-dark: var(--manager-dashboard-grey-dark);
+}
+
+.manager-dashboard-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.manager-dashboard-card-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  background: var(--card-light);
+  border-radius: 10px;
+  color: var(--card-dark);
+}
+
+.manager-dashboard-card-badge {
+  padding: 0.2rem 0.6rem;
+  background: var(--manager-dashboard-grey-light);
+  border: 1px solid var(--manager-dashboard-border);
+  border-radius: 999px;
+  color: var(--manager-dashboard-text-2);
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.manager-dashboard-card-body {
+  flex: 1;
+}
+
+.manager-dashboard-card-title {
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.manager-dashboard-card-description {
+  margin: 0.35rem 0 0;
+  color: var(--manager-dashboard-text-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.manager-dashboard-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--manager-dashboard-border);
+  color: var(--card-dark);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.manager-dashboard-card-footer svg {
+  transition: transform 0.18s ease;
+}
+
+.manager-dashboard-card:hover .manager-dashboard-card-footer svg,
+.manager-dashboard-card:focus-visible .manager-dashboard-card-footer svg {
+  transform: translateX(4px);
+}
+
+/* ==============================================================================
+   RESPONSIVE
+   ============================================================================== */
+
+@media (max-width: 900px) {
+  .manager-dashboard-header {
+    padding: 1.5rem 0 1.4rem;
+  }
+
+  .manager-dashboard-main {
+    padding-block: 1.5rem 3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .manager-dashboard-container {
+    padding-inline: 1rem;
+  }
+
+  .manager-dashboard-title {
+    font-size: 1.4rem;
+  }
+
+  .manager-dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .manager-dashboard-card {
+    padding: 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manager-dashboard-card,
+  .manager-dashboard-card::before,
+  .manager-dashboard-card-footer svg {
+    transition: none;
+  }
+
+  .manager-dashboard-card:hover,
+  .manager-dashboard-card:focus-visible {
+    transform: none;
+  }
+}

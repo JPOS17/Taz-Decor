@@ -102,6 +102,7 @@
 @import "./pages/customer/checkout/_guest-order-lookup.css";
 
 /* -- manager -- */
+@import "./pages/manager/_manager-dashboard.css";
 @import "./pages/manager/_legacy-aliases.css";
 @import "./pages/manager/_shared.css";
 @import "./pages/manager/inventory/_inventory-list.css";
