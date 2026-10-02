@@ -83,9 +83,6 @@ const ForgotPassword = () => {
       <div className="forgot-card">
         {/* Page header */}
         <div className="forgot-header">
-          <span className="forgot-emblem" aria-hidden="true">
-            <FaCross />
-          </span>
           <h1 className="forgot-title">Forgot Password?</h1>
           <p className="forgot-subtitle">
             Enter your email address and we'll send you a link to reset your

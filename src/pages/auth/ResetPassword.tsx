@@ -119,9 +119,6 @@ const ResetPassword = () => {
       <div className="reset-card">
         {/* Page header */}
         <div className="reset-header">
-          <span className="reset-emblem" aria-hidden="true">
-            <FaCross />
-          </span>
           <h1 className="reset-title">Reset Your Password</h1>
           <p className="reset-subtitle">Enter your new password below</p>
         </div>

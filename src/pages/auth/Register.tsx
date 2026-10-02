@@ -169,9 +169,6 @@ const Register = () => {
       <div className="register-card">
         {/* Page header */}
         <div className="register-header">
-          <span className="register-emblem" aria-hidden="true">
-            <FaCross />
-          </span>
           <h1 className="register-title">Create Account</h1>
           <p className="register-subtitle">Join us today</p>
         </div>

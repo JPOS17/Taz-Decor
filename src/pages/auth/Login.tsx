@@ -72,9 +72,6 @@ const Login = () => {
       <div className="login-card">
         {/* Page header */}
         <div className="login-header">
-          <span className="login-emblem" aria-hidden="true">
-            <FaCross />
-          </span>
           <h1 className="login-title">Welcome</h1>
           <p className="login-subtitle">Sign in to your account</p>
         </div>
