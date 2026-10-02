@@ -1,3 +1,4 @@
+import { useEffect, useId, useRef } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
 interface ConfirmModalProps {
@@ -22,6 +23,23 @@ const ConfirmModal = ({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) => {
+  const titleId = useId();
+  const messageId = useId();
+  const cancelBtnRef = useRef<HTMLButtonElement>(null);
+
+  // While open: focus the safe action (Cancel) and let Escape dismiss the dialog
+  useEffect(() => {
+    if (!isOpen) return;
+
+    cancelBtnRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onCancel();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onCancel]);
+
   // Render nothing when the modal is closed
   if (!isOpen) return null;
 
@@ -37,20 +55,34 @@ const ConfirmModal = ({
       {/* Stop propagation so clicking inside the modal doesn't close it */}
       <div
         className={`confirm-modal confirm-modal--${variant}`}
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={messageId}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="confirm-modal-icon">
-          <FaExclamationTriangle size={40} />
+        <div className="confirm-modal-icon" aria-hidden="true">
+          <FaExclamationTriangle size={26} />
         </div>
-        <h3 className="confirm-modal-title">{title}</h3>
-        <p className="confirm-modal-message">{message}</p>
+        <h3 id={titleId} className="confirm-modal-title">
+          {title}
+        </h3>
+        <p id={messageId} className="confirm-modal-message">
+          {message}
+        </p>
 
         {/* Action buttons */}
         <div className="confirm-modal-actions">
-          <button className="confirm-modal-btn-cancel" onClick={onCancel}>
+          <button
+            ref={cancelBtnRef}
+            type="button"
+            className="confirm-modal-btn-cancel"
+            onClick={onCancel}
+          >
             {cancelLabel}
           </button>
           <button
+            type="button"
             className={`confirm-modal-btn-confirm ${confirmBtnVariantClass}`}
             onClick={onConfirm}
           >

@@ -18,7 +18,6 @@ import {
   calculateDiscount,
   shouldShowDiscountedPrice,
   checkCustomGroupCoupons,
-  isItemLevelCoupon,
 } from "../../../api/couponCustomer";
 
 import MiniCart from "../../../components/customer/MiniCart";
@@ -26,6 +25,10 @@ import MiniCart from "../../../components/customer/MiniCart";
 import ConfirmModal from "../../../components/customer/shared/ConfirmModal";
 import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 import { getBOGOLabel } from "../../../utils/couponUtils";
+
+// Route this page lives at — passed to the product page and mini cart so
+// "Back" and "Continue Shopping" return here (matches the /saved nav link)
+const WISHLIST_PATH = "/saved";
 
 const Saved = () => {
   const { wishlistItems, removeFromWishlist, addToCart } = useCart();
@@ -185,6 +188,11 @@ const Saved = () => {
   // EVENT HANDLERS
   // ============================================================================
 
+  // Opens the product detail page, remembering that we came from the wishlist
+  const handleOpenProduct = (variantId: number) => {
+    navigate(`/items/${variantId}`, { state: { from: WISHLIST_PATH } });
+  };
+
   // Adds the wishlist item to the cart (with its best coupon) and opens the mini cart
   const handleAddToCart = (item: (typeof wishlistItems)[0]) => {
     const cartItem = {
@@ -246,10 +254,15 @@ const Saved = () => {
       <div className="wishlist-page">
         <div className="wishlist-container">
           <div className="wishlist-empty">
-            <FaHeart className="wishlist-empty-icon" />
-            <h2 className="wishlist-empty-title">Your Wishlist is Empty</h2>
-            <p className="wishlist-empty-text">Save your favorite items here!</p>
+            <span className="wishlist-empty-icon-wrap" aria-hidden="true">
+              <FaHeart className="wishlist-empty-icon" />
+            </span>
+            <h1 className="wishlist-empty-title">Your wishlist is empty</h1>
+            <p className="wishlist-empty-text">
+              Save the pieces you love and they will wait for you here.
+            </p>
             <button
+              type="button"
               className="wishlist-btn-browse"
               onClick={() => navigate("/items")}
             >
@@ -261,187 +274,206 @@ const Saved = () => {
     );
   }
 
+  // Newest first — sorted on a copy so the cart context's array is never mutated
+  const sortedItems = [...wishlistItems].sort((a, b) => b.addedAt - a.addedAt);
+
   return (
     <div className="wishlist-page">
       <div className="wishlist-container">
-        <div className="wishlist-header">
-          <h2 className="wishlist-title">My Wishlist</h2>
+        {/* Page header */}
+        <header className="wishlist-header">
+          <h1 className="wishlist-title">My Wishlist</h1>
           <span className="wishlist-count-badge">
-            {wishlistItems.length} items
+            {wishlistItems.length}{" "}
+            {wishlistItems.length === 1 ? "item" : "items"}
           </span>
-        </div>
+        </header>
 
-        <div className="wishlist-grid">
-          {wishlistItems
-            .sort((a, b) => b.addedAt - a.addedAt)
-            .map((item) => {
-              const { itemCoupon, isExpired, fallbackToBest } =
-                getCouponForItem(item);
-              const hasDiscount =
-                itemCoupon &&
-                shouldShowDiscountedPrice(itemCoupon) &&
-                itemCoupon.discount_type !== "bogo" &&
-                isEmailVerified;
-              const discountInfo = hasDiscount
-                ? calculateDiscount(item.price, itemCoupon)
-                : null;
-              const requiresVerification =
-                itemCoupon?.requires_verified_email && !isEmailVerified;
+        {/* Item grid */}
+        <ul className="wishlist-grid">
+          {sortedItems.map((item) => {
+            const { itemCoupon, isExpired, fallbackToBest } =
+              getCouponForItem(item);
+            const hasDiscount =
+              itemCoupon &&
+              shouldShowDiscountedPrice(itemCoupon) &&
+              itemCoupon.discount_type !== "bogo" &&
+              isEmailVerified;
+            const discountInfo = hasDiscount
+              ? calculateDiscount(item.price, itemCoupon)
+              : null;
+            const requiresVerification =
+              itemCoupon?.requires_verified_email && !isEmailVerified;
 
-              return (
-                <div key={item.variant_id} className="wishlist-card">
-                  <div className="wishlist-card-image-wrapper">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="wishlist-card-image"
-                      onClick={() =>
-                        navigate(`/items/${item.variant_id}`, {
-                          state: { from: "/wishlist" },
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="wishlist-card-body">
-                    {/* Left column: category, name, variant details */}
-                    <div className="wishlist-card-info">
-                      <span className="wishlist-card-category">
-                        {item.category}
-                      </span>
+            return (
+              <li key={item.variant_id} className="wishlist-card">
+                {/* Image tile — opens the product page */}
+                <button
+                  type="button"
+                  className="wishlist-card-image-wrapper"
+                  onClick={() => handleOpenProduct(item.variant_id)}
+                  aria-label={`View ${item.name}`}
+                >
+                  <img
+                    src={item.image}
+                    alt=""
+                    className="wishlist-card-image"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
 
-                      <h5
-                        className="wishlist-card-title"
-                        onClick={() =>
-                          navigate(`/items/${item.variant_id}`, {
-                            state: { from: "/wishlist" },
-                          })
-                        }
+                <div className="wishlist-card-body">
+                  {/* Category, name, variant details */}
+                  <div className="wishlist-card-info">
+                    <span className="wishlist-card-category">
+                      {item.category}
+                    </span>
+
+                    <h2 className="wishlist-card-title">
+                      <button
+                        type="button"
+                        className="wishlist-card-title-btn"
+                        onClick={() => handleOpenProduct(item.variant_id)}
                       >
                         {item.name}
-                      </h5>
+                      </button>
+                    </h2>
 
-                      {(item.color || item.size) && (
-                        <p className="wishlist-card-details">
-                          {item.color && <span>Color: {item.color}</span>}
-                          {item.color && item.size && <span> | </span>}
-                          {item.size && <span>Size: {item.size}</span>}
-                        </p>
+                    {(item.color || item.size) && (
+                      <p className="wishlist-card-details">
+                        {item.color && <span>Color: {item.color}</span>}
+                        {item.color && item.size && <span> | </span>}
+                        {item.size && <span>Size: {item.size}</span>}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Price and coupon info */}
+                  <div className="wishlist-card-pricing">
+                    {/* Strikethrough original and discounted price when a coupon applies */}
+                    <div className="wishlist-card-price-container">
+                      {hasDiscount && discountInfo ? (
+                        <>
+                          <div className="wishlist-card-price-row">
+                            <span className="wishlist-card-price-discounted">
+                              ${discountInfo.discountedPrice.toFixed(2)}
+                            </span>
+                            <span className="wishlist-card-price-original">
+                              ${item.price.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="wishlist-card-deal-badges">
+                            {itemCoupon.discount_type === "percentage" && (
+                              <span className="wishlist-deal-badge">
+                                {itemCoupon.discount_value}% OFF
+                              </span>
+                            )}
+                            {itemCoupon.discount_type === "fixed" && (
+                              <span className="wishlist-deal-badge">
+                                ${itemCoupon.discount_value} OFF
+                              </span>
+                            )}
+                            {itemCoupon.free_shipping && (
+                              <span className="wishlist-deal-badge wishlist-deal-badge-shipping">
+                                + Free Shipping
+                              </span>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="wishlist-card-price-row">
+                            <span className="wishlist-card-price">
+                              ${item.price.toFixed(2)}
+                            </span>
+                          </div>
+                          {itemCoupon && (
+                            <div className="wishlist-card-deal-badges">
+                              {itemCoupon.discount_type === "bogo" && (
+                                <span className="wishlist-deal-badge wishlist-deal-badge-bogo">
+                                  {getBOGOLabel(
+                                    itemCoupon.bogo_buy_quantity,
+                                    itemCoupon.bogo_get_quantity,
+                                    itemCoupon.bogo_discount_percentage,
+                                  )}
+                                </span>
+                              )}
+                              {itemCoupon.free_shipping && (
+                                <span className="wishlist-deal-badge wishlist-deal-badge-shipping">
+                                  + Free Shipping
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
 
-                    {/* Middle column: price and coupon info */}
-                    <div className="wishlist-card-pricing">
-                      {/* Price — shows strikethrough original and discounted price when a coupon applies */}
-                      <div className="wishlist-card-price-container">
-                        {hasDiscount && discountInfo ? (
-                          <>
-                            <p className="wishlist-card-price-original">
-                              ${item.price.toFixed(2)}
-                            </p>
-                            <div className="wishlist-card-price-with-deal">
-                              <p className="wishlist-card-price-discounted">
-                                ${discountInfo.discountedPrice.toFixed(2)}
-                              </p>
-                              <div className="wishlist-card-deal-badges">
-                                {itemCoupon.discount_type === "percentage" && (
-                                  <span className="wishlist-deal-badge">
-                                    {itemCoupon.discount_value}% OFF
-                                  </span>
-                                )}
-                                {itemCoupon.discount_type === "fixed" && (
-                                  <span className="wishlist-deal-badge">
-                                    ${itemCoupon.discount_value} OFF
-                                  </span>
-                                )}
-                                {itemCoupon.free_shipping && (
-                                  <span className="wishlist-deal-badge wishlist-deal-badge-shipping">
-                                    + Free Shipping
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="wishlist-card-price-with-deal">
-                            <p className="wishlist-card-price">
-                              ${item.price.toFixed(2)}
-                            </p>
-                            {itemCoupon && (
-                              <div className="wishlist-card-deal-badges">
-                                {itemCoupon.discount_type === "bogo" && (
-                                  <span className="wishlist-deal-badge wishlist-deal-badge-bogo">
-                                    {getBOGOLabel(
-                                      itemCoupon.bogo_buy_quantity,
-                                      itemCoupon.bogo_get_quantity,
-                                      itemCoupon.bogo_discount_percentage,
-                                    )}
-                                  </span>
-                                )}
-                                {itemCoupon.free_shipping && (
-                                  <span className="wishlist-deal-badge wishlist-deal-badge-shipping">
-                                    + Free Shipping
-                                  </span>
-                                )}
-                              </div>
-                            )}
+                    {/* Coupon info — expiry notices and coupon code badge */}
+                    {itemCoupon && (
+                      <div className="wishlist-card-coupon-info">
+                        {isExpired && (
+                          <div
+                            className="wishlist-coupon-expired-notice"
+                            role="status"
+                          >
+                            <FaExclamationTriangle size={12} aria-hidden="true" />
+                            <span>Saved coupon expired</span>
+                          </div>
+                        )}
+                        {fallbackToBest && !isExpired && (
+                          <div
+                            className="wishlist-coupon-fallback-notice"
+                            role="status"
+                          >
+                            <FaExclamationTriangle size={12} aria-hidden="true" />
+                            <span>Saved coupon no longer available</span>
+                          </div>
+                        )}
+                        <div className="wishlist-coupon-code-badge">
+                          <FaTag size={10} aria-hidden="true" />
+                          <span>{itemCoupon.coupon_code}</span>
+                        </div>
+                        {requiresVerification && (
+                          <div className="wishlist-coupon-verification-notice">
+                            <FaLock size={10} aria-hidden="true" />
+                            <span>Login required</span>
                           </div>
                         )}
                       </div>
+                    )}
+                  </div>
 
-                      {/* Coupon info — expiry notices and coupon code badge */}
-                      {itemCoupon && (
-                        <div className="wishlist-card-coupon-info">
-                          {isExpired && (
-                            <div className="wishlist-coupon-expired-notice">
-                              <FaExclamationTriangle size={12} />
-                              <span>Saved coupon expired</span>
-                            </div>
-                          )}
-                          {fallbackToBest && !isExpired && (
-                            <div className="wishlist-coupon-fallback-notice">
-                              <FaExclamationTriangle size={12} />
-                              <span>Saved coupon no longer available</span>
-                            </div>
-                          )}
-                          <div className="wishlist-coupon-code-badge">
-                            <FaTag size={10} />
-                            <span>{itemCoupon.coupon_code}</span>
-                          </div>
-                          {requiresVerification && (
-                            <div className="wishlist-coupon-verification-notice">
-                              <FaLock size={10} />
-                              <span>Login required</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                  {/* Actions — pinned to the bottom of the card */}
+                  <div className="wishlist-card-actions">
+                    <button
+                      type="button"
+                      className="wishlist-btn-add-to-cart"
+                      onClick={() => handleAddToCart(item)}
+                    >
+                      <FaShoppingCart
+                        className="wishlist-btn-icon"
+                        aria-hidden="true"
+                      />
+                      <span>Add to Cart</span>
+                    </button>
 
-                    {/* Right column: action buttons */}
-                    <div className="wishlist-card-actions">
-                      <button
-                        className="wishlist-btn-add-to-cart"
-                        onClick={() => handleAddToCart(item)}
-                      >
-                        <FaShoppingCart className="wishlist-btn-icon" />
-                        <span>Add to Cart</span>
-                      </button>
-
-                      <button
-                        className="wishlist-btn-remove"
-                        onClick={() =>
-                          handleRemoveFromWishlist(item.variant_id)
-                        }
-                      >
-                        <FaTrash className="wishlist-btn-icon" />
-                        <span>Remove</span>
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="wishlist-btn-remove"
+                      onClick={() => handleRemoveFromWishlist(item.variant_id)}
+                      aria-label={`Remove ${item.name} from wishlist`}
+                      title="Remove from wishlist"
+                    >
+                      <FaTrash className="wishlist-btn-icon" aria-hidden="true" />
+                    </button>
                   </div>
                 </div>
-              );
-            })}
-        </div>
+              </li>
+            );
+          })}
+        </ul>
 
         {/* Mini cart */}
         <MiniCart
@@ -452,7 +484,7 @@ const Saved = () => {
           }}
           justAddedItem={justAddedItem}
           isNewItem={isNewItem}
-          fromPath="/wishlist"
+          fromPath={WISHLIST_PATH}
         />
 
         {/* Remove confirmation modal */}

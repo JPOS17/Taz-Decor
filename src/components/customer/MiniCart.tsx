@@ -110,6 +110,24 @@ const MiniCart = ({
     loadCoupons();
   }, [isOpen, cartItems]);
 
+  // While open: Escape closes the mini cart and the page behind it stops scrolling
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen, onClose]);
+
   // ============================================================================
   // DATA LOADING
   // ============================================================================
@@ -317,18 +335,29 @@ const MiniCart = ({
 
   return (
     <div className="mini-cart-overlay" onClick={onClose}>
-      <div className="mini-cart-container" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="mini-cart-container"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mini-cart-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="mini-cart-header">
-          <h4 className="mini-cart-header-title">
-            <FaShoppingCart className="mini-cart-header-icon" />
+          <h2 id="mini-cart-title" className="mini-cart-header-title">
+            <FaShoppingCart className="mini-cart-header-icon" aria-hidden="true" />
             Shopping Cart
             {getCartCount() > 0 && (
               <span className="mini-cart-count">{getCartCount()}</span>
             )}
-          </h4>
-          <button className="mini-cart-close-btn" onClick={onClose}>
-            <FaTimes />
+          </h2>
+          <button
+            type="button"
+            className="mini-cart-close-btn"
+            onClick={onClose}
+            aria-label="Close cart"
+          >
+            <FaTimes aria-hidden="true" />
           </button>
         </div>
 
@@ -337,6 +366,7 @@ const MiniCart = ({
           <div
             ref={removedNotificationRef}
             className="mini-cart-notification mini-cart-notification-removed"
+            role="status"
           >
             <FaCheckCircle className="mini-cart-notification-icon" />
             <span className="mini-cart-notification-text">
@@ -347,6 +377,7 @@ const MiniCart = ({
           <div
             ref={addedNotificationRef}
             className="mini-cart-notification mini-cart-notification-added"
+            role="status"
           >
             <FaCheckCircle className="mini-cart-notification-icon" />
             {/* Message differs based on whether this was a new add or a duplicate */}
@@ -396,19 +427,21 @@ const MiniCart = ({
                 <div key={item.variant_id} className="mini-cart-item">
                   {/* Remove button */}
                   <button
+                    type="button"
                     className="mini-cart-item-remove"
                     onClick={(e) => handleRemoveItem(item.variant_id, e)}
+                    aria-label={`Remove ${item.name} from cart`}
                     title="Remove item"
                   >
-                    <FaTimes />
+                    <FaTimes aria-hidden="true" />
                   </button>
                   <img
                     src={item.image}
-                    alt={item.name}
+                    alt=""
                     className="mini-cart-item-image"
                   />
                   <div className="mini-cart-item-details">
-                    <h5 className="mini-cart-item-name">{item.name}</h5>
+                    <h3 className="mini-cart-item-name">{item.name}</h3>
                     {/* Variant attributes */}
                     {(item.color || item.size) && (
                       <p className="mini-cart-item-meta">
@@ -462,20 +495,23 @@ const MiniCart = ({
             {/* Action buttons — checkout, view cart, and continue shopping */}
             <div className="mini-cart-actions">
               <button
+                type="button"
                 className="mini-cart-btn mini-cart-btn-primary"
                 onClick={handleCheckout}
               >
-                <FaShoppingCart />
+                <FaShoppingCart aria-hidden="true" />
                 Checkout
               </button>
               <button
+                type="button"
                 className="mini-cart-btn mini-cart-btn-secondary"
                 onClick={handleViewCart}
               >
                 View Cart
               </button>
               <button
-                className="mini-cart-btn mini-cart-btn-outline"
+                type="button"
+                className="mini-cart-btn mini-cart-btn-text"
                 onClick={handleContinueShopping}
               >
                 Continue Shopping

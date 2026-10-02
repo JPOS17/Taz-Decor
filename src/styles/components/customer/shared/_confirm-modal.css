@@ -1,6 +1,6 @@
 /* ==============================================================================
    CONFIRM MODAL
-   Generic yes/no confirmation dialog used on the customer storefront.
+   Generic yes/no confirmation dialog used on the customer storefront
    Prefix: confirm-modal-*
    ============================================================================== */
 
@@ -8,6 +8,8 @@
   position: fixed;
   inset: 0;
   background: var(--color-overlay);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,20 +44,29 @@
    ICON
    ============================================================================ */
 
+/* Icon sits in a soft tinted circle that matches the variant */
 .confirm-modal-icon {
-  margin-bottom: 1rem;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
 }
 
 .confirm-modal--danger .confirm-modal-icon {
   color: var(--color-danger);
+  background: var(--color-danger-bg);
 }
 
 .confirm-modal--warning .confirm-modal-icon {
   color: var(--color-primary-vivid);
+  background: var(--color-primary-vivid-alpha-06);
 }
 
 .confirm-modal--info .confirm-modal-icon {
   color: var(--color-info-border);
+  background: var(--color-info-bg);
 }
 
 /* ============================================================================
@@ -148,6 +159,12 @@
 .confirm-modal-btn-cancel:active,
 .confirm-modal-btn-confirm:active {
   transform: translateY(0);
+}
+
+.confirm-modal-btn-cancel:focus-visible,
+.confirm-modal-btn-confirm:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ============================================================================

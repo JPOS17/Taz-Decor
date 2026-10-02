@@ -1,6 +1,6 @@
 /* ==============================================================================
    MINI CART
-   Dropdown cart preview opened from the top bar.
+   Cart preview panel shown after adding an item (product page, wishlist)
    Prefix: mini-cart-*
    ============================================================================== */
 
@@ -118,6 +118,13 @@
   border-color: var(--color-danger);
   color: var(--color-danger);
   transform: rotate(90deg);
+}
+
+.mini-cart-close-btn:focus-visible,
+.mini-cart-item-remove:focus-visible,
+.mini-cart-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ============================================================================
@@ -274,10 +281,13 @@
 .mini-cart-item-image {
   width: 68px;
   height: 68px;
-  object-fit: cover;
+  padding: 5px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  background: var(--color-surface-warm);
   border-radius: var(--radius-md);
   flex-shrink: 0;
-  border: 1.5px solid var(--color-border-image);
+  border: 1px solid var(--color-border-light);
 }
 
 .mini-cart-item-details {
@@ -411,49 +421,52 @@
   font-size: 0.9rem;
 }
 
-/* Checkout — green gradient */
+/* Checkout — the one primary action */
 .mini-cart-btn-primary {
-  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
-  color: var(--color-text-on-primary-alt);
-  box-shadow: var(--shadow-success-btn, 0 4px 12px var(--color-success-shadow));
-}
-
-.mini-cart-btn-primary:hover {
-  background: linear-gradient(135deg, var(--color-success-hover) 0%, var(--color-success-dark) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px var(--color-success-shadow);
-}
-
-/* View Cart — warm brown */
-.mini-cart-btn-secondary {
+  min-height: 46px;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: var(--color-text-on-primary-alt);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   box-shadow: var(--shadow-btn);
 }
 
-.mini-cart-btn-secondary:hover {
+.mini-cart-btn-primary:hover {
   background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary-hover-dark) 100%);
   transform: translateY(-2px);
   box-shadow: var(--shadow-btn-hover);
 }
 
-/* Continue Shopping — outline */
-.mini-cart-btn-outline {
+/* View Cart — outlined */
+.mini-cart-btn-secondary {
   background: transparent;
   color: var(--color-primary);
   border: 1.5px solid var(--color-primary-mid);
 }
 
-.mini-cart-btn-outline:hover {
+.mini-cart-btn-secondary:hover {
   background: var(--color-primary-alpha-08);
   border-color: var(--color-primary);
   color: var(--color-primary-dark);
-  transform: translateY(-2px);
+}
+
+/* Continue Shopping — quiet text button */
+.mini-cart-btn-text {
+  padding-block: 0.4rem;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mini-cart-btn-text:hover {
+  color: var(--color-primary);
 }
 
 .mini-cart-btn-primary:active,
-.mini-cart-btn-secondary:active,
-.mini-cart-btn-outline:active {
+.mini-cart-btn-secondary:active {
   transform: translateY(0);
 }
 
@@ -477,9 +490,9 @@
   }
 }
 
-/* @media (max-width: 576px) {
+@media (max-width: 576px) {
   .mini-cart-overlay {
-    padding-top: 55px;
+    padding-top: 56px;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
@@ -487,21 +500,15 @@
   .mini-cart-container {
     width: 100%;
     max-width: 100%;
-    max-height: calc(100vh - 65px);
-    border-radius: var(--radius-lg);
+    max-height: calc(100vh - 68px);
   }
 
   .mini-cart-header-title {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   .mini-cart-item-image {
     width: 56px;
     height: 56px;
   }
-
-  .mini-cart-btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.875rem;
-  }
-} */
+}
