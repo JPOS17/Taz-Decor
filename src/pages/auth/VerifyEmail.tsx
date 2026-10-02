@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { FaCheck, FaTimes } from "react-icons/fa";
 import { verifyEmail, resendVerificationEmail } from "../../api/auth";
 
 import LoadingSpinner from "../../components/shared/LoadingSpinner";
@@ -13,6 +14,8 @@ const VerifyEmail = () => {
   const navigate = useNavigate();
   // Ref prevents the verification API call from firing twice in React Strict Mode
   const hasVerified = useRef(false);
+  // Holds the post-success redirect timer so it can be cancelled on unmount
+  const redirectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // ============================================================================
   // STATE
@@ -48,20 +51,26 @@ const VerifyEmail = () => {
         setMessage(data.message);
 
         // Wait 2 seconds before redirecting so user sees success
-        setTimeout(() => {
+        redirectTimer.current = setTimeout(() => {
           navigate("/profile");
         }, 2000);
-      } catch (error: any) {
+      } catch (error) {
         setStatus("error");
         setMessage(
-          error.message ||
-            "An error occurred during verification. Please try again.",
+          error instanceof Error && error.message
+            ? error.message
+            : "An error occurred during verification. Please try again.",
         );
       }
     };
 
     performVerification();
   }, [token, navigate]);
+
+  // Cancels the pending redirect if the user leaves the page first
+  useEffect(() => {
+    return () => clearTimeout(redirectTimer.current);
+  }, []);
 
   // ============================================================================
   // HANDLERS
@@ -99,10 +108,14 @@ const VerifyEmail = () => {
       <div className="verify-container">
         <div className="verify-card">
           {/* Success icon */}
-          <div className="verify-success-icon">✓</div>
-          <h2 className="verify-title">Email Verified!</h2>
+          <div className="verify-success-icon" aria-hidden="true">
+            <FaCheck />
+          </div>
+          <h1 className="verify-title">Email Verified!</h1>
           <p className="verify-message">{message}</p>
-          <p className="verify-redirect">Redirecting to your profile...</p>
+          <p className="verify-redirect" role="status">
+            Redirecting to your profile...
+          </p>
           {/* Manual redirect link in case auto-redirect is slow */}
           <Link to="/profile" className="verify-btn-primary">
             Go to Profile Now
@@ -116,9 +129,13 @@ const VerifyEmail = () => {
     <div className="verify-container">
       <div className="verify-card">
         {/* Error icon */}
-        <div className="verify-error-icon">✕</div>
-        <h2 className="verify-title">Verification Failed</h2>
-        <p className="verify-message">{message}</p>
+        <div className="verify-error-icon" aria-hidden="true">
+          <FaTimes />
+        </div>
+        <h1 className="verify-title">Verification Failed</h1>
+        <p className="verify-message" role="alert">
+          {message}
+        </p>
         <p className="verify-help">
           This could happen if the link has expired or was already used.
         </p>
@@ -128,15 +145,20 @@ const VerifyEmail = () => {
             Go to Profile
           </Link>
           <button
+            type="button"
             className="verify-btn-secondary"
             onClick={handleResend}
             disabled={resendStatus !== "idle"}
           >
-            {resendStatus === "sending"
-              ? "Sending..."
-              : resendStatus === "sent"
-                ? "Email sent ✓"
-                : "Resend verification email"}
+            {resendStatus === "sending" ? (
+              "Sending..."
+            ) : resendStatus === "sent" ? (
+              <>
+                Email sent <FaCheck aria-hidden="true" />
+              </>
+            ) : (
+              "Resend verification email"
+            )}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { FaCross } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 
@@ -71,17 +72,26 @@ const Login = () => {
       <div className="login-card">
         {/* Page header */}
         <div className="login-header">
+          <span className="login-emblem" aria-hidden="true">
+            <FaCross />
+          </span>
           <h1 className="login-title">Welcome</h1>
           <p className="login-subtitle">Sign in to your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
           {/* Inline error message */}
-          {error && <div className="login-error-message">{error}</div>}
+          {error && (
+            <div className="login-error-message" role="alert">
+              {error}
+            </div>
+          )}
 
           {/* Info message passed via router state */}
           {location.state?.message && (
-            <div className="login-info-message">{location.state.message}</div>
+            <div className="login-info-message" role="status">
+              {location.state.message}
+            </div>
           )}
 
           {/* Email input */}
@@ -92,10 +102,12 @@ const Login = () => {
             <input
               type="email"
               id="email"
+              name="email"
               className="login-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              autoComplete="email"
               required
             />
           </div>
@@ -116,6 +128,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
+              autoComplete="current-password"
               required
             />
           </div>

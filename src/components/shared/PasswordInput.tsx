@@ -7,6 +7,11 @@ interface PasswordInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
   required?: boolean;
+  // Lets browsers and password managers tell sign-in from sign-up fields:
+  // "current-password" when signing in, "new-password" when choosing one
+  autoComplete?: "current-password" | "new-password" | "off";
+  // Id of an element that describes the field, e.g. a requirements checklist
+  ariaDescribedBy?: string;
 }
 
 // Controlled password field with an inline show/hide toggle button
@@ -17,6 +22,8 @@ const PasswordInput = ({
   onChange,
   placeholder,
   required = false,
+  autoComplete,
+  ariaDescribedBy,
 }: PasswordInputProps) => {
   // Tracks whether the password is currently visible as plain text
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +39,8 @@ const PasswordInput = ({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
+        autoComplete={autoComplete}
+        aria-describedby={ariaDescribedBy}
       />
 
       {/* Toggle button */}
@@ -40,6 +49,7 @@ const PasswordInput = ({
         className="password-input-toggle"
         onClick={() => setShowPassword(!showPassword)}
         aria-label={showPassword ? "Hide password" : "Show password"}
+        aria-pressed={showPassword}
       >
         {showPassword ? (
           // Eye-off icon — shown when password is visible
@@ -53,6 +63,7 @@ const PasswordInput = ({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            aria-hidden="true"
           >
             <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
             <line x1="1" y1="1" x2="23" y2="23"></line>
@@ -69,6 +80,7 @@ const PasswordInput = ({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            aria-hidden="true"
           >
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
             <circle cx="12" cy="12" r="3"></circle>

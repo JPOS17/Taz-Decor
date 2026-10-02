@@ -1,8 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
+import { FaCross, FaCheck } from "react-icons/fa";
 import { forgotPassword } from "../../api/auth";
-
-import LoadingSpinner from "../../components/shared/LoadingSpinner";
 
 const ForgotPassword = () => {
   // ============================================================================
@@ -36,6 +35,12 @@ const ForgotPassword = () => {
     }
   };
 
+  // Returns to the form so the user can correct a mistyped address
+  const handleTryAgain = () => {
+    setIsSubmitted(false);
+    setError("");
+  };
+
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -43,13 +48,16 @@ const ForgotPassword = () => {
   if (isSubmitted) {
     return (
       <div className="forgot-container">
-        <div className="forgot-card">
+        <div className="forgot-card forgot-card--centered">
           {/* Success confirmation — shown after the reset email is sent */}
-          <div className="forgot-success-icon">✓</div>
+          <div className="forgot-success-icon" aria-hidden="true">
+            <FaCheck />
+          </div>
           <h1 className="forgot-title">Check Your Email</h1>
           <p className="forgot-subtitle">
-            If an account exists with {email}, you will receive a password reset
-            link shortly.
+            If an account exists with{" "}
+            <span className="forgot-email-chip">{email}</span>, you will
+            receive a password reset link shortly.
           </p>
           <p className="forgot-info">
             The link will expire in 1 hour. If you don't see the email, check
@@ -58,6 +66,13 @@ const ForgotPassword = () => {
           <Link to="/login" className="forgot-back-to-login">
             Back to Login
           </Link>
+          <button
+            type="button"
+            className="forgot-try-again-btn"
+            onClick={handleTryAgain}
+          >
+            Use a different email
+          </button>
         </div>
       </div>
     );
@@ -68,6 +83,9 @@ const ForgotPassword = () => {
       <div className="forgot-card">
         {/* Page header */}
         <div className="forgot-header">
+          <span className="forgot-emblem" aria-hidden="true">
+            <FaCross />
+          </span>
           <h1 className="forgot-title">Forgot Password?</h1>
           <p className="forgot-subtitle">
             Enter your email address and we'll send you a link to reset your
@@ -77,7 +95,11 @@ const ForgotPassword = () => {
 
         <form onSubmit={handleSubmit} className="forgot-form">
           {/* Inline error message */}
-          {error && <div className="forgot-error-message">{error}</div>}
+          {error && (
+            <div className="forgot-error-message" role="alert">
+              {error}
+            </div>
+          )}
 
           {/* Email input */}
           <div className="forgot-form-group">
@@ -87,15 +109,15 @@ const ForgotPassword = () => {
             <input
               type="email"
               id="email"
+              name="email"
               className="forgot-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              autoComplete="email"
               required
             />
           </div>
-
-          {isLoading && <LoadingSpinner message="Sending reset link..." />}
 
           <button
             type="submit"

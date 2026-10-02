@@ -1,108 +1,127 @@
 /* ==============================================================================
    REGISTER PAGE
-   Account creation page.
+   Account creation page, plus its "check your inbox" success screen
    Prefix: register-*
    ============================================================================== */
 
 .register-container {
-  min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  min-height: calc(100vh - var(--top-bar-height, 0px));
+  padding: clamp(2rem, 7vh, 4.5rem) 1rem 4rem;
   background-color: var(--color-page-bg);
-  padding: 20px;
-  padding-bottom: 100px;
   font-family: var(--font-sans);
 }
 
+/* White card with a gold top edge, matching the storefront's accent line */
 .register-card {
-  background: var(--color-surface-gradient);
-  border: 1.5px solid var(--color-border-accent);
-  border-radius: var(--radius-2xl);
   width: 100%;
   max-width: 520px;
-  padding: 32px 40px;
+  padding: 2.5rem 2.5rem 2.25rem;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-top: 3px solid var(--color-border-accent);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
   animation: register-slide-up 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Used on the post-registration success view */
-.register-card--centered {
-  text-align: center;
-}
-
 @keyframes register-slide-up {
-  from { opacity: 0; transform: translateY(18px); }
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.register-header {
+/* Centered variant used by the success / result screens */
+.register-card--centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  margin-bottom: 20px;
+}
+
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+
+.register-header {
+  margin-bottom: 1.75rem;
+  text-align: center;
+}
+
+.register-emblem {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 1rem;
+  font-size: 1.1rem;
+  color: var(--color-text-accent);
+  background: var(--color-primary-alpha-08);
+  border-radius: 50%;
 }
 
 .register-title {
+  margin: 0 0 0.5rem;
   font-family: var(--font-serif);
-  font-size: 28px;
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.1rem);
   font-weight: 700;
-  color: var(--color-text-strongest);
-  margin-bottom: 8px;
+  line-height: 1.15;
   letter-spacing: 0.01em;
+  color: var(--color-text-strongest);
 }
 
 .register-subtitle {
-  font-size: 15px;
-  color: var(--color-text-muted);
   margin: 0;
-  line-height: 1.5;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
 }
+
+/* ============================================================================
+   FORM
+   ============================================================================ */
 
 .register-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-}
-
-.register-form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 1.15rem;
 }
 
 .register-form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.4rem;
+  min-width: 0;
 }
 
 .register-label {
-  font-size: 13px;
+  font-size: 0.85rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
   color: var(--color-text-strong);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.register-required {
-  color: var(--color-danger);
-  margin-left: 2px;
 }
 
 .register-input {
+  width: 100%;
   padding: 11px 15px;
   font-family: var(--font-sans);
   font-size: 15px;
+  color: var(--color-text-strongest);
   background: var(--color-surface-solid);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-  color: var(--color-text-strongest);
-  transition: all 0.22s ease;
   outline: none;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.register-input:hover {
+  border-color: var(--color-border-hover);
 }
 
 .register-input:focus {
   border-color: var(--color-primary-mid);
-  background: var(--color-surface-solid);
-  box-shadow: 0 0 0 3px var(--color-primary-mid-alpha-20);
+  box-shadow: 0 0 0 3px var(--color-primary-focus-ring);
 }
 
 .register-input::placeholder {
@@ -111,93 +130,52 @@
 
 .register-input:-webkit-autofill,
 .register-input:-webkit-autofill:hover,
-.register-input:-webkit-autofill:focus,
-.register-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px var(--color-surface-solid) inset !important;
-  -webkit-text-fill-color: var(--color-text-strongest) !important;
+.register-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-surface-solid) inset;
+  -webkit-text-fill-color: var(--color-text-strongest);
   caret-color: var(--color-text-strongest);
-  border-color: var(--color-primary-mid) !important;
-}
-
-.register-error-message {
-  background: var(--color-danger-bg);
-  color: var(--color-danger-dark);
-  padding: 11px 15px;
-  border-radius: var(--radius-md);
-  font-size: 13.5px;
-  border-left: 3px solid var(--color-danger);
 }
 
 /* ============================================================================
-   PASSWORD STRENGTH
+   MESSAGES
    ============================================================================ */
 
-.register-password-strength {
-  margin-top: 8px;
+.register-error-message {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-danger-dark);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
 }
 
-.register-strength-bar {
-  height: 4px;
-  background: var(--color-border-light);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.register-strength-fill {
-  height: 100%;
-  transition: all 0.3s ease;
-}
-
-.register-strength-0 { width: 0%;   background: var(--color-danger); }
-.register-strength-1 { width: 20%;  background: var(--color-danger); }
-.register-strength-2 { width: 40%;  background: var(--color-strength-weak); }
-.register-strength-3 { width: 60%;  background: var(--color-primary-mid); }
-.register-strength-4 { width: 80%;  background: var(--color-strength-strong); }
-.register-strength-5 { width: 100%; background: var(--color-success); }
-
-.register-password-requirements {
-  margin: 8px 0 0 0;
-  padding-left: 20px;
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.register-password-requirements li {
-  margin: 4px 0;
-}
+/* ============================================================================
+   SUBMIT BUTTON
+   ============================================================================ */
 
 .register-submit-btn {
-  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
-  color: var(--color-text-on-primary-alt);
-  padding: 13px 24px;
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 700;
+  min-height: 48px;
+  margin-top: 0.35rem;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border: none;
   border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.25s ease;
-  margin-top: 8px;
-  letter-spacing: 0.04em;
   box-shadow: var(--shadow-btn);
-  position: relative;
-  overflow: hidden;
+  color: var(--color-text-on-primary-alt);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
-
-.register-submit-btn::before {
-  content: "";
-  position: absolute;
-  top: 0; left: -100%; width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, var(--color-shimmer), transparent);
-  transition: left 0.4s ease;
-}
-
-.register-submit-btn:hover:not(:disabled)::before { left: 100%; }
 
 .register-submit-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary-hover-dark) 100%);
   box-shadow: var(--shadow-btn-hover);
-  background: linear-gradient(135deg, var(--color-success-hover) 0%, var(--color-success) 100%);
+  transform: translateY(-2px);
 }
 
 .register-submit-btn:active:not(:disabled) {
@@ -205,132 +183,309 @@
 }
 
 .register-submit-btn:disabled {
-  opacity: 0.55;
+  background: linear-gradient(135deg, var(--color-primary-disabled-start), var(--color-primary-disabled-end));
+  box-shadow: none;
   cursor: not-allowed;
 }
 
-/* Used when the button is rendered as a <Link> instead of a <button> */
-.register-submit-btn--link {
-  display: block;
-  text-decoration: none;
-  margin-bottom: 12px;
+.register-required {
+  color: var(--color-danger);
 }
 
+.register-optional {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* First and last name sit side by side */
+.register-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* ============================================================================
+   PASSWORD STRENGTH METER AND CHECKLIST
+   ============================================================================ */
+
+.register-password-strength {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.6rem;
+}
+
+.register-strength-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.register-strength-bar {
+  flex: 1;
+  height: 6px;
+  overflow: hidden;
+  background: var(--color-border-light);
+  border-radius: var(--radius-full);
+}
+
+.register-strength-fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.register-strength-0 { width: 0; }
+.register-strength-1 { width: 20%; background: var(--color-danger); }
+.register-strength-2 { width: 40%; background: var(--color-danger); }
+.register-strength-3 { width: 60%; background: var(--color-warning); }
+.register-strength-4 { width: 80%; background: var(--color-success-hover); }
+.register-strength-5 { width: 100%; background: var(--color-success); }
+
+.register-strength-label {
+  min-width: 3.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: right;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Checklist — every requirement is always shown, ticked off as it is met */
+.register-password-requirements {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.3rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.register-password-requirements li {
+  position: relative;
+  padding-left: 1.4rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  transition: color 0.2s ease;
+}
+
+.register-password-requirements li::before {
+  content: "";
+  position: absolute;
+  top: 0.12em;
+  left: 0;
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 50%;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.register-req-met {
+  color: var(--color-success-text);
+}
+
+.register-password-requirements li.register-req-met::before {
+  content: "✓";
+  display: grid;
+  place-items: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text-on-primary-alt);
+  background: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.register-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================================
+   FOOTER LINKS
+   ============================================================================ */
+
 .register-footer {
+  margin-top: 0.25rem;
   text-align: center;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-border);
 }
 
 .register-footer-text {
-  font-size: 14px;
-  color: var(--color-text-muted);
   margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
 }
 
 .register-footer-link {
-  color: var(--color-primary);
   font-weight: 700;
+  color: var(--color-primary-text);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .register-footer-link:hover {
-  color: var(--color-primary-deep);
+  color: var(--color-primary-dark);
   text-decoration: underline;
-}
-
-.register-password-requirements li.register-req-met {
-  color: var(--color-success);
-  opacity: 0.6;
+  text-underline-offset: 3px;
 }
 
 /* ============================================================================
-   SUCCESS STATE
+   SUCCESS SCREEN — "Check your inbox"
    ============================================================================ */
 
 .register-success-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin-bottom: 1.25rem;
+  font-size: 1.5rem;
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  border: 1.5px solid var(--color-success-border);
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  color: var(--color-text-on-primary-alt);
-  margin: 0 auto 24px;
-  box-shadow: 0 8px 24px var(--color-success-shadow);
-  animation: register-scale-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-@keyframes register-scale-in {
-  from { transform: scale(0); }
-  to   { transform: scale(1); }
+.register-card--centered .register-title {
+  margin-bottom: 0.4rem;
 }
 
 .register-email-chip {
-  display: inline-block;
-  background: var(--color-info-bg);
-  color: var(--color-info-text);
-  border: 1px solid var(--color-info-border);
-  font-size: 14px;
-  font-weight: 600;
-  padding: 5px 14px;
-  border-radius: var(--radius-md);
-  margin: 6px 0 20px;
+  max-width: 100%;
+  margin: 0.6rem 0 1.1rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-primary-text);
+  background: var(--color-primary-alpha-06);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-full);
+  overflow-wrap: anywhere;
 }
 
 .register-info {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  margin: 0 0 16px;
+  margin: 0 0 0.5rem;
+  max-width: 38ch;
+  font-size: 0.92rem;
   line-height: 1.6;
+  color: var(--color-text-strong);
 }
 
 .register-hint {
-  font-size: 13px;
-  color: var(--color-text-faint);
-  margin: 0 0 20px;
+  margin: 0 0 1.5rem;
+  max-width: 38ch;
+  font-size: 0.82rem;
   line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.register-submit-btn.register-submit-btn--link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-btn);
+  color: var(--color-text-on-primary-alt);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.register-submit-btn.register-submit-btn--link:hover {
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary-hover-dark) 100%);
+  box-shadow: var(--shadow-btn-hover);
+  transform: translateY(-2px);
 }
 
 .register-resend-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   width: 100%;
-  padding: 12px 24px;
+  margin-top: 0.75rem;
+  min-height: 46px;
+  padding: 0.7rem 1.5rem;
   background: transparent;
-  color: var(--color-text-muted);
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid var(--color-primary-mid);
   border-radius: var(--radius-md);
+  color: var(--color-primary);
   font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
   cursor: pointer;
-  transition: all 0.22s ease;
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
 }
 
 .register-resend-btn:hover:not(:disabled) {
-  border-color: var(--color-primary-mid);
-  color: var(--color-primary);
+  background: var(--color-primary-alpha-08);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .register-resend-btn:disabled {
-  opacity: 0.55;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-@media (max-width: 640px) {
-  .register-card {
-    padding: 24px 24px;
+/* ============================================================================
+   FOCUS
+   ============================================================================ */
+
+.register-submit-btn:focus-visible,
+.register-resend-btn:focus-visible,
+.register-footer-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 480px) {
+  .register-container {
+    padding-inline: 0.75rem;
   }
 
-  .register-title {
-    font-size: 24px;
+  .register-card {
+    padding: 2rem 1.25rem 1.75rem;
   }
 
   .register-form-row {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .register-password-requirements {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The entrance slide is decorative */
+@media (prefers-reduced-motion: reduce) {
+  .register-card {
+    animation: none;
   }
 }

@@ -1,113 +1,102 @@
 /* ==============================================================================
    VERIFY EMAIL PAGE
-   Email verification page.
+   Result screens shown after following an email verification link
    Prefix: verify-*
    ============================================================================== */
 
 .verify-container {
-  min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  min-height: calc(100vh - var(--top-bar-height, 0px));
+  padding: clamp(2rem, 7vh, 4.5rem) 1rem 4rem;
   background-color: var(--color-page-bg);
-  padding: 20px;
-  padding-bottom: 280px;
   font-family: var(--font-sans);
 }
 
+/* Spinner state sits in the middle of the page */
 .verify-loading-state {
-  display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
 }
 
 .verify-card {
-  background: var(--color-surface-gradient);
-  border: 1.5px solid var(--color-border-accent);
-  border-radius: var(--radius-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  max-width: 480px;
-  padding: 48px 40px;
+  max-width: 460px;
+  padding: 2.75rem 2.25rem 2.25rem;
   text-align: center;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-top: 3px solid var(--color-border-accent);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
   animation: verify-slide-up 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 @keyframes verify-slide-up {
-  from { opacity: 0; transform: translateY(18px); }
+  from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ============================================================================
-   STATUS ICONS
-   ============================================================================ */
-
 .verify-success-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin-bottom: 1.25rem;
+  font-size: 1.5rem;
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  border: 1.5px solid var(--color-success-border);
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  color: var(--color-text-on-primary-alt);
-  margin: 0 auto 24px;
-  box-shadow: 0 8px 24px var(--color-success-shadow);
-  animation: verify-scale-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .verify-error-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-danger-dark) 100%);
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin-bottom: 1.25rem;
+  font-size: 1.5rem;
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border: 1.5px solid var(--color-danger-border);
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  color: var(--color-text-on-primary-alt);
-  margin: 0 auto 24px;
-  box-shadow: 0 8px 24px var(--color-danger-shadow);
-  animation: verify-scale-in 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-
-@keyframes verify-scale-in {
-  from { transform: scale(0); }
-  to   { transform: scale(1); }
-}
-
-/* ============================================================================
-   TEXT CONTENT
-   ============================================================================ */
 
 .verify-title {
+  margin: 0 0 0.6rem;
   font-family: var(--font-serif);
-  font-size: 28px;
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.1rem);
   font-weight: 700;
-  color: var(--color-text-strongest);
-  margin-bottom: 16px;
+  line-height: 1.15;
   letter-spacing: 0.01em;
+  color: var(--color-text-strongest);
 }
 
 .verify-message {
-  font-size: 15px;
-  color: var(--color-text-muted);
-  margin-bottom: 24px;
+  max-width: 38ch;
+  margin: 0 0 0.75rem;
+  font-size: 0.98rem;
   line-height: 1.6;
-}
-
-.verify-help {
-  font-size: 13.5px;
-  color: var(--color-text-faint);
-  margin-bottom: 24px;
-  line-height: 1.5;
+  color: var(--color-text-strong);
 }
 
 .verify-redirect {
-  font-size: 14px;
-  color: var(--color-primary);
-  margin-bottom: 24px;
+  margin: 0 0 1.5rem;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.verify-help {
+  max-width: 38ch;
+  margin: 0 0 1.5rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
 }
 
 /* ============================================================================
@@ -117,74 +106,96 @@
 .verify-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .verify-btn-primary {
-  display: inline-block;
-  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
-  color: var(--color-text-on-primary-alt);
-  padding: 13px 24px;
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 700;
-  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border-radius: var(--radius-md);
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  letter-spacing: 0.04em;
   box-shadow: var(--shadow-btn);
-  position: relative;
-  overflow: hidden;
+  color: var(--color-text-on-primary-alt);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
-
-.verify-btn-primary::before {
-  content: "";
-  position: absolute;
-  top: 0; left: -100%; width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, var(--color-shimmer), transparent);
-  transition: left 0.4s ease;
-}
-
-.verify-btn-primary:hover::before { left: 100%; }
 
 .verify-btn-primary:hover {
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary-hover-dark) 100%);
   box-shadow: var(--shadow-btn-hover);
-  background: linear-gradient(135deg, var(--color-success-hover) 0%, var(--color-success) 100%);
+  transform: translateY(-2px);
 }
 
 .verify-btn-secondary {
-  display: inline-block;
-  background: var(--color-surface-alt);
-  color: var(--color-primary-text);
-  padding: 13px 24px;
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 600;
-  border: 1.5px solid var(--color-border-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  min-height: 46px;
+  padding: 0.7rem 1.5rem;
+  background: transparent;
+  border: 1.5px solid var(--color-primary-mid);
   border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.22s ease;
-  letter-spacing: 0.02em;
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
 }
 
-.verify-btn-secondary:hover {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
-  border-color: transparent;
-  color: var(--color-text-on-primary-alt);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+.verify-btn-secondary:hover:not(:disabled) {
+  background: var(--color-primary-alpha-08);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
+
+.verify-btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   FOCUS
+   ============================================================================ */
+
+.verify-btn-primary:focus-visible,
+.verify-btn-secondary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
 
 @media (max-width: 480px) {
-  .verify-card {
-    padding: 32px 24px;
+  .verify-container {
+    padding-inline: 0.75rem;
   }
 
-  .verify-title {
-    font-size: 24px;
+  .verify-card {
+    padding: 2.25rem 1.25rem 1.75rem;
+  }
+}
+
+/* The entrance slide is decorative */
+@media (prefers-reduced-motion: reduce) {
+  .verify-card {
+    animation: none;
   }
 }

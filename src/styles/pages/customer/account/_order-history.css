@@ -1,6 +1,7 @@
 /* ==============================================================================
    ORDER HISTORY PAGE
-   List of a customer's past orders.
+   The customer's orders: one card per order that expands to show details
+   Sits beside the account sidebar
    Prefix: order-history-*
    ============================================================================== */
 
@@ -11,402 +12,247 @@
 }
 
 .order-history-layout {
-  max-width: 1400px;
-  margin: 0 auto;
   display: grid;
-  grid-template-columns: 250px 1fr;
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: 2rem;
-  padding: 3rem 2rem 2rem 2rem;
-  min-height: 100vh;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem clamp(1rem, 3vw, 2rem) 3.5rem;
 }
 
-/* ============================================================================
-   ERROR STATE
-   ============================================================================ */
-
-.order-history-error-state {
+.order-history-loading-state {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
-  background: var(--color-surface-gradient);
-  border: 1.5px solid var(--color-border-accent);
-  border-radius: var(--radius-2xl);
 }
-
-.order-history-error-state-title {
-  font-family: var(--font-serif);
-  font-size: 1.75rem;
-  color: var(--color-danger-dark);
-  margin-bottom: 0.75rem;
-  font-weight: 700;
-}
-
-.order-history-error-state-text {
-  font-size: 1rem;
-  color: var(--color-text-muted);
-  margin-bottom: 2rem;
-}
-
-/* ============================================================================
-   MAIN CONTENT
-   ============================================================================ */
 
 .order-history-main {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  min-width: 0;
 }
 
 /* ============================================================================
-   HEADER
+   PAGE HEADER
    ============================================================================ */
 
 .order-history-header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.order-history-header-inner {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .order-history-header-title {
-  font-family: var(--font-serif);
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-text-strongest);
   margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
   letter-spacing: 0.01em;
+  color: var(--color-text-strongest);
 }
 
 .order-history-header-count {
-  background: var(--color-primary-mid);
-  color: var(--color-text-on-primary-alt);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  padding: 0.3rem 0.9rem;
-  border-radius: var(--radius-full);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-/* ============================================================================
-   EMPTY STATE
-   ============================================================================ */
-
-.order-history-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  background: var(--color-surface-gradient);
-  border: 1.5px solid var(--color-border-accent);
-  border-radius: var(--radius-2xl);
-  text-align: center;
-}
-
-.order-history-empty-icon {
-  width: 72px;
-  height: 72px;
-  color: var(--color-border);
-  margin-bottom: 1.5rem;
-}
-
-.order-history-empty-title {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text-strongest);
-  margin: 0 0 0.75rem;
-}
-
-.order-history-empty-text {
-  font-size: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
-  margin: 0 0 2rem;
-  font-weight: 500;
 }
 
 /* ============================================================================
-   SHARED BUTTON - PRIMARY
+   BUTTONS (shared by empty and error states)
    ============================================================================ */
 
 .order-history-btn-primary {
-  padding: 13px 2rem;
-  background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
-  color: var(--color-text-on-primary-alt);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 2rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border: none;
   border-radius: var(--radius-md);
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all 0.25s ease;
   box-shadow: var(--shadow-btn);
+  color: var(--color-text-on-primary-alt);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-.order-history-btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
+.order-history-btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary-hover-dark) 100%);
   box-shadow: var(--shadow-btn-hover);
+  transform: translateY(-2px);
 }
 
-.order-history-btn-primary:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+.order-history-btn-primary:focus-visible,
+.order-history-row-header:focus-visible,
+.order-history-btn-view-details:focus-visible,
+.order-history-tracking-number:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ============================================================================
-   ORDERS LIST — SINGLE CARD
+   EMPTY AND ERROR STATES
    ============================================================================ */
 
-.order-history-list-card {
-  background: var(--color-surface-gradient);
-  border: 1.5px solid var(--color-border-accent);
-  border-radius: var(--radius-2xl);
-  overflow: hidden;
+.order-history-empty,
+.order-history-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
-  min-width: 0; /* prevent grid child from overflowing its column */
+}
+
+.order-history-error-state {
+  max-width: 520px;
+  margin: 3rem auto;
+}
+
+.order-history-empty-icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 0.5rem;
+  background: var(--color-primary-alpha-08);
+  border-radius: 50%;
+}
+
+.order-history-empty-icon {
+  font-size: 1.8rem;
+  color: var(--color-primary-mid);
+}
+
+.order-history-empty-title,
+.order-history-error-state-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
+}
+
+.order-history-error-state-title {
+  color: var(--color-danger-dark);
+}
+
+.order-history-empty-text,
+.order-history-error-state-text {
+  max-width: 36ch;
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================================
+   ORDER LIST — one card per order
+   ============================================================================ */
+
+.order-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .order-history-row {
-  border-bottom: 1px solid var(--color-border-accent);
-  transition: background 0.2s ease;
-}
-
-.order-history-row:last-child {
-  border-bottom: none;
+  overflow: hidden;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .order-history-row:hover {
-  background: var(--color-primary-alpha-03);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
-/* ============================================================================
-   ORDER ROW HEADER
-   ============================================================================ */
+.order-history-row-heading {
+  margin: 0;
+}
 
+/* The whole header is the toggle */
 .order-history-row-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.875rem 1.5rem; /* was 1.25rem 2rem */
-  background: var(--color-primary-bg-light);
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.1rem 1.35rem;
+  background: transparent;
+  border: none;
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.order-history-row-header-with-tracking {
-  padding-bottom: 0.25rem;
+.order-history-row-header:hover {
+  background: var(--color-primary-alpha-03);
 }
 
 .order-history-number-section {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.9rem;
+  min-width: 0;
 }
 
-.order-history-status-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-  display: block;
-  background: none;
-  border: none;
+.order-history-number-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
 }
-
-.order-history-status-icon-pending   { color: var(--color-primary-mid); }
-.order-history-status-icon-shipped   { color: var(--color-status-shipped); }
-.order-history-status-icon-delivered { color: var(--color-success); }
 
 .order-history-id-label {
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-text-strongest);
-  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
   letter-spacing: 0.01em;
-  background: none;
-  border: none;
-  padding: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 300px;
+  color: var(--color-text-strongest);
+  overflow-wrap: anywhere;
 }
 
 .order-history-date {
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
   font-weight: 400;
-}
-
-/* ============================================================================
-   STATUS BADGES
-   ============================================================================ */
-
-.order-history-status-badge {
-  padding: 0.375rem 1rem;
-  border-radius: var(--radius-lg);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.order-history-status-badge-pending {
-  background: var(--color-primary-bg-light);
-  color: var(--color-primary-text);
-  border: 1px solid var(--color-border);
-}
-
-.order-history-status-badge-shipped {
-  background: var(--color-status-shipped-bg);
-  color: var(--color-status-shipped-dark);
-  border: 1px solid var(--color-status-shipped-border);
-}
-
-.order-history-status-badge-delivered {
-  background: var(--color-success-bg);
-  color: var(--color-success-text);
-  border: 1px solid var(--color-success-border);
-}
-
-/* ============================================================================
-   ORDER ROW BODY
-   ============================================================================ */
-
-.order-history-row-body {
-  padding: 0.875rem 1.5rem; /* was 1.25rem 2rem */
-}
-
-.order-history-info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.5rem;
-}
-
-.order-history-info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.order-history-info-label {
-  font-size: 0.8rem;
-  font-weight: 700;
   color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
-
-.order-history-info-value {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text-strongest);
-}
-
-.order-history-tracking-number {
-  font-family: var(--font-mono, "Courier New", monospace);
-  font-size: 0.9375rem;
-  color: var(--color-primary-deep);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
-.order-history-tracking-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 1.5rem; /* was 0.75rem 2rem */
-  background: var(--color-primary-mid-alpha-06);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.order-history-shipping-date,
-.order-history-delivery-date {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1.25rem;
-  background: var(--color-primary-bg-light);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  margin-top: 0rem;
-  font-size: 0.9375rem;
-  color: var(--color-primary-deep);
-  font-weight: 500;
-}
-
-.order-history-shipping-date svg { color: var(--color-text-muted); }
-.order-history-delivery-date svg { color: var(--color-success); }
-
-/* ============================================================================
-   ORDER ROW FOOTER
-   ============================================================================ */
-
-.order-history-row-footer {
-  padding: 0.75rem 1.5rem; /* was 1rem 2rem */
-  background: var(--color-primary-mid-alpha-06);
-  border-top: 1px solid var(--color-border-light);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.order-history-footer-left {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.order-history-btn-view-details {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.5rem;
-  background: linear-gradient(135deg, var(--color-primary-deep) 0%, var(--color-primary-deepest) 100%);
-  color: var(--color-primary-tint);
-  border: none;
-  border-radius: var(--radius-md);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition: all 0.22s ease;
-  box-shadow: var(--shadow-btn-deep);
-}
-
-.order-history-btn-view-details:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-btn-deep-hover);
-  background: linear-gradient(135deg, var(--color-primary-text) 0%, var(--color-primary-deep) 100%);
-}
-
-/* ============================================================================
-   DROPDOWN (mobile only)
-   ============================================================================ */
 
 .order-history-row-header-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  flex-shrink: 0;
+  gap: 0.85rem;
 }
 
 .order-history-dropdown-chevron {
-  display: none;
+  font-size: 0.8rem;
   color: var(--color-text-muted);
-  font-size: 0.875rem;
   transition: transform 0.25s ease;
-  flex-shrink: 0;
 }
 
 .order-history-dropdown-chevron-open {
@@ -414,132 +260,246 @@
 }
 
 /* ============================================================================
-   LOADING STATE
+   STATUS ICON AND BADGE
    ============================================================================ */
 
-.order-history-loading-state {
+.order-history-status-icon {
+  flex-shrink: 0;
+  box-sizing: content-box;
+  width: 18px;
+  height: 18px;
+  padding: 11px;
+  border-radius: 50%;
+}
+
+.order-history-status-icon-delivered {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.order-history-status-icon-shipped {
+  color: var(--color-status-shipped);
+  background: var(--color-status-shipped-bg);
+}
+
+.order-history-status-icon-pending {
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.order-history-status-badge {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.order-history-status-badge-delivered {
+  color: var(--color-success-text);
+  background: var(--color-success-bg);
+  border-color: var(--color-success-border);
+}
+
+.order-history-status-badge-shipped {
+  color: var(--color-status-shipped-dark);
+  background: var(--color-status-shipped-bg);
+  border-color: var(--color-status-shipped-border);
+}
+
+.order-history-status-badge-pending {
+  color: var(--color-warning-text);
+  background: var(--color-warning-bg);
+  border-color: var(--color-warning-border);
+}
+
+/* ============================================================================
+   TRACKING ROW
+   ============================================================================ */
+
+.order-history-tracking-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  padding: 0.7rem 1.35rem;
+  background: var(--color-surface-warm);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.order-history-tracking-number {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--color-primary-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+  transition: color 0.2s ease;
+}
+
+.order-history-tracking-number:hover {
+  color: var(--color-primary-dark);
+}
+
+/* ============================================================================
+   COLLAPSIBLE DETAILS — animates between 0 and natural height
+   ============================================================================ */
+
+.order-history-collapsible {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.order-history-collapsible-open {
+  grid-template-rows: 1fr;
+}
+
+.order-history-row-body {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.order-history-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem 1.5rem;
+  padding: 1.1rem 1.35rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.order-history-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.order-history-info-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.order-history-info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-strongest);
+}
+
+/* ============================================================================
+   FOOTER — dates and the View Details link
+   ============================================================================ */
+
+.order-history-row-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  padding: 0.85rem 1.35rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.order-history-footer-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+}
+
+.order-history-shipping-date,
+.order-history-delivery-date {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.order-history-shipping-date {
+  color: var(--color-status-shipped-dark);
+}
+
+.order-history-delivery-date {
+  color: var(--color-success-text);
+}
+
+.order-history-btn-view-details {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  padding: 0.55rem 1.2rem;
+  background: transparent;
+  border: 1.5px solid var(--color-primary-mid);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
+}
+
+.order-history-btn-view-details:hover {
+  background: var(--color-primary-alpha-08);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 /* ============================================================================
    RESPONSIVE
    ============================================================================ */
 
+/* Tablet — the sidebar becomes a compact bar above the content */
 @media (max-width: 1024px) {
   .order-history-layout {
-    grid-template-columns: 1fr;
-    padding: 2rem 2rem 4rem 2rem;
-    min-height: unset;
-    gap: 1rem;
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    padding-top: 1.25rem;
   }
 }
 
-@media (max-width: 768px) {
-  .order-history-layout {
-    padding: 2rem 2rem 3rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .order-history-layout {
-    padding: 1.5rem 1.5rem 2rem;
-  }
-}
-
-@media (max-width: 568px) {
-  .order-history-row-header-clickable {
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .order-history-dropdown-chevron {
-    display: block;
-  }
-
-  .order-history-collapsible {
-    display: none;
-  }
-
-  .order-history-collapsible-open {
-    display: block;
-  }
-
-  .order-history-header-title {
-    font-size: 1.75rem;
-  }
-
+@media (max-width: 599px) {
   .order-history-row-header {
-    flex-direction: column;
-    gap: 1rem;
     align-items: flex-start;
-    padding: 1.25rem 1.5rem;
+    padding: 1rem;
+  }
+
+  /* Status badge drops under the order number; the chevron stays on the right */
+  .order-history-row-header {
+    flex-wrap: wrap;
   }
 
   .order-history-number-section {
-    width: 100%;
+    flex: 1 1 100%;
   }
 
   .order-history-row-header-right {
-    width: 100%;
     justify-content: space-between;
-  }
-
-  .order-history-status-badge {
-    align-self: flex-start;
-  }
-
-  .order-history-info-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .order-history-row-body {
-    padding: 1.25rem 1.5rem;
-  }
-
-  .order-history-row-footer {
-    flex-direction: column-reverse;
-    align-items: stretch;
-    gap: 0.75rem;
-    padding: 1rem 1.5rem;
-  }
-
-  .order-history-footer-left {
     width: 100%;
+  }
+
+  .order-history-tracking-row,
+  .order-history-info-grid,
+  .order-history-row-footer {
+    padding-inline: 1rem;
   }
 
   .order-history-btn-view-details {
     width: 100%;
     justify-content: center;
-  }
-}
-
-@media (max-width: 440px) {
-  .order-history-row-body {
-    padding: 1rem 1.25rem;
+    margin-left: 0;
   }
 
-  .order-history-row-header {
-    padding: 1rem 1.25rem;
-  }
-
-  .order-history-row-footer {
-    padding: 1rem 1.25rem;
-  }
-
-  .order-history-tracking-row {
-    padding: 0.625rem 1.25rem;
-  }
-
-  .order-history-id-label {
-    font-size: 1rem;
-  }
-
-  .order-history-status-icon {
-    font-size: 1.5rem;
+  .order-history-empty,
+  .order-history-error-state {
+    padding: 2.25rem 1.25rem;
   }
 }

@@ -25,7 +25,7 @@ import Pagination from "../../../components/customer/catalog/Pagination";
 import {
   getPriceLabel,
   getSortLabel,
-} from "../../../components/customer/catalog/catalogFilterOptions";
+} from "../../../utils/catalogFilterOptions";
 
 import LoadingSpinner from "../../../components/shared/LoadingSpinner";
 

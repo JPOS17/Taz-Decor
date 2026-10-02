@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import {
   FaShoppingBag,
@@ -15,7 +15,6 @@ import ProfileSidebar from "../../../components/customer/shared/ProfileSidebar";
 import { formatDate } from "../../../utils/formatDate";
 
 const Orders = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   // ============================================================================
@@ -85,18 +84,18 @@ const Orders = () => {
     switch (status.toLowerCase()) {
       case "delivered":
         return (
-          <FaCheckCircle className="order-history-status-icon order-history-status-icon-delivered" />
+          <FaCheckCircle className="order-history-status-icon order-history-status-icon-delivered" aria-hidden="true" />
         );
       case "shipped":
       case "ready_to_ship":
         return (
-          <FaTruck className="order-history-status-icon order-history-status-icon-shipped" />
+          <FaTruck className="order-history-status-icon order-history-status-icon-shipped" aria-hidden="true" />
         );
       case "processing":
       case "pending":
       default:
         return (
-          <FaShoppingBag className="order-history-status-icon order-history-status-icon-pending" />
+          <FaShoppingBag className="order-history-status-icon order-history-status-icon-pending" aria-hidden="true" />
         );
     }
   };
@@ -132,10 +131,14 @@ const Orders = () => {
     return (
       <div className="order-history-page">
         <div className="order-history-layout">
-          <div className="order-history-error-state">
+          <div className="order-history-error-state" role="alert">
             <h2 className="order-history-error-state-title">Error Loading Orders</h2>
             <p className="order-history-error-state-text">{error}</p>
-            <button className="order-history-btn-primary" onClick={loadData}>
+            <button
+              type="button"
+              className="order-history-btn-primary"
+              onClick={loadData}
+            >
               Try Again
             </button>
           </div>
@@ -156,64 +159,67 @@ const Orders = () => {
 
         {/* Main content */}
         <main className="order-history-main">
-          <div className="order-history-header">
-            <div className="order-history-header-inner">
-              <h1 className="order-history-header-title">My Orders</h1>
-            </div>
+          <header className="order-history-header">
+            <h1 className="order-history-header-title">My Orders</h1>
             <span className="order-history-header-count">
               {orders.length === 0
                 ? "No orders yet"
-                : `${orders.length} item${orders.length !== 1 ? "s" : ""}`}
+                : `${orders.length} ${orders.length === 1 ? "order" : "orders"}`}
             </span>
-          </div>
+          </header>
 
           {orders.length === 0 ? (
             <div className="order-history-empty">
-              <FaShoppingBag className="order-history-empty-icon" />
+              <span className="order-history-empty-icon-wrap" aria-hidden="true">
+                <FaShoppingBag className="order-history-empty-icon" />
+              </span>
               <h2 className="order-history-empty-title">No Orders Yet</h2>
               <p className="order-history-empty-text">
                 When you place orders, they will appear here.
               </p>
-              <button
-                className="order-history-btn-primary"
-                onClick={() => navigate("/items")}
-              >
+              <Link to="/items" className="order-history-btn-primary">
                 Start Shopping
-              </button>
+              </Link>
             </div>
           ) : (
-            <div className="order-history-list-card">
+            <ul className="order-history-list">
               {orders.map((order) => {
                 const isExpanded = expandedOrders.has(order.order_id);
+                const detailsId = `order-details-${order.order_id}`;
                 return (
-                  <div key={order.order_id} className="order-history-row">
-                    {/* Clickable row header — expands/collapses order details */}
-                    <div
-                      className={`order-history-row-header${order.tracking_number ? " order-history-row-header-with-tracking" : ""} order-history-row-header-clickable`}
-                      onClick={() => toggleOrder(order.order_id)}
-                      role="button"
-                      aria-expanded={isExpanded}
-                    >
-                      <div className="order-history-number-section">
-                        {getStatusIcon(order.status)}
-                        <div>
-                          <h3 className="order-history-id-label">
-                            {order.order_number}
-                          </h3>
-                          <p className="order-history-date">
-                            Placed on {formatDate(order.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="order-history-row-header-right">
-                        <span className={getStatusBadgeClass(order.status)}>
-                          {formatStatus(order.status)}
+                  <li key={order.order_id} className="order-history-row">
+                    {/* Row header — a button inside the heading, so the whole row
+                        toggles the order details and works from the keyboard */}
+                    <h2 className="order-history-row-heading">
+                      <button
+                        type="button"
+                        className="order-history-row-header"
+                        onClick={() => toggleOrder(order.order_id)}
+                        aria-expanded={isExpanded}
+                        aria-controls={detailsId}
+                      >
+                        <span className="order-history-number-section">
+                          {getStatusIcon(order.status)}
+                          <span className="order-history-number-text">
+                            <span className="order-history-id-label">
+                              {order.order_number}
+                            </span>
+                            <span className="order-history-date">
+                              Placed on {formatDate(order.created_at)}
+                            </span>
+                          </span>
                         </span>
-                        <FaChevronDown
-                          className={`order-history-dropdown-chevron${isExpanded ? " order-history-dropdown-chevron-open" : ""}`}
-                        />
-                      </div>
-                    </div>
+                        <span className="order-history-row-header-right">
+                          <span className={getStatusBadgeClass(order.status)}>
+                            {formatStatus(order.status)}
+                          </span>
+                          <FaChevronDown
+                            className={`order-history-dropdown-chevron${isExpanded ? " order-history-dropdown-chevron-open" : ""}`}
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </button>
+                    </h2>
 
                     {/* Tracking number row — only shown when a tracking number exists */}
                     {order.tracking_number && (
@@ -225,7 +231,6 @@ const Orders = () => {
                           href={`https://tools.usps.com/go/TrackConfirmAction?tLabels=${order.tracking_number}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
                           className="order-history-tracking-number"
                         >
                           {order.tracking_number}
@@ -235,6 +240,7 @@ const Orders = () => {
 
                     {/* Collapsible order details */}
                     <div
+                      id={detailsId}
                       className={`order-history-collapsible${isExpanded ? " order-history-collapsible-open" : ""}`}
                     >
                       {/* Info grid */}
@@ -274,7 +280,7 @@ const Orders = () => {
                       <div className="order-history-footer-left">
                         {order.shipped_at && (
                           <div className="order-history-shipping-date">
-                            <FaTruck />
+                            <FaTruck aria-hidden="true" />
                             <span>
                               Shipped on {formatDate(order.shipped_at)}
                             </span>
@@ -282,26 +288,24 @@ const Orders = () => {
                         )}
                         {order.delivered_at && (
                           <div className="order-history-delivery-date">
-                            <FaCheckCircle />
+                            <FaCheckCircle aria-hidden="true" />
                             <span>
                               Delivered on {formatDate(order.delivered_at)}
                             </span>
                           </div>
                         )}
                       </div>
-                      <button
+                      <Link
+                        to={`/order-confirmation/${order.order_number}`}
                         className="order-history-btn-view-details"
-                        onClick={() =>
-                          navigate(`/order-confirmation/${order.order_number}`)
-                        }
                       >
-                        <FaEye /> View Details
-                      </button>
+                        <FaEye aria-hidden="true" /> View Details
+                      </Link>
                     </div>
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           )}
         </main>
       </div>

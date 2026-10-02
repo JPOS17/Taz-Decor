@@ -1,6 +1,6 @@
 import { useState, useEffect, useId, type ReactNode } from "react";
 import { type Category } from "../../../api/categories";
-import { PRICE_OPTIONS, SORT_OPTIONS } from "./catalogFilterOptions";
+import { PRICE_OPTIONS, SORT_OPTIONS } from "../../../utils/catalogFilterOptions";
 
 interface SideBarProps {
   activeCategoryId: number | null;

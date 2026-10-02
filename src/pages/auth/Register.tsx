@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { FaCross, FaCheck } from "react-icons/fa";
 
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import { resendVerificationEmail } from "../../api/auth";
+import { getPasswordStrength, getPasswordError } from "../../utils/passwordRules";
 
 import PasswordInput from "../../components/shared/PasswordInput";
 
@@ -35,47 +37,9 @@ const Register = () => {
   const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent">(
     "idle",
   );
-  const [passwordStrength, setPasswordStrength] = useState<{
-    score: number;
-    feedback: string[];
-  }>({ score: 0, feedback: [] });
 
-  // ============================================================================
-  // HELPER FUNCTIONS
-  // ============================================================================
-
-  // Scores the password from 0–5 and returns unmet requirement feedback
-  const checkPasswordStrength = (password: string) => {
-    const feedback: string[] = [];
-    let score = 0;
-
-    if (password.length >= 8) score++;
-    else feedback.push("At least 8 characters");
-    if (/[A-Z]/.test(password)) score++;
-    else feedback.push("One uppercase letter");
-    if (/[a-z]/.test(password)) score++;
-    else feedback.push("One lowercase letter");
-    if (/[0-9]/.test(password)) score++;
-    else feedback.push("One number");
-    if (/[!@#$%^&*()_+\--=\[\]{};':"\\|,.<>\/?]/.test(password)) score++;
-    else feedback.push("One special character");
-    return { score, feedback };
-  };
-
-  // Returns an error string if the password fails any requirement, or null if it passes
-  const validatePassword = (password: string): string | null => {
-    if (password.length < 8)
-      return "Password must be at least 8 characters long";
-    if (!/[A-Z]/.test(password))
-      return "Password must contain at least one uppercase letter";
-    if (!/[a-z]/.test(password))
-      return "Password must contain at least one lowercase letter";
-    if (!/[0-9]/.test(password))
-      return "Password must contain at least one number";
-    if (!/[!@#$%^&*()_+\--=\[\]{};':"\\|,.<>\/?]/.test(password))
-      return "Password must contain at least one special character";
-    return null;
-  };
+  // Derived from the password on every render, so it can never go stale
+  const passwordStrength = getPasswordStrength(formData.password);
 
   // ============================================================================
   // EFFECTS
@@ -92,29 +56,21 @@ const Register = () => {
   // HANDLERS
   // ============================================================================
 
-  // Updates form fields and re-evaluates password strength when the password field changes
+  // Updates form fields; the phone field is limited to phone-number characters
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (name === "phone") {
-      // Allow only digits, +, (, ), -, and spaces
-      const sanitized = value.replace(/[^\d+\-()\s]/g, "");
-      setFormData({ ...formData, phone: sanitized });
-      return;
-    }
-
-    if (name === "password") {
-      setPasswordStrength(checkPasswordStrength(value));
-    }
+    // Allow only digits, +, (, ), -, and spaces in the phone field
+    const nextValue =
+      name === "phone" ? value.replace(/[^\d+\-()\s]/g, "") : value;
+    setFormData((prev) => ({ ...prev, [name]: nextValue }));
   };
 
-  // Validates the form, registers the user, syncs the guest cart, then redirects to profile
+  // Validates the form, registers the user, syncs the guest cart, then shows the success view
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(""); // clears first
 
-    const passwordError = validatePassword(formData.password);
+    const passwordError = getPasswordError(formData.password);
     if (passwordError) {
       setTimeout(() => setError(passwordError), 0); // forces re-trigger
       return;
@@ -159,12 +115,9 @@ const Register = () => {
   // RENDER
   // ============================================================================
 
-  // Strength class drives the CSS fill width and color of the strength bar
-  const strengthClass = `register-strength-${passwordStrength.score}`;
-
   // Reads the redirect param so the success screen can send the user to the right place
-  const redirectTo =
-    new URLSearchParams(location.search).get("redirect") || "/profile";
+  const redirectParam = new URLSearchParams(location.search).get("redirect");
+  const redirectTo = redirectParam || "/profile";
   const redirectLabel =
     redirectTo === "/cart" ? "Go to your cart" : "Go to your profile";
 
@@ -172,7 +125,9 @@ const Register = () => {
     return (
       <div className="register-container">
         <div className="register-card register-card--centered">
-          <div className="register-success-icon">✓</div>
+          <div className="register-success-icon" aria-hidden="true">
+            <FaCheck />
+          </div>
           <h1 className="register-title">Check your inbox</h1>
           <p className="register-subtitle">We sent a verification link to</p>
           <p className="register-email-chip">{formData.email}</p>
@@ -189,15 +144,20 @@ const Register = () => {
             {redirectLabel}
           </Link>
           <button
+            type="button"
             className="register-resend-btn"
             onClick={handleResend}
             disabled={resendStatus !== "idle"}
           >
-            {resendStatus === "sending"
-              ? "Sending..."
-              : resendStatus === "sent"
-                ? "Email sent ✓"
-                : "Resend verification email"}
+            {resendStatus === "sending" ? (
+              "Sending..."
+            ) : resendStatus === "sent" ? (
+              <>
+                Email sent <FaCheck aria-hidden="true" />
+              </>
+            ) : (
+              "Resend verification email"
+            )}
           </button>
         </div>
       </div>
@@ -209,6 +169,9 @@ const Register = () => {
       <div className="register-card">
         {/* Page header */}
         <div className="register-header">
+          <span className="register-emblem" aria-hidden="true">
+            <FaCross />
+          </span>
           <h1 className="register-title">Create Account</h1>
           <p className="register-subtitle">Join us today</p>
         </div>
@@ -216,7 +179,7 @@ const Register = () => {
         <form onSubmit={handleSubmit} className="register-form">
           {/* Inline error message */}
           {error && (
-            <div ref={errorRef} className="register-error-message">
+            <div ref={errorRef} className="register-error-message" role="alert">
               {error}
             </div>
           )}
@@ -235,6 +198,7 @@ const Register = () => {
                 value={formData.first_name}
                 onChange={handleChange}
                 placeholder="John"
+                autoComplete="given-name"
                 required
               />
             </div>
@@ -251,6 +215,7 @@ const Register = () => {
                 value={formData.last_name}
                 onChange={handleChange}
                 placeholder="Doe"
+                autoComplete="family-name"
                 required
               />
             </div>
@@ -269,6 +234,7 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="john.doe@example.com"
+              autoComplete="email"
               required
             />
           </div>
@@ -276,7 +242,7 @@ const Register = () => {
           {/* Phone input */}
           <div className="register-form-group">
             <label htmlFor="phone" className="register-label">
-              Phone (Optional)
+              Phone <span className="register-optional">(Optional)</span>
             </label>
             <input
               type="tel"
@@ -286,6 +252,7 @@ const Register = () => {
               value={formData.phone}
               onChange={handleChange}
               placeholder="+1 (555) 000-0000"
+              autoComplete="tel"
             />
           </div>
 
@@ -300,54 +267,46 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="At least 8 characters"
+              autoComplete="new-password"
+              ariaDescribedBy="register-password-requirements"
               required
             />
-            {/* Strength bar and unmet requirements */}
+            {/* Strength bar and requirements checklist */}
             {formData.password && (
               <div className="register-password-strength">
-                <div className="register-strength-bar">
-                  <div className={`register-strength-fill ${strengthClass}`} />
+                <div className="register-strength-header">
+                  <div
+                    className="register-strength-bar"
+                    role="progressbar"
+                    aria-label="Password strength"
+                    aria-valuemin={0}
+                    aria-valuemax={5}
+                    aria-valuenow={passwordStrength.score}
+                    aria-valuetext={passwordStrength.label || "Too short"}
+                  >
+                    <div
+                      className={`register-strength-fill register-strength-${passwordStrength.score}`}
+                    />
+                  </div>
+                  <span className="register-strength-label">
+                    {passwordStrength.label}
+                  </span>
                 </div>
-                <ul className="register-password-requirements">
-                  <li
-                    className={
-                      formData.password.length >= 8 ? "register-req-met" : ""
-                    }
-                  >
-                    At least 8 characters
-                  </li>
-                  <li
-                    className={
-                      /[A-Z]/.test(formData.password) ? "register-req-met" : ""
-                    }
-                  >
-                    One uppercase letter
-                  </li>
-                  <li
-                    className={
-                      /[a-z]/.test(formData.password) ? "register-req-met" : ""
-                    }
-                  >
-                    One lowercase letter
-                  </li>
-                  <li
-                    className={
-                      /[0-9]/.test(formData.password) ? "register-req-met" : ""
-                    }
-                  >
-                    One number
-                  </li>
-                  <li
-                    className={
-                      /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
-                        formData.password,
-                      )
-                        ? "register-req-met"
-                        : ""
-                    }
-                  >
-                    One special character
-                  </li>
+                <ul
+                  id="register-password-requirements"
+                  className="register-password-requirements"
+                >
+                  {passwordStrength.results.map((req) => (
+                    <li
+                      key={req.id}
+                      className={req.met ? "register-req-met" : ""}
+                    >
+                      {req.label}
+                      <span className="register-visually-hidden">
+                        {req.met ? " (met)" : " (not met)"}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
@@ -364,6 +323,7 @@ const Register = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               placeholder="Re-enter your password"
+              autoComplete="new-password"
               required
             />
           </div>
@@ -376,11 +336,18 @@ const Register = () => {
             {isLoading ? "Creating Account..." : "Create Account"}
           </button>
 
-          {/* Sign in link */}
+          {/* Sign in link — keeps the redirect so the user returns to where they were headed */}
           <div className="register-footer">
             <p className="register-footer-text">
               Already have an account?{" "}
-              <Link to="/login" className="register-footer-link">
+              <Link
+                to={
+                  redirectParam
+                    ? `/login?redirect=${redirectParam}`
+                    : "/login"
+                }
+                className="register-footer-link"
+              >
                 Sign in
               </Link>
             </p>

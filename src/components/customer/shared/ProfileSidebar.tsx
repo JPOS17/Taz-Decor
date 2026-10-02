@@ -1,4 +1,5 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { User, ShoppingBag, LayoutDashboard, LogOut } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
 
@@ -8,9 +9,12 @@ interface ProfileSidebarProps {
   role: string;
 }
 
+// Returns the className for a nav link, adding the active modifier on the current route
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `profile-sidebar-nav-item${isActive ? " profile-sidebar-nav-item--active" : ""}`;
+
 const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { logout } = useAuth();
   const { resetSession } = useCart();
 
@@ -25,136 +29,78 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
     navigate("/login");
   };
 
-  // Returns true when the current route matches the given path
-  const isActive = (path: string) => location.pathname === path;
-
   // ============================================================================
   // RENDER
   // ============================================================================
 
-  const logoutSvg = (
-    <svg
-      className="profile-sidebar-logout-icon"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-      />
-    </svg>
-  );
+  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  const isStaff = role === "manager" || role === "admin";
 
   return (
     <aside className="profile-sidebar">
+      {/* Avatar and name */}
       <div className="profile-sidebar-avatar-section">
-        {/* Avatar initials */}
-        <div className="profile-sidebar-avatar-large">
-          {firstName.charAt(0)}
-          {lastName.charAt(0)}
+        <div className="profile-sidebar-avatar-large" aria-hidden="true">
+          {initials}
         </div>
-
-        <div className="profile-sidebar-user-info">
-          <h2 className="profile-sidebar-user-name">
-            {firstName} {lastName}
-          </h2>
-
-          <div className="profile-sidebar-role-and-nav">
-            <nav className="profile-sidebar-nav">
-              {/* Profile */}
-              <div className="profile-sidebar-nav-tooltip-wrap">
-                <button
-                  className={`profile-sidebar-nav-item${isActive("/profile") ? " profile-sidebar-nav-item--active" : ""}`}
-                  onClick={() => navigate("/profile")}
-                >
-                  <svg
-                    className="profile-sidebar-nav-icon"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  <span className="profile-sidebar-nav-label">Profile</span>
-                </button>
-                <span className="profile-sidebar-tooltip">Profile</span>
-              </div>
-
-              {/* Orders */}
-              <div className="profile-sidebar-nav-tooltip-wrap">
-                <button
-                  className={`profile-sidebar-nav-item${isActive("/orders") ? " profile-sidebar-nav-item--active" : ""}`}
-                  onClick={() => navigate("/orders")}
-                >
-                  <svg
-                    className="profile-sidebar-nav-icon"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                    />
-                  </svg>
-                  <span className="profile-sidebar-nav-label">Orders</span>
-                </button>
-                <span className="profile-sidebar-tooltip">Orders</span>
-              </div>
-
-              {/* Manager Dashboard — manager and admin only */}
-              {(role === "manager" || role === "admin") && (
-                <div className="profile-sidebar-nav-tooltip-wrap">
-                  <button
-                    className={`profile-sidebar-nav-item${isActive("/manager") ? " profile-sidebar-nav-item--active" : ""}`}
-                    onClick={() => navigate("/manager")}
-                  >
-                    <svg
-                      className="profile-sidebar-nav-icon"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                      />
-                    </svg>
-                    <span className="profile-sidebar-nav-label">Manager Dashboard</span>
-                  </button>
-                  <span className="profile-sidebar-tooltip">Manager Dashboard</span>
-                </div>
-              )}
-            </nav>
-
-            {/* Sign out — icon only at collapsed widths */}
-            <div className="profile-sidebar-nav-tooltip-wrap">
-              <button onClick={handleLogout} className="profile-sidebar-logout-inline">
-                {logoutSvg}
-                <span>Sign Out</span>
-              </button>
-              <span className="profile-sidebar-tooltip">Sign Out</span>
-            </div>
-          </div>
-        </div>
+        <h2 className="profile-sidebar-user-name">
+          {firstName} {lastName}
+        </h2>
       </div>
 
-      {/* Desktop sign out */}
-      <button onClick={handleLogout} className="profile-sidebar-logout-button">
-        {logoutSvg}
-        Sign Out
+      {/* Account navigation — icon-only below 520px; the title attribute and
+          aria-label keep every link identifiable */}
+      <nav className="profile-sidebar-nav" aria-label="Account">
+        <NavLink
+          to="/profile"
+          end
+          className={navLinkClass}
+          title="Profile"
+          aria-label="Profile"
+        >
+          <User className="profile-sidebar-nav-icon" aria-hidden="true" />
+          <span className="profile-sidebar-nav-label">Profile</span>
+        </NavLink>
+
+        <NavLink
+          to="/orders"
+          end
+          className={navLinkClass}
+          title="Orders"
+          aria-label="Orders"
+        >
+          <ShoppingBag className="profile-sidebar-nav-icon" aria-hidden="true" />
+          <span className="profile-sidebar-nav-label">Orders</span>
+        </NavLink>
+
+        {/* Manager Dashboard — manager and admin only */}
+        {isStaff && (
+          <NavLink
+            to="/manager"
+            end
+            className={navLinkClass}
+            title="Manager Dashboard"
+            aria-label="Manager Dashboard"
+          >
+            <LayoutDashboard
+              className="profile-sidebar-nav-icon"
+              aria-hidden="true"
+            />
+            <span className="profile-sidebar-nav-label">Manager Dashboard</span>
+          </NavLink>
+        )}
+      </nav>
+
+      {/* Sign out */}
+      <button
+        type="button"
+        onClick={handleLogout}
+        className="profile-sidebar-logout-button"
+        title="Sign Out"
+        aria-label="Sign Out"
+      >
+        <LogOut className="profile-sidebar-logout-icon" aria-hidden="true" />
+        <span className="profile-sidebar-logout-label">Sign Out</span>
       </button>
     </aside>
   );

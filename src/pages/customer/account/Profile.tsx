@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  FaExclamationCircle,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
 import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
 import {
@@ -13,7 +19,6 @@ import {
   type CreateAddressPayload,
   type Address,
   type UserProfile,
-  type DefaultAddress,
 } from "../../../api/user";
 import { resendVerificationEmail } from "../../../api/auth";
 import {
@@ -39,7 +44,7 @@ interface EditingProfile {
 }
 
 const Profile = () => {
-  const { user: authUser, logout, refreshUser } = useAuth();
+  const { logout, refreshUser } = useAuth();
   const { resetSession } = useCart();
   const navigate = useNavigate();
 
@@ -117,6 +122,30 @@ const Profile = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  // While a modal is open: Escape closes it and the page behind it stops scrolling
+  const isModalOpen = showAddressModal || showDeletePasswordModal;
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (showDeletePasswordModal) {
+        handleCloseDeletePasswordModal();
+      } else {
+        setShowAddressModal(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isModalOpen, showDeletePasswordModal]);
+
   // ============================================================================
   // DATA LOADING
   // ============================================================================
@@ -164,6 +193,23 @@ const Profile = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Submits the edit form so Enter in any field saves the changes
+  const handleProfileSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleUpdateProfile();
+  };
+
+  // Discards edits and restores the saved values
+  const handleCancelEdit = () => {
+    if (!profileData) return;
+    setIsEditingProfile(false);
+    setEditingProfile({
+      first_name: profileData.first_name,
+      last_name: profileData.last_name,
+      phone: profileData.phone || "",
+    });
   };
 
   // ============================================================================
@@ -408,7 +454,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className={"profile-page profile-loading-state"}>
+      <div className="profile-page profile-loading-state">
         <LoadingSpinner message="Loading your profile..." />
       </div>
     );
@@ -417,8 +463,8 @@ const Profile = () => {
   if (!profileData) return null;
 
   return (
-    <div className={"profile-page"}>
-      <div className={"profile-layout"}>
+    <div className="profile-page">
+      <div className="profile-layout">
         {/* Sidebar */}
         <ProfileSidebar
           firstName={profileData.first_name}
@@ -427,104 +473,87 @@ const Profile = () => {
         />
 
         {/* Main Content */}
-        <main className={"profile-main"}>
-          {/* Error alert */}
+        <main className="profile-main">
+          <header className="profile-page-header">
+            <h1 className="profile-page-title">My Profile</h1>
+          </header>
+
+          {/* Alerts stay in view while scrolling so a save is always confirmed */}
           {error && (
-            <div className={"profile-alert profile-alert-error"}>
-              <svg
-                className={"profile-alert-icon"}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              {error}
+            <div className="profile-alert profile-alert-error" role="alert">
+              <FaExclamationCircle
+                className="profile-alert-icon"
+                aria-hidden="true"
+              />
+              <span>{error}</span>
             </div>
           )}
 
-          {/* Success alert */}
           {success && (
-            <div className={"profile-alert profile-alert-success"}>
-              <svg
-                className={"profile-alert-icon"}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              {success}
+            <div className="profile-alert profile-alert-success" role="status">
+              <FaCheckCircle className="profile-alert-icon" aria-hidden="true" />
+              <span>{success}</span>
             </div>
           )}
 
           {/* Email verification banner */}
           {!profileData.is_email_verified && (
-            <div className={"profile-verification-banner"}>
-              <div className={"profile-verification-content"}>
-                <div>
-                  <p className={"profile-verification-title"}>
-                    Email Not Verified
+            <div className="profile-verification-banner">
+              <FaExclamationTriangle
+                className="profile-verification-icon"
+                aria-hidden="true"
+              />
+              <div className="profile-verification-content">
+                <p className="profile-verification-title">Email Not Verified</p>
+                <p className="profile-verification-text">
+                  Please verify your email address to access discounts and
+                  coupons.
+                </p>
+                {resendMessage && (
+                  <p className="profile-resend-message" role="status">
+                    {resendMessage}
                   </p>
-                  <p className={"profile-verification-text"}>
-                    Please verify your email address to access discounts and
-                    coupons.
-                  </p>
-                </div>
+                )}
               </div>
               <button
+                type="button"
                 onClick={handleResendVerification}
-                className={"profile-resend-btn"}
+                className="profile-resend-btn"
                 disabled={isResending}
               >
                 {isResending ? "Sending..." : "Resend Email"}
               </button>
-              {resendMessage && (
-                <p className={"profile-resend-message"}>{resendMessage}</p>
-              )}
             </div>
           )}
 
           {/* Personal Information Section */}
-          <section className={"profile-section"}>
-            <div className={"profile-section-header"}>
-              <h3 className={"profile-section-title"}>Personal Information</h3>
+          <section className="profile-section" aria-labelledby="profile-info-title">
+            <div className="profile-section-header">
+              <h2 id="profile-info-title" className="profile-section-title">
+                Personal Information
+              </h2>
               {/* Edit / Cancel + Save actions */}
               {!isEditingProfile ? (
                 <button
-                  className={"profile-btn-edit"}
+                  type="button"
+                  className="profile-btn-edit"
                   onClick={() => setIsEditingProfile(true)}
                 >
                   Edit
                 </button>
               ) : (
-                <div className={"profile-edit-actions"}>
+                <div className="profile-edit-actions">
                   <button
-                    className={"profile-btn-cancel"}
-                    onClick={() => {
-                      setIsEditingProfile(false);
-                      setEditingProfile({
-                        first_name: profileData.first_name,
-                        last_name: profileData.last_name,
-                        phone: profileData.phone || "",
-                      });
-                    }}
+                    type="button"
+                    className="profile-btn-cancel"
+                    onClick={handleCancelEdit}
                   >
                     Cancel
                   </button>
                   <button
-                    className={"profile-btn-save"}
-                    onClick={handleUpdateProfile}
+                    type="submit"
+                    form="profile-edit-form"
+                    className="profile-btn-save"
                     disabled={saving}
                   >
                     {saving ? "Saving..." : "Save Changes"}
@@ -534,14 +563,23 @@ const Profile = () => {
             </div>
 
             {/* Editable fields */}
-            <div className={"profile-info-grid"}>
-              <div className={"profile-info-field"}>
-                <label className={"profile-field-label"}>First Name</label>
+            <form
+              id="profile-edit-form"
+              className="profile-info-grid"
+              onSubmit={handleProfileSubmit}
+            >
+              <div className="profile-info-field">
+                <label htmlFor="profile-first-name" className="profile-field-label">
+                  First Name
+                </label>
                 {isEditingProfile ? (
                   <input
+                    id="profile-first-name"
                     type="text"
-                    className={"profile-field-input"}
+                    className="profile-field-input"
                     value={editingProfile.first_name}
+                    autoComplete="given-name"
+                    required
                     onChange={(e) =>
                       setEditingProfile({
                         ...editingProfile,
@@ -550,19 +588,22 @@ const Profile = () => {
                     }
                   />
                 ) : (
-                  <p className={"profile-field-value"}>
-                    {profileData.first_name}
-                  </p>
+                  <p className="profile-field-value">{profileData.first_name}</p>
                 )}
               </div>
 
-              <div className={"profile-info-field"}>
-                <label className={"profile-field-label"}>Last Name</label>
+              <div className="profile-info-field">
+                <label htmlFor="profile-last-name" className="profile-field-label">
+                  Last Name
+                </label>
                 {isEditingProfile ? (
                   <input
+                    id="profile-last-name"
                     type="text"
-                    className={"profile-field-input"}
+                    className="profile-field-input"
                     value={editingProfile.last_name}
+                    autoComplete="family-name"
+                    required
                     onChange={(e) =>
                       setEditingProfile({
                         ...editingProfile,
@@ -571,27 +612,27 @@ const Profile = () => {
                     }
                   />
                 ) : (
-                  <p className={"profile-field-value"}>
-                    {profileData.last_name}
-                  </p>
+                  <p className="profile-field-value">{profileData.last_name}</p>
                 )}
               </div>
 
-              <div className={"profile-info-field"}>
-                <label className={"profile-field-label"}>Email Address</label>
-                <p className={"profile-field-value"}>{profileData.email}</p>
-                <span className={"profile-field-note"}>
-                  Email cannot be changed
-                </span>
+              <div className="profile-info-field">
+                <span className="profile-field-label">Email Address</span>
+                <p className="profile-field-value">{profileData.email}</p>
+                <span className="profile-field-note">Email cannot be changed</span>
               </div>
 
-              <div className={"profile-info-field"}>
-                <label className={"profile-field-label"}>Phone Number</label>
+              <div className="profile-info-field">
+                <label htmlFor="profile-phone" className="profile-field-label">
+                  Phone Number
+                </label>
                 {isEditingProfile ? (
                   <input
+                    id="profile-phone"
                     type="tel"
-                    className={"profile-field-input"}
+                    className="profile-field-input"
                     value={editingProfile.phone}
+                    autoComplete="tel"
                     onChange={(e) => {
                       const sanitized = e.target.value.replace(
                         /[^\d+\-()\s]/g,
@@ -605,18 +646,19 @@ const Profile = () => {
                     placeholder="(optional)"
                   />
                 ) : (
-                  <p className={"profile-field-value"}>
+                  <p className="profile-field-value">
                     {profileData.phone || "Not provided"}
                   </p>
                 )}
               </div>
-            </div>
+            </form>
 
             {/* Delete Account */}
             <div className="profile-delete-account-wrapper">
               <button
+                type="button"
                 onClick={() => setShowDeleteAccountConfirm(true)}
-                className={"profile-delete-account-link"}
+                className="profile-delete-account-link"
               >
                 Delete Account
               </button>
@@ -624,13 +666,17 @@ const Profile = () => {
           </section>
 
           {/* Saved Addresses Section */}
-          <section className={"profile-section"}>
-            <div className={"profile-section-header"}>
-              <h3 className={"profile-section-title"}>
+          <section
+            className="profile-section"
+            aria-labelledby="profile-addresses-title"
+          >
+            <div className="profile-section-header">
+              <h2 id="profile-addresses-title" className="profile-section-title">
                 Saved Shipping Addresses
-              </h3>
+              </h2>
               <button
-                className={"profile-btn-add"}
+                type="button"
+                className="profile-btn-add"
                 onClick={() => openAddressModal()}
               >
                 Add New
@@ -639,38 +685,23 @@ const Profile = () => {
 
             {/* Empty state or address card grid */}
             {allAddresses.length === 0 ? (
-              <div className={"profile-empty-state"}>
-                <svg
-                  className={"profile-empty-icon"}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                <p className={"profile-empty-text"}>
+              <div className="profile-empty-state">
+                <span className="profile-empty-icon-wrap" aria-hidden="true">
+                  <FaMapMarkerAlt className="profile-empty-icon" />
+                </span>
+                <p className="profile-empty-text">
                   No saved shipping addresses yet
                 </p>
                 <button
-                  className={"profile-btn-primary"}
+                  type="button"
+                  className="profile-btn-primary"
                   onClick={() => openAddressModal()}
                 >
                   Add Your First Address
                 </button>
               </div>
             ) : (
-              <div className={"profile-addresses-grid"}>
+              <div className="profile-addresses-grid">
                 {allAddresses.map((address) => (
                   <AddressCard
                     key={address.address_id}
@@ -691,14 +722,19 @@ const Profile = () => {
       {/* Address Modal */}
       {showAddressModal && (
         <div
-          className={"profile-modal-overlay"}
+          className="profile-modal-overlay"
           onClick={() => setShowAddressModal(false)}
         >
           <div
-            className={"profile-modal-content"}
+            className="profile-modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-label={
+              editingAddressId !== null ? "Edit address" : "Add address"
+            }
             onClick={(e) => e.stopPropagation()}
           >
-            <div className={"profile-modal-body"}>
+            <div className="profile-modal-body">
               <AddressForm
                 addressForm={addressForm}
                 onFormChange={handleAddressFormChange}
@@ -749,32 +785,45 @@ const Profile = () => {
       {/* Step 2 — Delete Account: password confirmation before final deletion */}
       {showDeletePasswordModal && (
         <div
-          className={"profile-dap-overlay"}
+          className="profile-dap-overlay"
           onClick={handleCloseDeletePasswordModal}
         >
           <div
-            className={"profile-dap-modal"}
+            className="profile-dap-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profile-dap-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className={"profile-dap-title"}>Confirm Your Password</h2>
-            <p className={"profile-dap-subtitle"}>
+            <h2 id="profile-dap-title" className="profile-dap-title">
+              Confirm Your Password
+            </h2>
+            <p className="profile-dap-subtitle">
               Enter your password to permanently delete your account.
             </p>
 
             <form onSubmit={handleConfirmDeleteAccount}>
               {/* Inline error message for wrong password */}
               {deleteAccountError && (
-                <p className={"profile-dap-error"}>{deleteAccountError}</p>
+                <p className="profile-dap-error" role="alert">
+                  {deleteAccountError}
+                </p>
               )}
 
-              <div className={"profile-dap-field"}>
-                <label className={"profile-dap-label"}>Password</label>
+              <div className="profile-dap-field">
+                <label
+                  htmlFor="delete-account-password"
+                  className="profile-dap-label"
+                >
+                  Password
+                </label>
                 <PasswordInput
                   id="delete-account-password"
                   name="delete-account-password"
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
                   placeholder="Enter your password"
+                  autoComplete="current-password"
                   required
                 />
                 {/* Forgot password link */}
@@ -784,10 +833,10 @@ const Profile = () => {
               </div>
 
               {/* Cancel and confirm buttons */}
-              <div className={"profile-dap-actions"}>
+              <div className="profile-dap-actions">
                 <button
                   type="button"
-                  className={"profile-dap-btn-cancel"}
+                  className="profile-dap-btn-cancel"
                   onClick={handleCloseDeletePasswordModal}
                   disabled={isDeletingAccount}
                 >
@@ -795,7 +844,7 @@ const Profile = () => {
                 </button>
                 <button
                   type="submit"
-                  className={"profile-dap-btn-confirm"}
+                  className="profile-dap-btn-confirm"
                   disabled={isDeletingAccount || !deletePassword}
                 >
                   {isDeletingAccount ? "Deleting..." : "Delete My Account"}
