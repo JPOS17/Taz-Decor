@@ -1,5 +1,11 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { User, ShoppingBag, LayoutDashboard, LogOut } from "lucide-react";
+import {
+  User,
+  ShoppingBag,
+  LayoutDashboard,
+  ShieldCheck,
+  LogOut,
+} from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
 
@@ -35,6 +41,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
 
   const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   const isStaff = role === "manager" || role === "admin";
+  const isAdmin = role === "admin";
 
   return (
     <aside className="profile-sidebar">
@@ -48,7 +55,7 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
         </h2>
       </div>
 
-      {/* Account navigation — icon-only below 520px; the title attribute and
+      {/* Account navigation — icon-only below 720px; the title attribute and
           aria-label keep every link identifiable */}
       <nav className="profile-sidebar-nav" aria-label="Account">
         <NavLink
@@ -86,7 +93,24 @@ const ProfileSidebar = ({ firstName, lastName, role }: ProfileSidebarProps) => {
               className="profile-sidebar-nav-icon"
               aria-hidden="true"
             />
-            <span className="profile-sidebar-nav-label">Manager Dashboard</span>
+            <span className="profile-sidebar-nav-label">Manager</span>
+          </NavLink>
+        )}
+
+        {/* Admin Dashboard — admin only */}
+        {isAdmin && (
+          <NavLink
+            to="/admin"
+            end
+            className={navLinkClass}
+            title="Admin Dashboard"
+            aria-label="Admin Dashboard"
+          >
+            <ShieldCheck
+              className="profile-sidebar-nav-icon"
+              aria-hidden="true"
+            />
+            <span className="profile-sidebar-nav-label">Admin</span>
           </NavLink>
         )}
       </nav>

@@ -195,6 +195,7 @@
 
   .profile-sidebar-nav {
     flex-direction: row;
+    flex-shrink: 0;
     gap: 0.25rem;
   }
 
@@ -205,6 +206,7 @@
   }
 
   .profile-sidebar-logout-button {
+    flex-shrink: 0;
     width: auto;
     margin: 0;
     padding: 0.5rem 0.85rem;
@@ -214,8 +216,9 @@
   }
 }
 
-/* Icon-only below 640px so nav and sign out always fit */
-@media (max-width: 640px) {
+/* Icon-only below 720px so nav and sign out always fit, even with the
+   Manager and Admin links shown (admin role has five items in total) */
+@media (max-width: 720px) {
   .profile-sidebar-nav-label,
   .profile-sidebar-logout-label {
     display: none;
@@ -230,9 +233,25 @@
   }
 }
 
-/* Phones — the name gives way to the icons */
+/* Phones — the name gives way to the icons, and the icon buttons tighten
+   so five of them (admin role) still fit at a 320px screen width */
 @media (max-width: 400px) {
+  .profile-sidebar {
+    gap: 0.5rem;
+    padding-inline: 0.6rem;
+  }
+
   .profile-sidebar-user-name {
     display: none;
+  }
+
+  .profile-sidebar-nav {
+    gap: 0.15rem;
+  }
+
+  .profile-sidebar-nav-item,
+  .profile-sidebar-logout-button {
+    width: 34px;
+    height: 34px;
   }
 }
