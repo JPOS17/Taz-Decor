@@ -5,7 +5,7 @@ const Logo = () => {
   return (
     <Link
       className="top-bar-logo"
-      to="/items"
+      to="/product-catalog"
       aria-label="Taz Decor's Catholic Shop"
     >
       <span className="top-bar-logo-full">Taz Decor's Catholic Shop</span>
