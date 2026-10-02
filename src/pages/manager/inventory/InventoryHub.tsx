@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Folder, Plus, ArrowLeft, Edit, Tag, ArrowRight } from "lucide-react";
 
 // Each card in the directory grid — icon, title, description, path, and CTA label
@@ -33,72 +33,59 @@ const directoryCards = [
   },
 ];
 
-const ProductManagementDirectory = () => {
-  const navigate = useNavigate();
-
+const InventoryHub = () => {
   // ============================================================================
   // RENDER
   // ============================================================================
 
   return (
-    <div className="manager-page accent-inventory">
+    <div className="inventory-hub-page">
       {/* Header */}
-      <div className="mgr-header">
-        <div className="mgr-header-inner">
-          <div>
-            <button
-              className="mgr-back-button"
-              onClick={() => navigate("/manager")}
-            >
-              <ArrowLeft size={16} />
-              Back to Dashboard
-            </button>
-            <h1 className="mgr-header-title">Product Management</h1>
-            <p className="mgr-header-subtitle">
-              Select an option to manage your products and categories
-            </p>
-          </div>
+      <header className="inventory-hub-header">
+        <div className="inventory-hub-container">
+          <Link to="/manager" className="inventory-hub-back-link">
+            <ArrowLeft size={15} aria-hidden="true" />
+            Back to Dashboard
+          </Link>
+          <p className="inventory-hub-eyebrow">Inventory</p>
+          <h1 className="inventory-hub-title">Product Management</h1>
+          <p className="inventory-hub-subtitle">
+            Select an option to manage your products and categories.
+          </p>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="mgr-container">
-        <div className="mgr-body">
-          <p className="mgr-section-label">Inventory Dashboard</p>
+      <main className="inventory-hub-container inventory-hub-main">
+        <h2 className="inventory-hub-section-label">Inventory actions</h2>
 
-          {/* Navigation card grid */}
-          <div className="mgr-grid">
-            {directoryCards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <div
-                  key={card.path}
-                  className="mgr-card"
-                  onClick={() => navigate(card.path)}
-                >
-                  <div className="mgr-card-top">
-                    <div className="mgr-card-icon">
-                      <Icon size={20} strokeWidth={2} />
-                    </div>
-                    <ArrowRight size={16} className="mgr-card-arrow" />
-                  </div>
-                  <div>
-                    <h3 className="mgr-card-title">{card.title}</h3>
-                    <p className="mgr-card-description">{card.description}</p>
-                  </div>
-                  {/* CTA footer with inline arrow */}
-                  <div className="mgr-card-footer">
-                    <span>{card.cta}</span>
-                    <ArrowRight size={13} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        {/* Navigation card grid — each card is a real link, so it works with
+            keyboard, middle-click and screen readers */}
+        <div className="inventory-hub-grid">
+          {directoryCards.map(({ icon: Icon, ...card }) => (
+            <Link key={card.path} to={card.path} className="inventory-hub-card">
+              <span className="inventory-hub-card-icon" aria-hidden="true">
+                <Icon size={20} strokeWidth={1.9} />
+              </span>
+
+              <div className="inventory-hub-card-body">
+                <h3 className="inventory-hub-card-title">{card.title}</h3>
+                <p className="inventory-hub-card-description">
+                  {card.description}
+                </p>
+              </div>
+
+              {/* CTA footer with arrow */}
+              <div className="inventory-hub-card-footer">
+                <span>{card.cta}</span>
+                <ArrowRight size={14} aria-hidden="true" />
+              </div>
+            </Link>
+          ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default ProductManagementDirectory;
+export default InventoryHub;

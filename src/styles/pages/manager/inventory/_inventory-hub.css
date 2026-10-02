@@ -1,0 +1,277 @@
+/* ==============================================================================
+   INVENTORY HUB PAGE
+   Landing page of the inventory area: a grid of cards linking to editing and
+   creating products, categories and product types
+   
+   Neutral (white / grey / black) base with the manager "inventory" red as the
+   single accent.
+
+   Prefix: inventory-hub-*
+
+   BREAKPOINTS
+     - Tablet: up to 900px
+     - Mobile: up to 600px
+   ============================================================================== */
+
+.inventory-hub-page {
+  /* Neutral palette */
+  --inventory-hub-bg: #f5f5f6;
+  --inventory-hub-surface: #ffffff;
+  --inventory-hub-border: #e6e6e8;
+  --inventory-hub-border-strong: #d2d2d6;
+  --inventory-hub-text: #111113;
+  --inventory-hub-text-2: #52525b;
+  --inventory-hub-text-3: #8a8a93;
+
+  --inventory-hub-radius: 12px;
+  --inventory-hub-shadow: 0 1px 2px rgba(17, 17, 19, 0.04), 0 1px 3px rgba(17, 17, 19, 0.04);
+  --inventory-hub-shadow-hover: 0 8px 24px rgba(17, 17, 19, 0.08);
+  --inventory-hub-ring: 0 0 0 3px rgba(17, 17, 19, 0.14);
+
+  /* Accent — inventory red: main / light tint / dark text-safe shade */
+  --inventory-hub-accent: #d1382e;
+  --inventory-hub-accent-light: #fdeeed;
+  --inventory-hub-accent-dark: #a82a21;
+
+  min-height: 100vh;
+  background: var(--inventory-hub-bg);
+  color: var(--inventory-hub-text);
+  font-family: var(--font-admin);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+.inventory-hub-page h1,
+.inventory-hub-page h2,
+.inventory-hub-page h3 {
+  margin: 0;
+  font-family: var(--font-admin);
+  color: var(--inventory-hub-text);
+}
+
+.inventory-hub-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* ==============================================================================
+   HEADER
+   ============================================================================== */
+
+.inventory-hub-header {
+  padding: 1.5rem 0 1.75rem;
+  background: var(--inventory-hub-surface);
+  border-bottom: 1px solid var(--inventory-hub-border);
+}
+
+.inventory-hub-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  padding: 0.3rem 0.65rem 0.3rem 0.45rem;
+  margin-left: -0.45rem;
+  border-radius: 7px;
+  color: var(--inventory-hub-text-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.inventory-hub-back-link:hover {
+  background: #f0f0f2;
+  color: var(--inventory-hub-text);
+}
+
+.inventory-hub-back-link:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-hub-ring);
+}
+
+.inventory-hub-eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--inventory-hub-accent-dark);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.inventory-hub-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.inventory-hub-subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--inventory-hub-text-2);
+  font-size: 0.92rem;
+}
+
+.inventory-hub-main {
+  padding-block: 2rem 4rem;
+}
+
+.inventory-hub-section-label {
+  margin-bottom: 1rem;
+  color: var(--inventory-hub-text-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ==============================================================================
+   CARD GRID
+   ============================================================================== */
+
+.inventory-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.1rem;
+}
+
+.inventory-hub-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+  padding: 1.35rem;
+  overflow: hidden;
+  background: var(--inventory-hub-surface);
+  border: 1px solid var(--inventory-hub-border);
+  border-radius: var(--inventory-hub-radius);
+  box-shadow: var(--inventory-hub-shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+/* Thin accent bar along the top edge, revealed on hover / focus */
+.inventory-hub-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--inventory-hub-accent);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.inventory-hub-card:hover,
+.inventory-hub-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--inventory-hub-border-strong);
+  box-shadow: var(--inventory-hub-shadow-hover);
+}
+
+.inventory-hub-card:hover::before,
+.inventory-hub-card:focus-visible::before {
+  opacity: 1;
+}
+
+.inventory-hub-card:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-hub-shadow-hover), var(--inventory-hub-ring);
+}
+
+.inventory-hub-card-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  background: var(--inventory-hub-accent-light);
+  border-radius: 10px;
+  color: var(--inventory-hub-accent-dark);
+}
+
+.inventory-hub-card-body {
+  flex: 1;
+}
+
+.inventory-hub-card-title {
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.inventory-hub-card-description {
+  margin: 0.35rem 0 0;
+  color: var(--inventory-hub-text-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.inventory-hub-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--inventory-hub-border);
+  color: var(--inventory-hub-accent-dark);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.inventory-hub-card-footer svg {
+  transition: transform 0.18s ease;
+}
+
+.inventory-hub-card:hover .inventory-hub-card-footer svg,
+.inventory-hub-card:focus-visible .inventory-hub-card-footer svg {
+  transform: translateX(4px);
+}
+
+/* ==============================================================================
+   RESPONSIVE
+   ============================================================================== */
+
+@media (max-width: 900px) {
+  .inventory-hub-header {
+    padding: 1.25rem 0 1.4rem;
+  }
+
+  .inventory-hub-main {
+    padding-block: 1.5rem 3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .inventory-hub-container {
+    padding-inline: 1rem;
+  }
+
+  .inventory-hub-title {
+    font-size: 1.4rem;
+  }
+
+  .inventory-hub-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .inventory-hub-card {
+    padding: 1.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inventory-hub-card,
+  .inventory-hub-card::before,
+  .inventory-hub-card-footer svg {
+    transition: none;
+  }
+
+  .inventory-hub-card:hover,
+  .inventory-hub-card:focus-visible {
+    transform: none;
+  }
+}

@@ -105,6 +105,7 @@
 @import "./pages/manager/_manager-dashboard.css";
 @import "./pages/manager/_legacy-aliases.css";
 @import "./pages/manager/_shared.css";
+@import "./pages/manager/inventory/_inventory-hub.css";
 @import "./pages/manager/inventory/_inventory-list.css";
 @import "./pages/manager/inventory/_categories.css";
 @import "./pages/manager/inventory/_product-types.css";
