@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-
+import { useState, type MouseEvent } from "react";
+import { Link } from "react-router-dom";
 import {
   FaCross,
   FaEnvelope,
@@ -9,6 +9,8 @@ import {
   FaShoppingBag,
 } from "react-icons/fa";
 
+const SHOP_EMAIL = "tazdecorcatholiccompany@gmail.com";
+
 const About = () => {
   const [copied, setCopied] = useState(false);
 
@@ -17,17 +19,15 @@ const About = () => {
   // ============================================================================
 
   // Copies the shop email to clipboard; falls back to execCommand for older browsers
-  const handleEmailCopy = async (e: React.MouseEvent) => {
+  const handleEmailCopy = async (e: MouseEvent) => {
     e.preventDefault();
-    const email = "tazdecorcatholiccompany@gmail.com";
     try {
-      await navigator.clipboard.writeText(email);
+      await navigator.clipboard.writeText(SHOP_EMAIL);
     } catch {
-      // Fallback for older browsers
+      // Fallback for older browsers — the helper class keeps the textarea off-screen
       const ta = document.createElement("textarea");
-      ta.value = email;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
+      ta.value = SHOP_EMAIL;
+      ta.className = "about-clipboard-fallback";
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");
@@ -44,20 +44,17 @@ const About = () => {
   return (
     <div className="about-page">
       {/* Page Header */}
-      <div className="about-header">
+      <header className="about-header">
         <div className="about-header-inner">
           <h1 className="about-title">About Us</h1>
           <p className="about-subtitle">
             A family rooted in faith, sharing it with yours.
           </p>
-          <a
-            href="mailto:tazdecorcatholiccompany@gmail.com"
-            className="about-email-pill"
-          >
-            <FaEnvelope /> tazdecorcatholiccompany@gmail.com
+          <a href={`mailto:${SHOP_EMAIL}`} className="about-email-pill">
+            <FaEnvelope aria-hidden="true" /> {SHOP_EMAIL}
           </a>
         </div>
-      </div>
+      </header>
 
       <div className="about-body">
         {/* Our Story */}
@@ -68,7 +65,7 @@ const About = () => {
               <h2 className="about-section-heading">
                 Born from Faith, Built with Love
               </h2>
-              <p>
+              <p className="about-story-lead">
                 As a family deeply rooted in our Catholic faith, we found
                 ourselves constantly searching for beautiful, meaningful items
                 that could bring that faith into our everyday home and life.
@@ -85,33 +82,11 @@ const About = () => {
                 the faith.
               </p>
             </div>
-            {/* <div className="about-story-aside">
-              <div className="about-story-card">
-                <div className="about-story-stat">
-                  <span className="about-stat-number">540</span>
-                  <span className="about-stat-label">Sales</span>
-                </div>
-                <div className="about-story-divider">
-                  <FaCross />
-                </div>
-                <div className="about-story-stat">
-                  <span className="about-stat-number">2022</span>
-                  <span className="about-stat-label">Sharing faith since</span>
-                </div>
-                <div className="about-story-divider">
-                  <FaCross />
-                </div>
-                <div className="about-story-stat">
-                  <span className="about-stat-number">100%</span>
-                  <span className="about-stat-label">Family-run with love</span>
-                </div>
-              </div>
-            </div> */}
           </div>
         </section>
 
         {/* Section Divider */}
-        <div className="about-divider">
+        <div className="about-divider" aria-hidden="true">
           <span className="about-divider-line" />
           <span className="about-divider-cross">
             <FaCross />
@@ -125,10 +100,9 @@ const About = () => {
           <h2 className="about-section-heading centered">What We Stand For</h2>
 
           {/* Mission cards */}
-          <div className="about-mission-cards">
-            <div className="about-mission-card">
-              <div className="about-mission-icon">
-                {" "}
+          <ul className="about-mission-cards">
+            <li className="about-mission-card">
+              <div className="about-mission-icon" aria-hidden="true">
                 <FaPrayingHands />
               </div>
               <h3>Faith First</h3>
@@ -137,9 +111,9 @@ const About = () => {
                 Does it inspire devotion? If the answer is yes, it earns a place
                 in our shop.
               </p>
-            </div>
-            <div className="about-mission-card">
-              <div className="about-mission-icon">
+            </li>
+            <li className="about-mission-card">
+              <div className="about-mission-icon" aria-hidden="true">
                 <FaHeart />
               </div>
               <h3>Made for You</h3>
@@ -148,10 +122,9 @@ const About = () => {
                 customer like one too. Your questions, your needs, and your
                 stories matter deeply to us.
               </p>
-            </div>
-            <div className="about-mission-card">
-              <div className="about-mission-icon">
-                {" "}
+            </li>
+            <li className="about-mission-card">
+              <div className="about-mission-icon" aria-hidden="true">
                 <FaStar />
               </div>
               <h3>Quality & Care</h3>
@@ -160,12 +133,12 @@ const About = () => {
                 it's a gift or something for your own home, you can trust that
                 it was chosen with care.
               </p>
-            </div>
-          </div>
+            </li>
+          </ul>
         </section>
 
         {/* Section Divider */}
-        <div className="about-divider">
+        <div className="about-divider" aria-hidden="true">
           <span className="about-divider-line" />
           <span className="about-divider-cross">
             <FaCross />
@@ -188,31 +161,32 @@ const About = () => {
 
           {/* Contact cards */}
           <div className="about-contact-cards">
-            <button onClick={handleEmailCopy} className="about-contact-card">
-              <div className="about-contact-icon">
+            <button
+              type="button"
+              onClick={handleEmailCopy}
+              className="about-contact-card"
+            >
+              <span className="about-contact-icon" aria-hidden="true">
                 <FaEnvelope />
-              </div>
-              <div className="about-contact-title">Send us an Email</div>
-              <div className="about-contact-email">
-                tazdecorcatholiccompany@gmail.com
-              </div>
+              </span>
+              <span className="about-contact-title">Send us an Email</span>
+              <span className="about-contact-email">{SHOP_EMAIL}</span>
               {/* Toggles between copy prompt and confirmation message */}
-              <div className="about-contact-sub">
+              <span className="about-contact-sub" role="status">
                 {copied
-                  ? "📋 Copied to clipboard!"
+                  ? "Copied to clipboard!"
                   : "Click to copy our email address"}
-              </div>
+              </span>
             </button>
-            <a href="/items" className="about-contact-card">
-              <div className="about-contact-icon">
-                {" "}
+            <Link to="/product-catalog" className="about-contact-card">
+              <span className="about-contact-icon" aria-hidden="true">
                 <FaShoppingBag />
-              </div>
-              <div className="about-contact-title">Visit Our Shop</div>
-              <div className="about-contact-sub">
+              </span>
+              <span className="about-contact-title">Visit Our Shop</span>
+              <span className="about-contact-sub">
                 Browse our full collection
-              </div>
-            </a>
+              </span>
+            </Link>
           </div>
         </section>
       </div>

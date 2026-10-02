@@ -1,28 +1,32 @@
-import PrimaryImage from "../../../../public/PrimaryImage.jpeg";
+import { Link } from "react-router-dom";
 import { FaCross } from "react-icons/fa";
+import PrimaryImage from "../../../../public/PrimaryImage.jpeg";
 
 const Home = () => {
   return (
     <div className="home-page">
       {/* Hero Image Banner */}
-      <div className="home-hero">
+      <section className="home-hero">
         <img
           src={PrimaryImage}
           alt="Taz Decor Catholic Shop — Saints illustration"
           className="home-hero-image"
+          fetchPriority="high"
         />
-        <div className="home-hero-overlay" />
-      </div>
+        <div className="home-hero-overlay" aria-hidden="true" />
+      </section>
 
-      {/* Welcome Section */}
-      <div className="home-content">
-        <div className="home-content-inner">
+      {/* Welcome Section — a card that overlaps the bottom of the hero */}
+      <section className="home-content">
+        <div className="home-card">
           {/* Cross divider icon */}
-          <div className="home-cross-divider">
+          <div className="home-cross-divider" aria-hidden="true">
             <span className="home-cross-symbol">
               <FaCross />
             </span>
           </div>
+
+          <p className="home-eyebrow">Catholic Gifts &amp; Home Décor</p>
 
           <h1 className="home-title">Welcome to Taz Decor's Catholic Shop</h1>
 
@@ -36,15 +40,20 @@ const Home = () => {
 
           <p className="home-tagline">Thank you for your visit. God bless.</p>
 
-          {/* Call to action */}
+          {/* Calls to action */}
           <div className="home-cta">
-            <a href="/product-catalog" className="home-shop-btn">
+            <Link to="/product-catalog" className="home-shop-btn">
               Browse Our Collection
-              <span className="home-btn-arrow">→</span>
-            </a>
+              <span className="home-btn-arrow" aria-hidden="true">
+                →
+              </span>
+            </Link>
+            <Link to="/about" className="home-secondary-btn">
+              Our Story
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
