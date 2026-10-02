@@ -1,4 +1,15 @@
 import { useState, useEffect } from "react";
+import {
+  AlertCircle,
+  Briefcase,
+  Check,
+  MailCheck,
+  Search,
+  ShieldCheck,
+  UserCheck,
+  Users,
+  X,
+} from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import {
   getAllUsers,
@@ -86,6 +97,18 @@ const AdminDashboard = () => {
     }
   }, [toast]);
 
+  // Close whichever modal is open when Escape is pressed
+  useEffect(() => {
+    if (!confirmModal.show && !emailModal.show) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (confirmModal.show) handleCancelAction();
+      if (emailModal.show) handleCloseEmailModal();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [confirmModal.show, emailModal.show]);
+
   // Loads all users from API and stores them in state
   const fetchUsers = async () => {
     try {
@@ -108,25 +131,46 @@ const AdminDashboard = () => {
   const getRoleBadgeClass = (role: string) => {
     switch (role) {
       case "admin":
-        return "role-badge role-admin";
+        return "admin-badge admin-badge--admin";
       case "manager":
-        return "role-badge role-manager";
+        return "admin-badge admin-badge--manager";
       default:
-        return "role-badge role-customer";
+        return "admin-badge admin-badge--customer";
     }
   };
 
-  // Formats ISO date string into a more readable format
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Never";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  // Splits an ISO date string into a date line and a time line for the table
+  const formatDateParts = (dateString: string | null) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return {
+      day: date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+      time: date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
   };
+
+  // Renders a stacked date/time cell, or a muted "Never" when there is no value
+  const renderDateCell = (dateString: string | null) => {
+    const parts = formatDateParts(dateString);
+    if (!parts) return <span className="admin-muted">Never</span>;
+    return (
+      <>
+        <span className="admin-date-day">{parts.day}</span>
+        <span className="admin-date-time">{parts.time}</span>
+      </>
+    );
+  };
+
+  // Capitalises a role name for display
+  const capitalize = (value: string) =>
+    value.charAt(0).toUpperCase() + value.slice(1);
 
   // Derived filtered user list
   const filteredUsers = users.filter((user) => {
@@ -297,8 +341,9 @@ const AdminDashboard = () => {
   if (isLoading) {
     return (
       <div className="admin-dashboard">
-        <div className="loading-spinner">
-          <p>Loading users...</p>
+        <div className="admin-state" role="status">
+          <span className="admin-spinner" aria-hidden="true" />
+          <p>Loading users…</p>
         </div>
       </div>
     );
@@ -307,77 +352,117 @@ const AdminDashboard = () => {
   if (error) {
     return (
       <div className="admin-dashboard">
-        <div className="error-message">
-          <p>Error: {error}</p>
-          <button onClick={fetchUsers} className="btn-retry">
-            Retry
+        <div className="admin-state admin-state--error" role="alert">
+          <AlertCircle size={28} aria-hidden="true" />
+          <h2>Something went wrong</h2>
+          <p>{error}</p>
+          <button onClick={fetchUsers} className="admin-btn admin-btn--primary">
+            Try again
           </button>
         </div>
       </div>
     );
   }
 
+  const stats = [
+    { label: "Total users", value: users.length, icon: Users },
+    {
+      label: "Active users",
+      value: users.filter((u) => u.isActive).length,
+      icon: UserCheck,
+    },
+    {
+      label: "Admins",
+      value: users.filter((u) => u.role === "admin").length,
+      icon: ShieldCheck,
+    },
+    {
+      label: "Managers",
+      value: users.filter((u) => u.role === "manager").length,
+      icon: Briefcase,
+    },
+    {
+      label: "Verified emails",
+      value: users.filter((u) => u.isEmailVerified).length,
+      icon: MailCheck,
+    },
+  ];
+
+  const hasActiveFilters =
+    searchTerm !== "" || filterRole !== "all" || filterStatus !== "all";
+  const isDeactivating =
+    confirmModal.type === "status" && confirmModal.newValue === false;
+
   return (
     <div className="admin-dashboard">
       {/* Toast notification */}
       {toast && (
-        <div className={`toast-notification ${toast.type}`}>
-          <span className={`toast-icon ${toast.type}`}>
-            {toast.type === "success" ? "✓" : "✕"}
+        <div
+          className={`admin-toast admin-toast--${toast.type}`}
+          role="status"
+          aria-live="polite"
+        >
+          <span className="admin-toast-icon" aria-hidden="true">
+            {toast.type === "success" ? <Check size={14} /> : <X size={14} />}
           </span>
-          <div className="toast-content">
-            <p className="toast-message">{toast.message}</p>
-          </div>
+          <p className="admin-toast-message">{toast.message}</p>
         </div>
       )}
 
       {/* Confirmation modal */}
       {confirmModal.show && (
-        <div
-          className="confirmation-modal-overlay"
-          onClick={handleCancelAction}
-        >
+        <div className="admin-modal-overlay" onClick={handleCancelAction}>
           <div
-            className="confirmation-modal"
+            className="admin-modal admin-modal--sm"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-confirm-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3>
-              Confirm{" "}
-              {confirmModal.type === "role" ? "Role Change" : "Status Change"}
+            <h3 id="admin-confirm-title" className="admin-modal-title">
+              {confirmModal.type === "role"
+                ? "Change role"
+                : isDeactivating
+                  ? "Deactivate account"
+                  : "Activate account"}
             </h3>
             {confirmModal.type === "role" ? (
-              <p>
-                Are you sure you want to change{" "}
-                <strong>{confirmModal.userName}'s</strong> role from{" "}
-                <strong
+              <p className="admin-modal-text">
+                Change <strong>{confirmModal.userName}</strong>&rsquo;s role
+                from{" "}
+                <span
                   className={getRoleBadgeClass(
                     confirmModal.currentValue as string,
                   )}
                 >
-                  {(confirmModal.currentValue as string).toUpperCase()}
-                </strong>{" "}
+                  {capitalize(confirmModal.currentValue as string)}
+                </span>{" "}
                 to{" "}
-                <strong
+                <span
                   className={getRoleBadgeClass(confirmModal.newValue as string)}
                 >
-                  {(confirmModal.newValue as string).toUpperCase()}
-                </strong>
+                  {capitalize(confirmModal.newValue as string)}
+                </span>
                 ?
               </p>
             ) : (
-              <p>
+              <p className="admin-modal-text">
                 Are you sure you want to{" "}
-                <strong>
-                  {confirmModal.newValue ? "activate" : "deactivate"}
-                </strong>{" "}
-                <strong>{confirmModal.userName}'s</strong> account?
+                <strong>{confirmModal.newValue ? "activate" : "deactivate"}</strong>{" "}
+                <strong>{confirmModal.userName}</strong>&rsquo;s account?
+                {isDeactivating && " They will no longer be able to sign in."}
               </p>
             )}
-            <div className="confirmation-modal-buttons">
-              <button onClick={handleCancelAction} className="btn-cancel">
+            <div className="admin-modal-actions">
+              <button onClick={handleCancelAction} className="admin-btn">
                 Cancel
               </button>
-              <button onClick={handleConfirmAction} className="btn-confirm">
+              <button
+                onClick={handleConfirmAction}
+                className={`admin-btn ${
+                  isDeactivating ? "admin-btn--danger" : "admin-btn--primary"
+                }`}
+              >
                 Confirm
               </button>
             </div>
@@ -387,48 +472,65 @@ const AdminDashboard = () => {
 
       {/* Email modal */}
       {emailModal.show && (
-        <div
-          className="confirmation-modal-overlay"
-          onClick={handleCloseEmailModal}
-        >
-          <div className="email-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Send Email to {emailModal.userName}</h3>
-            <p className="email-recipient">To: {emailModal.userEmail}</p>
+        <div className="admin-modal-overlay" onClick={handleCloseEmailModal}>
+          <div
+            className="admin-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-email-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="admin-email-title" className="admin-modal-title">
+              Send email
+            </h3>
+            <p className="admin-recipient">
+              <span className="admin-recipient-label">To</span>
+              <span className="admin-recipient-name">
+                {emailModal.userName}
+              </span>
+              <span className="admin-recipient-email">
+                {emailModal.userEmail}
+              </span>
+            </p>
 
-            <div className="email-form">
-              <div className="form-group">
-                <label className="form-label">Subject</label>
-                <input
-                  type="text"
-                  value={emailSubject}
-                  onChange={(e) => setEmailSubject(e.target.value)}
-                  placeholder="Enter email subject..."
-                  className="email-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Message</label>
-                <textarea
-                  value={emailMessage}
-                  onChange={(e) => setEmailMessage(e.target.value)}
-                  placeholder="Enter your message..."
-                  className="email-textarea"
-                  rows={8}
-                />
-              </div>
+            <div className="admin-field">
+              <label className="admin-field-label" htmlFor="admin-email-subject">
+                Subject
+              </label>
+              <input
+                id="admin-email-subject"
+                type="text"
+                value={emailSubject}
+                onChange={(e) => setEmailSubject(e.target.value)}
+                placeholder="Enter email subject"
+                className="admin-input"
+              />
             </div>
 
-            <div className="confirmation-modal-buttons">
-              <button onClick={handleCloseEmailModal} className="btn-cancel">
+            <div className="admin-field">
+              <label className="admin-field-label" htmlFor="admin-email-message">
+                Message
+              </label>
+              <textarea
+                id="admin-email-message"
+                value={emailMessage}
+                onChange={(e) => setEmailMessage(e.target.value)}
+                placeholder="Write your message"
+                className="admin-input admin-textarea"
+                rows={8}
+              />
+            </div>
+
+            <div className="admin-modal-actions">
+              <button onClick={handleCloseEmailModal} className="admin-btn">
                 Cancel
               </button>
               <button
                 onClick={handleSendEmail}
-                className="btn-confirm"
+                className="admin-btn admin-btn--primary"
                 disabled={isSendingEmail}
               >
-                {isSendingEmail ? "Sending..." : "Send Email"}
+                {isSendingEmail ? "Sending…" : "Send email"}
               </button>
             </div>
           </div>
@@ -436,235 +538,267 @@ const AdminDashboard = () => {
       )}
 
       {/* Page header */}
-      <div className="dashboard-header">
-        <div className="container">
-          <h1 className="dashboard-title">Admin Dashboard - User Management</h1>
+      <header className="admin-header">
+        <div className="admin-container">
+          <p className="admin-eyebrow">Admin console</p>
+          <h1 className="admin-title">User management</h1>
+          <p className="admin-subtitle">
+            Manage accounts, roles and access for your store.
+          </p>
         </div>
-      </div>
+      </header>
 
-      <div className="container">
-        {/* Search and filter controls */}
-        <div className="controls-section">
-          {/* Free-text search — matches name or email */}
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-
-          {/* Role filter dropdown */}
-          <div className="filter-box">
-            <label className="filter-label">Filter by Role:</label>
-            <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Roles</option>
-              <option value="customer">Customer</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-
-          {/* Status filter dropdown */}
-          <div className="filter-box">
-            <label className="filter-label">Filter by Status:</label>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="filter-select"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
-        </div>
-
+      <main className="admin-container admin-main">
         {/* Stats summary cards */}
-        <div className="stats-section">
-          <div className="stat-card">
-            <div className="stat-value">{users.length}</div>
-            <div className="stat-label">Total Users</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">
-              {users.filter((u) => u.isActive).length}
+        <section className="admin-stats" aria-label="User summary">
+          {stats.map(({ label, value, icon: Icon }) => (
+            <div className="admin-stat" key={label}>
+              <span className="admin-stat-icon" aria-hidden="true">
+                <Icon size={18} strokeWidth={1.8} />
+              </span>
+              <div>
+                <div className="admin-stat-value">{value}</div>
+                <div className="admin-stat-label">{label}</div>
+              </div>
             </div>
-            <div className="stat-label">Active Users</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">
-              {users.filter((u) => u.role === "admin").length}
+          ))}
+        </section>
+
+        {/* Table card: toolbar + table */}
+        <section className="admin-card">
+          {/* Search and filter controls */}
+          <div className="admin-toolbar">
+            <div className="admin-search">
+              <Search
+                className="admin-search-icon"
+                size={16}
+                aria-hidden="true"
+              />
+              <input
+                type="text"
+                placeholder="Search by name or email"
+                aria-label="Search users"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="admin-input admin-search-input"
+              />
             </div>
-            <div className="stat-label">Admins</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">
-              {users.filter((u) => u.role === "manager").length}
+
+            <div className="admin-filter">
+              <label className="admin-field-label" htmlFor="admin-filter-role">
+                Role
+              </label>
+              <select
+                id="admin-filter-role"
+                value={filterRole}
+                onChange={(e) => setFilterRole(e.target.value)}
+                className="admin-input admin-select"
+              >
+                <option value="all">All roles</option>
+                <option value="customer">Customer</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
-            <div className="stat-label">Managers</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">
-              {users.filter((u) => u.isEmailVerified).length}
+
+            <div className="admin-filter">
+              <label className="admin-field-label" htmlFor="admin-filter-status">
+                Status
+              </label>
+              <select
+                id="admin-filter-status"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="admin-input admin-select"
+              >
+                <option value="all">All statuses</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
             </div>
-            <div className="stat-label">Verified Emails</div>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="admin-btn admin-btn--ghost"
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilterRole("all");
+                  setFilterStatus("all");
+                }}
+              >
+                Clear
+              </button>
+            )}
           </div>
-        </div>
 
-        {/* Users table */}
-        <div className="users-table-container">
-          <table className="users-table">
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Email Verified</th>
-                <th>Created</th>
-                <th>Last Login</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user) => (
-                <tr
-                  key={user.userId}
-                  className={!user.isActive ? "inactive-row" : ""}
-                >
-                  {/* Avatar (initials) + full name */}
-                  <td>
-                    <div className="user-cell">
-                      <div className="user-avatar">
-                        {user.firstName.charAt(0)}
-                        {user.lastName.charAt(0)}
-                      </div>
-                      <div className="user-name">
-                        {user.firstName} {user.lastName}
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span
-                      className="email-link"
-                      onClick={() =>
-                        showEmailModal(
-                          user.userId,
-                          `${user.firstName} ${user.lastName}`,
-                          user.email,
-                        )
-                      }
-                      title="Click to send email"
-                    >
-                      {user.email}
-                    </span>
-                  </td>
-                  <td>{user.phone || "N/A"}</td>
+          <div className="admin-result-count">
+            Showing {filteredUsers.length} of {users.length}{" "}
+            {users.length === 1 ? "user" : "users"}
+          </div>
 
-                  {/* Role badge */}
-                  <td>
-                    <span className={getRoleBadgeClass(user.role)}>
-                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                    </span>
-                  </td>
-
-                  {/* Active/Inactive status badge */}
-                  <td>
-                    <span
-                      className={`status-badge ${
-                        user.isActive ? "active" : "inactive"
-                      }`}
-                    >
-                      {user.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-
-                  {/* Email verification status */}
-                  <td>
-                    <span
-                      className={`verification-badge ${
-                        user.isEmailVerified ? "verified" : "unverified"
-                      }`}
-                    >
-                      {user.isEmailVerified ? "✓ Verified" : "✕ Unverified"}
-                    </span>
-                  </td>
-                  <td className="date-cell">{formatDate(user.createdAt)}</td>
-                  <td className="date-cell">{formatDate(user.lastLogin)}</td>
-
-                  {/* Action column — hidden for the currently logged-in admin */}
-                  <td>
-                    <div className="action-buttons">
-                      {currentUser?.userId !== user.userId && (
-                        <>
-                          {/* Role select — opens confirmation modal on change */}
-                          <select
-                            value={user.role}
-                            onChange={(e) =>
-                              showRoleConfirmation(
-                                user.userId,
-                                e.target.value as any,
-                                `${user.firstName} ${user.lastName}`,
-                                user.role,
-                              )
-                            }
-                            className="role-select"
-                          >
-                            <option value="customer">Customer</option>
-                            <option value="manager">Manager</option>
-                            <option value="admin">Admin</option>
-                          </select>
-
-                          {/* Activate / Deactivate toggle button */}
-                          <button
-                            onClick={() =>
-                              showStatusConfirmation(
-                                user.userId,
-                                `${user.firstName} ${user.lastName}`,
-                                user.isActive,
-                              )
-                            }
-                            className={`btn-toggle ${
-                              user.isActive ? "btn-deactivate" : "btn-activate"
-                            }`}
-                            title={
-                              user.isActive
-                                ? "Deactivate user"
-                                : "Activate user"
-                            }
-                          >
-                            {user.isActive ? "Deactivate" : "Activate"}
-                          </button>
-                        </>
-                      )}
-                      {currentUser?.userId === user.userId && (
-                        <span className="current-user-label">You</span>
-                      )}
-                    </div>
-                  </td>
+          {/* Users table */}
+          <div className="admin-table-scroll">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Email</th>
+                  <th>Created</th>
+                  <th>Last login</th>
+                  <th className="admin-th-actions">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredUsers.map((user) => {
+                  const fullName = `${user.firstName} ${user.lastName}`;
+                  const isSelf = currentUser?.userId === user.userId;
 
-          {/* Empty state */}
-          {filteredUsers.length === 0 && (
-            <div className="empty-state">
-              <p className="empty-state-text">
-                No users found matching your filters
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+                  return (
+                    <tr
+                      key={user.userId}
+                      className={!user.isActive ? "admin-row--inactive" : ""}
+                    >
+                      {/* Avatar (initials) + full name */}
+                      <td>
+                        <div className="admin-user">
+                          <div className="admin-avatar" aria-hidden="true">
+                            {user.firstName.charAt(0)}
+                            {user.lastName.charAt(0)}
+                          </div>
+                          <span className="admin-user-name">{fullName}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="admin-email-link"
+                          onClick={() =>
+                            showEmailModal(user.userId, fullName, user.email)
+                          }
+                          title="Send email"
+                        >
+                          {user.email}
+                        </button>
+                      </td>
+                      <td className="admin-cell-muted">
+                        {user.phone || <span className="admin-muted">—</span>}
+                      </td>
+
+                      {/* Role badge */}
+                      <td>
+                        <span className={getRoleBadgeClass(user.role)}>
+                          {capitalize(user.role)}
+                        </span>
+                      </td>
+
+                      {/* Active/Inactive status */}
+                      <td>
+                        <span
+                          className={`admin-status ${
+                            user.isActive
+                              ? "admin-status--active"
+                              : "admin-status--inactive"
+                          }`}
+                        >
+                          {user.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+
+                      {/* Email verification status */}
+                      <td>
+                        <span
+                          className={`admin-verified ${
+                            user.isEmailVerified
+                              ? "admin-verified--yes"
+                              : "admin-verified--no"
+                          }`}
+                        >
+                          {user.isEmailVerified ? (
+                            <Check size={14} aria-hidden="true" />
+                          ) : (
+                            <X size={14} aria-hidden="true" />
+                          )}
+                          {user.isEmailVerified ? "Verified" : "Unverified"}
+                        </span>
+                      </td>
+                      <td className="admin-date-cell">
+                        {renderDateCell(user.createdAt)}
+                      </td>
+                      <td className="admin-date-cell">
+                        {renderDateCell(user.lastLogin)}
+                      </td>
+
+                      {/* Actions — replaced by a "You" tag for the current admin */}
+                      <td>
+                        <div className="admin-actions">
+                          {isSelf ? (
+                            <span className="admin-you">You</span>
+                          ) : (
+                            <>
+                              {/* Role select — opens confirmation modal on change */}
+                              <select
+                                value={user.role}
+                                aria-label={`Change role for ${fullName}`}
+                                onChange={(e) =>
+                                  showRoleConfirmation(
+                                    user.userId,
+                                    e.target.value as any,
+                                    fullName,
+                                    user.role,
+                                  )
+                                }
+                                className="admin-input admin-select admin-select--sm"
+                              >
+                                <option value="customer">Customer</option>
+                                <option value="manager">Manager</option>
+                                <option value="admin">Admin</option>
+                              </select>
+
+                              {/* Activate / Deactivate toggle button */}
+                              <button
+                                onClick={() =>
+                                  showStatusConfirmation(
+                                    user.userId,
+                                    fullName,
+                                    user.isActive,
+                                  )
+                                }
+                                className={`admin-btn admin-btn--sm ${
+                                  user.isActive
+                                    ? "admin-btn--outline-danger"
+                                    : "admin-btn--primary"
+                                }`}
+                              >
+                                {user.isActive ? "Deactivate" : "Activate"}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Empty state */}
+            {filteredUsers.length === 0 && (
+              <div className="admin-empty">
+                <Search size={22} aria-hidden="true" />
+                <p className="admin-empty-title">No users found</p>
+                <p className="admin-empty-text">
+                  Try adjusting your search or filters.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
     </div>
   );
 };
