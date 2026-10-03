@@ -301,24 +301,30 @@ const CreateVariantForm = ({
 
   return (
     <form onSubmit={handleSubmit} className="product-form">
-      {/* SKU Preview */}
-      <SKUPreview sku={previewSKU} loading={loadingSKU} type="variant" />
+      {/* Summary row: the SKU this variant will get + what it inherits from the parent */}
+      <div className="variant-form-summary">
+        {/* SKU Preview */}
+        <SKUPreview sku={previewSKU} loading={loadingSKU} type="variant" />
 
-      {/* Read-only shared product info inherited from the parent */}
-      <div className="info-box">
-        <h4>Product Information (Shared)</h4>
-        <div className="info-box-content">
-          <div>
-            <strong>Product:</strong> {productName}
-          </div>
-          <div>
-            <strong>Category:</strong> {categoryName}
-          </div>
-          {description && (
-            <div>
-              <strong>Description:</strong> {description}
-            </div>
-          )}
+        {/* Read-only shared product info inherited from the parent */}
+        <div className="info-box">
+          <h4>Shared with parent product</h4>
+          <dl className="info-box-list">
+            <dt>Product</dt>
+            <dd>{productName}</dd>
+
+            <dt>Category</dt>
+            <dd>{categoryName}</dd>
+
+            {description && (
+              <>
+                <dt>Description</dt>
+                <dd className="info-box-clamp" title={description}>
+                  {description}
+                </dd>
+              </>
+            )}
+          </dl>
         </div>
       </div>
 
@@ -336,37 +342,42 @@ const CreateVariantForm = ({
       {/* Variant-specific fields */}
       <div className="form-section" data-section="product-info">
         <h4 className="form-section-header">Variant Information</h4>
+        <span className="section-subtitle">
+          Price and shipping start from the parent product&apos;s values.
+        </span>
 
-        <FormField label="Price" required error={errors.price}>
-          <TextInput
-            type="number"
-            value={formData.price}
-            onChange={(value) => handleNumberChange("price", value)}
-            placeholder="0.00"
-            error={!!errors.price}
+        <div className="product-form-grid product-form-grid--three">
+          <FormField label="Price" required error={errors.price}>
+            <TextInput
+              type="number"
+              value={formData.price}
+              onChange={(value) => handleNumberChange("price", value)}
+              placeholder="0.00"
+              error={!!errors.price}
+            />
+          </FormField>
+
+          <FormField
+            label="Stock Quantity"
+            required
+            error={errors.stock_quantity}
+          >
+            <TextInput
+              type="number"
+              value={formData.stock_quantity}
+              onChange={(value) => handleNumberChange("stock_quantity", value)}
+              placeholder="0"
+              error={!!errors.stock_quantity}
+            />
+          </FormField>
+
+          <WarehouseSelector
+            value={formData.location_id}
+            onChange={(value) => handleNumberChange("location_id", value)}
+            locations={locations}
+            error={errors.location_id}
           />
-        </FormField>
-
-        <FormField
-          label="Stock Quantity"
-          required
-          error={errors.stock_quantity}
-        >
-          <TextInput
-            type="number"
-            value={formData.stock_quantity}
-            onChange={(value) => handleNumberChange("stock_quantity", value)}
-            placeholder="0"
-            error={!!errors.stock_quantity}
-          />
-        </FormField>
-
-        <WarehouseSelector
-          value={formData.location_id}
-          onChange={(value) => handleNumberChange("location_id", value)}
-          locations={locations}
-          error={errors.location_id}
-        />
+        </div>
       </div>
 
       {/* Product Attributes */}

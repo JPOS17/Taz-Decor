@@ -2,16 +2,15 @@
    SHARED FORM STYLES
    Section layout and field styling shared by CreateProductForm,
    CreateVariantForm, ProductOverlayForm, ShippingFields and
-   ProductAttributesField
-
+   ProductAttributesField.
    Prefix: product-form-*
 
    Everything here is scoped under .product-form, so the global .form-control /
    .form-group / .form-label rules in pages/manager/_shared.css (used by the
-   other manager pages) are left untouched
+   other manager pages) are left untouched.
 
    Tokens (--inventory-list-*) are declared in pages/manager/inventory/
-   _inventory-list.css
+   _inventory-list.css.
    ============================================================================== */
 
 .product-form {
@@ -77,6 +76,11 @@
 .product-form-grid > .category-wrapper,
 .product-form-grid > .product-form-grid-full {
   grid-column: 1 / -1;
+}
+
+/* Three short fields in a row (e.g. price / stock / warehouse) */
+.product-form-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 /* Shipping: weight on the left, the three dimension inputs on the right */
@@ -201,7 +205,7 @@
 }
 
 /* ============================================================================
-   INFO BOX
+   INFO BOX  (read-only values inherited from the parent product)
    ============================================================================ */
 
 .product-form .info-box {
@@ -213,7 +217,7 @@
 }
 
 .product-form .info-box h4 {
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.75rem;
   color: var(--inventory-list-text-3);
   font-size: 0.7rem;
   font-weight: 650;
@@ -221,16 +225,71 @@
   text-transform: uppercase;
 }
 
-.product-form .info-box-content {
+.product-form .info-box-list {
   display: grid;
-  gap: 0.3rem;
-  color: var(--inventory-list-text);
-  font-size: 0.875rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.45rem 1rem;
+  margin: 0;
 }
 
-.product-form .info-box-content strong {
+.product-form .info-box-list dt {
+  color: var(--inventory-list-text-3);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.product-form .info-box-list dd {
+  margin: 0;
   color: var(--inventory-list-text);
-  font-weight: 650;
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Long descriptions are clamped; the full text is in the title tooltip */
+.product-form .info-box-list dd.info-box-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 500;
+}
+
+/* ============================================================================
+   VARIANT FORM SUMMARY ROW
+   SKU preview and the inherited product info side by side at the top of the
+   Create Variant form. Collapses to one column on narrow panels.
+   ============================================================================ */
+
+.variant-form-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 1.75rem;
+}
+
+.variant-form-summary > .sku-preview-container,
+.variant-form-summary > .info-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+/* SKU is the key output of this step — give it the stronger accent */
+.variant-form-summary > .sku-preview-container {
+  background: var(--inventory-list-accent-light);
+  border-color: rgba(209, 56, 46, 0.22);
+}
+
+.variant-form-summary > .sku-preview-container .sku-preview-label {
+  color: var(--inventory-list-accent-dark);
+}
+
+/* Image upload sits between the summary and the fields */
+.product-form .image-upload-grid-wrapper {
+  margin-bottom: 1.75rem;
 }
 
 /* ============================================================================
@@ -251,7 +310,9 @@
 
 @media (max-width: 700px) {
   .product-form-grid,
-  .product-form-grid--shipping {
+  .product-form-grid--shipping,
+  .product-form-grid--three,
+  .variant-form-summary {
     grid-template-columns: minmax(0, 1fr);
   }
 }
