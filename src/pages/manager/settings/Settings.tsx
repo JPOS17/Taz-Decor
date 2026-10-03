@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   MapPin,
   Package,
@@ -13,6 +13,7 @@ import {
   User,
   Ruler,
   GripVertical,
+  X,
 } from "lucide-react";
 import {
   fetchLocations,
@@ -69,7 +70,6 @@ interface ShippingBoxFormData {
 }
 
 const Settings = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>("locations");
 
   // Toast notification
@@ -519,106 +519,127 @@ const Settings = () => {
   // RENDER FUNCTIONS
   // ============================================================================
 
+  // Active/inactive status pill shared by the location cards and the box table
+  const renderStatusPill = (isActive: boolean) => (
+    <span
+      className={`settings-pill settings-pill--status ${
+        isActive ? "settings-pill--active" : "settings-pill--inactive"
+      }`}
+    >
+      {isActive ? "Active" : "Inactive"}
+    </span>
+  );
+
   const renderLocationsTab = () => {
     return (
       <>
+        <div className="settings-section-heading">
+          <h2 className="settings-section-title">Seller locations</h2>
+          <p className="settings-section-desc">
+            Warehouses that products ship from. Shipping boxes are set up per
+            location.
+          </p>
+        </div>
+
         {loadingLocations ? (
-          <LoadingSpinner message="Loading locations..." />
+          <div className="settings-loading">
+            <LoadingSpinner message="Loading locations..." />
+          </div>
         ) : locations.length === 0 ? (
-          <div className="mgr-empty">No locations found.</div>
+          <div className="settings-empty">
+            <div className="settings-empty-icon" aria-hidden="true">
+              <MapPin size={26} />
+            </div>
+            <p className="settings-empty-title">No locations found</p>
+            <p className="settings-empty-hint">
+              Seller locations will appear here once they have been added.
+            </p>
+          </div>
         ) : (
-          /* Locations table */
-          <div className="mgr-table-wrapper">
-            <table className="mgr-table">
-              <thead>
-                <tr>
-                  <th>Location</th>
-                  <th>Address</th>
-                  <th>Contact</th>
-                  <th>Status</th>
-                  <th className="mgr-table-actions-header">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {locations.map((location) => (
-                  <tr key={location.location_id}>
-                    <td>
-                      <div className="settings-location-name">
-                        <Building2 size={18} />
-                        {location.location_name}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="settings-address-cell">
+          /* Location cards */
+          <div className="settings-location-grid">
+            {locations.map((location) => (
+              <article
+                key={location.location_id}
+                className={`settings-location-card${
+                  location.is_active ? "" : " settings-location-card--inactive"
+                }`}
+              >
+                <div className="settings-location-top">
+                  <div className="settings-tile" aria-hidden="true">
+                    <Building2 size={20} />
+                  </div>
+                  <div className="settings-location-head">
+                    <h3
+                      className="settings-location-name"
+                      title={location.location_name}
+                    >
+                      {location.location_name}
+                    </h3>
+                    {renderStatusPill(location.is_active)}
+                  </div>
+                </div>
+
+                <div className="settings-location-body">
+                  {/* Address — address_line2 is optional */}
+                  <div className="settings-detail">
+                    <MapPin size={16} aria-hidden="true" />
+                    <div>
+                      <span className="settings-address-line">
                         {location.address_line1}
-                        {/* address_line2 is optional */}
-                        {location.address_line2 && (
-                          <>
-                            <br />
-                            {location.address_line2}
-                          </>
-                        )}
-                        <div className="settings-city-state">
-                          {location.city}, {location.state} {location.zip}
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="settings-contact-cell">
-                        {/* Contact name and phone */}
-                        {location.contact_name && (
-                          <div className="settings-contact-item">
-                            <User size={14} />
-                            {location.contact_name}
-                          </div>
-                        )}
-                        {location.phone && (
-                          <div className="settings-contact-item">
-                            <Phone size={14} />
-                            {location.phone}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <span
-                        className={`mgr-badge ${location.is_active ? "mgr-badge-success" : "mgr-badge-secondary"}`}
-                      >
-                        {location.is_active ? "Active" : "Inactive"}
                       </span>
-                    </td>
-                    <td>
-                      {/* Row actions */}
-                      <div className="mgr-table-actions">
-                        <button
-                          onClick={() =>
-                            handleToggleLocationStatus(
-                              location.location_id,
-                              location.is_active,
-                            )
-                          }
-                          className="mgr-action-btn mgr-action-btn-toggle"
-                          title={
-                            location.is_active
-                              ? "Deactivate location"
-                              : "Activate location"
-                          }
-                        >
-                          <Power size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleOpenLocationModal(location)}
-                          className="mgr-action-btn mgr-action-btn-edit"
-                          title="Edit location"
-                        >
-                          <Edit size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      {location.address_line2 && (
+                        <span className="settings-address-line">
+                          {location.address_line2}
+                        </span>
+                      )}
+                      <span className="settings-address-line settings-detail-muted">
+                        {location.city}, {location.state} {location.zip}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Contact name and phone */}
+                  {location.contact_name && (
+                    <div className="settings-detail">
+                      <User size={16} aria-hidden="true" />
+                      {location.contact_name}
+                    </div>
+                  )}
+                  {location.phone && (
+                    <div className="settings-detail">
+                      <Phone size={16} aria-hidden="true" />
+                      {location.phone}
+                    </div>
+                  )}
+                </div>
+
+                {/* Card actions */}
+                <div className="settings-location-footer">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleToggleLocationStatus(
+                        location.location_id,
+                        location.is_active,
+                      )
+                    }
+                    className="settings-btn settings-btn--ghost settings-btn--sm"
+                  >
+                    <Power size={14} aria-hidden="true" />
+                    {location.is_active ? "Deactivate" : "Activate"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenLocationModal(location)}
+                    className="settings-btn settings-btn--secondary settings-btn--sm"
+                  >
+                    <Edit size={14} aria-hidden="true" />
+                    Edit
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
         )}
       </>
@@ -631,72 +652,115 @@ const Settings = () => {
     return (
       <>
         {/* Filter bar and Add Box button */}
-        <div className="settings-actions-bar">
+        <div className="settings-toolbar">
           <div className="settings-filters">
             {/* Location filter */}
-            <select
-              className="settings-filter-select"
-              value={boxLocationFilter}
-              onChange={(e) => setBoxLocationFilter(e.target.value)}
-            >
-              <option value="all">-- Select Location --</option>
-              {locations
-                .filter((loc) => loc.is_active)
-                .map((loc) => (
-                  <option key={loc.location_id} value={loc.location_id}>
-                    {loc.location_name}
-                  </option>
-                ))}
-            </select>
+            <div className="settings-filter">
+              <label
+                className="settings-field-label"
+                htmlFor="settings-box-location"
+              >
+                Location
+              </label>
+              <select
+                id="settings-box-location"
+                className="settings-select"
+                value={boxLocationFilter}
+                onChange={(e) => setBoxLocationFilter(e.target.value)}
+              >
+                <option value="all">-- Select Location --</option>
+                {locations
+                  .filter((loc) => loc.is_active)
+                  .map((loc) => (
+                    <option key={loc.location_id} value={loc.location_id}>
+                      {loc.location_name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
             {/* Type and status filters */}
-            <select
-              className="settings-filter-select"
-              value={boxTypeFilter}
-              onChange={(e) => setBoxTypeFilter(e.target.value)}
-              disabled={!isLocationSelected}
-            >
-              <option value="all">All Types</option>
-              <option value="box">Box</option>
-              <option value="envelope">Envelope</option>
-            </select>
-            <select
-              className="settings-filter-select"
-              value={boxStatusFilter}
-              onChange={(e) => setBoxStatusFilter(e.target.value)}
-              disabled={!isLocationSelected}
-            >
-              <option value="all">All Status</option>
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
-            </select>
+            <div className="settings-filter">
+              <label
+                className="settings-field-label"
+                htmlFor="settings-box-type"
+              >
+                Type
+              </label>
+              <select
+                id="settings-box-type"
+                className="settings-select"
+                value={boxTypeFilter}
+                onChange={(e) => setBoxTypeFilter(e.target.value)}
+                disabled={!isLocationSelected}
+              >
+                <option value="all">All Types</option>
+                <option value="box">Box</option>
+                <option value="envelope">Envelope</option>
+              </select>
+            </div>
+
+            <div className="settings-filter">
+              <label
+                className="settings-field-label"
+                htmlFor="settings-box-status"
+              >
+                Status
+              </label>
+              <select
+                id="settings-box-status"
+                className="settings-select"
+                value={boxStatusFilter}
+                onChange={(e) => setBoxStatusFilter(e.target.value)}
+                disabled={!isLocationSelected}
+              >
+                <option value="all">All Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
           </div>
 
           <button
+            type="button"
             onClick={() => handleOpenBoxModal()}
-            className="mgr-btn mgr-btn-primary"
+            className="settings-btn settings-btn--primary"
             disabled={!isLocationSelected}
           >
-            <Plus size={20} />
+            <Plus size={16} aria-hidden="true" />
             Add Box/Envelope
           </button>
         </div>
 
         {/* Content states */}
         {!isLocationSelected ? (
-          <div className="mgr-empty">
-            Please select a location to view shipping boxes.
+          <div className="settings-empty">
+            <div className="settings-empty-icon" aria-hidden="true">
+              <MapPin size={26} />
+            </div>
+            <p className="settings-empty-title">Select a location</p>
+            <p className="settings-empty-hint">
+              Choose a location above to view and manage its shipping boxes.
+            </p>
           </div>
         ) : loadingBoxes ? (
-          <LoadingSpinner message="Loading shipping boxes..." />
+          <div className="settings-loading">
+            <LoadingSpinner message="Loading shipping boxes..." />
+          </div>
         ) : shippingBoxes.length === 0 ? (
-          <div className="mgr-empty">
-            No shipping boxes found for this location. Add a box or envelope to
-            get started.
+          <div className="settings-empty">
+            <div className="settings-empty-icon" aria-hidden="true">
+              <Package size={26} />
+            </div>
+            <p className="settings-empty-title">No shipping boxes found</p>
+            <p className="settings-empty-hint">
+              Add a box or envelope to get started.
+            </p>
           </div>
         ) : (
           /* Shipping boxes table */
-          <div className="mgr-table-wrapper">
-            <table className="mgr-table">
+          <div className="settings-table-card">
+            <table className="settings-table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -704,7 +768,7 @@ const Settings = () => {
                   <th>Dimensions</th>
                   <th>Location</th>
                   <th>Status</th>
-                  <th className="mgr-table-actions-header">Actions</th>
+                  <th className="settings-th-actions">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -725,9 +789,13 @@ const Settings = () => {
                   >
                     <td>
                       {/* Drag handle, box icon, name, and sort order badge */}
-                      <div className="settings-box-name-with-handle">
-                        <GripVertical size={18} className="drag-handle" />
-                        <Package size={18} />
+                      <div className="settings-box-name">
+                        <GripVertical
+                          size={18}
+                          className="drag-handle"
+                          aria-hidden="true"
+                        />
+                        <Package size={18} aria-hidden="true" />
                         <span>{box.box_name}</span>
                         <span className="box-order-badge">
                           #{box.box_size_order}
@@ -736,66 +804,76 @@ const Settings = () => {
                     </td>
                     <td>
                       <span
-                        className={`mgr-badge ${box.box_type === "box" ? "mgr-badge-success" : "mgr-badge-warning"}`}
+                        className={`settings-pill ${
+                          box.box_type === "box"
+                            ? "settings-pill--box"
+                            : "settings-pill--envelope"
+                        }`}
                       >
                         {box.box_type}
                       </span>
                     </td>
                     <td>
-                      <div className="settings-dimensions">
-                        <Ruler size={14} />
+                      <span className="settings-cell-inline">
+                        <Ruler size={14} aria-hidden="true" />
                         {box.length_in}" × {box.width_in}" × {box.height_in}"
-                      </div>
+                      </span>
                     </td>
                     <td>
                       {box.location_id ? (
                         /* Resolve location_id to its display name */
-                        <div className="settings-location-badge">
-                          <MapPin size={14} />
+                        <span className="settings-cell-inline">
+                          <MapPin size={14} aria-hidden="true" />
                           {
                             locations.find(
                               (loc) => loc.location_id === box.location_id,
                             )?.location_name
                           }
-                        </div>
+                        </span>
                       ) : (
                         <span className="settings-no-location">
                           No specific location
                         </span>
                       )}
                     </td>
-                    <td>
-                      <span
-                        className={`mgr-badge ${box.is_active ? "mgr-badge-success" : "mgr-badge-secondary"}`}
-                      >
-                        {box.is_active ? "Active" : "Inactive"}
-                      </span>
-                    </td>
+                    <td>{renderStatusPill(box.is_active)}</td>
                     <td>
                       {/* Row actions */}
-                      <div className="mgr-table-actions">
+                      <div className="settings-row-actions">
                         <button
+                          type="button"
                           onClick={() =>
                             handleToggleBoxStatus(box.box_id, box.is_active)
                           }
-                          className="mgr-action-btn mgr-action-btn-toggle"
+                          className={`settings-icon-btn ${
+                            box.is_active
+                              ? "settings-icon-btn--on"
+                              : "settings-icon-btn--off"
+                          }`}
                           title={
+                            box.is_active ? "Deactivate box" : "Activate box"
+                          }
+                          aria-label={
                             box.is_active ? "Deactivate box" : "Activate box"
                           }
                         >
                           <Power size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleOpenBoxModal(box)}
-                          className="mgr-action-btn mgr-action-btn-edit"
+                          className="settings-icon-btn"
                           title="Edit box"
+                          aria-label="Edit box"
                         >
                           <Edit size={16} />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDeleteBox(box.box_id)}
-                          className="mgr-action-btn mgr-action-btn-delete"
+                          className="settings-icon-btn settings-icon-btn--danger"
                           title="Delete box"
+                          aria-label="Delete box"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -816,52 +894,54 @@ const Settings = () => {
   // ============================================================================
 
   return (
-    <div className="manager-page accent-settings">
+    <div className="settings-page">
       {/* Header */}
-      <div className="mgr-header">
-        <div className="mgr-container">
-          <button
-            onClick={() => navigate("/manager")}
-            className="mgr-back-button"
-          >
-            <ArrowLeft size={16} />
+      <header className="settings-header">
+        <div className="settings-container">
+          <Link to="/manager" className="settings-back-link">
+            <ArrowLeft size={15} aria-hidden="true" />
             Back to Dashboard
-          </button>
-          <h1 className="mgr-header-title">Settings</h1>
-          <p className="mgr-header-subtitle">
+          </Link>
+          <p className="settings-eyebrow">Manager</p>
+          <h1 className="settings-title">Settings</h1>
+          <p className="settings-subtitle">
             Manage seller locations and shipping boxes
           </p>
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="mgr-container">
-        <div className="mgr-body">
-          {/* Tab navigation  */}
-          <div className="mgr-tabs">
+          {/* Tab navigation */}
+          <div className="settings-tabs" role="tablist">
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "locations"}
               onClick={() => setActiveTab("locations")}
-              className={`mgr-tab ${activeTab === "locations" ? "mgr-tab-active" : ""}`}
+              className={`settings-tab ${activeTab === "locations" ? "settings-tab--active" : ""}`}
             >
-              <MapPin size={20} />
+              <MapPin size={16} aria-hidden="true" />
               Seller Locations
+              {!loadingLocations && (
+                <span className="settings-tab-count">{locations.length}</span>
+              )}
             </button>
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "shipping"}
               onClick={() => setActiveTab("shipping")}
-              className={`mgr-tab ${activeTab === "shipping" ? "mgr-tab-active" : ""}`}
+              className={`settings-tab ${activeTab === "shipping" ? "settings-tab--active" : ""}`}
             >
-              <Package size={20} />
+              <Package size={16} aria-hidden="true" />
               Shipping Boxes
             </button>
           </div>
-
-          {/* Tab Content */}
-          <div className="mgr-tab-content">
-            {activeTab === "locations" && renderLocationsTab()}
-            {activeTab === "shipping" && renderShippingTab()}
-          </div>
         </div>
-      </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="settings-container settings-main" role="tabpanel">
+        {activeTab === "locations" && renderLocationsTab()}
+        {activeTab === "shipping" && renderShippingTab()}
+      </main>
 
       {/* Toast Notifications */}
       {message && (
@@ -870,170 +950,240 @@ const Settings = () => {
 
       {/* Location Modal */}
       {showLocationModal && (
-        <div className="mgr-modal-overlay" onClick={handleCloseLocationModal}>
+        <div
+          className="settings-modal-overlay"
+          onClick={handleCloseLocationModal}
+        >
           <div
-            className="mgr-modal-content"
+            className="settings-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-location-modal-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2>{editingLocation ? "Edit Location" : "Add New Location"}</h2>
-            <form onSubmit={handleLocationSubmit}>
-              <div className="mgr-form-grid">
-                {/* Location name */}
-                <div className="mgr-form-group mgr-form-group-full">
-                  <label className="mgr-form-label">Location Name *</label>
-                  <input
-                    type="text"
-                    className="mgr-form-input"
-                    value={locationFormData.location_name}
-                    onChange={(e) =>
-                      setLocationFormData({
-                        ...locationFormData,
-                        location_name: e.target.value,
-                      })
-                    }
-                    required
-                  />
+            <form
+              className="settings-modal-form"
+              onSubmit={handleLocationSubmit}
+            >
+              <div className="settings-modal-header">
+                <div>
+                  <h2
+                    id="settings-location-modal-title"
+                    className="settings-modal-title"
+                  >
+                    {editingLocation ? "Edit Location" : "Add New Location"}
+                  </h2>
+                  <p className="settings-modal-subtitle">
+                    The address is checked before it is saved.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  className="settings-modal-close"
+                  onClick={handleCloseLocationModal}
+                  aria-label="Close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
 
-                {/* Address fields */}
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Address Line 1 *</label>
-                  <input
-                    type="text"
-                    className="mgr-form-input"
-                    value={locationFormData.address_line1}
-                    onChange={(e) =>
-                      setLocationFormData({
-                        ...locationFormData,
-                        address_line1: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Address Line 2</label>
-                  <input
-                    type="text"
-                    className="mgr-form-input"
-                    value={locationFormData.address_line2}
-                    onChange={(e) =>
-                      setLocationFormData({
-                        ...locationFormData,
-                        address_line2: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">City *</label>
-                  <input
-                    type="text"
-                    className="mgr-form-input"
-                    value={locationFormData.city}
-                    onChange={(e) =>
-                      setLocationFormData({
-                        ...locationFormData,
-                        city: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">State *</label>
-                  <input
-                    type="text"
-                    className="mgr-form-input"
-                    value={locationFormData.state}
-                    onChange={(e) =>
-                      setLocationFormData({
-                        ...locationFormData,
-                        state: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">ZIP Code *</label>
-                  <input
-                    type="text"
-                    className="mgr-form-input"
-                    value={locationFormData.zip}
-                    onChange={(e) =>
-                      setLocationFormData({
-                        ...locationFormData,
-                        zip: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                {/* Optional contact fields */}
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Phone</label>
-                  <input
-                    type="tel"
-                    className="mgr-form-input"
-                    value={locationFormData.phone}
-                    onChange={(e) =>
-                      setLocationFormData({
-                        ...locationFormData,
-                        phone: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Contact Name</label>
-                  <input
-                    type="text"
-                    className="mgr-form-input"
-                    value={locationFormData.contact_name}
-                    onChange={(e) =>
-                      setLocationFormData({
-                        ...locationFormData,
-                        contact_name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-
-                {/* Active toggle */}
-                <div className="mgr-form-group mgr-form-group-full">
-                  <label className="mgr-checkbox-label">
+              <div className="settings-modal-body">
+                <div className="settings-form-grid">
+                  {/* Location name */}
+                  <div className="settings-field settings-field--full">
+                    <label className="settings-label" htmlFor="loc-name">
+                      Location Name <span className="settings-required">*</span>
+                    </label>
                     <input
-                      type="checkbox"
-                      checked={locationFormData.is_active}
+                      id="loc-name"
+                      type="text"
+                      className="settings-input"
+                      value={locationFormData.location_name}
                       onChange={(e) =>
                         setLocationFormData({
                           ...locationFormData,
-                          is_active: e.target.checked,
+                          location_name: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  {/* Address fields */}
+                  <h3 className="settings-form-section-title">Address</h3>
+
+                  <div className="settings-field">
+                    <label className="settings-label" htmlFor="loc-address1">
+                      Address Line 1 <span className="settings-required">*</span>
+                    </label>
+                    <input
+                      id="loc-address1"
+                      type="text"
+                      className="settings-input"
+                      value={locationFormData.address_line1}
+                      onChange={(e) =>
+                        setLocationFormData({
+                          ...locationFormData,
+                          address_line1: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="settings-field">
+                    <label className="settings-label" htmlFor="loc-address2">
+                      Address Line 2
+                    </label>
+                    <input
+                      id="loc-address2"
+                      type="text"
+                      className="settings-input"
+                      value={locationFormData.address_line2}
+                      onChange={(e) =>
+                        setLocationFormData({
+                          ...locationFormData,
+                          address_line2: e.target.value,
                         })
                       }
                     />
-                    Active
-                  </label>
+                  </div>
+
+                  <div className="settings-field settings-field--third">
+                    <label className="settings-label" htmlFor="loc-city">
+                      City <span className="settings-required">*</span>
+                    </label>
+                    <input
+                      id="loc-city"
+                      type="text"
+                      className="settings-input"
+                      value={locationFormData.city}
+                      onChange={(e) =>
+                        setLocationFormData({
+                          ...locationFormData,
+                          city: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="settings-field settings-field--third">
+                    <label className="settings-label" htmlFor="loc-state">
+                      State <span className="settings-required">*</span>
+                    </label>
+                    <input
+                      id="loc-state"
+                      type="text"
+                      className="settings-input"
+                      value={locationFormData.state}
+                      onChange={(e) =>
+                        setLocationFormData({
+                          ...locationFormData,
+                          state: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="settings-field settings-field--third">
+                    <label className="settings-label" htmlFor="loc-zip">
+                      ZIP Code <span className="settings-required">*</span>
+                    </label>
+                    <input
+                      id="loc-zip"
+                      type="text"
+                      className="settings-input"
+                      value={locationFormData.zip}
+                      onChange={(e) =>
+                        setLocationFormData({
+                          ...locationFormData,
+                          zip: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  {/* Optional contact fields */}
+                  <h3 className="settings-form-section-title">Contact</h3>
+
+                  <div className="settings-field">
+                    <label className="settings-label" htmlFor="loc-phone">
+                      Phone
+                    </label>
+                    <input
+                      id="loc-phone"
+                      type="tel"
+                      className="settings-input"
+                      value={locationFormData.phone}
+                      onChange={(e) =>
+                        setLocationFormData({
+                          ...locationFormData,
+                          phone: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="settings-field">
+                    <label className="settings-label" htmlFor="loc-contact">
+                      Contact Name
+                    </label>
+                    <input
+                      id="loc-contact"
+                      type="text"
+                      className="settings-input"
+                      value={locationFormData.contact_name}
+                      onChange={(e) =>
+                        setLocationFormData({
+                          ...locationFormData,
+                          contact_name: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  {/* Active toggle */}
+                  <h3 className="settings-form-section-title">Status</h3>
+
+                  <div className="settings-field settings-field--full">
+                    <label className="settings-switch">
+                      <input
+                        type="checkbox"
+                        className="settings-switch-input"
+                        checked={locationFormData.is_active}
+                        onChange={(e) =>
+                          setLocationFormData({
+                            ...locationFormData,
+                            is_active: e.target.checked,
+                          })
+                        }
+                      />
+                      <span className="settings-switch-track" aria-hidden="true" />
+                      <span className="settings-switch-text">
+                        <span className="settings-switch-label">Active</span>
+                        <span className="settings-switch-hint">
+                          Inactive locations are hidden from shipping box
+                          setup.
+                        </span>
+                      </span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
               {/* Modal footer */}
-              <div className="mgr-modal-footer">
+              <div className="settings-modal-footer">
                 <button
                   type="button"
                   onClick={handleCloseLocationModal}
-                  className="mgr-btn mgr-btn-secondary"
+                  className="settings-btn settings-btn--secondary"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="mgr-btn mgr-btn-primary">
+                <button type="submit" className="settings-btn settings-btn--primary">
                   {editingLocation ? "Update" : "Create"} Location
                 </button>
               </div>
@@ -1044,156 +1194,209 @@ const Settings = () => {
 
       {/* Shipping Box Modal */}
       {showBoxModal && (
-        <div className="mgr-modal-overlay" onClick={handleCloseBoxModal}>
+        <div className="settings-modal-overlay" onClick={handleCloseBoxModal}>
           <div
-            className="mgr-modal-content"
+            className="settings-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-box-modal-title"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2>{editingBox ? "Edit Shipping Box" : "Add New Shipping Box"}</h2>
-            <form onSubmit={handleBoxSubmit}>
-              <div className="mgr-form-grid">
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Box/Envelope Name *</label>
-                  <input
-                    type="text"
-                    className="mgr-form-input"
-                    value={boxFormData.box_name}
-                    onChange={(e) =>
-                      setBoxFormData({
-                        ...boxFormData,
-                        box_name: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Type *</label>
-                  <select
-                    className="mgr-form-select"
-                    value={boxFormData.box_type}
-                    onChange={(e) =>
-                      setBoxFormData({
-                        ...boxFormData,
-                        box_type: e.target.value as "box" | "envelope",
-                      })
-                    }
-                    required
+            <form className="settings-modal-form" onSubmit={handleBoxSubmit}>
+              <div className="settings-modal-header">
+                <div>
+                  <h2
+                    id="settings-box-modal-title"
+                    className="settings-modal-title"
                   >
-                    <option value="box">Box</option>
-                    <option value="envelope">Envelope</option>
-                  </select>
+                    {editingBox ? "Edit Shipping Box" : "Add New Shipping Box"}
+                  </h2>
+                  <p className="settings-modal-subtitle">
+                    Interior dimensions in inches.
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  className="settings-modal-close"
+                  onClick={handleCloseBoxModal}
+                  aria-label="Close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
 
-                {/* Dimension inputs */}
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Length (inches) *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    className="mgr-form-input"
-                    value={boxFormData.length_in}
-                    onChange={(e) =>
-                      setBoxFormData({
-                        ...boxFormData,
-                        length_in: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Width (inches) *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    className="mgr-form-input"
-                    value={boxFormData.width_in}
-                    onChange={(e) =>
-                      setBoxFormData({
-                        ...boxFormData,
-                        width_in: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Height (inches) *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    className="mgr-form-input"
-                    value={boxFormData.height_in}
-                    onChange={(e) =>
-                      setBoxFormData({
-                        ...boxFormData,
-                        height_in: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-
-                {/* Location assignment */}
-                <div className="mgr-form-group">
-                  <label className="mgr-form-label">Location *</label>
-                  <select
-                    className="mgr-form-select"
-                    value={boxFormData.location_id}
-                    onChange={(e) =>
-                      setBoxFormData({
-                        ...boxFormData,
-                        location_id: e.target.value,
-                      })
-                    }
-                    required
-                  >
-                    <option value="">-- Select --</option>
-                    {locations
-                      .filter((loc) => loc.is_active)
-                      .map((loc) => (
-                        <option
-                          key={loc.location_id}
-                          value={loc.location_id.toString()}
-                        >
-                          {loc.location_name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-
-                {/* Active toggle */}
-                <div className="mgr-form-group mgr-form-group-full">
-                  <label className="mgr-checkbox-label">
+              <div className="settings-modal-body">
+                <div className="settings-form-grid">
+                  <div className="settings-field">
+                    <label className="settings-label" htmlFor="box-name">
+                      Box/Envelope Name{" "}
+                      <span className="settings-required">*</span>
+                    </label>
                     <input
-                      type="checkbox"
-                      checked={boxFormData.is_active}
+                      id="box-name"
+                      type="text"
+                      className="settings-input"
+                      value={boxFormData.box_name}
                       onChange={(e) =>
                         setBoxFormData({
                           ...boxFormData,
-                          is_active: e.target.checked,
+                          box_name: e.target.value,
                         })
                       }
+                      required
                     />
-                    Active
-                  </label>
+                  </div>
+
+                  <div className="settings-field">
+                    <label className="settings-label" htmlFor="box-type">
+                      Type <span className="settings-required">*</span>
+                    </label>
+                    <select
+                      id="box-type"
+                      className="settings-select"
+                      value={boxFormData.box_type}
+                      onChange={(e) =>
+                        setBoxFormData({
+                          ...boxFormData,
+                          box_type: e.target.value as "box" | "envelope",
+                        })
+                      }
+                      required
+                    >
+                      <option value="box">Box</option>
+                      <option value="envelope">Envelope</option>
+                    </select>
+                  </div>
+
+                  {/* Location assignment */}
+                  <div className="settings-field settings-field--full">
+                    <label className="settings-label" htmlFor="box-location">
+                      Location <span className="settings-required">*</span>
+                    </label>
+                    <select
+                      id="box-location"
+                      className="settings-select"
+                      value={boxFormData.location_id}
+                      onChange={(e) =>
+                        setBoxFormData({
+                          ...boxFormData,
+                          location_id: e.target.value,
+                        })
+                      }
+                      required
+                    >
+                      <option value="">-- Select --</option>
+                      {locations
+                        .filter((loc) => loc.is_active)
+                        .map((loc) => (
+                          <option
+                            key={loc.location_id}
+                            value={loc.location_id.toString()}
+                          >
+                            {loc.location_name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  {/* Dimension inputs */}
+                  <h3 className="settings-form-section-title">Dimensions</h3>
+
+                  <div className="settings-field settings-field--third">
+                    <label className="settings-label" htmlFor="box-length">
+                      Length (in) <span className="settings-required">*</span>
+                    </label>
+                    <input
+                      id="box-length"
+                      type="number"
+                      step="0.01"
+                      className="settings-input"
+                      value={boxFormData.length_in}
+                      onChange={(e) =>
+                        setBoxFormData({
+                          ...boxFormData,
+                          length_in: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="settings-field settings-field--third">
+                    <label className="settings-label" htmlFor="box-width">
+                      Width (in) <span className="settings-required">*</span>
+                    </label>
+                    <input
+                      id="box-width"
+                      type="number"
+                      step="0.01"
+                      className="settings-input"
+                      value={boxFormData.width_in}
+                      onChange={(e) =>
+                        setBoxFormData({
+                          ...boxFormData,
+                          width_in: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  <div className="settings-field settings-field--third">
+                    <label className="settings-label" htmlFor="box-height">
+                      Height (in) <span className="settings-required">*</span>
+                    </label>
+                    <input
+                      id="box-height"
+                      type="number"
+                      step="0.01"
+                      className="settings-input"
+                      value={boxFormData.height_in}
+                      onChange={(e) =>
+                        setBoxFormData({
+                          ...boxFormData,
+                          height_in: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+
+                  {/* Active toggle */}
+                  <h3 className="settings-form-section-title">Status</h3>
+
+                  <div className="settings-field settings-field--full">
+                    <label className="settings-switch">
+                      <input
+                        type="checkbox"
+                        className="settings-switch-input"
+                        checked={boxFormData.is_active}
+                        onChange={(e) =>
+                          setBoxFormData({
+                            ...boxFormData,
+                            is_active: e.target.checked,
+                          })
+                        }
+                      />
+                      <span className="settings-switch-track" aria-hidden="true" />
+                      <span className="settings-switch-text">
+                        <span className="settings-switch-label">Active</span>
+                      </span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
               {/* Modal footer */}
-              <div className="mgr-modal-footer">
+              <div className="settings-modal-footer">
                 <button
                   type="button"
                   onClick={handleCloseBoxModal}
-                  className="mgr-btn mgr-btn-secondary"
+                  className="settings-btn settings-btn--secondary"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="mgr-btn mgr-btn-primary">
+                <button type="submit" className="settings-btn settings-btn--primary">
                   {editingBox ? "Update" : "Create"} Box/Envelope
                 </button>
               </div>
