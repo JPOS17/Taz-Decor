@@ -1,0 +1,94 @@
+/* ==============================================================================
+   CREATE PRODUCT PAGE
+   Single card with a sticky header. The form is split in two:
+     - aside  (left):  product type, live SKU preview and image upload — the
+                       things you set first, kept in view while you scroll
+     - main   (right): product information, attributes and shipping
+
+   The page root also carries .inventory-list-page, so it inherits the same
+   tokens, page background, header, toasts and confirmation modals as the Edit
+   Products page (see pages/manager/inventory/_inventory-list.css) 
+   This file only adds the layout that is specific to this page
+
+   Prefix: create-product-*
+
+   BREAKPOINTS
+     - Desktop: aside + main from 992px up
+     - Tablet / mobile: single column (aside first)
+   ============================================================================== */
+
+.create-product-main-content {
+  max-width: 1120px;
+}
+
+.create-product-card {
+  position: relative;
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border);
+  border-radius: var(--inventory-list-radius);
+  box-shadow: var(--inventory-list-shadow);
+}
+
+.create-product-card-body {
+  padding: 1.5rem;
+}
+
+/* ==============================================================================
+   FORM LAYOUT  (the <form class="product-form product-form--split">)
+   ============================================================================== */
+
+.product-form--split {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.create-product-aside {
+  position: sticky;
+  /* top bar + the sticky card header (~72px) + a little breathing room */
+  top: calc(var(--top-bar-height, 64px) + 5.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+/* The components in the aside carry their own bottom margins; the gap handles spacing here */
+.create-product-aside > .form-group,
+.create-product-aside > .sku-preview-container,
+.create-product-aside > .image-upload-grid-wrapper {
+  margin-bottom: 0;
+}
+
+.create-product-main {
+  min-width: 0;
+}
+
+/* Uploader tiles are a little larger in the narrow aside */
+.create-product-aside .image-upload-grid {
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+}
+
+/* ==============================================================================
+   RESPONSIVE
+   ============================================================================== */
+
+@media (max-width: 991px) {
+  .product-form--split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+
+  .create-product-aside {
+    position: static;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--inventory-list-border);
+  }
+}
+
+@media (max-width: 600px) {
+  .create-product-card-body {
+    padding: 1.1rem;
+  }
+}

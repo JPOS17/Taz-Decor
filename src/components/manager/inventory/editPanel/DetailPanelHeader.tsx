@@ -4,6 +4,8 @@ type ViewMode = "edit" | "create-product" | "create-variant";
 
 interface DetailsHeaderProps {
   viewMode: ViewMode;
+  // Overrides the default title for the view mode (e.g. when the page already has its own h1)
+  title?: string;
   loading: boolean;
   isActive?: boolean;
   hasUnsavedChanges?: boolean;
@@ -19,10 +21,12 @@ interface DetailsHeaderProps {
 // Renders the sticky detail panel header: title, status chips and action buttons
 export const HeaderFormatter = ({
   viewMode,
+  title,
   ...buttonProps
 }: DetailsHeaderProps) => {
   // Returns the panel title string based on the current view mode
   const getTitle = () => {
+    if (title) return title;
     switch (viewMode) {
       case "create-product":
         return "Create New Product";

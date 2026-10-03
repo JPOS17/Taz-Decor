@@ -111,6 +111,7 @@
 @import "./pages/manager/_shared.css";
 @import "./pages/manager/inventory/_inventory-hub.css";
 @import "./pages/manager/inventory/_inventory-list.css";
+@import "./pages/manager/inventory/_create-product.css";
 @import "./pages/manager/inventory/_categories.css";
 @import "./pages/manager/inventory/_product-types.css";
 @import "./pages/manager/coupons/_coupons.css";

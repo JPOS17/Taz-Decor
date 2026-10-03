@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { fetchCategories, type Category } from "../../../api/categories";
 import { fetchProductTypes, type ProductType } from "../../../api/productTypes";
@@ -141,37 +141,35 @@ const CreateProduct = () => {
   // ============================================================================
 
   return (
-    <div className="manager-page accent-inventory">
+    <div className="inventory-list-page create-product-page">
       {/* Header */}
-      <div className="mgr-header">
-        <div className="mgr-header-inner">
-          <div>
-            <button
-              className="mgr-back-button"
-              onClick={() => navigate("/manager/inventory")}
-            >
-              <ArrowLeft size={16} />
-              Back to Product Management
-            </button>
-            <h1 className="mgr-header-title">Create New Product</h1>
-            <p className="mgr-header-subtitle">
-              Add a new product to your inventory
-            </p>
-          </div>
+      <header className="inventory-list-header">
+        <div className="inventory-list-container">
+          <Link to="/manager/inventory" className="inventory-list-back-link">
+            <ArrowLeft size={15} aria-hidden="true" />
+            Back to Product Management
+          </Link>
+          <p className="inventory-list-eyebrow">Inventory</p>
+          <h1 className="inventory-list-title">Create New Product</h1>
+          <p className="inventory-list-subtitle">
+            Add a new product to your inventory
+          </p>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="mi-container">
-        <div className="mi-cnp-content">
-          <div className="mi-details-column">
-            {/* Action bar */}
-            <HeaderFormatter
-              viewMode="create-product"
-              loading={loading}
-              onCancel={handleCancel}
-              onSubmitForm={handleSubmitForm}
-            />
+      <main className="inventory-list-container inventory-list-main create-product-main-content">
+        <section className="create-product-card" aria-busy={loading}>
+          {/* Action bar */}
+          <HeaderFormatter
+            viewMode="create-product"
+            title="Product details"
+            loading={loading}
+            onCancel={handleCancel}
+            onSubmitForm={handleSubmitForm}
+          />
+
+          <div className="create-product-card-body">
             {/* Product creation form */}
             <CreateNewProductForm
               categoryId={0}
@@ -184,8 +182,8 @@ const CreateProduct = () => {
               onValidationError={handleValidationError}
             />
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
 
       {/* Toast Notifications */}
       {message && (

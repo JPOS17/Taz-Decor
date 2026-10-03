@@ -426,131 +426,154 @@ const CreateProductForm = ({
   // ============================================================================
 
   return (
-    <form onSubmit={handleSubmit} className="product-form">
-      {/* Product Type */}
-      <FormField
-        label="Product Type"
-        required
-        error={errors.product_type_id}
-        helperText="Determines the SKU prefix (e.g., JRN for Journals)"
-      >
-        <SelectInput
-          value={formData.product_type_id}
-          onChange={(value) => handleNumberChange("product_type_id", value)}
-          options={productTypeOptions}
-          placeholder="-- Select Product Type --"
-          error={!!errors.product_type_id}
-        />
-      </FormField>
-
-      {/* SKU Preview */}
-      <SKUPreview sku={previewSKU} loading={loadingSKU} type="product" />
-
-      {/* Image Upload */}
-      <ImageUploadGrid
-        images={images}
-        primaryImageIndex={primaryImageIndex}
-        onSetPrimary={setPrimary}
-        onDeleteImage={deleteImage}
-        onUploadClick={handleOpenWidget}
-        uploadDisabled={
-          !formData.product_type_id ||
-          !previewSKU ||
-          loadingSKU ||
-          previewSKU === "###-###-###"
-        }
-      />
-
-      {/* Product Information */}
-      <div className="form-section" data-section="product-info">
-        <h4 className="form-section-header">Product Information</h4>
-
-        {/* Category Manager */}
-        <div className="category-wrapper">
-          <CategoryHandler
-            productCategories={formData.productCategories}
-            availableCategories={categories}
-            onAdd={handleAddCategory}
-            onRemove={handleRemoveCategory}
-            onSetPrimary={handleSetPrimaryCategory}
-            disabled={false}
-            error={errors.category_id}
-          />
-        </div>
-
-        <FormField label="Product Name" required error={errors.name}>
-          <TextInput
-            value={formData.name}
-            onChange={(value) => handleTextChange("name", value)}
-            placeholder="Enter product name"
-            error={!!errors.name}
-            autoFormat={true}
-          />
-        </FormField>
-
-        <FormField label="Description" required error={errors.description}>
-          <TextInput
-            value={formData.description}
-            onChange={(value) => handleTextChange("description", value)}
-            placeholder="Enter product description"
-            error={!!errors.description}
-            rows={3}
-          />
-        </FormField>
-
-        <FormField label="Price" required error={errors.price}>
-          <TextInput
-            type="number"
-            value={formData.price}
-            onChange={(value) => handleNumberChange("price", value)}
-            placeholder="0.00"
-            error={!!errors.price}
-          />
-        </FormField>
-
+    <form
+      onSubmit={handleSubmit}
+      className="product-form product-form--split"
+    >
+      {/* Aside: the things you set first — type (drives the SKU), SKU and images */}
+      <div className="create-product-aside">
         <FormField
-          label="Stock Quantity"
+          label="Product Type"
           required
-          error={errors.stock_quantity}
+          error={errors.product_type_id}
+          helperText="Determines the SKU prefix (e.g., JRN for Journals)"
         >
-          <TextInput
-            type="number"
-            value={formData.stock_quantity}
-            onChange={(value) => handleNumberChange("stock_quantity", value)}
-            placeholder="0"
-            error={!!errors.stock_quantity}
+          <SelectInput
+            value={formData.product_type_id}
+            onChange={(value) => handleNumberChange("product_type_id", value)}
+            options={productTypeOptions}
+            placeholder="-- Select Product Type --"
+            error={!!errors.product_type_id}
           />
         </FormField>
 
-        <WarehouseSelector
-          value={formData.location_id}
-          onChange={(value) => handleNumberChange("location_id", value)}
-          locations={locations}
-          error={errors.location_id}
+        {/* SKU Preview */}
+        <SKUPreview sku={previewSKU} loading={loadingSKU} type="product" />
+
+        {/* Image Upload */}
+        <ImageUploadGrid
+          images={images}
+          primaryImageIndex={primaryImageIndex}
+          onSetPrimary={setPrimary}
+          onDeleteImage={deleteImage}
+          onUploadClick={handleOpenWidget}
+          uploadDisabled={
+            !formData.product_type_id ||
+            !previewSKU ||
+            loadingSKU ||
+            previewSKU === "###-###-###"
+          }
         />
       </div>
 
-      {/* Product Attributes */}
-      <ProductAttributesFields
-        color={formData.color}
-        size={formData.size}
-        onChange={(field, value) =>
-          handleTextChange(field as keyof FormData, value)
-        }
-        data-section="product-attributes"
-      />
+      {/* Main: product details */}
+      <div className="create-product-main">
+        {/* Product Information */}
+        <div className="form-section" data-section="product-info">
+          <h4 className="form-section-header">Product Information</h4>
+          <span className="section-subtitle">
+            What customers see in the store, plus where it ships from.
+          </span>
 
-      {/* Shipping Information */}
-      <ShippingFields
-        weight_oz={formData.weight_oz ? parseFloat(formData.weight_oz) : null}
-        length_in={formData.length_in ? parseFloat(formData.length_in) : null}
-        width_in={formData.width_in ? parseFloat(formData.width_in) : null}
-        height_in={formData.height_in ? parseFloat(formData.height_in) : null}
-        errors={errors}
-        onChange={handleShippingChange}
-        required={true}
-        data-section="shipping-info"
-      />
+          <div className="product-form-grid">
+            <FormField
+              label="Product Name"
+              required
+              error={errors.name}
+              wide
+            >
+              <TextInput
+                value={formData.name}
+                onChange={(value) => handleTextChange("name", value)}
+                placeholder="Enter product name"
+                error={!!errors.name}
+                autoFormat={true}
+              />
+            </FormField>
+
+            <FormField
+              label="Description"
+              required
+              error={errors.description}
+              wide
+            >
+              <TextInput
+                value={formData.description}
+                onChange={(value) => handleTextChange("description", value)}
+                placeholder="Enter product description"
+                error={!!errors.description}
+                rows={3}
+              />
+            </FormField>
+
+            {/* Category Manager */}
+            <div className="category-wrapper">
+              <CategoryHandler
+                productCategories={formData.productCategories}
+                availableCategories={categories}
+                onAdd={handleAddCategory}
+                onRemove={handleRemoveCategory}
+                onSetPrimary={handleSetPrimaryCategory}
+                disabled={false}
+                error={errors.category_id}
+              />
+            </div>
+
+            <FormField label="Price" required error={errors.price}>
+              <TextInput
+                type="number"
+                value={formData.price}
+                onChange={(value) => handleNumberChange("price", value)}
+                placeholder="0.00"
+                error={!!errors.price}
+              />
+            </FormField>
+
+            <FormField
+              label="Stock Quantity"
+              required
+              error={errors.stock_quantity}
+            >
+              <TextInput
+                type="number"
+                value={formData.stock_quantity}
+                onChange={(value) => handleNumberChange("stock_quantity", value)}
+                placeholder="0"
+                error={!!errors.stock_quantity}
+              />
+            </FormField>
+
+            <WarehouseSelector
+              value={formData.location_id}
+              onChange={(value) => handleNumberChange("location_id", value)}
+              locations={locations}
+              error={errors.location_id}
+            />
+          </div>
+        </div>
+
+        {/* Product Attributes */}
+        <ProductAttributesFields
+          color={formData.color}
+          size={formData.size}
+          onChange={(field, value) =>
+            handleTextChange(field as keyof FormData, value)
+          }
+          data-section="product-attributes"
+        />
+
+        {/* Shipping Information */}
+        <ShippingFields
+          weight_oz={formData.weight_oz ? parseFloat(formData.weight_oz) : null}
+          length_in={formData.length_in ? parseFloat(formData.length_in) : null}
+          width_in={formData.width_in ? parseFloat(formData.width_in) : null}
+          height_in={formData.height_in ? parseFloat(formData.height_in) : null}
+          errors={errors}
+          onChange={handleShippingChange}
+          required={true}
+          data-section="shipping-info"
+        />
+      </div>
     </form>
   );
 };
