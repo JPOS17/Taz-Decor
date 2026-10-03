@@ -1,48 +1,95 @@
 /* ==============================================================================
    DETAIL PANEL HEADER
-   Sticky header bar shown at the top of the product detail panel.
+   Sticky header at the top of the product detail panel: title + status chips
+   on the left, action buttons on the right
+
    Prefix: detail-panel-header-*
+
+   Sticks just below the site top bar. The panel itself must NOT be an
+   overflow container for this to work (see .inventory-list-details-column)
    ============================================================================== */
 
 .detail-panel-header {
   position: sticky;
-  top: 0;
-  z-index: 100;
-  background-color: var(--card);
-  padding: 1.25rem 1.5rem;
-  margin: 0;
+  top: var(--top-bar-height, 64px);
+  z-index: 20;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid var(--color-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   flex-wrap: wrap;
-  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--inventory-list-border);
+  border-radius: var(--inventory-list-radius) var(--inventory-list-radius) 0 0;
+}
+
+.detail-panel-header-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  min-width: 0;
 }
 
 .detail-panel-header-title {
-  flex: 1 1 100%;
-  min-width: 200px;
-  color: var(--color-primary);
-  font-size: 1.25rem;
-  font-weight: 700;
   margin: 0;
+  font-size: 1.1rem;
+  font-weight: 650;
   letter-spacing: -0.01em;
+  color: var(--inventory-list-text);
 }
 
-@media (min-width: 992px) {
-  .detail-panel-header-title { flex: 0 1 auto; }
+/* Status chips next to the title */
+.detail-panel-header-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 24px;
+  padding: 0 0.6rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 650;
+  white-space: nowrap;
 }
 
-.detail-panel-header-column > *:not(.detail-panel-header) {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+.detail-panel-header-chip::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
-.detail-panel-header-column > .detail-panel-header + * { padding-top: 1.5rem; }
-.detail-panel-header-column > *:last-child { padding-bottom: 1.5rem; }
+.detail-panel-header-chip--active {
+  background: var(--inventory-list-success-light);
+  color: var(--inventory-list-success-dark);
+}
 
-@media (max-width: 768px) {
-  .detail-panel-header-column > *:not(.detail-panel-header) { padding-left: 1rem; padding-right: 1rem; }
-  .detail-panel-header { padding: 1rem; }
+.detail-panel-header-chip--inactive {
+  background: #f0f0f2;
+  color: var(--inventory-list-text-2);
+}
+
+.detail-panel-header-chip--unsaved {
+  background: var(--inventory-list-warning-light);
+  color: var(--inventory-list-warning-dark);
+}
+
+@media (max-width: 991px) {
+  /* The list sits above the editor on small screens; no need to stay pinned */
+  .detail-panel-header {
+    position: static;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--inventory-list-surface);
+  }
+}
+
+@media (max-width: 600px) {
+  .detail-panel-header {
+    padding: 0.9rem 1.1rem;
+  }
 }

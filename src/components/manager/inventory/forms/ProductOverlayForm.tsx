@@ -194,102 +194,114 @@ const ProductForm = ({
 
   return (
     <div className="product-form">
-      {/* SKU */}
-      <div className="form-section">
-        <FormField
-          label="SKU"
-          required
-          error={errors.sku}
-          helperText="Product SKU (cannot be edited)"
-        >
-          <TextInput
-            value={variant.sku || ""}
-            onChange={() => {}}
-            placeholder="SKU"
-            error={!!errors.sku}
-            disabled={true}
-          />
-        </FormField>
-      </div>
-
       {/* Product Information */}
       <div className="form-section" data-section="product-info">
         <h4 className="form-section-header">Product Information</h4>
+        <span className="section-subtitle">
+          What customers see in the store, plus where it ships from.
+        </span>
 
-        <FormField label="Product Name" required error={errors.name}>
-          <TextInput
-            value={variant.name}
-            onChange={(value) => handleInputChange("name", value)}
-            placeholder="Enter product name"
-            error={!!errors.name}
-            autoFormat={true}
-          />
-        </FormField>
-
-        <FormField label="Description" required error={errors.description}>
-          <TextInput
-            value={variant.description || ""}
-            onChange={(value) => handleInputChange("description", value)}
-            placeholder="Enter product description"
-            error={!!errors.description}
-            rows={3}
-          />
-        </FormField>
-
-        {/* Category */}
-        {onAddCategory && onRemoveCategory && onSetPrimaryCategory ? (
-          <div className="category-wrapper">
-            <CategoryHandler
-              productCategories={productCategories}
-              availableCategories={categories}
-              onAdd={onAddCategory}
-              onRemove={onRemoveCategory}
-              onSetPrimary={onSetPrimaryCategory}
-              disabled={false}
-              error={errors.category_id}
-            />
-          </div>
-        ) : (
-          <FormField label="Category" required error={errors.category_id}>
-            <SelectInput
-              value={variant.category_id}
-              onChange={(value) => handleInputChange("category_id", value)}
-              options={categoryOptions}
-              error={!!errors.category_id}
+        <div className="product-form-grid">
+          <FormField label="Product Name" required error={errors.name} wide>
+            <TextInput
+              value={variant.name}
+              onChange={(value) => handleInputChange("name", value)}
+              placeholder="Enter product name"
+              error={!!errors.name}
+              autoFormat={true}
             />
           </FormField>
-        )}
 
-        <FormField label="Price" required error={errors.price}>
-          <TextInput
-            type="number"
-            value={variant.price ?? ""}
-            onChange={(value) => handleInputChange("price", value)}
-            placeholder="0.00"
-            error={!!errors.price}
+          <FormField
+            label="Description"
+            required
+            error={errors.description}
+            wide
+          >
+            <TextInput
+              value={variant.description || ""}
+              onChange={(value) => handleInputChange("description", value)}
+              placeholder="Enter product description"
+              error={!!errors.description}
+              rows={3}
+            />
+          </FormField>
+
+          {/* Category */}
+          {onAddCategory && onRemoveCategory && onSetPrimaryCategory ? (
+            <div className="category-wrapper">
+              <CategoryHandler
+                productCategories={productCategories}
+                availableCategories={categories}
+                onAdd={onAddCategory}
+                onRemove={onRemoveCategory}
+                onSetPrimary={onSetPrimaryCategory}
+                disabled={false}
+                error={errors.category_id}
+              />
+            </div>
+          ) : (
+            <FormField
+              label="Category"
+              required
+              error={errors.category_id}
+              wide
+            >
+              <SelectInput
+                value={variant.category_id}
+                onChange={(value) => handleInputChange("category_id", value)}
+                options={categoryOptions}
+                error={!!errors.category_id}
+              />
+            </FormField>
+          )}
+
+          <FormField
+            label="SKU"
+            required
+            error={errors.sku}
+            helperText="Product SKU (cannot be edited)"
+          >
+            <TextInput
+              value={variant.sku || ""}
+              onChange={() => {}}
+              placeholder="SKU"
+              error={!!errors.sku}
+              disabled={true}
+            />
+          </FormField>
+
+          <WarehouseSelector
+            value={variant.location_id?.toString() || ""}
+            onChange={(value) => handleInputChange("location_id", value)}
+            locations={locations}
+            error={errors.location_id}
           />
-        </FormField>
 
-        <FormField
-          label="Stock Quantity"
-          required
-          error={errors.stock_quantity}
-        >
-          <TextInput
-            type="number"
-            value={variant.stock_quantity ?? ""}
-            onChange={(value) => handleInputChange("stock_quantity", value)}
-            placeholder="0"
-            error={!!errors.stock_quantity}
-          />
-        </FormField>
+          <FormField label="Price" required error={errors.price}>
+            <TextInput
+              type="number"
+              value={variant.price ?? ""}
+              onChange={(value) => handleInputChange("price", value)}
+              placeholder="0.00"
+              error={!!errors.price}
+            />
+          </FormField>
 
-        <WarehouseSelector
-          value={variant.location_id?.toString() || ""}
-          onChange={(value) => handleInputChange("location_id", value)}
-          locations={locations}
-          error={errors.location_id}
-        />
+          <FormField
+            label="Stock Quantity"
+            required
+            error={errors.stock_quantity}
+          >
+            <TextInput
+              type="number"
+              value={variant.stock_quantity ?? ""}
+              onChange={(value) => handleInputChange("stock_quantity", value)}
+              placeholder="0"
+              error={!!errors.stock_quantity}
+            />
+          </FormField>
+        </div>
       </div>
 
       {/* Product Attributes */}

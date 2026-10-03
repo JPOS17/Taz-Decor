@@ -25,31 +25,36 @@ const ProductAttributesFields = ({
       <h4 className="form-section-header">
         Product Attributes {optional && "(Optional)"}
       </h4>
+      <span className="section-subtitle">
+        Used to tell variants of the same product apart.
+      </span>
 
-      {/* Color */}
-      <div className="form-group">
-        <label className="form-label">Color</label>
-        <input
-          type="text"
-          value={color}
-          onChange={(e) => onChange("color", e.target.value)}
-          placeholder="e.g., Red, Blue, Black"
-          className={`form-control ${errors.color ? "invalid" : ""}`}
-        />
-        <span className="form-text">Leave empty if not applicable</span>
-      </div>
+      <div className="product-form-grid">
+        {/* Color */}
+        <div className="form-group">
+          <label className="form-label">Color</label>
+          <input
+            type="text"
+            value={color}
+            onChange={(e) => onChange("color", e.target.value)}
+            placeholder="e.g., Red, Blue, Black"
+            className={`form-control ${errors.color ? "invalid" : ""}`}
+          />
+          <span className="form-text">Leave empty if not applicable</span>
+        </div>
 
-      {/* Size */}
-      <div className="form-group">
-        <label className="form-label">Size</label>
-        <input
-          type="text"
-          value={size}
-          onChange={(e) => onChange("size", e.target.value)}
-          placeholder="e.g., Small, Medium, Large"
-          className={`form-control ${errors.size ? "invalid" : ""}`}
-        />
-        <span className="form-text">Leave empty if not applicable</span>
+        {/* Size */}
+        <div className="form-group">
+          <label className="form-label">Size</label>
+          <input
+            type="text"
+            value={size}
+            onChange={(e) => onChange("size", e.target.value)}
+            placeholder="e.g., Small, Medium, Large"
+            className={`form-control ${errors.size ? "invalid" : ""}`}
+          />
+          <span className="form-text">Leave empty if not applicable</span>
+        </div>
       </div>
     </div>
   );

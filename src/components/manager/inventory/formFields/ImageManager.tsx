@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, X, Upload } from "lucide-react";
+import { Star, X, Upload, Plus } from "lucide-react";
 import type { VariantImage } from "../../../../api/inventory";
 import {
   DndContext,
@@ -85,16 +85,22 @@ const SortableThumbnail = ({
         draggable={false}
       />
       <div className="image-manager-order-badge">{index + 1}</div>
-      {image.is_primary && <div className="image-manager-primary-badge">Primary</div>}
+      {image.is_primary && (
+        <div className="image-manager-primary-badge">
+          <Star size={10} fill="currentColor" aria-hidden="true" />
+          Primary
+        </div>
+      )}
       <div className="image-manager-thumbnail-overlay">
         <button
           type="button"
           className="image-manager-thumbnail-icon"
           onClick={(e) => onSetPrimary(e, image.image_id)}
           title="Set as primary (will apply on save)"
+          aria-label="Set as primary image"
         >
           <Star
-            size={16}
+            size={14}
             className={`image-manager-icon-star ${image.is_primary ? "active" : ""}`}
             fill={image.is_primary ? "currentColor" : "none"}
           />
@@ -104,8 +110,9 @@ const SortableThumbnail = ({
           className="image-manager-thumbnail-icon"
           onClick={(e) => onDelete(e, image.image_id)}
           title="Delete image (will apply on save)"
+          aria-label="Delete image"
         >
-          <X size={16} className="image-manager-icon-delete" />
+          <X size={14} className="image-manager-icon-delete" />
         </button>
       </div>
     </div>
@@ -185,12 +192,44 @@ const ImageManager = ({
   const displayImage = selectedImage || primaryImage || images[0];
 
   return (
-    <div className="image-manager-section">
-      <h3 className="form-label">Product Images</h3>
+    <section className="image-manager-section">
+      <div className="image-manager-header">
+        <div>
+          <h3 className="image-manager-title">Product images</h3>
+          <p className="image-manager-hint">
+            Drag to reorder. The star sets the primary image. Changes apply
+            when you save.
+          </p>
+        </div>
+        {images.length > 0 && (
+          <span className="image-manager-count">
+            {images.length} {images.length === 1 ? "image" : "images"}
+          </span>
+        )}
+      </div>
 
       {images.length > 0 ? (
         <div className="image-manager-layout">
-          {/* Thumbnail Column */}
+          {/* Main Image Display */}
+          <div className="image-manager-main-image-column">
+            <div className="image-manager-main-image-display">
+              <div className="image-manager-main-image-wrapper">
+                {displayImage ? (
+                  <img
+                    src={displayImage.img_url}
+                    alt="Product display image"
+                    className="image-manager-main-image"
+                  />
+                ) : (
+                  <span className="image-manager-main-image-empty">
+                    No images available
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Sortable thumbnail grid — the last tile adds a new image */}
           <div className="image-manager-thumbnail-column">
             <DndContext
               sensors={sensors}
@@ -214,41 +253,36 @@ const ImageManager = ({
                 ))}
               </SortableContext>
             </DndContext>
-          </div>
 
-          {/* Main Image Display */}
-          <div className="image-manager-main-image-column">
-            <div className="image-manager-main-image-display">
-              <div className="image-manager-main-image-wrapper">
-                {displayImage ? (
-                  <img
-                    src={displayImage.img_url}
-                    alt="Product display image"
-                    className="image-manager-main-image"
-                  />
-                ) : (
-                  <span className="image-manager-main-image-empty">
-                    No images available
-                  </span>
-                )}
-              </div>
-            </div>
+            <button
+              type="button"
+              className="image-manager-add-tile"
+              onClick={onUpload}
+            >
+              <Plus size={20} aria-hidden="true" />
+              Add image
+            </button>
           </div>
         </div>
       ) : (
         <div className="image-manager-empty-state">
-          <Upload className="image-manager-empty-state-icon" size={64} />
+          <Upload
+            className="image-manager-empty-state-icon"
+            size={32}
+            aria-hidden="true"
+          />
           <p className="image-manager-empty-state-text">No images yet</p>
+          <button
+            type="button"
+            className="image-manager-btn-upload"
+            onClick={onUpload}
+          >
+            <Upload size={16} aria-hidden="true" />
+            Upload product image
+          </button>
         </div>
       )}
-
-      <div className="image-manager-upload-section">
-        <button type="button" className="image-manager-btn-upload" onClick={onUpload}>
-          <Upload size={20} />
-          Upload Product Image
-        </button>
-      </div>
-    </div>
+    </section>
   );
 };
 

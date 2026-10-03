@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { Plus, ArrowLeft, Package } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Plus, ArrowLeft, Package, Search, X } from "lucide-react";
 import { fetchCategories, type Category } from "../../../api/categories";
 import { fetchProductTypes, type ProductType } from "../../../api/productTypes";
 import {
@@ -56,8 +56,6 @@ import { sanitizeFolderName } from "../../../utils/folderNameFormatter";
 type ViewMode = "edit" | "create-product" | "create-variant";
 
 const ManageProducts = () => {
-  const navigate = useNavigate();
-
   // ============================================================================
   // STATE MANAGEMENT
   // ============================================================================
@@ -100,6 +98,8 @@ const ManageProducts = () => {
 
   // UI state
   const [loading, setLoading] = useState(false);
+  // Client-side search over the already-loaded product list
+  const [searchQuery, setSearchQuery] = useState("");
   const { message, showMessage } = useToastMessage();
 
   // Refs & hooks
@@ -944,103 +944,176 @@ const ManageProducts = () => {
   // RENDER
   // ============================================================================
 
+  // Filters the loaded list by name, color or size (case-insensitive)
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const visibleProducts = normalizedQuery
+    ? products.filter((p) =>
+        [p.name, p.color, p.size].some((field) =>
+          (field ?? "").toLowerCase().includes(normalizedQuery),
+        ),
+      )
+    : products;
+
   return (
-    <div className="manager-page accent-inventory">
+    <div className="inventory-list-page">
       {/* Header */}
-      <div className="mgr-header">
-        <div className="mgr-header-inner">
-          <div>
-            <button
-              className="mgr-back-button"
-              onClick={() => navigate("/manager/inventory")}
-            >
-              <ArrowLeft size={16} />
-              Back to Dashboard
-            </button>
-            <h1 className="mgr-header-title">Edit Products</h1>
-            <p className="mgr-header-subtitle">
-              Manage existing products, variants, images, and inventory
-            </p>
+      <header className="inventory-list-header">
+        <div className="inventory-list-container">
+          <Link to="/manager/inventory" className="inventory-list-back-link">
+            <ArrowLeft size={15} aria-hidden="true" />
+            Back to Product Management
+          </Link>
+          <p className="inventory-list-eyebrow">Inventory</p>
+          <h1 className="inventory-list-title">Edit Products</h1>
+          <p className="inventory-list-subtitle">
+            Manage existing products, variants, images, and inventory
+          </p>
+        </div>
+      </header>
+
+      <main className="inventory-list-container inventory-list-main">
+        {/* Toolbar: warehouse, category, search and filters */}
+        <section className="inventory-list-toolbar" aria-label="Product filters">
+          <div className="inventory-list-toolbar-row">
+            {/* Warehouse Location Selector */}
+            <div className="inventory-list-field">
+              <label
+                className="inventory-list-field-label"
+                htmlFor="inventory-list-warehouse"
+              >
+                Warehouse
+              </label>
+              <select
+                id="inventory-list-warehouse"
+                className="inventory-list-select"
+                value={selectedLocation === null ? "" : selectedLocation}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  handleLocationChange(value === "" ? null : Number(value));
+                }}
+              >
+                <option value="">All Warehouses</option>
+                {locations.map((location) => (
+                  <option key={location.location_id} value={location.location_id}>
+                    {location.location_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Category Selector */}
+            <div className="inventory-list-field">
+              <label
+                className="inventory-list-field-label"
+                htmlFor="inventory-list-category"
+              >
+                Category
+              </label>
+              <select
+                id="inventory-list-category"
+                className="inventory-list-select"
+                value={selectedCategory === null ? "" : selectedCategory}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  handleCategoryChange(value === "" ? null : Number(value));
+                }}
+              >
+                <option value="">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat.category_id} value={cat.category_id}>
+                    {cat.category_name} {!cat.is_active ? "(Inactive)" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Search */}
+            <div className="inventory-list-field">
+              <label
+                className="inventory-list-field-label"
+                htmlFor="inventory-list-search"
+              >
+                Search
+              </label>
+              <div className="inventory-list-search">
+                <Search
+                  className="inventory-list-search-icon"
+                  size={16}
+                  aria-hidden="true"
+                />
+                <input
+                  id="inventory-list-search"
+                  type="text"
+                  className="inventory-list-search-input"
+                  placeholder="Search by name, color or size"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className="inventory-list-search-clear"
+                    onClick={() => setSearchQuery("")}
+                    aria-label="Clear search"
+                  >
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="inventory-list-container">
-        {/* Warehouse Location Selector */}
-        <div className="inventory-list-category-section">
-          <label className="inventory-list-category-label">Select Warehouse</label>
-          <select
-            className="inventory-list-category-select"
-            value={selectedLocation === null ? "" : selectedLocation}
-            onChange={(e) => {
-              const value = e.target.value;
-              handleLocationChange(value === "" ? null : Number(value));
-            }}
-          >
-            <option value="">All Warehouses</option>
-            {locations.map((location) => (
-              <option key={location.location_id} value={location.location_id}>
-                {location.location_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Category Selector */}
-        <div className="inventory-list-category-section">
-          <label className="inventory-list-category-label">Select Category</label>
-          <select
-            className="inventory-list-category-select"
-            value={selectedCategory === null ? "" : selectedCategory}
-            onChange={(e) => {
-              const value = e.target.value;
-              handleCategoryChange(value === "" ? null : Number(value));
-            }}
-          >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat.category_id} value={cat.category_id}>
-                {cat.category_name} {!cat.is_active ? "(Inactive)" : ""}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Filter Bar */}
-        <InventoryFilters
-          onStatusChange={setProductStatus}
-          onStockChange={setStockStatus}
-          onCategoryStatusChange={setCategoryStatus}
-          onSortChange={setSortBy}
-          currentStatus={productStatus}
-          currentStockStatus={stockStatus}
-          currentCategoryStatus={categoryStatus}
-          currentSortBy={sortBy}
-          onClearFilters={handleClearFilters}
-        />
+          {/* Filter Bar */}
+          <InventoryFilters
+            onStatusChange={setProductStatus}
+            onStockChange={setStockStatus}
+            onCategoryStatusChange={setCategoryStatus}
+            onSortChange={setSortBy}
+            currentStatus={productStatus}
+            currentStockStatus={stockStatus}
+            currentCategoryStatus={categoryStatus}
+            currentSortBy={sortBy}
+            onClearFilters={handleClearFilters}
+          />
+        </section>
 
         {/* Main Content */}
         {loading && !variantDetails && viewMode === "edit" ? (
-          <LoadingSpinner message="Loading products..." />
+          <div className="inventory-list-loading">
+            <LoadingSpinner message="Loading products..." />
+          </div>
         ) : (
           <div className="inventory-list-dashboard-content">
             {/* Left Column — Product List */}
-            <div className="inventory-list-products-column">
-              <h2>Products</h2>
-              <div className="inventory-list-products-list">
-                {/* Create New Product Card */}
-                <div
-                  className={`inventory-list-add-new-card ${
-                    viewMode === "create-product" ? "active" : ""
+            <aside className="inventory-list-products-column" aria-label="Products">
+              <div className="inventory-list-products-header">
+                <h2 className="inventory-list-products-title">
+                  Products
+                  <span className="inventory-list-products-count">
+                    {normalizedQuery
+                      ? `${visibleProducts.length} of ${products.length}`
+                      : products.length}
+                  </span>
+                </h2>
+
+                {/* Create New Product */}
+                <button
+                  type="button"
+                  className={`inventory-list-btn inventory-list-btn--primary${
+                    viewMode === "create-product"
+                      ? " inventory-list-btn--selected"
+                      : ""
                   }`}
                   onClick={handleNewProduct}
                 >
-                  <Plus className="inventory-list-add-new-icon" size={48} />
-                  <p className="inventory-list-add-new-text">Create New Product</p>
-                </div>
+                  <Plus size={16} aria-hidden="true" />
+                  New product
+                </button>
+              </div>
 
+              <div className="inventory-list-products-list">
                 {/* Existing product cards */}
-                {products.map((product) => (
+                {visibleProducts.map((product) => (
                   <ItemListings
                     key={product.variant_id}
                     product={product}
@@ -1048,11 +1121,27 @@ const ManageProducts = () => {
                     onClick={() => handleVariantSelect(product)}
                   />
                 ))}
+
+                {visibleProducts.length === 0 && (
+                  <p className="inventory-list-products-empty">
+                    {products.length === 0
+                      ? "No products found. Try changing the filters."
+                      : "No products match your search."}
+                  </p>
+                )}
               </div>
-            </div>
+            </aside>
 
             {/* Right Column — Forms */}
-            <div className="inventory-list-details-column" ref={detailsColumnRef}>
+            <section
+              className={`inventory-list-details-column${
+                loading && variantDetails
+                  ? " inventory-list-details-column--busy"
+                  : ""
+              }`}
+              ref={detailsColumnRef}
+              aria-busy={loading}
+            >
               {/* Create Product View */}
               {viewMode === "create-product" && (
                 <>
@@ -1062,18 +1151,20 @@ const ManageProducts = () => {
                     onCancel={handleCancelCreate}
                     onSubmitForm={handleSubmitForm}
                   />
-                  <CreateNewProductForm
-                    categoryId={
-                      selectedCategory === null ? 0 : selectedCategory
-                    }
-                    categories={categories}
-                    productTypes={productTypes}
-                    onSubmit={handleCreateProduct}
-                    onDirtyChange={setIsCreateFormDirty}
-                    loading={loading}
-                    onFormValidChange={setIsFormValid}
-                    onRequestSubmit={handleRequestCreateProduct}
-                  />
+                  <div className="inventory-list-details-body">
+                    <CreateNewProductForm
+                      categoryId={
+                        selectedCategory === null ? 0 : selectedCategory
+                      }
+                      categories={categories}
+                      productTypes={productTypes}
+                      onSubmit={handleCreateProduct}
+                      onDirtyChange={setIsCreateFormDirty}
+                      loading={loading}
+                      onFormValidChange={setIsFormValid}
+                      onRequestSubmit={handleRequestCreateProduct}
+                    />
+                  </div>
                 </>
               )}
 
@@ -1088,23 +1179,25 @@ const ManageProducts = () => {
                       onCancel={handleCancelCreate}
                       onSubmitForm={handleSubmitForm}
                     />
-                    <CreateNewVariantForm
-                      productId={variantDetails.product_id}
-                      productName={variantDetails.name}
-                      categoryId={variantDetails.category_id}
-                      description={variantDetails.description}
-                      categories={categories}
-                      parentPrice={variantDetails.price}
-                      parentWeightOz={variantDetails.weight_oz}
-                      parentLengthIn={variantDetails.length_in}
-                      parentWidthIn={variantDetails.width_in}
-                      parentHeightIn={variantDetails.height_in}
-                      onSubmit={handleCreateVariant}
-                      onDirtyChange={setIsCreateFormDirty}
-                      loading={loading}
-                      onFormValidChange={setIsFormValid}
-                      onRequestSubmit={handleRequestCreateVariant}
-                    />
+                    <div className="inventory-list-details-body">
+                      <CreateNewVariantForm
+                        productId={variantDetails.product_id}
+                        productName={variantDetails.name}
+                        categoryId={variantDetails.category_id}
+                        description={variantDetails.description}
+                        categories={categories}
+                        parentPrice={variantDetails.price}
+                        parentWeightOz={variantDetails.weight_oz}
+                        parentLengthIn={variantDetails.length_in}
+                        parentWidthIn={variantDetails.width_in}
+                        parentHeightIn={variantDetails.height_in}
+                        onSubmit={handleCreateVariant}
+                        onDirtyChange={setIsCreateFormDirty}
+                        loading={loading}
+                        onFormValidChange={setIsFormValid}
+                        onRequestSubmit={handleRequestCreateVariant}
+                      />
+                    </div>
                   </>
                 )}
 
@@ -1124,52 +1217,71 @@ const ManageProducts = () => {
                     onDelete={handleDeleteVariant}
                   />
 
-                  {/* Variant switcher */}
-                  {availableVariants.length > 1 && (
-                    <VariantSelector
-                      variants={availableVariants}
-                      currentVariantId={variantDetails.variant_id}
-                      onVariantChange={handleVariantSwitch}
-                      disabled={loading || hasUnsavedChanges()}
+                  <div className="inventory-list-details-body">
+                    {/* Variant switcher */}
+                    {availableVariants.length > 1 && (
+                      <VariantSelector
+                        variants={availableVariants}
+                        currentVariantId={variantDetails.variant_id}
+                        onVariantChange={handleVariantSwitch}
+                        disabled={loading || hasUnsavedChanges()}
+                      />
+                    )}
+
+                    {/* Image manager */}
+                    <ImageManager
+                      images={variantDetails.images}
+                      onReorder={handleImageReorder}
+                      onSetPrimary={handleSetPrimaryImage}
+                      onDelete={handleDeleteImageLocal}
+                      onUpload={openCloudinaryWidget}
                     />
-                  )}
 
-                  {/* Image manager */}
-                  <ImageManager
-                    images={variantDetails.images}
-                    onReorder={handleImageReorder}
-                    onSetPrimary={handleSetPrimaryImage}
-                    onDelete={handleDeleteImageLocal}
-                    onUpload={openCloudinaryWidget}
-                  />
-
-                  {/* Product details form */}
-                  <ProductOverlayForm
-                    variant={variantDetails}
-                    categories={categories}
-                    productCategories={productCategories}
-                    onChange={handleInputChange}
-                    onValidationChange={setIsFormValid}
-                    onAddCategory={handleAddCategory}
-                    onRemoveCategory={handleRemoveCategory}
-                    onSetPrimaryCategory={handleSetPrimaryCategory}
-                  />
+                    {/* Product details form */}
+                    <ProductOverlayForm
+                      variant={variantDetails}
+                      categories={categories}
+                      productCategories={productCategories}
+                      onChange={handleInputChange}
+                      onValidationChange={setIsFormValid}
+                      onAddCategory={handleAddCategory}
+                      onRemoveCategory={handleRemoveCategory}
+                      onSetPrimaryCategory={handleSetPrimaryCategory}
+                    />
+                  </div>
                 </>
               )}
 
               {/* Empty State */}
               {viewMode === "edit" && !variantDetails && (
                 <div className="inventory-list-empty-state">
-                  <Package className="inventory-list-empty-state-icon" size={80} />
+                  <div
+                    className="inventory-list-empty-state-icon-wrap"
+                    aria-hidden="true"
+                  >
+                    <Package size={28} />
+                  </div>
                   <p className="inventory-list-empty-state-text">
                     Select a product to edit
                   </p>
+                  <p className="inventory-list-empty-state-hint">
+                    Choose a product from the list to update its details,
+                    images and inventory, or create a new one.
+                  </p>
+                  <button
+                    type="button"
+                    className="inventory-list-btn inventory-list-btn--primary"
+                    onClick={handleNewProduct}
+                  >
+                    <Plus size={16} aria-hidden="true" />
+                    New product
+                  </button>
                 </div>
               )}
-            </div>
+            </section>
           </div>
         )}
-      </div>
+      </main>
 
       {/* Toast Notifications */}
       {message && (

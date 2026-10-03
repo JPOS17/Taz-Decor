@@ -1,4 +1,4 @@
-import { Filter, X, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, X, ChevronDown, Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface ManagerFilterBarProps {
@@ -13,27 +13,42 @@ interface ManagerFilterBarProps {
   onClearFilters: () => void;
 }
 
-type DropdownKey = "status" | "stock" | "category" | "sort" | null;
-
-interface DropdownOption {
+interface FilterOption {
+  // null means "no filter" (the default option)
+  value: string | null;
   label: string;
-  onSelect: () => void;
   dividerBefore?: boolean;
 }
 
-// A single custom dropdown, replacing Bootstrap's data-bs-toggle="dropdown" component
+interface FilterConfig {
+  key: string;
+  groupLabel: string;
+  // Prefix for the active-filter chip, e.g. "Sort: Name (A-Z)"
+  chipPrefix?: string;
+  current: string | null;
+  onChange: (value: string | null) => void;
+  options: FilterOption[];
+}
+
+// A single custom dropdown
 const FilterDropdown = ({
   isOpen,
   onToggle,
   onClose,
   label,
+  isSet,
   options,
+  current,
+  onSelect,
 }: {
   isOpen: boolean;
   onToggle: () => void;
   onClose: () => void;
   label: string;
-  options: DropdownOption[];
+  isSet: boolean;
+  options: FilterOption[];
+  current: string | null;
+  onSelect: (value: string | null) => void;
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -65,30 +80,45 @@ const FilterDropdown = ({
   return (
     <div className="inventory-list-dropdown" ref={wrapperRef}>
       <button
-        className={`inventory-list-filter-dropdown-btn inventory-list-dropdown-toggle${isOpen ? " inventory-list-dropdown-toggle--open" : ""}`}
+        className={`inventory-list-dropdown-toggle${
+          isSet ? " inventory-list-dropdown-toggle--set" : ""
+        }${isOpen ? " inventory-list-dropdown-toggle--open" : ""}`}
         type="button"
+        aria-haspopup="listbox"
         aria-expanded={isOpen}
         onClick={onToggle}
       >
         <span>{label}</span>
         <ChevronDown size={14} className="inventory-list-dropdown-chevron" />
       </button>
+
       {isOpen && (
-        <ul className="inventory-list-dropdown-menu">
-          {options.map((option, index) => (
-            <li key={index}>
-              {option.dividerBefore && <hr className="inventory-list-dropdown-divider" />}
-              <button
-                className="inventory-list-dropdown-item"
-                onClick={() => {
-                  option.onSelect();
-                  onClose();
-                }}
-              >
-                {option.label}
-              </button>
-            </li>
-          ))}
+        <ul className="inventory-list-dropdown-menu" role="listbox">
+          {options.map((option) => {
+            const selected = option.value === current;
+            return (
+              <li key={option.label} role="presentation">
+                {option.dividerBefore && (
+                  <hr className="inventory-list-dropdown-divider" />
+                )}
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  className={`inventory-list-dropdown-item${
+                    selected ? " inventory-list-dropdown-item--selected" : ""
+                  }`}
+                  onClick={() => {
+                    onSelect(option.value);
+                    onClose();
+                  }}
+                >
+                  <span>{option.label}</span>
+                  {selected && <Check size={14} aria-hidden="true" />}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
@@ -108,112 +138,136 @@ const ManagerFilterBar = ({
   onClearFilters,
 }: ManagerFilterBarProps) => {
   const [showFilters, setShowFilters] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<DropdownKey>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  const hasActiveFilters =
-    currentStatus !== null ||
-    currentStockStatus !== null ||
-    currentCategoryStatus !== null ||
-    currentSortBy !== null;
+  // ============================================================================
+  // FILTER DEFINITIONS
+  // One config per dropdown — labels, chips and the open/selected state are all
+  // derived from these, so adding a filter is a single new entry.
+  // ============================================================================
 
-  const activeFilterCount = [
-    currentStatus,
-    currentStockStatus,
-    currentCategoryStatus,
-    currentSortBy,
-  ].filter(Boolean).length;
+  const filters: FilterConfig[] = [
+    {
+      key: "status",
+      groupLabel: "Product Status",
+      current: currentStatus,
+      onChange: onStatusChange,
+      options: [
+        { value: null, label: "All Products" },
+        { value: "active", label: "Active Only", dividerBefore: true },
+        { value: "inactive", label: "Inactive Only" },
+      ],
+    },
+    {
+      key: "stock",
+      groupLabel: "Stock Level",
+      current: currentStockStatus,
+      onChange: onStockChange,
+      options: [
+        { value: null, label: "Any Stock Level" },
+        { value: "out-of-stock", label: "Out of Stock", dividerBefore: true },
+        { value: "low-stock", label: "Low Stock (≤3)" },
+      ],
+    },
+    {
+      key: "category",
+      groupLabel: "Category Status",
+      current: currentCategoryStatus,
+      onChange: onCategoryStatusChange,
+      options: [
+        { value: null, label: "All Categories" },
+        { value: "active", label: "Active Categories", dividerBefore: true },
+        { value: "inactive", label: "Inactive Categories" },
+        {
+          value: "multiple",
+          label: "Multiple Categories (2+)",
+          dividerBefore: true,
+        },
+      ],
+    },
+    {
+      key: "sort",
+      groupLabel: "Sort By",
+      chipPrefix: "Sort: ",
+      current: currentSortBy,
+      onChange: onSortChange,
+      options: [
+        { value: null, label: "Default Order" },
+        { value: "name-asc", label: "Name (A-Z)", dividerBefore: true },
+        { value: "name-desc", label: "Name (Z-A)" },
+        { value: "price-asc", label: "Price (Low-High)", dividerBefore: true },
+        { value: "price-desc", label: "Price (High-Low)" },
+        { value: "stock-asc", label: "Stock (Low-High)", dividerBefore: true },
+        { value: "stock-desc", label: "Stock (High-Low)" },
+        { value: "newest", label: "Newest First", dividerBefore: true },
+        { value: "oldest", label: "Oldest First" },
+      ],
+    },
+  ];
 
-  const toggleDropdown = (key: DropdownKey) =>
+  // Returns the label of the option matching the filter's current value
+  const getLabel = (filter: FilterConfig) =>
+    (
+      filter.options.find((o) => o.value === filter.current) ??
+      filter.options[0]
+    ).label;
+
+  const activeFilters = filters.filter((f) => f.current !== null);
+  const activeFilterCount = activeFilters.length;
+  const hasActiveFilters = activeFilterCount > 0;
+
+  const toggleDropdown = (key: string) =>
     setOpenDropdown((prev) => (prev === key ? null : key));
   const closeDropdown = () => setOpenDropdown(null);
-
-  // ============================================================================
-  // HELPERS
-  // ============================================================================
-
-  // Returns the display label for the current product status filter value
-  const getStatusLabel = () => {
-    switch (currentStatus) {
-      case "active":
-        return "Active Only";
-      case "inactive":
-        return "Inactive Only";
-      default:
-        return "All Products";
-    }
-  };
-
-  // Returns the display label for the current stock level filter value
-  const getStockLabel = () => {
-    switch (currentStockStatus) {
-      case "out-of-stock":
-        return "Out of Stock";
-      case "low-stock":
-        return "Low Stock (≤3)";
-      default:
-        return "Any Stock Level";
-    }
-  };
-
-  // Returns the display label for the current category status filter value
-  const getCategoryStatusLabel = () => {
-    switch (currentCategoryStatus) {
-      case "active":
-        return "Active Categories";
-      case "inactive":
-        return "Inactive Categories";
-      case "multiple":
-        return "Multiple Categories (2+)";
-      default:
-        return "All Categories";
-    }
-  };
-
-  // Returns the display label for the current sort order value
-  const getSortLabel = () => {
-    switch (currentSortBy) {
-      case "name-asc":
-        return "Name (A-Z)";
-      case "name-desc":
-        return "Name (Z-A)";
-      case "price-asc":
-        return "Price (Low-High)";
-      case "price-desc":
-        return "Price (High-Low)";
-      case "stock-asc":
-        return "Stock (Low-High)";
-      case "stock-desc":
-        return "Stock (High-Low)";
-      case "newest":
-        return "Newest First";
-      case "oldest":
-        return "Oldest First";
-      default:
-        return "Default Order";
-    }
-  };
 
   // ============================================================================
   // RENDER
   // ============================================================================
 
   return (
-    <div>
-      {/* Filter toggle bar */}
-      <div className="inventory-list-filter-bar">
+    <div className="inventory-list-filters">
+      {/* Filter toggle row: toggle button, active filter chips, clear all */}
+      <div className="inventory-list-filters-bar">
         <button
-          className={`inventory-list-filter-toggle ${hasActiveFilters ? "inventory-list-filter-toggle--active" : ""}`}
+          type="button"
+          className={`inventory-list-filter-toggle${
+            showFilters ? " inventory-list-filter-toggle--open" : ""
+          }`}
+          aria-expanded={showFilters}
           onClick={() => setShowFilters(!showFilters)}
         >
-          <Filter size={16} />
-          Filters{hasActiveFilters ? ` (${activeFilterCount})` : ""}
+          <SlidersHorizontal size={15} aria-hidden="true" />
+          Filters
+          {hasActiveFilters && (
+            <span className="inventory-list-filter-count">
+              {activeFilterCount}
+            </span>
+          )}
         </button>
 
-        {/* Clear All */}
+        {/* One removable chip per active filter */}
+        {activeFilters.map((filter) => (
+          <span key={filter.key} className="inventory-list-chip">
+            {filter.chipPrefix}
+            {getLabel(filter)}
+            <button
+              type="button"
+              className="inventory-list-chip-remove"
+              onClick={() => filter.onChange(null)}
+              aria-label={`Remove filter: ${getLabel(filter)}`}
+            >
+              <X size={12} aria-hidden="true" />
+            </button>
+          </span>
+        ))}
+
         {hasActiveFilters && (
-          <button className="inventory-list-filter-clear" onClick={onClearFilters}>
-            <X size={16} />
-            Clear All
+          <button
+            type="button"
+            className="inventory-list-filter-clear"
+            onClick={onClearFilters}
+          >
+            Clear all
           </button>
         )}
       </div>
@@ -221,135 +275,23 @@ const ManagerFilterBar = ({
       {/* Collapsible filter panel */}
       {showFilters && (
         <div className="inventory-list-filter-panel">
-          {/* Product Status */}
-          <div className="inventory-list-filter-group">
-            <span className="inventory-list-filter-group-label">Product Status</span>
-            <FilterDropdown
-              isOpen={openDropdown === "status"}
-              onToggle={() => toggleDropdown("status")}
-              onClose={closeDropdown}
-              label={getStatusLabel()}
-              options={[
-                { label: "All Products", onSelect: () => onStatusChange(null) },
-                {
-                  label: "Active Only",
-                  onSelect: () => onStatusChange("active"),
-                  dividerBefore: true,
-                },
-                {
-                  label: "Inactive Only",
-                  onSelect: () => onStatusChange("inactive"),
-                },
-              ]}
-            />
-          </div>
-
-          {/* Stock Level */}
-          <div className="inventory-list-filter-group">
-            <span className="inventory-list-filter-group-label">Stock Level</span>
-            <FilterDropdown
-              isOpen={openDropdown === "stock"}
-              onToggle={() => toggleDropdown("stock")}
-              onClose={closeDropdown}
-              label={getStockLabel()}
-              options={[
-                {
-                  label: "Any Stock Level",
-                  onSelect: () => onStockChange(null),
-                },
-                {
-                  label: "Out of Stock (0)",
-                  onSelect: () => onStockChange("out-of-stock"),
-                  dividerBefore: true,
-                },
-                {
-                  label: "Low Stock (≤3)",
-                  onSelect: () => onStockChange("low-stock"),
-                },
-              ]}
-            />
-          </div>
-
-          {/* Category Status */}
-          <div className="inventory-list-filter-group">
-            <span className="inventory-list-filter-group-label">Category Status</span>
-            <FilterDropdown
-              isOpen={openDropdown === "category"}
-              onToggle={() => toggleDropdown("category")}
-              onClose={closeDropdown}
-              label={getCategoryStatusLabel()}
-              options={[
-                {
-                  label: "All Categories",
-                  onSelect: () => onCategoryStatusChange(null),
-                },
-                {
-                  label: "Active Categories",
-                  onSelect: () => onCategoryStatusChange("active"),
-                  dividerBefore: true,
-                },
-                {
-                  label: "Inactive Categories",
-                  onSelect: () => onCategoryStatusChange("inactive"),
-                },
-                {
-                  label: "Multiple Categories (2+)",
-                  onSelect: () => onCategoryStatusChange("multiple"),
-                  dividerBefore: true,
-                },
-              ]}
-            />
-          </div>
-
-          {/* Sort By */}
-          <div className="inventory-list-filter-group">
-            <span className="inventory-list-filter-group-label">Sort By</span>
-            <FilterDropdown
-              isOpen={openDropdown === "sort"}
-              onToggle={() => toggleDropdown("sort")}
-              onClose={closeDropdown}
-              label={getSortLabel()}
-              options={[
-                { label: "Default Order", onSelect: () => onSortChange(null) },
-                {
-                  label: "Name (A-Z)",
-                  onSelect: () => onSortChange("name-asc"),
-                  dividerBefore: true,
-                },
-                {
-                  label: "Name (Z-A)",
-                  onSelect: () => onSortChange("name-desc"),
-                },
-                {
-                  label: "Price (Low-High)",
-                  onSelect: () => onSortChange("price-asc"),
-                  dividerBefore: true,
-                },
-                {
-                  label: "Price (High-Low)",
-                  onSelect: () => onSortChange("price-desc"),
-                },
-                {
-                  label: "Stock (Low-High)",
-                  onSelect: () => onSortChange("stock-asc"),
-                  dividerBefore: true,
-                },
-                {
-                  label: "Stock (High-Low)",
-                  onSelect: () => onSortChange("stock-desc"),
-                },
-                {
-                  label: "Newest First",
-                  onSelect: () => onSortChange("newest"),
-                  dividerBefore: true,
-                },
-                {
-                  label: "Oldest First",
-                  onSelect: () => onSortChange("oldest"),
-                },
-              ]}
-            />
-          </div>
+          {filters.map((filter) => (
+            <div key={filter.key} className="inventory-list-filter-group">
+              <span className="inventory-list-filter-group-label">
+                {filter.groupLabel}
+              </span>
+              <FilterDropdown
+                isOpen={openDropdown === filter.key}
+                onToggle={() => toggleDropdown(filter.key)}
+                onClose={closeDropdown}
+                label={getLabel(filter)}
+                isSet={filter.current !== null}
+                options={filter.options}
+                current={filter.current}
+                onSelect={filter.onChange}
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>

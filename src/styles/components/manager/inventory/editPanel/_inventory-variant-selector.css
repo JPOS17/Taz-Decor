@@ -1,80 +1,84 @@
 /* ==============================================================================
    INVENTORY VARIANT SELECTOR
-   Dropdown for switching between a product's variants in the detail panel.
+   Compact bar for switching between a product's variants in the detail panel
+  
    Prefix: inventory-variant-selector-*
    ============================================================================== */
 
 .inventory-variant-selector-container {
-  background-color: var(--color-primary-bg-light);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--color-primary);
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
-  margin: 0.5rem 1.5rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35rem 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--inventory-list-surface-muted);
+  border: 1px solid var(--inventory-list-border);
+  border-radius: 10px;
 }
 
 .inventory-variant-selector-label {
-  display: block;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: 0.5rem;
-  font-size: 0.75rem;
+  color: var(--inventory-list-text-2);
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 
-.inventory-variant-selector-wrapper { position: relative; }
+.inventory-variant-selector-wrapper {
+  position: relative;
+}
 
 .inventory-variant-selector-select {
   width: 100%;
-  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  height: 40px;
+  padding: 0 2.5rem 0 0.85rem;
+  background-color: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border-strong);
+  border-radius: var(--inventory-list-radius-sm);
+  color: var(--inventory-list-text);
+  font-family: var(--font-admin);
   font-size: 0.875rem;
   font-weight: 600;
-  font-family: "Inter", sans-serif;
-  background-color: var(--card);
   cursor: pointer;
   appearance: none;
-  transition: all 0.18s ease;
-  color: var(--text-primary);
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1em;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.inventory-variant-selector-select:hover { border-color: var(--color-primary); }
+.inventory-variant-selector-select:hover:not(:disabled) {
+  border-color: #b9b9c0;
+}
+
 .inventory-variant-selector-select:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.12);
+  border-color: var(--inventory-list-accent);
+  box-shadow: var(--inventory-list-ring-accent);
 }
+
 .inventory-variant-selector-select:disabled {
-  opacity: 0.6;
+  background-color: #f4f4f6;
+  color: var(--inventory-list-text-3);
   cursor: not-allowed;
-  background-color: var(--color-primary-bg-light);
 }
 
 .inventory-variant-selector-icon {
   position: absolute;
-  right: 0.75rem;
+  right: 0.8rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-primary);
+  color: var(--inventory-list-text-3);
   pointer-events: none;
 }
 
 .inventory-variant-selector-help {
-  margin: 0.5rem 0 0 0;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  font-style: italic;
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--inventory-list-text-3);
+  font-size: 0.78rem;
 }
 
-@keyframes variantSwitch {
-  0%   { opacity: 0.5; transform: translateY(-8px); }
-  100% { opacity: 1;   transform: translateY(0); }
+@media (max-width: 600px) {
+  .inventory-variant-selector-container {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
-
-.inventory-variant-selector-container + * { animation: variantSwitch 0.25s ease; }

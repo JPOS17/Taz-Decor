@@ -16,7 +16,8 @@ interface ActionButtonsProps {
   onSubmitForm?: () => void;
 }
 
-// Renders the correct set of action buttons based on the current view mode
+// Renders the correct set of action buttons based on the current view mode.
+// Save / Create is always the single filled button; the rest are outlined or ghost.
 export const ActionButtons = ({
   viewMode,
   loading,
@@ -31,36 +32,23 @@ export const ActionButtons = ({
   onSubmitForm,
 }: ActionButtonsProps) => {
   // Create modes each return their own minimal button set
-  if (viewMode === "create-product") {
-    return (
-      <div className="action-buttons">
-        <button
-          className="action-buttons-btn-save"
-          onClick={(e) => {
-            e.preventDefault();
-            onSubmitForm?.();
-          }}
-          disabled={loading}
-        >
-          <Save size={18} />
-          Create Product
-        </button>
-        <button
-          className="action-buttons-btn-cancel-inline"
-          onClick={onCancel}
-          disabled={loading}
-        >
-          <X size={18} />
-          Cancel
-        </button>
-      </div>
-    );
-  }
+  if (viewMode === "create-product" || viewMode === "create-variant") {
+    const createLabel =
+      viewMode === "create-product" ? "Create Product" : "Create Variant";
 
-  if (viewMode === "create-variant") {
     return (
       <div className="action-buttons">
         <button
+          type="button"
+          className="action-buttons-btn-cancel-inline"
+          onClick={onCancel}
+          disabled={loading}
+        >
+          <X size={16} aria-hidden="true" />
+          Cancel
+        </button>
+        <button
+          type="button"
           className="action-buttons-btn-save"
           onClick={(e) => {
             e.preventDefault();
@@ -68,16 +56,8 @@ export const ActionButtons = ({
           }}
           disabled={loading}
         >
-          <Save size={18} />
-          Create Variant
-        </button>
-        <button
-          className="action-buttons-btn-cancel-inline"
-          onClick={onCancel}
-          disabled={loading}
-        >
-          <X size={18} />
-          Cancel
+          <Save size={16} aria-hidden="true" />
+          {createLabel}
         </button>
       </div>
     );
@@ -88,46 +68,63 @@ export const ActionButtons = ({
     <div className="action-buttons">
       {/* New Variant */}
       <button
+        type="button"
         className="action-buttons-btn-new-variant"
         onClick={onNewVariant}
         disabled={loading || hasUnsavedChanges}
+        title={
+          hasUnsavedChanges ? "Save or discard your changes first" : undefined
+        }
       >
-        <Plus size={18} />
+        <Plus size={16} aria-hidden="true" />
         New Variant
       </button>
 
       {/* Toggle button label and style swap based on current active state */}
       <button
-        className={isActive ? "action-buttons-btn-deactivate" : "action-buttons-btn-activate"}
+        type="button"
+        className={
+          isActive
+            ? "action-buttons-btn-deactivate"
+            : "action-buttons-btn-activate"
+        }
         onClick={onToggleStatus}
         disabled={loading}
       >
         {isActive ? (
           <>
-            <EyeOff size={18} />
+            <EyeOff size={16} aria-hidden="true" />
             Deactivate
           </>
         ) : (
           <>
-            <Eye size={18} />
+            <Eye size={16} aria-hidden="true" />
             Activate
           </>
         )}
       </button>
 
+      <button
+        type="button"
+        className="action-buttons-btn-delete"
+        onClick={onDelete}
+        disabled={loading}
+      >
+        <Trash2 size={16} aria-hidden="true" />
+        Delete
+      </button>
+
+      <span className="action-buttons-divider" aria-hidden="true" />
+
       {/* Save */}
       <button
+        type="button"
         className="action-buttons-btn-save"
         onClick={onSave}
         disabled={loading || !hasUnsavedChanges || !isFormValid}
       >
-        <Save size={18} />
+        <Save size={16} aria-hidden="true" />
         Save Changes
-      </button>
-
-      <button className="action-buttons-btn-delete" onClick={onDelete} disabled={loading}>
-        <Trash2 size={18} />
-        Delete
       </button>
     </div>
   );

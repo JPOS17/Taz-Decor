@@ -16,7 +16,7 @@ interface DetailsHeaderProps {
   onSubmitForm?: () => void;
 }
 
-// Renders the detail panel header
+// Renders the sticky detail panel header: title, status chips and action buttons
 export const HeaderFormatter = ({
   viewMode,
   ...buttonProps
@@ -35,9 +35,33 @@ export const HeaderFormatter = ({
     }
   };
 
+  const { isActive, hasUnsavedChanges } = buttonProps;
+  const isEditing = viewMode === "edit";
+
   return (
     <div className="detail-panel-header">
-      <h2 className="detail-panel-header-title">{getTitle()}</h2>
+      <div className="detail-panel-header-heading">
+        <h2 className="detail-panel-header-title">{getTitle()}</h2>
+
+        {/* Status chips — only meaningful while editing an existing product */}
+        {isEditing && isActive !== undefined && (
+          <span
+            className={`detail-panel-header-chip ${
+              isActive
+                ? "detail-panel-header-chip--active"
+                : "detail-panel-header-chip--inactive"
+            }`}
+          >
+            {isActive ? "Active" : "Inactive"}
+          </span>
+        )}
+        {isEditing && hasUnsavedChanges && (
+          <span className="detail-panel-header-chip detail-panel-header-chip--unsaved">
+            Unsaved changes
+          </span>
+        )}
+      </div>
+
       {/* All remaining props forwarded directly to ActionButtons */}
       <ActionButtons viewMode={viewMode} {...buttonProps} />
     </div>

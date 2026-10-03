@@ -1,143 +1,400 @@
 /* ==============================================================================
-   INVENTORY LIST PAGE
-   Two-column product list and detail editor.
-   Accent: apply .accent-orange to .manager-page wrapper in JSX
+   INVENTORY LIST PAGE  ("Edit Products")
+   Master–detail editor: a filter toolbar on top, a sticky product list on the
+   left and the product editor on the right
+
+   Neutral (white / grey / black) base with the manager "inventory" red as the
+   single accent, matching the Inventory Hub and Manager Dashboard
+
+   TOKENS: the --inventory-list-* block below is shared by every component in
+   the edit panel (action buttons, header, image manager, product form...)
+   It is declared on .inventory-list-page AND .accent-inventory so the same
+   components also render correctly on the Create Product page
+
    Prefix: inventory-list-*
+
+   BREAKPOINTS
+     - Desktop: two columns from 992px up
+     - Tablet:  up to 991px  (single column, list above editor)
+     - Mobile:  up to 600px
    ============================================================================== */
 
-/* ── Container ── */
+.inventory-list-page,
+.accent-inventory {
+  /* Neutral palette */
+  --inventory-list-bg: #f5f5f6;
+  --inventory-list-surface: #ffffff;
+  --inventory-list-surface-muted: #fafafb;
+  --inventory-list-border: #e6e6e8;
+  --inventory-list-border-strong: #d2d2d6;
+  --inventory-list-text: #111113;
+  --inventory-list-text-2: #52525b;
+  --inventory-list-text-3: #8a8a93;
+  --inventory-list-ink: #111113;
+  --inventory-list-ink-hover: #2a2a2e;
+
+  --inventory-list-radius: 12px;
+  --inventory-list-radius-sm: 8px;
+  --inventory-list-shadow: 0 1px 2px rgba(17, 17, 19, 0.04), 0 1px 3px rgba(17, 17, 19, 0.04);
+  --inventory-list-shadow-hover: 0 8px 24px rgba(17, 17, 19, 0.08);
+  --inventory-list-shadow-pop: 0 12px 32px rgba(17, 17, 19, 0.14);
+  --inventory-list-ring: 0 0 0 3px rgba(17, 17, 19, 0.14);
+  --inventory-list-ring-accent: 0 0 0 3px rgba(209, 56, 46, 0.18);
+
+  /* Accent — inventory red: main / light tint / dark text-safe shade */
+  --inventory-list-accent: #d1382e;
+  --inventory-list-accent-light: #fdeeed;
+  --inventory-list-accent-dark: #a82a21;
+
+  /* Status colors (same family as the dashboard sections) */
+  --inventory-list-success: #1f8a4c;
+  --inventory-list-success-light: #e8f6ee;
+  --inventory-list-success-dark: #166a39;
+  --inventory-list-warning: #e0a410;
+  --inventory-list-warning-light: #fdf5de;
+  --inventory-list-warning-dark: #9a6b00;
+  --inventory-list-danger: #d1382e;
+  --inventory-list-danger-light: #fdeeed;
+  --inventory-list-danger-dark: #a82a21;
+
+  /* Height of the sticky top bar + breathing room, for sticky offsets */
+  --inventory-list-sticky-top: calc(var(--top-bar-height, 64px) + 1rem);
+}
+
+.inventory-list-page {
+  min-height: 100vh;
+  background: var(--inventory-list-bg);
+  color: var(--inventory-list-text);
+  font-family: var(--font-admin);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+.inventory-list-page h1,
+.inventory-list-page h2,
+.inventory-list-page h3,
+.inventory-list-page h4 {
+  margin: 0;
+  font-family: var(--font-admin);
+  color: var(--inventory-list-text);
+}
+
 .inventory-list-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  padding-top: 2.5rem;
-}
-
-/* ── Warehouse / category filter dropdowns ── */
-.inventory-list-category-section {
-  background-color: var(--card);
-  padding: 1rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 1rem;
-}
-
-.inventory-list-category-label {
-  font-weight: 600;
-  font-size: 0.8125rem;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  display: block;
-  letter-spacing: 0.01em;
-}
-
-.inventory-list-category-select {
   width: 100%;
-  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* ==============================================================================
+   HEADER
+   ============================================================================== */
+
+.inventory-list-header {
+  padding: 1.5rem 0 1.75rem;
+  background: var(--inventory-list-surface);
+  border-bottom: 1px solid var(--inventory-list-border);
+}
+
+.inventory-list-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 1.25rem -0.45rem;
+  padding: 0.3rem 0.65rem 0.3rem 0.45rem;
+  border-radius: 7px;
+  color: var(--inventory-list-text-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.inventory-list-back-link:hover {
+  background: #f0f0f2;
+  color: var(--inventory-list-text);
+}
+
+.inventory-list-back-link:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
+}
+
+.inventory-list-eyebrow {
+  margin: 0 0 0.35rem;
+  color: var(--inventory-list-accent-dark);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.inventory-list-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.inventory-list-subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--inventory-list-text-2);
+  font-size: 0.92rem;
+}
+
+.inventory-list-main {
+  padding-block: 1.5rem 4rem;
+}
+
+/* ==============================================================================
+   TOOLBAR  (warehouse, category, search, filters)
+   ============================================================================== */
+
+.inventory-list-toolbar {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border);
+  border-radius: var(--inventory-list-radius);
+  box-shadow: var(--inventory-list-shadow);
+}
+
+.inventory-list-toolbar-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 0.9rem;
+}
+
+.inventory-list-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.inventory-list-field-label {
+  color: var(--inventory-list-text-3);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.inventory-list-select,
+.inventory-list-search-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 0.85rem;
+  background-color: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border-strong);
+  border-radius: var(--inventory-list-radius-sm);
+  color: var(--inventory-list-text);
+  font-family: var(--font-admin);
   font-size: 0.875rem;
-  font-family: var(--font);
   font-weight: 500;
-  background-color: var(--card);
-  color: var(--text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.inventory-list-select {
+  padding-right: 2.25rem;
   cursor: pointer;
-  transition: all 0.18s ease;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8a93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 1em;
 }
 
-.inventory-list-category-select:hover { border-color: var(--accent); }
-.inventory-list-category-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.inventory-list-select:hover,
+.inventory-list-search-input:hover {
+  border-color: #b9b9c0;
+}
 
-/* ── Inventory filter bar ── */
-.inventory-list-filter-bar {
+.inventory-list-select:focus,
+.inventory-list-search-input:focus {
+  outline: none;
+  border-color: var(--inventory-list-accent);
+  box-shadow: var(--inventory-list-ring-accent);
+}
+
+.inventory-list-search {
+  position: relative;
+}
+
+.inventory-list-search-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--inventory-list-text-3);
+  pointer-events: none;
+}
+
+.inventory-list-search-input {
+  padding-left: 2.3rem;
+  padding-right: 2.2rem;
+}
+
+.inventory-list-search-input::placeholder {
+  color: var(--inventory-list-text-3);
+  font-weight: 400;
+}
+
+.inventory-list-search-clear {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--inventory-list-text-3);
+  cursor: pointer;
+}
+
+.inventory-list-search-clear:hover {
+  background: #f0f0f2;
+  color: var(--inventory-list-text);
+}
+
+/* ==============================================================================
+   FILTER BAR  (rendered by InventoryFilters inside the toolbar)
+   ============================================================================== */
+
+.inventory-list-filters {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--inventory-list-border);
+}
+
+.inventory-list-filters-bar {
   display: flex;
-  gap: 0.5rem;
-  align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .inventory-list-filter-toggle {
-  background-color: var(--card);
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  height: 34px;
+  padding: 0 0.8rem;
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border-strong);
+  border-radius: var(--inventory-list-radius-sm);
+  color: var(--inventory-list-text);
+  font-family: var(--font-admin);
+  font-size: 0.84rem;
   font-weight: 600;
-  font-size: 0.875rem;
-  font-family: var(--font);
-  transition: all 0.18s ease;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.inventory-list-filter-toggle--active {
-  background-color: var(--accent);
-  color: white;
-  border-color: var(--accent);
+.inventory-list-filter-toggle:hover {
+  background: var(--inventory-list-surface-muted);
+  border-color: #b9b9c0;
+}
+
+.inventory-list-filter-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
+}
+
+.inventory-list-filter-toggle--open {
+  background: var(--inventory-list-surface-muted);
+  border-color: var(--inventory-list-text);
+}
+
+.inventory-list-filter-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.35rem;
+  background: var(--inventory-list-accent);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.inventory-list-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 28px;
+  padding: 0 0.35rem 0 0.65rem;
+  background: var(--inventory-list-accent-light);
+  border-radius: 999px;
+  color: var(--inventory-list-accent-dark);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.inventory-list-chip-remove {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+}
+
+.inventory-list-chip-remove:hover {
+  background: rgba(168, 42, 33, 0.14);
 }
 
 .inventory-list-filter-clear {
-  background-color: var(--color-danger);
-  color: white;
+  height: 28px;
+  padding: 0 0.5rem;
+  background: transparent;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  border-radius: 6px;
+  color: var(--inventory-list-text-2);
+  font-family: var(--font-admin);
+  font-size: 0.8rem;
   font-weight: 600;
-  font-size: 0.875rem;
-  font-family: var(--font);
-  transition: all 0.18s ease;
+  cursor: pointer;
 }
 
-.inventory-list-filter-clear:hover { background-color: var(--color-danger-dark); }
+.inventory-list-filter-clear:hover {
+  background: #f0f0f2;
+  color: var(--inventory-list-text);
+}
 
 .inventory-list-filter-panel {
-  margin-top: 0.75rem;
-  padding: 1.25rem;
-  background-color: var(--card);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--radius);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-  box-shadow: var(--shadow-sm);
+  gap: 0.9rem;
+  margin-top: 0.9rem;
 }
 
-.inventory-list-filter-group       { display: flex; flex-direction: column; gap: 0.5rem; }
-.inventory-list-filter-group-label { display: block; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
-
-.inventory-list-filter-dropdown-btn {
-  width: 100%;
-  text-align: left;
-  padding: 0.5rem 0.875rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background-color: var(--card);
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  font-family: var(--font);
-  font-weight: 500;
-  cursor: pointer;
-  transition: border-color 0.18s ease;
+.inventory-list-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
 }
 
-.inventory-list-filter-dropdown-btn:hover { border-color: var(--accent); }
+.inventory-list-filter-group-label {
+  color: var(--inventory-list-text-3);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
-/* ── Custom filter dropdown (replaces Bootstrap's JS dropdown component) ── */
+/* Custom dropdown */
 .inventory-list-dropdown {
   position: relative;
 }
@@ -147,15 +404,45 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  width: 100%;
+  height: 38px;
+  padding: 0 0.75rem 0 0.85rem;
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border-strong);
+  border-radius: var(--inventory-list-radius-sm);
+  color: var(--inventory-list-text);
+  font-family: var(--font-admin);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+.inventory-list-dropdown-toggle > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inventory-list-dropdown-toggle:hover {
+  border-color: #b9b9c0;
+}
+
+.inventory-list-dropdown-toggle:focus-visible,
 .inventory-list-dropdown-toggle--open {
-  border-color: var(--accent);
+  outline: none;
+  border-color: var(--inventory-list-accent);
+  box-shadow: var(--inventory-list-ring-accent);
+}
+
+.inventory-list-dropdown-toggle--set {
+  font-weight: 600;
 }
 
 .inventory-list-dropdown-chevron {
   flex-shrink: 0;
-  color: var(--text-secondary);
+  color: var(--inventory-list-text-3);
   transition: transform 0.18s ease;
 }
 
@@ -165,225 +452,313 @@
 
 .inventory-list-dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.25rem);
+  top: calc(100% + 0.3rem);
   left: 0;
   right: 0;
-  z-index: 20;
+  z-index: 30;
+  max-height: 280px;
   margin: 0;
-  padding: 0.375rem;
-  list-style: none;
-  background-color: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  max-height: 260px;
+  padding: 0.35rem;
   overflow-y: auto;
+  list-style: none;
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border);
+  border-radius: 10px;
+  box-shadow: var(--inventory-list-shadow-pop);
 }
 
 .inventory-list-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   width: 100%;
-  text-align: left;
-  padding: 0.5rem 0.625rem;
+  padding: 0.5rem 0.6rem;
+  background: transparent;
   border: none;
   border-radius: 6px;
-  background-color: transparent;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  font-family: var(--font);
+  color: var(--inventory-list-text);
+  font-family: var(--font-admin);
+  font-size: 0.86rem;
+  text-align: left;
   cursor: pointer;
-  transition: background-color 0.15s ease;
 }
 
-.inventory-list-dropdown-item:hover {
-  background-color: var(--accent-light);
-  color: var(--accent);
+.inventory-list-dropdown-item:hover,
+.inventory-list-dropdown-item:focus-visible {
+  outline: none;
+  background: #f3f3f5;
+}
+
+.inventory-list-dropdown-item--selected {
+  color: var(--inventory-list-accent-dark);
+  font-weight: 600;
 }
 
 .inventory-list-dropdown-divider {
-  margin: 0.375rem 0.25rem;
+  margin: 0.3rem 0.25rem;
   border: none;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--inventory-list-border);
 }
 
-/* ── Two-column layout ── */
+/* ==============================================================================
+   TWO-COLUMN LAYOUT
+   ============================================================================== */
+
 .inventory-list-dashboard-content {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 1.5rem;
-  padding-top: 1rem;
-  padding-bottom: 2rem;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
 }
 
-/* ── Left column — products list ── */
+/* ==============================================================================
+   LEFT COLUMN — PRODUCT LIST
+   ============================================================================== */
+
 .inventory-list-products-column {
-  background-color: var(--card);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  padding: 1rem;
-  overflow-y: auto;
-  max-height: calc(100vh - 200px);
+  position: sticky;
+  top: var(--inventory-list-sticky-top);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - var(--inventory-list-sticky-top) - 1rem);
+  min-height: 0;
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border);
+  border-radius: var(--inventory-list-radius);
+  box-shadow: var(--inventory-list-shadow);
+  overflow: hidden;
 }
 
-.inventory-list-products-column h2 {
-  color: var(--accent);
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
+.inventory-list-products-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--inventory-list-border);
+}
+
+.inventory-list-products-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 650;
   letter-spacing: -0.01em;
 }
 
-.inventory-list-products { display: flex; flex-direction: column; gap: 0.75rem; }
+.inventory-list-products-count {
+  padding: 0.1rem 0.5rem;
+  background: #f0f0f2;
+  border-radius: 999px;
+  color: var(--inventory-list-text-2);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
 
-/* ── Add new product card — UNIQUE ── */
-.inventory-list-add-new-card {
-  border: 2px dashed var(--accent);
-  background-color: var(--accent-light);
-  border-radius: var(--radius);
-  padding: 2rem;
+.inventory-list-products-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--inventory-list-border-strong) transparent;
+}
+
+.inventory-list-products-empty {
+  padding: 2rem 1rem;
+  color: var(--inventory-list-text-3);
+  font-size: 0.875rem;
   text-align: center;
-  cursor: pointer;
-  transition: all 0.18s ease;
 }
 
-.inventory-list-add-new-card:hover {
-  background-color: var(--color-warning-border);
-  border-color: var(--accent-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(194, 65, 12, 0.15);
-}
-
-.inventory-list-add-new-card.active {
-  background-color: var(--color-warning);
-  border-color: var(--accent-dark);
-  box-shadow: 0 8px 16px rgba(194, 65, 12, 0.15);
-  border-style: solid;
-}
-
-.inventory-list-add-new-icon { color: var(--accent); margin-bottom: 0.5rem; }
-.inventory-list-add-new-text { color: var(--accent); font-weight: 600; font-size: 1rem; margin: 0; }
-
-/* ── Product list item — UNIQUE ── */
+/* Product row */
 .inventory-list-product-item {
   position: relative;
-  border: 1px solid var(--border);
-  background-color: var(--card);
-  border-radius: var(--radius);
-  padding: 0.75rem;
-  cursor: pointer;
-  transition: all 0.18s ease;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  box-shadow: var(--shadow-sm);
+  padding: 0.6rem 0.7rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .inventory-list-product-item:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(194, 65, 12, 0.15);
+  background: #f6f6f8;
+}
+
+.inventory-list-product-item:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
 }
 
 .inventory-list-product-item.active {
-  background-color: var(--accent-light);
-  border-color: var(--accent);
-  box-shadow: 0 8px 16px rgba(194, 65, 12, 0.15);
+  background: var(--inventory-list-accent-light);
+  border-color: rgba(209, 56, 46, 0.28);
+}
+
+.inventory-list-product-item.active::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  background: var(--inventory-list-accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.inventory-list-product-thumbnail,
+.inventory-list-product-thumbnail-placeholder {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--inventory-list-border);
+  border-radius: 9px;
 }
 
 .inventory-list-product-thumbnail {
-  width: 60px;
-  height: 60px;
   object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  flex-shrink: 0;
+  background: #f0f0f2;
 }
 
 .inventory-list-product-thumbnail-placeholder {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--accent-light);
-  color: var(--accent);
+  display: grid;
+  place-items: center;
+  background: #f4f4f6;
+  color: var(--inventory-list-text-3);
 }
 
-.inventory-list-product-info { flex: 1; min-width: 0; }
+.inventory-list-product-info {
+  flex: 1;
+  min-width: 0;
+}
 
 .inventory-list-product-name {
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 0.25rem 0;
-  font-size: 0.875rem;
+  margin: 0;
   overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.inventory-list-product-meta { font-size: 0.8125rem; color: var(--text-secondary); margin: 0; }
+.inventory-list-product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.5rem;
+  margin: 0.2rem 0 0;
+  color: var(--inventory-list-text-2);
+  font-size: 0.78rem;
+}
+
+.inventory-list-product-price {
+  color: var(--inventory-list-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.inventory-list-variant-info {
+  color: var(--inventory-list-text-3);
+  font-size: 0.76rem;
+}
+
+/* Small status pills (stock level, variant count) */
+.inventory-list-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.inventory-list-pill--out {
+  background: var(--inventory-list-danger-light);
+  color: var(--inventory-list-danger-dark);
+}
+
+.inventory-list-pill--low {
+  background: var(--inventory-list-warning-light);
+  color: var(--inventory-list-warning-dark);
+}
+
+.inventory-list-pill--ok {
+  background: transparent;
+  padding: 0;
+  color: var(--inventory-list-text-3);
+  font-weight: 500;
+}
 
 .inventory-list-variant-badge {
-  display: inline-block;
-  background-color: var(--accent);
-  color: white;
+  flex-shrink: 0;
+  align-self: flex-start;
+  padding: 0.12rem 0.45rem;
+  background: #f0f0f2;
+  border-radius: 6px;
+  color: var(--inventory-list-text-2);
   font-size: 0.7rem;
   font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 5px;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
 }
 
-.inventory-list-variant-badge-bottom {
-  position: absolute;
-  bottom: 0.5rem;
-  right: 0.5rem;
-  margin-left: 0;
+.inventory-list-product-item.active .inventory-list-variant-badge {
+  background: rgba(209, 56, 46, 0.14);
+  color: var(--inventory-list-accent-dark);
 }
 
-.inventory-list-variant-info { color: var(--accent); font-weight: 600; font-size: 0.8rem; font-style: italic; }
+/* ==============================================================================
+   RIGHT COLUMN — DETAIL PANEL
+   ============================================================================== */
 
-/* Variant left border indicator */
-.inventory-list-product-item:has(.inventory-list-variant-badge)        { border-left: 3px solid var(--accent); }
-.inventory-list-product-item.active:has(.inventory-list-variant-badge) { border-left: 3px solid var(--accent-dark); }
-
-/* ── Right column details shell ── */
 .inventory-list-details-column {
-  background-color: var(--card);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  padding: 0;
   position: relative;
-  overflow-y: auto;
+  min-width: 0;
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border);
+  border-radius: var(--inventory-list-radius);
+  box-shadow: var(--inventory-list-shadow);
+  transition: opacity 0.15s ease;
 }
 
-/* ── Custom scrollbars ── */
-.inventory-list-products-column::-webkit-scrollbar,
-.inventory-list-details-column::-webkit-scrollbar          { width: 6px; }
-.inventory-list-products-column::-webkit-scrollbar-track,
-.inventory-list-details-column::-webkit-scrollbar-track    { background-color: var(--accent-light); border-radius: 4px; }
-.inventory-list-products-column::-webkit-scrollbar-thumb,
-.inventory-list-details-column::-webkit-scrollbar-thumb    { background-color: var(--accent); border-radius: 4px; }
-.inventory-list-products-column::-webkit-scrollbar-thumb:hover,
-.inventory-list-details-column::-webkit-scrollbar-thumb:hover { background-color: var(--accent-dark); }
+/* Dims the panel while a different variant is loading */
+.inventory-list-details-column--busy {
+  opacity: 0.6;
+  pointer-events: none;
+}
 
-/* ── Create new product standalone page ── */
-.inventory-list-cnp-content {
-  padding-bottom: 4rem;
+.inventory-list-details-body {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding: 1.5rem;
 }
 
-.inventory-list-cnp-content .inventory-list-details-column {
-  width: 100%;
-  max-height: none;
-  overflow-y: visible;
+/* ── Loading card ── */
+.inventory-list-loading {
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border);
+  border-radius: var(--inventory-list-radius);
+  box-shadow: var(--inventory-list-shadow);
+  color: var(--inventory-list-text-2);
+}
+
+.inventory-list-page .loading-spinner-ring {
+  border-color: var(--inventory-list-border);
+  border-top-color: var(--inventory-list-accent);
 }
 
 /* ── Empty state ── */
@@ -392,48 +767,276 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
-  color: var(--text-secondary);
+  gap: 0.35rem;
+  min-height: 420px;
+  padding: 3rem 1.5rem;
+  text-align: center;
 }
 
-.inventory-list-empty-state-icon { color: var(--text-muted); margin-bottom: 1rem; }
+.inventory-list-empty-state-icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 0.75rem;
+  background: var(--inventory-list-accent-light);
+  border-radius: 16px;
+  color: var(--inventory-list-accent-dark);
+}
 
 .inventory-list-empty-state-text {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-secondary);
   margin: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
 }
 
-/* ── Responsive ── */
-@media (max-width: 1200px) {
-  .inventory-list-dashboard-content { grid-template-columns: 350px 1fr; }
+.inventory-list-empty-state-hint {
+  margin: 0 0 0.9rem;
+  max-width: 320px;
+  color: var(--inventory-list-text-2);
+  font-size: 0.875rem;
 }
 
-@media (max-width: 1024px) {
-  .inventory-list-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+/* ==============================================================================
+   SHARED BUTTONS  (list header, empty state)
+   The action-bar buttons live in editPanel/_action-buttons.css
+   ============================================================================== */
+
+.inventory-list-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 34px;
+  padding: 0 0.85rem;
+  border: 1px solid transparent;
+  border-radius: var(--inventory-list-radius-sm);
+  font-family: var(--font-admin);
+  font-size: 0.84rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-@media (max-width: 992px) {
-  .inventory-list-dashboard-content  { grid-template-columns: 1fr; height: auto; align-items: start; }
-  .inventory-list-products-column    { max-height: 400px; overflow-y: auto; }
-  .inventory-list-details-column     { overflow-y: auto; }
-  .inventory-list-product-item       { padding: 0.5rem; }
-  .inventory-list-product-thumbnail,
-  .inventory-list-product-thumbnail-placeholder { width: 50px; height: 50px; }
-  .inventory-list-product-name       { font-size: 0.8125rem; }
-  .inventory-list-product-meta       { font-size: 0.75rem; }
-  .inventory-list-filter-panel       { grid-template-columns: 1fr 1fr; }
-  .inventory-list-cnp-content        { padding-top: 1.5rem; }
+.inventory-list-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
 }
 
-@media (max-width: 768px) {
-  .inventory-list-add-new-card  { padding: 1.5rem; }
-  .inventory-list-filter-panel  { grid-template-columns: 1fr; }
+.inventory-list-btn--primary {
+  background: var(--inventory-list-ink);
+  color: #fff;
 }
 
-@media (max-width: 576px) {
-  .inventory-list-container          { padding-left: 1rem; padding-right: 1rem; }
-  .inventory-list-category-section   { padding: 0.75rem; }
-  .inventory-list-cnp-content        { padding-bottom: 2.5rem; }
+.inventory-list-btn--primary:hover {
+  background: var(--inventory-list-ink-hover);
+}
+
+.inventory-list-btn--selected {
+  background: var(--inventory-list-accent);
+}
+
+.inventory-list-btn--selected:hover {
+  background: var(--inventory-list-accent-dark);
+}
+
+/* ==============================================================================
+   TOASTS & CONFIRMATION MODALS  (scoped to this page — the global versions in
+   _shared.css are still used by the other manager pages)
+   ============================================================================== */
+
+.inventory-list-page .toast-notification {
+  top: calc(var(--top-bar-height, 64px) + 0.75rem);
+  min-width: 320px;
+  max-width: 420px;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--inventory-list-border);
+  border-left-width: 1px;
+  border-radius: var(--inventory-list-radius);
+  box-shadow: var(--inventory-list-shadow-pop);
+  font-family: var(--font-admin);
+}
+
+.inventory-list-page .toast-notification.success,
+.inventory-list-page .toast-notification.error,
+.inventory-list-page .toast-notification.warning {
+  border-left-width: 1px;
+}
+
+.inventory-list-page .toast-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+}
+
+.inventory-list-page .toast-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.inventory-list-page .toast-icon.success { background: var(--inventory-list-success-light); color: var(--inventory-list-success-dark); }
+.inventory-list-page .toast-icon.error   { background: var(--inventory-list-danger-light);  color: var(--inventory-list-danger-dark); }
+.inventory-list-page .toast-icon.warning { background: var(--inventory-list-warning-light); color: var(--inventory-list-warning-dark); }
+
+.inventory-list-page .toast-message {
+  color: var(--inventory-list-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.inventory-list-page .confirmation-modal-overlay {
+  background: rgba(17, 17, 19, 0.45);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.inventory-list-page .confirmation-modal {
+  max-width: 420px;
+  padding: 1.5rem;
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border);
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(17, 17, 19, 0.22);
+  font-family: var(--font-admin);
+}
+
+.inventory-list-page .confirmation-modal h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.inventory-list-page .confirmation-modal p {
+  margin: 0 0 1.4rem;
+  color: var(--inventory-list-text-2);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.inventory-list-page .btn-cancel,
+.inventory-list-page .btn-confirm {
+  height: 38px;
+  padding: 0 1rem;
+  border-radius: var(--inventory-list-radius-sm);
+  font-family: var(--font-admin);
+  font-size: 0.86rem;
+  font-weight: 600;
+  transform: none;
+  box-shadow: none;
+}
+
+.inventory-list-page .btn-cancel {
+  background: var(--inventory-list-surface);
+  border: 1px solid var(--inventory-list-border-strong);
+  color: var(--inventory-list-text);
+}
+
+.inventory-list-page .btn-cancel:hover {
+  background: var(--inventory-list-surface-muted);
+  border-color: #b9b9c0;
+  color: var(--inventory-list-text);
+  transform: none;
+  box-shadow: none;
+}
+
+.inventory-list-page .btn-confirm {
+  background: var(--inventory-list-ink);
+  border: 1px solid var(--inventory-list-ink);
+  color: #fff;
+}
+
+.inventory-list-page .btn-confirm:hover {
+  background: var(--inventory-list-ink-hover);
+  transform: none;
+  box-shadow: none;
+}
+
+.inventory-list-page .btn-cancel:focus-visible,
+.inventory-list-page .btn-confirm:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
+}
+
+/* ==============================================================================
+   RESPONSIVE
+   ============================================================================== */
+
+@media (max-width: 991px) {
+  .inventory-list-dashboard-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Single column: the list is a short scrollable block above the editor */
+  .inventory-list-products-column {
+    position: static;
+    max-height: 380px;
+  }
+
+  .inventory-list-toolbar-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .inventory-list-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .inventory-list-header {
+    padding: 1.25rem 0 1.4rem;
+  }
+
+  .inventory-list-main {
+    padding-block: 1.25rem 3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .inventory-list-container {
+    padding-inline: 1rem;
+  }
+
+  .inventory-list-title {
+    font-size: 1.4rem;
+  }
+
+  .inventory-list-toolbar {
+    padding: 0.85rem;
+  }
+
+  .inventory-list-toolbar-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .inventory-list-details-body {
+    gap: 1.5rem;
+    padding: 1.1rem;
+  }
+
+  .inventory-list-page .toast-notification {
+    min-width: 0;
+    max-width: none;
+    top: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inventory-list-product-item,
+  .inventory-list-dropdown-chevron,
+  .inventory-list-details-column,
+  .inventory-list-btn {
+    transition: none;
+  }
+}
+
+/* ==============================================================================
+   DETAIL BODY — divider between the image manager and the product form
+   ============================================================================== */
+
+.inventory-list-details-body > .image-manager-section + .product-form {
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--inventory-list-border);
 }

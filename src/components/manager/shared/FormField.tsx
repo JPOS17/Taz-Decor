@@ -5,6 +5,8 @@ interface FormFieldProps {
   required?: boolean;
   error?: string;
   helperText?: string;
+  // Spans the full width when the field sits inside a two-column .product-form-grid
+  wide?: boolean;
   children: React.ReactNode;
 }
 
@@ -14,10 +16,11 @@ export function FormField({
   required = false,
   error,
   helperText,
+  wide = false,
   children,
 }: FormFieldProps) {
   return (
-    <div className="form-group">
+    <div className={`form-group${wide ? " form-group--wide" : ""}`}>
       {/* Label */}
       <label className={`form-label ${required ? "required" : ""}`}>
         {label}

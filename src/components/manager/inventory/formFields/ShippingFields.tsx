@@ -50,80 +50,82 @@ const ShippingFields = ({
         </>
       )}
 
-      {/* Weight */}
-      <div className="form-group">
-        <label className={`form-label ${required ? "required" : ""}`}>
-          Weight (oz)
-        </label>
-        <input
-          type="number"
-          step="1"
-          min="0"
-          value={weight_oz ?? ""}
-          onChange={(e) => handleChange("weight_oz", e.target.value)}
-          placeholder="Weight in ounces"
-          className={`form-control ${errors.weight_oz ? "invalid" : ""}`}
-        />
-        {errors.weight_oz && (
-          <span className="warning-message">{errors.weight_oz}</span>
-        )}
-      </div>
-
-      {/* Dimensions */}
-      <div className="form-group">
-        <label className={`form-label ${required ? "required" : ""}`}>
-          Package Dimensions (inches)
-          {errors.package_dimensions && (
-            <span className="label-error"> {errors.package_dimensions}</span>
+      <div className="product-form-grid product-form-grid--shipping">
+        {/* Weight */}
+        <div className="form-group">
+          <label className={`form-label ${required ? "required" : ""}`}>
+            Weight (oz)
+          </label>
+          <input
+            type="number"
+            step="1"
+            min="0"
+            value={weight_oz ?? ""}
+            onChange={(e) => handleChange("weight_oz", e.target.value)}
+            placeholder="Weight in ounces"
+            className={`form-control ${errors.weight_oz ? "invalid" : ""}`}
+          />
+          {errors.weight_oz && (
+            <span className="warning-message">{errors.weight_oz}</span>
           )}
-        </label>
-        <div className="dimensions-grid">
-          {/* Length */}
-          <div>
-            <input
-              type="number"
-              step="0.5"
-              min="0"
-              value={length_in ?? ""}
-              onChange={(e) => handleChange("length_in", e.target.value)}
-              placeholder="Length"
-              className={`form-control ${errors.length_in ? "invalid" : ""}`}
-            />
-            {errors.length_in && (
-              <span className="warning-message">{errors.length_in}</span>
-            )}
-          </div>
+        </div>
 
-          {/* Width */}
-          <div>
-            <input
-              type="number"
-              step="0.5"
-              min="0"
-              value={width_in ?? ""}
-              onChange={(e) => handleChange("width_in", e.target.value)}
-              placeholder="Width"
-              className={`form-control ${errors.width_in ? "invalid" : ""}`}
-            />
-            {errors.width_in && (
-              <span className="warning-message">{errors.width_in}</span>
+        {/* Dimensions */}
+        <div className="form-group">
+          <label className={`form-label ${required ? "required" : ""}`}>
+            Package Dimensions (inches)
+            {errors.package_dimensions && (
+              <span className="label-error"> {errors.package_dimensions}</span>
             )}
-          </div>
+          </label>
+          <div className="dimensions-grid">
+            {/* Length */}
+            <div>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                value={length_in ?? ""}
+                onChange={(e) => handleChange("length_in", e.target.value)}
+                placeholder="Length"
+                className={`form-control ${errors.length_in ? "invalid" : ""}`}
+              />
+              {errors.length_in && (
+                <span className="warning-message">{errors.length_in}</span>
+              )}
+            </div>
 
-          {/* Height */}
-          <div>
-            <input
-              type="number"
-              step="0.5"
-              min="0"
-              value={height_in ?? ""}
-              onChange={(e) => handleChange("height_in", e.target.value)}
-              placeholder="Height"
-              className={`form-control ${errors.height_in ? "invalid" : ""}`}
-            />
-            {errors.height_in && (
-              <span className="warning-message">{errors.height_in}</span>
-            )}
+            {/* Width */}
+            <div>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                value={width_in ?? ""}
+                onChange={(e) => handleChange("width_in", e.target.value)}
+                placeholder="Width"
+                className={`form-control ${errors.width_in ? "invalid" : ""}`}
+              />
+              {errors.width_in && (
+                <span className="warning-message">{errors.width_in}</span>
+              )}
+            </div>
+
+            {/* Height */}
+            <div>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                value={height_in ?? ""}
+                onChange={(e) => handleChange("height_in", e.target.value)}
+                placeholder="Height"
+                className={`form-control ${errors.height_in ? "invalid" : ""}`}
+              />
+              {errors.height_in && (
+                <span className="warning-message">{errors.height_in}</span>
+              )}
+            </div>
           </div>
         </div>
       </div>

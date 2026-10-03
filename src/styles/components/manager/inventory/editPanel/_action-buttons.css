@@ -1,58 +1,125 @@
 /* ==============================================================================
    ACTION BUTTONS
-   Save / delete / activate action button group shown in the product detail
-   panel.
+   Button group shown in the product detail panel header
+
+   Save / Create is the single filled (ink) button; everything else is an
+   outlined or ghost button so there is always one clear primary action
+
    Prefix: action-buttons-*
+
+   Tokens (--inventory-list-*) are declared in pages/manager/inventory/
+   _inventory-list.css
    ============================================================================== */
 
 .action-buttons {
   display: flex;
-  gap: 0;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .action-buttons > button {
-  border-radius: 0;
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
-  border-top: none;
-  border-bottom: none;
-  border-left: none;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-family: "Inter", sans-serif;
-  font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
-  cursor: pointer;
-  transition: all 0.18s ease;
+  height: 36px;
+  padding: 0 0.9rem;
+  border: 1px solid transparent;
+  border-radius: var(--inventory-list-radius-sm);
+  font-family: var(--font-admin);
+  font-size: 0.84rem;
+  font-weight: 600;
   white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.action-buttons > button:last-child {
-  border-right: none;
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
+.action-buttons > button:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
 }
 
-.action-buttons > button:first-child {
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
+.action-buttons > button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
-.action-buttons > button:disabled { opacity: 0.5; cursor: not-allowed; }
-.action-buttons > button:not(:disabled):hover { transform: translateY(-1px); filter: brightness(0.9); }
+/* Primary — the one filled button */
+.action-buttons-btn-save {
+  background: var(--inventory-list-ink);
+  color: #fff;
+}
 
-.action-buttons-btn-save       { background-color: var(--color-success); color: white; }
-.action-buttons-btn-delete     { background-color: var(--color-danger); color: white; }
-.action-buttons-btn-new-variant { background-color: var(--color-primary); color: white; }
-.action-buttons-btn-activate   { background-color: var(--color-success); color: white; }
-.action-buttons-btn-deactivate { background-color: var(--color-warning); color: white; }
-.action-buttons-btn-cancel-inline { background-color: var(--text-secondary); color: white; }
+.action-buttons-btn-save:not(:disabled):hover {
+  background: var(--inventory-list-ink-hover);
+}
 
-@media (max-width: 992px) {
-  .action-buttons { width: 100%; }
-  .action-buttons > button { flex: 1; min-width: 0; justify-content: center; }
+/* Secondary — outlined */
+.action-buttons > .action-buttons-btn-new-variant,
+.action-buttons > .action-buttons-btn-cancel-inline,
+.action-buttons > .action-buttons-btn-activate,
+.action-buttons > .action-buttons-btn-deactivate {
+  background: var(--inventory-list-surface);
+  border-color: var(--inventory-list-border-strong);
+  color: var(--inventory-list-text);
+}
+
+.action-buttons > .action-buttons-btn-new-variant:not(:disabled):hover,
+.action-buttons > .action-buttons-btn-cancel-inline:not(:disabled):hover,
+.action-buttons > .action-buttons-btn-activate:not(:disabled):hover,
+.action-buttons > .action-buttons-btn-deactivate:not(:disabled):hover {
+  background: var(--inventory-list-surface-muted);
+  border-color: #b9b9c0;
+}
+
+/* Icon tints tell the activate / deactivate states apart without extra color blocks */
+.action-buttons-btn-activate svg   { color: var(--inventory-list-success); }
+.action-buttons-btn-deactivate svg { color: var(--inventory-list-warning-dark); }
+
+/* Destructive — ghost until hovered */
+.action-buttons > .action-buttons-btn-delete {
+  background: transparent;
+  color: var(--inventory-list-danger-dark);
+}
+
+.action-buttons > .action-buttons-btn-delete:not(:disabled):hover {
+  background: var(--inventory-list-danger-light);
+  border-color: rgba(209, 56, 46, 0.28);
+}
+
+/* Thin divider that separates the secondary actions from Save */
+.action-buttons-divider {
+  align-self: stretch;
+  width: 1px;
+  margin: 0.35rem 0.1rem;
+  background: var(--inventory-list-border);
+}
+
+@media (max-width: 991px) {
+  .action-buttons {
+    width: 100%;
+  }
+
+  .action-buttons > button {
+    flex: 1 1 auto;
+  }
+
+  .action-buttons-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .action-buttons > button {
+    flex: 1 1 calc(50% - 0.25rem);
+    padding: 0 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action-buttons > button {
+    transition: none;
+  }
 }

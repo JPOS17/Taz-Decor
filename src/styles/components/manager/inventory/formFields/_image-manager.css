@@ -1,131 +1,62 @@
 /* ==============================================================================
    IMAGE MANAGER
-   Drag-to-reorder product image manager with a main preview and thumbnail
-   rail. The empty-state styles here are reused by the inventory list's own
-   empty state.
+   Drag-to-reorder product image manager: a large preview on the left and a
+   sortable thumbnail grid on the right
+   
    Prefix: image-manager-*
    ============================================================================== */
 
-.image-manager-section { margin-bottom: 2rem; }
-
-.image-manager-layout {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.image-manager-thumbnail-column {
+.image-manager-section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  max-height: 450px;
-  overflow-y: auto;
-  padding-right: 0.25rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--color-primary-bg-light);
+  gap: 1rem;
 }
 
-.image-manager-thumbnail-column::-webkit-scrollbar { width: 6px; }
-.image-manager-thumbnail-column::-webkit-scrollbar-track { background-color: var(--color-primary-bg-light); border-radius: 4px; }
-.image-manager-thumbnail-column::-webkit-scrollbar-thumb { background-color: var(--color-primary); border-radius: 4px; }
-.image-manager-thumbnail-column::-webkit-scrollbar-thumb:hover { background-color: var(--color-primary-dark); }
+.image-manager-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
 
-.image-manager-thumbnail-item {
-  position: relative;
-  width: 110px;
-  height: 110px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  background-color: var(--color-primary-bg-light);
+.image-manager-title {
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.image-manager-hint {
+  margin: 0.2rem 0 0;
+  color: var(--inventory-list-text-3);
+  font-size: 0.8rem;
+}
+
+.image-manager-count {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s ease;
-  touch-action: none;
-}
-
-.image-manager-thumbnail-item:active { cursor: grabbing; }
-.image-manager-thumbnail-item:hover { border-color: var(--color-primary); box-shadow: 0 8px 16px rgba(194, 65, 12, 0.15); }
-.image-manager-thumbnail-item.dragging { opacity: 0.5; transform: scale(0.95); }
-.image-manager-thumbnail-item.drag-over { border-color: var(--color-success); border-style: dashed; background-color: var(--color-success-bg-solid); }
-
-.image-manager-thumbnail-image { width: 100%; height: 100%; object-fit: contain; }
-
-.image-manager-thumbnail-overlay {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 0.5rem;
-  padding-bottom: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.18s ease;
-}
-
-.image-manager-thumbnail-item:hover .image-manager-thumbnail-overlay { opacity: 1; }
-
-.image-manager-thumbnail-icon {
-  background-color: white;
-  border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.18s ease;
-  padding: 0;
-}
-
-.image-manager-thumbnail-icon:hover { transform: scale(1.15); }
-.image-manager-icon-star { color: var(--color-warning); }
-.image-manager-icon-star.active { color: var(--color-warning); }
-.image-manager-icon-delete { color: var(--color-danger); }
-
-.image-manager-order-badge {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  background-color: var(--color-primary);
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
-.image-manager-primary-badge {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  background-color: var(--color-warning);
-  color: white;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.7rem;
+  padding: 0.1rem 0.55rem;
+  background: #f0f0f2;
+  border-radius: 999px;
+  color: var(--inventory-list-text-2);
+  font-size: 0.74rem;
   font-weight: 600;
 }
 
-.image-manager-main-image-column { flex: 1; max-width: 400px; min-width: 300px; }
+.image-manager-layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 300px) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
 
+/* ── Main preview ── */
 .image-manager-main-image-display {
   position: relative;
   width: 100%;
   padding-bottom: 100%;
-  border: 1px solid var(--border);
-  border-radius: 12px;
   overflow: hidden;
-  background-color: var(--color-primary-bg-light);
+  background: #f4f4f6;
+  border: 1px solid var(--inventory-list-border);
+  border-radius: var(--inventory-list-radius);
 }
 
 .image-manager-main-image-wrapper {
@@ -136,55 +67,246 @@
   justify-content: center;
 }
 
-.image-manager-main-image { max-width: 100%; max-height: 100%; object-fit: contain; }
+.image-manager-main-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
 
 .image-manager-main-image-empty {
-  color: var(--text-muted);
+  color: var(--inventory-list-text-3);
   font-size: 0.875rem;
-  font-style: italic;
 }
 
-.image-manager-upload-section { margin-top: 1rem; }
+/* ── Thumbnail grid ── */
+.image-manager-thumbnail-column {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 0.6rem;
+  min-width: 0;
+}
 
-.image-manager-btn-upload {
-  background-color: var(--color-primary);
-  color: white;
-  font-weight: 600;
-  font-family: "Inter", sans-serif;
-  font-size: 0.875rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+.image-manager-thumbnail-item {
+  position: relative;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: all 0.18s ease;
-  width: 100%;
   justify-content: center;
-  border: none;
+  overflow: hidden;
+  background: #f4f4f6;
+  border: 1px solid var(--inventory-list-border);
+  border-radius: 10px;
+  cursor: grab;
+  touch-action: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.image-manager-thumbnail-item:active { cursor: grabbing; }
+
+.image-manager-thumbnail-item:hover {
+  border-color: var(--inventory-list-border-strong);
+  box-shadow: var(--inventory-list-shadow-hover);
+}
+
+.image-manager-thumbnail-item:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
+}
+
+.image-manager-thumbnail-item.selected {
+  border-color: var(--inventory-list-accent);
+  box-shadow: var(--inventory-list-ring-accent);
+}
+
+.image-manager-thumbnail-item.dragging {
+  opacity: 0.55;
+  box-shadow: var(--inventory-list-shadow-pop);
+}
+
+.image-manager-thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Position badge (top-left) */
+.image-manager-order-badge {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.3rem;
+  background: rgba(17, 17, 19, 0.72);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Primary badge (bottom-left) */
+.image-manager-primary-badge {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  height: 20px;
+  padding: 0 0.4rem;
+  background: var(--inventory-list-warning-light);
+  border-radius: 6px;
+  color: var(--inventory-list-warning-dark);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Hover actions (top-right) */
+.image-manager-thumbnail-overlay {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.image-manager-thumbnail-item:hover .image-manager-thumbnail-overlay,
+.image-manager-thumbnail-item:focus-within .image-manager-thumbnail-overlay {
+  opacity: 1;
+}
+
+.image-manager-thumbnail-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: #fff;
+  border: 1px solid var(--inventory-list-border);
+  border-radius: 7px;
+  box-shadow: 0 1px 3px rgba(17, 17, 19, 0.12);
   cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
-.image-manager-btn-upload:hover {
-  background-color: var(--color-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+.image-manager-thumbnail-icon:hover { background: #f4f4f6; }
+
+.image-manager-thumbnail-icon:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
 }
 
-@media (max-width: 992px) {
-  .image-manager-layout { flex-direction: column; }
-  .image-manager-thumbnail-column { flex-direction: row; width: auto; max-height: none; overflow-x: auto; overflow-y: hidden; }
-  .image-manager-main-image-column { max-width: 100%; min-width: 250px; }
+.image-manager-icon-star { color: var(--inventory-list-text-3); }
+.image-manager-icon-star.active { color: var(--inventory-list-warning); }
+.image-manager-icon-delete { color: var(--inventory-list-danger-dark); }
+
+/* ── "Add image" tile ── */
+.image-manager-add-tile {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0;
+  background: var(--inventory-list-surface);
+  border: 1.5px dashed var(--inventory-list-border-strong);
+  border-radius: 10px;
+  color: var(--inventory-list-text-2);
+  font-family: var(--font-admin);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-@media (max-width: 576px) {
-  .image-manager-thumbnail-column { gap: 0.25rem; }
+.image-manager-add-tile:hover {
+  background: var(--inventory-list-accent-light);
+  border-color: var(--inventory-list-accent);
+  color: var(--inventory-list-accent-dark);
 }
 
+.image-manager-add-tile:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
+}
+
+/* ── Empty state ── */
 .image-manager-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 2rem 1.5rem;
+  background: var(--inventory-list-surface-muted);
+  border: 1.5px dashed var(--inventory-list-border-strong);
+  border-radius: var(--inventory-list-radius);
   text-align: center;
-  padding: 3rem 1.5rem;
-  color: var(--text-secondary);
 }
 
-.image-manager-empty-state-icon { color: var(--border); margin-bottom: 1rem; }
-.image-manager-empty-state-text { font-size: 1.125rem; margin: 0; }
+.image-manager-empty-state-icon { color: var(--inventory-list-text-3); }
+
+.image-manager-empty-state-text {
+  margin: 0 0 0.6rem;
+  color: var(--inventory-list-text-2);
+  font-size: 0.875rem;
+}
+
+.image-manager-btn-upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 36px;
+  padding: 0 1rem;
+  background: var(--inventory-list-ink);
+  border: none;
+  border-radius: var(--inventory-list-radius-sm);
+  color: #fff;
+  font-family: var(--font-admin);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.image-manager-btn-upload:hover { background: var(--inventory-list-ink-hover); }
+
+.image-manager-btn-upload:focus-visible {
+  outline: none;
+  box-shadow: var(--inventory-list-ring);
+}
+
+@media (max-width: 700px) {
+  .image-manager-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .image-manager-main-image-display {
+    max-width: 320px;
+    padding-bottom: min(100%, 320px);
+  }
+}
+
+/* Touch screens have no hover — keep the per-image actions visible */
+@media (hover: none) {
+  .image-manager-thumbnail-overlay,
+  .image-upload-grid-overlay {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-manager-thumbnail-item,
+  .image-manager-thumbnail-overlay,
+  .image-manager-add-tile {
+    transition: none;
+  }
+}

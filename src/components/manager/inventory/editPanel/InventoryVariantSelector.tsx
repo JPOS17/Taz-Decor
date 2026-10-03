@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+import { useId } from "react";
 import type { VariantOption } from "../../../../api/inventory";
 
 interface VariantSelectorProps {
@@ -15,6 +16,8 @@ const VariantSelector = ({
   onVariantChange,
   disabled = false,
 }: VariantSelectorProps) => {
+  const selectId = useId();
+
   if (variants.length <= 1) {
     return null;
   }
@@ -44,11 +47,12 @@ const VariantSelector = ({
 
   return (
     <div className="inventory-variant-selector-container">
-      <label className="inventory-variant-selector-label">
-        Product Variant ({variants.length} variants)
+      <label className="inventory-variant-selector-label" htmlFor={selectId}>
+        Variant ({variants.length})
       </label>
       <div className="inventory-variant-selector-wrapper">
         <select
+          id={selectId}
           className="inventory-variant-selector-select"
           value={currentVariantId}
           onChange={(e) => onVariantChange(Number(e.target.value))}
@@ -61,11 +65,15 @@ const VariantSelector = ({
             </option>
           ))}
         </select>
-        <ChevronDown className="inventory-variant-selector-icon" size={20} />
+        <ChevronDown
+          className="inventory-variant-selector-icon"
+          size={18}
+          aria-hidden="true"
+        />
       </div>
       <p className="inventory-variant-selector-help">
-        Switch between product variants to edit different colors, sizes, or
-        options
+        Switch between variants to edit different colors, sizes, or options.
+        Unsaved changes must be saved first.
       </p>
     </div>
   );
