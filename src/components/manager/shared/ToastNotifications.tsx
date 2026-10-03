@@ -5,7 +5,7 @@ interface ToastNotificationProps {
   type: "success" | "error" | "warning";
 }
 
-// Displays a dismissible toast banner with an icon and message, styled by type
+// Displays a status toast with an icon and message, styled by type
 export const ToastNotification = ({
   message,
   type,
@@ -14,11 +14,11 @@ export const ToastNotification = ({
   const getIcon = () => {
     switch (type) {
       case "success":
-        return <CheckCircle className="toast-icon success" size={24} />;
+        return <CheckCircle size={18} />;
       case "warning":
-        return <AlertCircle className="toast-icon warning" size={24} />;
+        return <AlertCircle size={18} />;
       case "error":
-        return <XCircle className="toast-icon error" size={24} />;
+        return <XCircle size={18} />;
     }
   };
 
@@ -26,13 +26,19 @@ export const ToastNotification = ({
   const messageLines = message.split("\n");
 
   return (
-    <div className={`toast-notification ${type}`}>
-      {getIcon()}
+    <div
+      className={`manager-toast-notification manager-toast-notification--${type}`}
+      role={type === "error" ? "alert" : "status"}
+      aria-live={type === "error" ? "assertive" : "polite"}
+    >
+      <span className="manager-toast-notification-icon" aria-hidden="true">
+        {getIcon()}
+      </span>
 
       {/* Render each line as its own <p> */}
-      <div className="toast-content">
+      <div className="manager-toast-notification-content">
         {messageLines.map((line, index) => (
-          <p key={index} className="toast-message">
+          <p key={index} className="manager-toast-notification-message">
             {line}
           </p>
         ))}

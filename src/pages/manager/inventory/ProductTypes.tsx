@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Edit2, Save, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowLeft, Plus, Edit2, Save, X, Tag } from "lucide-react";
 import {
   fetchProductTypes,
   createProductType,
@@ -27,8 +27,6 @@ interface EditingType {
 }
 
 const ManageProductTypes = () => {
-  const navigate = useNavigate();
-
   // ============================================================================
   // STATE MANAGEMENT
   // ============================================================================
@@ -191,82 +189,98 @@ const ManageProductTypes = () => {
   // ============================================================================
 
   return (
-    <div className="manager-page accent-inventory">
+    <div className="product-types-page">
       {/* Header */}
-      <div className="mgr-header">
-        <div className="mgr-header-inner">
-          <div>
-            <button
-              className="mgr-back-button"
-              onClick={() => navigate("/manager/inventory")}
-            >
-              <ArrowLeft size={16} />
-              Back to Product Management
-            </button>
-            <h1 className="mgr-header-title">Manage Product Types</h1>
-            <p className="mgr-header-subtitle">
-              Create and manage product type classifications and SKU prefixes
-            </p>
-          </div>
+      <header className="product-types-header">
+        <div className="product-types-container">
+          <Link to="/manager/inventory" className="product-types-back-link">
+            <ArrowLeft size={15} aria-hidden="true" />
+            Back to Product Management
+          </Link>
+          <p className="product-types-eyebrow">Inventory</p>
+          <h1 className="product-types-title">Manage Product Types</h1>
+          <p className="product-types-subtitle">
+            Create and manage product type classifications and SKU prefixes.
+          </p>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="mgr-container">
-        <div className="mgr-body">
-          <div className="product-types-panel">
-            {/* Actions bar */}
-            <div className="product-types-actions-bar">
-              <h2 className="product-types-section-title">Product Types</h2>
-              {editMode === "none" && (
-                <button
-                  className="product-types-btn product-types-btn-primary"
-                  onClick={handleCreateNew}
-                  disabled={loading}
-                >
-                  <Plus size={16} />
-                  New Product Type
-                </button>
-              )}
+      <main className="product-types-container product-types-main">
+        <section className="product-types-panel">
+          {/* Panel header */}
+          <div className="product-types-panel-header">
+            <div className="product-types-panel-heading">
+              <h2 className="product-types-panel-title">Product Types</h2>
+              <span className="product-types-panel-count">
+                {productTypes.length}{" "}
+                {productTypes.length === 1 ? "type" : "types"}
+              </span>
             </div>
+            {editMode === "none" && (
+              <button
+                className="product-types-btn product-types-btn--primary"
+                onClick={handleCreateNew}
+                disabled={loading}
+              >
+                <Plus size={16} />
+                New Product Type
+              </button>
+            )}
+          </div>
 
-            {/* Create / Edit form */}
-            {editMode !== "none" && (
-              <div className="product-types-form">
-                <h3 className="product-types-form-title">
-                  {editMode === "create"
-                    ? "Create New Product Type"
-                    : "Edit Product Type"}
-                </h3>
+          {/* Create / Edit form */}
+          {editMode !== "none" && (
+            <div className="product-types-form">
+              <h3 className="product-types-form-title">
+                {editMode === "create"
+                  ? "Create New Product Type"
+                  : "Edit Product Type"}
+              </h3>
 
+              <div className="product-types-form-grid">
                 {/* SKU Prefix */}
                 <div className="product-types-form-group">
-                  <label className="product-types-form-label">
-                    SKU Prefix * {editMode === "edit" && "(Read-only)"}
+                  <label
+                    className="product-types-form-label"
+                    htmlFor="product-types-form-sku"
+                  >
+                    SKU Prefix *
+                    {editMode === "edit" && (
+                      <span className="product-types-form-lock">Read-only</span>
+                    )}
                   </label>
                   <input
+                    id="product-types-form-sku"
                     type="text"
-                    className="product-types-form-input"
+                    className="product-types-form-input product-types-form-input--sku"
                     value={formData.sku_prefix}
                     onChange={(e) => {
                       const value = e.target.value.toUpperCase().slice(0, 3);
                       setFormData({ ...formData, sku_prefix: value });
                     }}
-                    placeholder="e.g., JRN"
+                    placeholder="JRN"
                     disabled={loading || editMode === "edit"}
                     maxLength={3}
                   />
                   <p className="product-types-form-helper">
-                    Must be exactly 3 uppercase letters
+                    Exactly 3 uppercase letters
                   </p>
                 </div>
 
                 {/* Type Name */}
                 <div className="product-types-form-group">
-                  <label className="product-types-form-label">
-                    Type Name * {editMode === "edit" && "(Read-only)"}
+                  <label
+                    className="product-types-form-label"
+                    htmlFor="product-types-form-name"
+                  >
+                    Type Name *
+                    {editMode === "edit" && (
+                      <span className="product-types-form-lock">Read-only</span>
+                    )}
                   </label>
                   <input
+                    id="product-types-form-name"
                     type="text"
                     className="product-types-form-input"
                     value={formData.type_name}
@@ -281,75 +295,82 @@ const ManageProductTypes = () => {
                     formData.type_name.trim() &&
                     formData.type_name.trim() !==
                       formatName(formData.type_name) && (
-                      <div className="product-types-format-preview">
+                      <div className="product-types-form-preview">
                         <strong>Will be saved as:</strong>{" "}
                         <span>{formatName(formData.type_name)}</span>
                       </div>
                     )}
                 </div>
-
-                {/* Description */}
-                <div className="product-types-form-group">
-                  <label className="product-types-form-label">Description *</label>
-                  <textarea
-                    className="product-types-form-textarea"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    placeholder="Enter description"
-                    disabled={loading}
-                    rows={3}
-                  />
-                  {/* Formatted description preview */}
-                  {formData.description.trim() &&
-                    formData.description.trim() !==
-                      formatName(formData.description) && (
-                      <div className="product-types-format-preview">
-                        <strong>Will be saved as:</strong>{" "}
-                        <span>{formatName(formData.description)}</span>
-                      </div>
-                    )}
-                  <p className="product-types-form-helper">
-                    Note: Words like "of", "in", "on", "the", "and" will be
-                    lowercase (except at start/end)
-                  </p>
-                </div>
-
-                {/* Form action buttons */}
-                <div className="product-types-form-actions">
-                  <button
-                    className="product-types-btn product-types-btn-success"
-                    onClick={handleRequestSave}
-                    disabled={
-                      loading ||
-                      !formData.type_name.trim() ||
-                      !formData.sku_prefix.trim() ||
-                      !formData.description.trim() ||
-                      (editMode === "create" &&
-                        formData.sku_prefix.length !== 3)
-                    }
-                  >
-                    <Save size={16} />
-                    {editMode === "create" ? "Create" : "Save Changes"}
-                  </button>
-                  <button
-                    className="product-types-btn product-types-btn-secondary"
-                    onClick={handleCancelEdit}
-                    disabled={loading}
-                  >
-                    <X size={16} />
-                    Cancel
-                  </button>
-                </div>
               </div>
-            )}
 
-            {/* Loading spinner */}
-            {loading && productTypes.length === 0 ? (
-              <LoadingSpinner message="Loading product types..." />
-            ) : (
-              /* Product types table */
+              {/* Description */}
+              <div className="product-types-form-group">
+                <label
+                  className="product-types-form-label"
+                  htmlFor="product-types-form-description"
+                >
+                  Description *
+                </label>
+                <textarea
+                  id="product-types-form-description"
+                  className="product-types-form-textarea"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  placeholder="Enter description"
+                  disabled={loading}
+                  rows={3}
+                />
+                {/* Formatted description preview */}
+                {formData.description.trim() &&
+                  formData.description.trim() !==
+                    formatName(formData.description) && (
+                    <div className="product-types-form-preview">
+                      <strong>Will be saved as:</strong>{" "}
+                      <span>{formatName(formData.description)}</span>
+                    </div>
+                  )}
+                <p className="product-types-form-helper">
+                  Note: Words like "of", "in", "on", "the", "and" will be
+                  lowercase (except at start/end)
+                </p>
+              </div>
+
+              {/* Form action buttons */}
+              <div className="product-types-form-actions">
+                <button
+                  className="product-types-btn product-types-btn--success"
+                  onClick={handleRequestSave}
+                  disabled={
+                    loading ||
+                    !formData.type_name.trim() ||
+                    !formData.sku_prefix.trim() ||
+                    !formData.description.trim() ||
+                    (editMode === "create" && formData.sku_prefix.length !== 3)
+                  }
+                >
+                  <Save size={16} />
+                  {editMode === "create" ? "Create" : "Save Changes"}
+                </button>
+                <button
+                  className="product-types-btn"
+                  onClick={handleCancelEdit}
+                  disabled={loading}
+                >
+                  <X size={16} />
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Loading spinner */}
+          {loading && productTypes.length === 0 ? (
+            <LoadingSpinner message="Loading product types..." />
+          ) : (
+            /* Product types table */
+            productTypes.length > 0 && (
               <div className="product-types-table-container">
                 <table className="product-types-table">
                   <thead>
@@ -389,12 +410,12 @@ const ManageProductTypes = () => {
                         <td className="product-types-actions-cell" data-label="Actions">
                           {/* Edit opens the form in edit mode */}
                           <button
-                            className="product-types-btn product-types-btn-primary product-types-btn-sm"
+                            className="product-types-btn product-types-btn--sm"
                             onClick={() => handleEdit(productType)}
                             disabled={loading || editMode !== "none"}
                             title="Edit description"
                           >
-                            <Edit2 size={15} />
+                            <Edit2 size={14} />
                             Edit
                           </button>
                         </td>
@@ -403,20 +424,21 @@ const ManageProductTypes = () => {
                   </tbody>
                 </table>
               </div>
-            )}
+            )
+          )}
 
-            {/* Empty state */}
-            {!loading && productTypes.length === 0 && (
-              <div className="product-types-empty">
-                <p>
-                  No product types found. Create your first product type to get
-                  started!
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+          {/* Empty state */}
+          {!loading && productTypes.length === 0 && (
+            <div className="product-types-empty">
+              <Tag size={22} aria-hidden="true" />
+              <p className="product-types-empty-title">No product types yet</p>
+              <p className="product-types-empty-text">
+                Create your first product type to get started.
+              </p>
+            </div>
+          )}
+        </section>
+      </main>
 
       {/* Toast Notifications */}
       {message && (

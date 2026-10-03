@@ -1,0 +1,134 @@
+/* ==============================================================================
+   MANAGER CONFIRM MODAL COMPONENT
+   Confirm / cancel dialog used across manager pages
+   Neutral by default; tone="danger" turns the confirm button red
+   
+   Prefix: manager-confirm-modal-*
+   ============================================================================== */
+
+.manager-confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(17, 17, 19, 0.5);
+  backdrop-filter: blur(2px);
+  animation: manager-confirm-modal-fade-in 0.15s ease-out;
+}
+
+.manager-confirm-modal {
+  width: 100%;
+  max-width: 440px;
+  padding: 1.75rem;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(17, 17, 19, 0.22);
+  font-family: var(--font-admin);
+  animation: manager-confirm-modal-in 0.18s ease-out;
+}
+
+.manager-confirm-modal-title {
+  margin: 0 0 0.6rem;
+  color: #111113;
+  font-family: var(--font-admin);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.manager-confirm-modal-message {
+  margin: 0 0 1.5rem;
+  color: #52525b;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.manager-confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.manager-confirm-modal-btn {
+  height: 40px;
+  padding: 0 1.1rem;
+  background: #ffffff;
+  border: 1px solid #d2d2d6;
+  border-radius: 8px;
+  color: #111113;
+  font-family: var(--font-admin);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.manager-confirm-modal-btn:hover {
+  background: #f3f3f4;
+  border-color: #8a8a93;
+}
+
+.manager-confirm-modal-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(17, 17, 19, 0.14);
+}
+
+.manager-confirm-modal-btn--confirm {
+  background: #111113;
+  border-color: #111113;
+  color: #ffffff;
+}
+
+.manager-confirm-modal-btn--confirm:hover {
+  background: #2c2c30;
+  border-color: #2c2c30;
+}
+
+.manager-confirm-modal-btn--danger {
+  background: #d1382e;
+  border-color: #d1382e;
+  color: #ffffff;
+}
+
+.manager-confirm-modal-btn--danger:hover {
+  background: #a82a21;
+  border-color: #a82a21;
+}
+
+@keyframes manager-confirm-modal-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes manager-confirm-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@media (max-width: 480px) {
+  .manager-confirm-modal {
+    padding: 1.35rem;
+  }
+
+  .manager-confirm-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .manager-confirm-modal-btn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manager-confirm-modal-overlay,
+  .manager-confirm-modal {
+    animation: none;
+  }
+}

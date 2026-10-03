@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   ArrowLeft,
   Plus,
@@ -10,6 +10,7 @@ import {
   GripVertical,
   Eye,
   EyeOff,
+  Folder,
 } from "lucide-react";
 import {
   DndContext,
@@ -90,6 +91,9 @@ const SortableRow = ({
   // Drag is disabled when a form is open or a request is in-flight
   const isDragDisabled = editMode !== "none" || loading;
 
+  // Row actions are locked while a form is open, a request is in-flight, or the order is unsaved
+  const isActionDisabled = loading || editMode !== "none" || hasOrderChanged;
+
   const rowClasses = [
     "categories-row",
     editingCategory?.category_id === category.category_id
@@ -109,52 +113,64 @@ const SortableRow = ({
       className={rowClasses}
       {...(!isDragDisabled ? { ...attributes, ...listeners } : {})}
     >
-      <div className="categories-row-left">
-        {/* Drag handle */}
-        {!isDragDisabled && (
-          <div className="categories-drag-handle">
-            <GripVertical size={20} />
-          </div>
-        )}
-        <div className="categories-row-info">
-          <div className="categories-row-name-row">
-            <h4 className="categories-row-name">{category.category_name}</h4>
-            {/* Disabled badge  */}
-            {!category.is_active && (
-              <span className="categories-badge-disabled">Disabled</span>
-            )}
-          </div>
-          <p className="categories-row-order">
-            Display Order: {category.display_order}
-          </p>
+      <div className="categories-row-main">
+        {/* Drag handle (faded while dragging is disabled) */}
+        <span
+          className={`categories-drag-handle ${
+            isDragDisabled ? "categories-drag-handle--disabled" : ""
+          }`}
+          aria-hidden="true"
+        >
+          <GripVertical size={18} />
+        </span>
+
+        {/* Display order position */}
+        <span
+          className="categories-row-order"
+          title="Display order"
+          aria-label={`Display order ${category.display_order}`}
+        >
+          {category.display_order}
+        </span>
+
+        <div className="categories-row-name-row">
+          <h4 className="categories-row-name">{category.category_name}</h4>
+          {/* Disabled badge */}
+          {!category.is_active && (
+            <span className="categories-badge-disabled">Disabled</span>
+          )}
         </div>
       </div>
 
       {/* Row actions */}
       <div className="categories-row-actions">
         <button
-          className={`categories-btn ${category.is_active ? "categories-btn-warning" : "categories-btn-success"}`}
+          className={`categories-btn categories-btn--sm ${
+            category.is_active
+              ? "categories-btn--outline-warning"
+              : "categories-btn--outline-success"
+          }`}
           onClick={() => onRequestToggleActive(category)}
-          disabled={loading || editMode !== "none" || hasOrderChanged}
+          disabled={isActionDisabled}
           title={category.is_active ? "Disable category" : "Enable category"}
         >
-          {category.is_active ? <EyeOff size={15} /> : <Eye size={15} />}
+          {category.is_active ? <EyeOff size={14} /> : <Eye size={14} />}
           {category.is_active ? "Disable" : "Enable"}
         </button>
         <button
-          className="categories-btn categories-btn-primary"
+          className="categories-btn categories-btn--sm"
           onClick={() => onEdit(category)}
-          disabled={loading || editMode !== "none" || hasOrderChanged}
+          disabled={isActionDisabled}
         >
-          <Edit2 size={15} />
+          <Edit2 size={14} />
           Edit
         </button>
         <button
-          className="categories-btn categories-btn-danger"
+          className="categories-btn categories-btn--sm categories-btn--outline-danger"
           onClick={() => onRequestDelete(category)}
-          disabled={loading || editMode !== "none" || hasOrderChanged}
+          disabled={isActionDisabled}
         >
-          <Trash2 size={15} />
+          <Trash2 size={14} />
           Delete
         </button>
       </div>
@@ -167,8 +183,6 @@ const SortableRow = ({
 // ============================================================================
 
 const ManageCategories = () => {
-  const navigate = useNavigate();
-
   // ============================================================================
   // STATE MANAGEMENT
   // ============================================================================
@@ -435,170 +449,186 @@ const ManageCategories = () => {
   // ============================================================================
 
   return (
-    <div className="manager-page accent-inventory">
+    <div className="categories-page">
       {/* Header */}
-      <div className="mgr-header">
-        <div className="mgr-header-inner">
-          <div>
-            <button
-              className="mgr-back-button"
-              onClick={() => navigate("/manager/inventory")}
-            >
-              <ArrowLeft size={16} />
-              Back to Product Management
-            </button>
-            <h1 className="mgr-header-title">Manage Categories</h1>
-            <p className="mgr-header-subtitle">
-              Create, edit, and organize product categories
-            </p>
-          </div>
+      <header className="categories-header">
+        <div className="categories-container">
+          <Link to="/manager/inventory" className="categories-back-link">
+            <ArrowLeft size={15} aria-hidden="true" />
+            Back to Product Management
+          </Link>
+          <p className="categories-eyebrow">Inventory</p>
+          <h1 className="categories-title">Manage Categories</h1>
+          <p className="categories-subtitle">
+            Create, edit, and organize product categories. Drag rows to change
+            the order customers see.
+          </p>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className="mgr-container">
-        <div className="mgr-body">
-          <div className="categories-panel">
-            {/* Panel header */}
-            <div className="categories-panel-header">
+      <main className="categories-container categories-main">
+        <section className="categories-panel">
+          {/* Panel header */}
+          <div className="categories-panel-header">
+            <div className="categories-panel-heading">
               <h2 className="categories-panel-title">Categories</h2>
-              <div className="categories-header-actions">
-                {hasOrderChanged && (
-                  <>
-                    <button
-                      className="categories-btn categories-btn-secondary"
-                      onClick={handleCancelOrder}
-                      disabled={loading}
-                    >
-                      <X size={16} />
-                      Cancel Order
-                    </button>
-                    <button
-                      className="categories-btn categories-btn-success"
-                      onClick={handleSaveOrder}
-                      disabled={loading}
-                    >
-                      <Save size={16} />
-                      Save Order
-                    </button>
-                  </>
-                )}
-                {editMode === "none" && !hasOrderChanged && (
-                  <button
-                    className="categories-btn categories-btn-primary"
-                    onClick={handleCreateNew}
-                    disabled={loading}
-                  >
-                    <Plus size={16} />
-                    New Category
-                  </button>
-                )}
-              </div>
+              <span className="categories-panel-count">
+                {categories.length}{" "}
+                {categories.length === 1 ? "category" : "categories"}
+              </span>
             </div>
-
-            {/* Create / Edit form */}
-            {editMode !== "none" && (
-              <div className="categories-form">
-                <h3 className="categories-form-title">
-                  {editMode === "create"
-                    ? "Create New Category"
-                    : "Edit Category"}
-                </h3>
-                <div className="categories-form-group">
-                  <label className="categories-form-label">Category Name *</label>
-                  <input
-                    type="text"
-                    className="categories-form-input"
-                    value={categoryName}
-                    onChange={(e) => setCategoryName(e.target.value)}
-                    placeholder="Enter category name"
-                    disabled={loading}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSave();
-                      else if (e.key === "Escape") handleCancelEdit();
-                    }}
-                  />
-                  {/* Formatted name preview */}
-                  {categoryName.trim() &&
-                    categoryName.trim() !== formatName(categoryName) && (
-                      <div className="categories-name-preview">
-                        <strong>Will be saved as:</strong>{" "}
-                        {formatName(categoryName)}
-                      </div>
-                    )}
-                  <p className="categories-form-hint">
-                    Note: Words like "of", "in", "on", "the", "and" will be
-                    lowercase (except at start/end)
-                  </p>
-                </div>
-                {/* Form action buttons */}
-                <div className="categories-form-actions">
-                  <button
-                    className="categories-btn categories-btn-success"
-                    onClick={handleSave}
-                    disabled={loading || !categoryName.trim()}
-                  >
-                    <Save size={16} />
-                    {editMode === "create" ? "Create" : "Save Changes"}
-                  </button>
-                  <button
-                    className="categories-btn categories-btn-secondary"
-                    onClick={handleCancelEdit}
-                    disabled={loading}
-                  >
-                    <X size={16} />
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Loading spinner */}
-            {loading && categories.length === 0 ? (
-              <LoadingSpinner message="Loading categories..." />
-            ) : (
-              // DndContext wraps the whole sortable list and handles mouse, touch, and keyboard
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={categories.map((cat) => cat.category_id)}
-                  strategy={verticalListSortingStrategy}
+            {editMode === "none" && !hasOrderChanged && (
+              <div className="categories-header-actions">
+                <button
+                  className="categories-btn categories-btn--primary"
+                  onClick={handleCreateNew}
+                  disabled={loading}
                 >
-                  {/* Draggable category rows */}
-                  <div className="categories-list">
-                    {categories.map((category) => (
-                      <SortableRow
-                        key={category.category_id}
-                        category={category}
-                        editMode={editMode}
-                        loading={loading}
-                        hasOrderChanged={hasOrderChanged}
-                        editingCategory={editingCategory}
-                        onEdit={handleEdit}
-                        onRequestDelete={handleRequestDelete}
-                        onRequestToggleActive={handleRequestToggleActive}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            )}
-
-            {/* Empty state */}
-            {!loading && categories.length === 0 && (
-              <div className="categories-empty">
-                <p>
-                  No categories found. Create your first category to get
-                  started!
-                </p>
+                  <Plus size={16} />
+                  New Category
+                </button>
               </div>
             )}
           </div>
-        </div>
-      </div>
+
+          {/* Unsaved order banner */}
+          {hasOrderChanged && (
+            <div className="categories-order-banner" role="status">
+              <p className="categories-order-banner-text">
+                You have unsaved changes to the category order.
+              </p>
+              <div className="categories-header-actions">
+                <button
+                  className="categories-btn categories-btn--sm"
+                  onClick={handleCancelOrder}
+                  disabled={loading}
+                >
+                  <X size={15} />
+                  Cancel Order
+                </button>
+                <button
+                  className="categories-btn categories-btn--sm categories-btn--success"
+                  onClick={handleSaveOrder}
+                  disabled={loading}
+                >
+                  <Save size={15} />
+                  Save Order
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Create / Edit form */}
+          {editMode !== "none" && (
+            <div className="categories-form">
+              <h3 className="categories-form-title">
+                {editMode === "create"
+                  ? "Create New Category"
+                  : "Edit Category"}
+              </h3>
+              <div className="categories-form-group">
+                <label
+                  className="categories-form-label"
+                  htmlFor="categories-form-name"
+                >
+                  Category Name *
+                </label>
+                <input
+                  id="categories-form-name"
+                  type="text"
+                  className="categories-form-input"
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                  placeholder="Enter category name"
+                  disabled={loading}
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSave();
+                    else if (e.key === "Escape") handleCancelEdit();
+                  }}
+                />
+                {/* Formatted name preview */}
+                {categoryName.trim() &&
+                  categoryName.trim() !== formatName(categoryName) && (
+                    <div className="categories-form-preview">
+                      <strong>Will be saved as:</strong>{" "}
+                      {formatName(categoryName)}
+                    </div>
+                  )}
+                <p className="categories-form-helper">
+                  Note: Words like "of", "in", "on", "the", "and" will be
+                  lowercase (except at start/end)
+                </p>
+              </div>
+              {/* Form action buttons */}
+              <div className="categories-form-actions">
+                <button
+                  className="categories-btn categories-btn--success"
+                  onClick={handleSave}
+                  disabled={loading || !categoryName.trim()}
+                >
+                  <Save size={16} />
+                  {editMode === "create" ? "Create" : "Save Changes"}
+                </button>
+                <button
+                  className="categories-btn"
+                  onClick={handleCancelEdit}
+                  disabled={loading}
+                >
+                  <X size={16} />
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Loading spinner */}
+          {loading && categories.length === 0 ? (
+            <LoadingSpinner message="Loading categories..." />
+          ) : (
+            // DndContext wraps the whole sortable list and handles mouse, touch, and keyboard
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={categories.map((cat) => cat.category_id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {/* Draggable category rows */}
+                <div className="categories-list">
+                  {categories.map((category) => (
+                    <SortableRow
+                      key={category.category_id}
+                      category={category}
+                      editMode={editMode}
+                      loading={loading}
+                      hasOrderChanged={hasOrderChanged}
+                      editingCategory={editingCategory}
+                      onEdit={handleEdit}
+                      onRequestDelete={handleRequestDelete}
+                      onRequestToggleActive={handleRequestToggleActive}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          )}
+
+          {/* Empty state */}
+          {!loading && categories.length === 0 && (
+            <div className="categories-empty">
+              <Folder size={22} aria-hidden="true" />
+              <p className="categories-empty-title">No categories yet</p>
+              <p className="categories-empty-text">
+                Create your first category to get started.
+              </p>
+            </div>
+          )}
+        </section>
+      </main>
 
       {/* Toast Notifications */}
       {message && (
@@ -614,6 +644,7 @@ const ManageCategories = () => {
           cancelText={deleteConfirmation.config.cancelText}
           onConfirm={deleteConfirmation.handleConfirm}
           onCancel={deleteConfirmation.handleCancel}
+          tone="danger"
         />
       )}
 

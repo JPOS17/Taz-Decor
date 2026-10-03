@@ -1,0 +1,94 @@
+/* ==============================================================================
+   MANAGER TOAST NOTIFICATION COMPONENT
+   Small status toast used across manager pages (success / error / warning)
+   Neutral white card with a colored status icon and accent edge
+   
+   Prefix: manager-toast-notification-*
+   ============================================================================== */
+
+.manager-toast-notification {
+  --manager-toast-notification-color: #1f8a4c;
+  --manager-toast-notification-light: #e8f6ee;
+
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 300px;
+  max-width: min(420px, calc(100vw - 2.5rem));
+  padding: 0.9rem 1.1rem 0.9rem 0.9rem;
+  background: #ffffff;
+  border: 1px solid #e6e6e8;
+  border-left: 4px solid var(--manager-toast-notification-color);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(17, 17, 19, 0.14);
+  font-family: var(--font-admin);
+  animation: manager-toast-notification-in 0.22s ease-out;
+}
+
+.manager-toast-notification--error {
+  --manager-toast-notification-color: #d1382e;
+  --manager-toast-notification-light: #fdeeed;
+}
+
+.manager-toast-notification--warning {
+  --manager-toast-notification-color: #c58a0a;
+  --manager-toast-notification-light: #fdf5de;
+}
+
+.manager-toast-notification-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: var(--manager-toast-notification-light);
+  border-radius: 50%;
+  color: var(--manager-toast-notification-color);
+}
+
+.manager-toast-notification-content {
+  flex: 1;
+  min-width: 0;
+  padding-top: 0.2rem;
+}
+
+.manager-toast-notification-message {
+  margin: 0.2rem 0 0;
+  color: #111113;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.manager-toast-notification-message:first-child {
+  margin: 0;
+}
+
+@keyframes manager-toast-notification-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (max-width: 640px) {
+  .manager-toast-notification {
+    top: auto;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manager-toast-notification {
+    animation: none;
+  }
+}

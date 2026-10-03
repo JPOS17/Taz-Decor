@@ -71,6 +71,10 @@
 /* -- manager-facing: orders -- */
 @import "./components/manager/orders/_ship-by-date.css";
 
+/* -- manager-facing: shared -- */
+@import "./components/manager/shared/_manager-toast-notification.css";
+@import "./components/manager/shared/_manager-confirm-modal.css";
+
 /* -- footer (shared shell) -- */
 @import "./pages/footer/_footer.css";
 
