@@ -1,66 +1,107 @@
 /* ==============================================================================
-   GUEST ORDER LOOKUP PAGE
-   Order lookup for guests checking out without an account.
+   GUEST ORDER LOOKUP
+   Two screens for guest customers: the lookup form (order number + email) and
+   the order result with a progress tracker
+   
    Prefix: guest-order-lookup-*
    ============================================================================== */
 
 .guest-order-lookup-page {
-  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  min-height: calc(100vh - var(--top-bar-height, 0px));
+  padding: clamp(2rem, 6vh, 4rem) 1rem 4rem;
   background-color: var(--color-page-bg);
   font-family: var(--font-sans);
+}
+
+.guest-order-lookup-loading-state {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: 2rem 2rem 2rem 2rem;
+  min-height: 100vh;
+  background-color: var(--color-page-bg);
 }
 
+/* Lookup form screen — a single centered card */
 .guest-order-lookup-container {
-  background: var(--color-surface-gradient);
-  border: 1.5px solid var(--color-border-accent);
-  border-radius: var(--radius-2xl);
-  padding: 2.5rem 2rem;
   width: 100%;
-  max-width: 560px;
+  max-width: 480px;
+  height: fit-content;
+  padding: 2.5rem 2.25rem 2rem;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-top: 3px solid var(--color-border-accent);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
 }
 
+/* Result screen — wide, and no card of its own (it holds several cards) */
 .guest-order-lookup-result {
-  max-width: 900px;
+  max-width: 1100px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
+
+/* ============================================================================
+   HEADER (lookup form and not-found)
+   ============================================================================ */
 
 .guest-order-lookup-header {
+  margin-bottom: 1.75rem;
   text-align: center;
-  margin-bottom: 2rem;
+}
+
+.guest-order-lookup-icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  background: var(--color-primary-alpha-08);
+  border-radius: 50%;
+}
+
+.guest-order-lookup-icon-wrap--error {
+  background: var(--color-danger-bg);
 }
 
 .guest-order-lookup-icon {
-  color: var(--color-primary-mid);
-  margin-bottom: 0.75rem;
+  font-size: 1.6rem;
+  color: var(--color-primary);
 }
 
-/* Used on the "order not found" error icon */
 .guest-order-lookup-icon--error {
-  color: #8c2515;
+  color: var(--color-danger);
 }
 
 .guest-order-lookup-header h1 {
-  font-family: var(--font-serif);
-  font-size: 2rem;
-  font-weight: 700;
   margin: 0 0 0.5rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.15;
   color: var(--color-text-strongest);
-  letter-spacing: 0.01em;
 }
 
 .guest-order-lookup-header p {
-  color: var(--color-text-muted);
+  margin: 0;
   font-size: 0.95rem;
-  font-weight: 500;
+  line-height: 1.6;
+  color: var(--color-text-muted);
 }
+
+/* ============================================================================
+   FORM
+   ============================================================================ */
 
 .guest-order-lookup-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.15rem;
 }
 
 .guest-order-lookup-form-group {
@@ -70,478 +111,569 @@
 }
 
 .guest-order-lookup-form-group label {
+  font-size: 0.85rem;
   font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
+  color: var(--color-text-strong);
 }
 
 .guest-order-lookup-form-group input {
-  padding: 0.7rem 0.9rem;
+  width: 100%;
+  padding: 11px 15px;
+  background: var(--color-surface-solid);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 0.95rem;
-  font-family: var(--font-sans);
-  transition: border-color 0.15s, box-shadow 0.15s;
-  outline: none;
   color: var(--color-text-strongest);
-  background: var(--color-surface-solid);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.guest-order-lookup-form-group input:hover {
+  border-color: var(--color-border-hover);
 }
 
 .guest-order-lookup-form-group input:focus {
   border-color: var(--color-primary-mid);
-  box-shadow: 0 0 0 3px var(--color-primary-mid-alpha-18);
+  box-shadow: 0 0 0 3px var(--color-primary-focus-ring);
 }
 
-.guest-order-lookup-input-error {
-  border-color: var(--color-danger-dark) !important;
+.guest-order-lookup-form-group input::placeholder {
+  color: var(--color-text-faint);
+}
+
+.guest-order-lookup-form-group input.guest-order-lookup-input-error {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px var(--color-danger-focus-ring);
 }
 
 .guest-order-lookup-field-error {
-  font-size: 0.8rem;
-  color: var(--color-danger-dark);
-  font-weight: 500;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-danger);
 }
 
 .guest-order-lookup-error {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: flex-start;
+  gap: 0.65rem;
   padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-danger-dark);
   background: var(--color-danger-bg);
   border: 1px solid var(--color-danger-border);
   border-radius: var(--radius-md);
-  color: var(--color-danger-dark);
-  font-size: 0.9rem;
-  font-weight: 500;
+}
+
+.guest-order-lookup-error > svg {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+  color: var(--color-danger);
 }
 
 .guest-order-lookup-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.8rem;
-  background: linear-gradient(135deg, var(--color-primary-deep) 0%, var(--color-primary-deepest) 100%);
-  color: var(--color-primary-tint);
+  min-height: 48px;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border: none;
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-btn);
+  color: var(--color-text-on-primary-alt);
   font-family: var(--font-sans);
-  font-size: 0.9375rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.22s ease;
-  box-shadow: var(--shadow-btn-deep);
-  margin-top: 0.25rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.guest-order-lookup-form .guest-order-lookup-btn {
+  margin-top: 0.35rem;
 }
 
 .guest-order-lookup-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary-hover-dark) 100%);
+  box-shadow: var(--shadow-btn-hover);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-btn-deep-hover);
-  background: linear-gradient(135deg, var(--color-primary-text) 0%, var(--color-primary-deep) 100%);
 }
 
 .guest-order-lookup-btn:disabled {
-  opacity: 0.55;
+  background: linear-gradient(135deg, var(--color-primary-disabled-start), var(--color-primary-disabled-end));
+  box-shadow: none;
   cursor: not-allowed;
 }
 
-.guest-order-lookup-spin {
-  animation: guest-order-lookup-spin 1s linear infinite;
-}
-
-@keyframes guest-order-lookup-spin {
-  to { transform: rotate(360deg); }
+.guest-order-lookup-container > .guest-order-lookup-btn {
+  width: 100%;
 }
 
 .guest-order-lookup-help-text {
-  margin-top: 1.5rem;
+  margin: 1.5rem 0 0;
+  padding-top: 1.25rem;
   text-align: center;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--color-text-muted);
-  font-weight: 500;
+  border-top: 1px solid var(--color-border-light);
 }
 
-.guest-order-lookup-help-text a {
-  color: var(--color-primary-deep);
-  text-decoration: underline;
+.guest-order-lookup-btn:focus-visible,
+.guest-order-lookup-btn-back:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* ============================================================================
+   RESULT HEADER
+   ============================================================================ */
+
+.guest-order-lookup-result-header {
+  margin-bottom: 1.25rem;
+}
+
+.guest-order-lookup-btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.4rem 0.25rem;
+  color: var(--color-text-accent);
+  font-size: 0.875rem;
   font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-.guest-order-lookup-help-text a:hover {
+.guest-order-lookup-btn-back:hover {
+  color: var(--color-primary-dark);
+}
+
+.guest-order-lookup-result-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+}
+
+.guest-order-lookup-result-header-row h1 {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-text-strongest);
+  overflow-wrap: anywhere;
+}
+
+.guest-order-lookup-placed-date {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.guest-order-lookup-result-header-estimate {
+  flex: 0 1 340px;
+  min-width: 0;
+}
+
+.guest-order-lookup-header-delivery-estimate {
+  margin: 0;
+}
+
+.guest-order-lookup-delivered-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.1rem;
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-lg);
+  font-size: 1.4rem;
+}
+
+.guest-order-lookup-delivered-badge > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.guest-order-lookup-delivered-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-success-text);
+}
+
+.guest-order-lookup-delivered-date {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
   color: var(--color-text-strongest);
 }
 
 /* ============================================================================
-   ORDER RESULT
+   STATUS BANNER AND PROGRESS TRACKER
    ============================================================================ */
-
-.guest-order-lookup-result-header {
-  margin-bottom: 1.5rem;
-}
-
-.guest-order-lookup-btn-back {
-  background: none;
-  border: none;
-  color: var(--color-primary-text);
-  cursor: pointer;
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding: 0;
-  margin-bottom: 0.75rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: color 0.15s;
-}
-
-.guest-order-lookup-btn-back:hover {
-  color: var(--color-text-strongest);
-  text-decoration: underline;
-}
-
-.guest-order-lookup-result-header h1 {
-  font-size: 1.9rem;
-  font-weight: 700;
-  margin: 0 0 0.25rem;
-  color: var(--color-text-strongest);
-  letter-spacing: 0.01em;
-}
-
-.guest-order-lookup-placed-date {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
 
 .guest-order-lookup-status-banner {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--radius-md);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.9rem 1.25rem;
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-warning-text);
+  font-size: 1rem;
   font-weight: 700;
-  font-size: 0.9375rem;
-  margin-bottom: 1.5rem;
   letter-spacing: 0.02em;
 }
 
+.guest-order-lookup-status-icon {
+  display: inline-flex;
+  font-size: 1.15rem;
+}
+
+/* Pending / processing keeps the banner's base (warning) colors */
 .guest-order-lookup-status-pending {
-  background: var(--color-primary-bg-light);
-  color: var(--color-primary-text);
-  border: 1px solid var(--color-border);
+  color: var(--color-warning-text);
+  background: var(--color-warning-bg);
+  border-color: var(--color-warning-border);
 }
 
 .guest-order-lookup-status-shipped {
-  background: var(--color-status-shipped-bg);
   color: var(--color-status-shipped-dark);
-  border: 1px solid var(--color-status-shipped-border);
+  background: var(--color-status-shipped-bg);
+  border-color: var(--color-status-shipped-border);
 }
 
 .guest-order-lookup-status-delivered {
-  background: var(--color-success-bg);
   color: var(--color-success-text);
-  border: 1px solid var(--color-success-border);
+  background: var(--color-success-bg);
+  border-color: var(--color-success-border);
 }
 
 .guest-order-lookup-status-cancelled {
-  background: var(--color-danger-bg);
   color: var(--color-danger-dark);
-  border: 1px solid var(--color-danger-border);
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
 }
+
+.guest-order-lookup-progress {
+  display: flex;
+  align-items: flex-start;
+  margin: 0 0 1.25rem;
+  padding: 1.25rem 1rem 1rem;
+  list-style: none;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+}
+
+.guest-order-lookup-progress-step {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* Connector between dots */
+.guest-order-lookup-progress-step + .guest-order-lookup-progress-step::before {
+  content: "";
+  position: absolute;
+  top: 13px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--color-border-light);
+}
+
+.guest-order-lookup-progress-step--done::before,
+.guest-order-lookup-progress-step--current::before {
+  background: var(--color-primary);
+}
+
+.guest-order-lookup-progress-dot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  font-size: 0.7rem;
+  color: var(--color-text-on-primary-alt);
+  background: var(--color-surface-solid);
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+}
+
+.guest-order-lookup-progress-step--done .guest-order-lookup-progress-dot {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.guest-order-lookup-progress-step--current .guest-order-lookup-progress-dot {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-focus-ring);
+}
+
+.guest-order-lookup-progress-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.guest-order-lookup-progress-step--done .guest-order-lookup-progress-label,
+.guest-order-lookup-progress-step--current .guest-order-lookup-progress-label {
+  color: var(--color-text-strongest);
+}
+
+/* ============================================================================
+   TRACKING
+   ============================================================================ */
 
 .guest-order-lookup-tracking-section {
-  background: var(--color-surface-solid);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  margin-bottom: 1.25rem;
   padding: 1.25rem 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.guest-order-lookup-tracking-section h3 {
-  font-family: var(--font-serif);
-  margin: 0 0 0.75rem;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--color-text-strongest);
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
 }
 
 .guest-order-lookup-tracking-section p {
-  margin: 0.35rem 0;
-  font-size: 0.9rem;
-  color: var(--color-primary-deep);
+  margin: 0 0 0.35rem;
+  font-size: 0.92rem;
+  color: var(--color-text-strong);
 }
 
-.guest-order-lookup-tracking-section strong {
-  color: var(--color-text-strongest);
+.guest-order-lookup-tracking-section p:last-child {
+  margin-bottom: 0;
 }
 
 .guest-order-lookup-tracking-number {
-  font-family: var(--font-mono, "Courier New", monospace);
-  background: var(--color-primary-bg-light);
-  border: 1px solid var(--color-border);
-  padding: 0.1rem 0.5rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  color: var(--color-primary-deep);
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--color-primary-text);
+  overflow-wrap: anywhere;
 }
+
+/* ============================================================================
+   RESULT BODY — items beside summary and address
+   ============================================================================ */
 
 .guest-order-lookup-result-body {
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1.25rem;
   align-items: start;
 }
 
-.guest-order-lookup-items-section h3,
-.guest-order-lookup-price-summary h3,
-.guest-order-lookup-address-summary h3 {
+.guest-order-lookup-section-title {
+  margin: 0 0 1rem;
+  padding-bottom: 0.75rem;
   font-family: var(--font-serif);
-  font-size: 1.125rem;
+  font-size: 1.3rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
   color: var(--color-text-strongest);
-  margin: 0 0 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
-.guest-order-lookup-items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
-
-.guest-order-lookup-item-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
+.guest-order-lookup-items-section,
+.guest-order-lookup-price-summary,
+.guest-order-lookup-address-summary {
+  padding: 1.5rem;
   background: var(--color-surface-solid);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  transition: all 0.22s ease;
-}
-
-.guest-order-lookup-item-row:hover {
-  border-color: var(--color-primary-mid);
-  box-shadow: 0 6px 20px var(--color-primary-mid-alpha-20);
-  transform: translateY(-2px);
-}
-
-.guest-order-lookup-item-img {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--color-border);
-  flex-shrink: 0;
-  background: var(--color-surface-warm-solid);
-  padding: 0.25rem;
-  box-sizing: border-box;
-}
-
-.guest-order-lookup-item-info {
-  flex: 1;
-}
-
-.guest-order-lookup-item-name {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 1rem;
-  margin: 0 0 0.2rem;
-  color: var(--color-text-strongest);
-}
-
-.guest-order-lookup-item-variant {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  margin: 0 0 0.15rem;
-  font-weight: 500;
-}
-
-.guest-order-lookup-item-qty {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  margin: 0;
-  font-weight: 500;
-}
-
-.guest-order-lookup-item-price {
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--color-text-strongest);
-  white-space: nowrap;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xs);
 }
 
 .guest-order-lookup-summary-sidebar {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  min-width: 0;
 }
 
-.guest-order-lookup-price-summary,
-.guest-order-lookup-address-summary {
-  background: var(--color-surface-solid);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem 1.5rem;
-  transition: all 0.22s ease;
+.guest-order-lookup-items-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.guest-order-lookup-price-summary:hover,
-.guest-order-lookup-address-summary:hover {
-  border-color: var(--color-primary-mid);
-  box-shadow: 0 6px 20px var(--color-primary-mid-alpha-20);
+.guest-order-lookup-item-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
 }
 
+.guest-order-lookup-item-row + .guest-order-lookup-item-row {
+  border-top: 1px solid var(--color-border-light);
+}
+
+.guest-order-lookup-item-row:first-child {
+  padding-top: 0;
+}
+
+.guest-order-lookup-item-row:last-child {
+  padding-bottom: 0;
+}
+
+.guest-order-lookup-item-img {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  padding: 5px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  background: var(--color-surface-warm);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+}
+
+.guest-order-lookup-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.guest-order-lookup-item-info p {
+  margin: 0;
+}
+
+.guest-order-lookup-item-name {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-strongest);
+}
+
+.guest-order-lookup-item-variant,
+.guest-order-lookup-item-qty {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.guest-order-lookup-item-price {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-primary-deep);
+}
+
+/* Summary rows */
 .guest-order-lookup-summary-row {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  font-size: 0.9rem;
-  padding: 0.3rem 0;
-  color: var(--color-text-accent);
-  font-weight: 500;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  font-size: 0.92rem;
+  color: var(--color-text-mid);
 }
 
-.guest-order-lookup-summary-discount span:last-child {
+.guest-order-lookup-summary-row > span:last-child {
+  font-weight: 600;
+  color: var(--color-text-strongest);
+}
+
+.guest-order-lookup-summary-discount,
+.guest-order-lookup-summary-discount > span:last-child {
   color: var(--color-success);
-  font-weight: 700;
 }
 
 .guest-order-lookup-summary-divider {
-  border: none;
-  border-top: 1px solid var(--color-border);
+  height: 1px;
   margin: 0.5rem 0;
+  background: var(--color-border-light);
+  border: none;
 }
 
 .guest-order-lookup-summary-total {
-  color: var(--color-text-strongest);
   font-size: 1rem;
-  font-weight: 700;
+  color: var(--color-text-strongest);
+}
+
+.guest-order-lookup-summary-total > strong:last-child {
+  font-size: 1.45rem;
+  color: var(--color-primary-deep);
+}
+
+.guest-order-lookup-address-summary {
+  font-style: normal;
 }
 
 .guest-order-lookup-address-summary p {
-  margin: 0.25rem 0;
-  font-size: 0.875rem;
-  color: var(--color-primary-deep);
-  line-height: 1.6;
-}
-
-.guest-order-lookup-address-summary strong {
-  color: var(--color-text-strongest);
-  font-weight: 600;
-}
-
-.guest-order-lookup-result-header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.guest-order-lookup-result-header-estimate {
-  flex-shrink: 0;
-}
-
-.guest-order-lookup-header-delivery-estimate {
-  width: 100%;
-}
-
-.guest-order-lookup-delivered-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: var(--color-success-bg);
-  border: 1px solid var(--color-success-border);
-  border-radius: var(--radius-md);
-  color: var(--color-success-text);
-}
-
-.guest-order-lookup-delivered-badge svg {
-  flex-shrink: 0;
-  font-size: 1rem;
-}
-
-.guest-order-lookup-delivered-badge div {
-  display: flex;
-  flex-direction: column;
-  gap: 0.05rem;
-}
-
-.guest-order-lookup-delivered-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-success);
-}
-
-.guest-order-lookup-delivered-date {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--color-success-dark);
-}
-
-.guest-order-lookup-loading-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  margin: 0 0 0.2rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--color-text-strong);
+  overflow-wrap: anywhere;
 }
 
 /* ============================================================================
    RESPONSIVE
    ============================================================================ */
 
-@media (max-width: 768px) {
-  .guest-order-lookup-page {
-    padding: 1.5rem 1rem 1rem 1rem;
-  }
-
-  .guest-order-lookup-container {
-    padding: 2rem 1.25rem;
-  }
-
-  .guest-order-lookup-header h1 {
-    font-size: 1.6rem;
-  }
-
-  .guest-order-lookup-result-header h1 {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 720px) {
+@media (max-width: 899px) {
   .guest-order-lookup-result-body {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .guest-order-lookup-result-header-row {
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .guest-order-lookup-result-header-estimate {
-    width: 100%;
+    flex-basis: 100%;
   }
 }
 
-@media (max-width: 576px) {
-  .guest-order-lookup-page {
-    padding: 1.5rem 0.75rem 0.75rem 0.75rem;
+@media (max-width: 599px) {
+  .guest-order-lookup-container {
+    padding: 2rem 1.25rem 1.5rem;
   }
 
-  .guest-order-lookup-container {
-    padding: 1.5rem 1rem;
+  .guest-order-lookup-result {
+    padding: 0;
+  }
+
+  .guest-order-lookup-progress {
+    padding-inline: 0.5rem;
+  }
+
+  .guest-order-lookup-progress-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+  }
+
+  .guest-order-lookup-items-section,
+  .guest-order-lookup-price-summary,
+  .guest-order-lookup-address-summary {
+    padding: 1.25rem;
+  }
+
+  .guest-order-lookup-item-img {
+    width: 60px;
+    height: 60px;
   }
 }
