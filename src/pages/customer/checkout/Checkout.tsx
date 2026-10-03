@@ -376,6 +376,27 @@ const CheckoutPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentStep]);
 
+  // While the address modal is open: Escape closes it and the page behind it stops scrolling
+  useEffect(() => {
+    if (!showAddressModal) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setShowAddressModal(false);
+      setEditingAddressId(null);
+      resetAddressForm();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showAddressModal]);
+
   // ============================================================================
   // DATA LOADING
   // ============================================================================
@@ -1188,35 +1209,38 @@ const CheckoutPage = () => {
             </p>
             <div className="checkout-mode-selection-cards">
               <button
+                type="button"
                 className="checkout-mode-card checkout-mode-card-login"
                 onClick={() => navigate("/login?redirect=/cart")}
               >
-                <FaUser size={32} />
-                <h3>Sign In</h3>
-                <p>
+                <FaUser size={32} aria-hidden="true" />
+                <span className="checkout-mode-card-title">Sign In</span>
+                <span className="checkout-mode-card-text">
                   Use your account for faster checkout, order history, and
                   exclusive discounts.
-                </p>
+                </span>
               </button>
 
               <button
+                type="button"
                 className="checkout-mode-card checkout-mode-card-guest"
                 onClick={() => {
                   setCheckoutMode("guest");
                   saveSession({ checkoutMode: "guest" });
                 }}
               >
-                <FaShoppingBag size={32} />
-                <h3>Guest Checkout</h3>
-                <p>
+                <FaShoppingBag size={32} aria-hidden="true" />
+                <span className="checkout-mode-card-title">Guest Checkout</span>
+                <span className="checkout-mode-card-text">
                   No account needed. Just your email for your order
                   confirmation.
-                </p>
+                </span>
               </button>
             </div>
             <p className="checkout-mode-selection-note">
               Don&apos;t have an account?{" "}
               <button
+                type="button"
                 className="checkout-btn-link"
                 onClick={() => navigate("/register?redirect=/cart")}
               >
@@ -1284,7 +1308,13 @@ const CheckoutPage = () => {
               resetAddressForm();
             }}
           >
-            <div onClick={(e) => e.stopPropagation()}>
+            <div
+              className="checkout-modal-dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-label={editingAddressId ? "Edit address" : "Add address"}
+              onClick={(e) => e.stopPropagation()}
+            >
               <AddressForm
                 addressForm={addressForm}
                 onFormChange={handleAddressFormChange}
@@ -1318,8 +1348,8 @@ const CheckoutPage = () => {
         {(error ||
           validationErrors.length > 0 ||
           (!isGuest && couponErrors.length > 0)) && (
-          <div className="checkout-error" ref={errorRef}>
-            <FaExclamationTriangle />
+          <div className="checkout-error" ref={errorRef} role="alert">
+            <FaExclamationTriangle aria-hidden="true" />
             <div>
               {/* Top-level error message — hardcoded frontend validations */}
               {error && <span>{error}</span>}
@@ -1369,16 +1399,18 @@ const CheckoutPage = () => {
 
                     return (
                       <div key={item.variant_id} className="checkout-cart-item">
-                        <img src={item.image} alt={item.name} />
+                        <img src={item.image} alt="" loading="lazy" />
                         <div className="checkout-item-info">
-                          <h4>{item.name}</h4>
+                          <h3>{item.name}</h3>
                           <p className="checkout-item-variant">
                             {item.color} {item.color && item.size && "•"}{" "}
                             {item.size}
                           </p>
                           <div className="checkout-quantity-control">
                             <button
+                              type="button"
                               className="checkout-quantity-btn"
+                              aria-label={`Decrease quantity of ${item.name}`}
                               onClick={() => {
                                 if (item.quantity === 1) {
                                   setConfirmModal({
@@ -1404,12 +1436,13 @@ const CheckoutPage = () => {
                                 }
                               }}
                             >
-                              <FaMinus size={10} />
+                              <FaMinus size={10} aria-hidden="true" />
                             </button>
                             <input
                               className="checkout-quantity-value"
                               type="text"
                               inputMode="numeric"
+                              aria-label={`Quantity of ${item.name}`}
                               value={
                                 draftQuantities[item.variant_id] !== undefined
                                   ? draftQuantities[item.variant_id]
@@ -1435,7 +1468,9 @@ const CheckoutPage = () => {
                               }
                             />
                             <button
+                              type="button"
                               className="checkout-quantity-btn"
+                              aria-label={`Increase quantity of ${item.name}`}
                               onClick={() =>
                                 updateQuantity(
                                   item.variant_id,
@@ -1443,7 +1478,7 @@ const CheckoutPage = () => {
                                 )
                               }
                             >
-                              <FaPlus size={10} />
+                              <FaPlus size={10} aria-hidden="true" />
                             </button>
                           </div>
                           {itemCoupon && !isGuest && (
@@ -1532,12 +1567,14 @@ const CheckoutPage = () => {
 
                 <div className="checkout-actions">
                   <button
+                    type="button"
                     className="checkout-btn-back"
                     onClick={() => navigate("/cart")}
                   >
                     Back to Cart
                   </button>
                   <button
+                    type="button"
                     className="checkout-btn-continue"
                     onClick={handleContinueToShipping}
                     disabled={loading || (!isGuest && couponErrors.length > 0)}
@@ -1569,6 +1606,7 @@ const CheckoutPage = () => {
                           <label htmlFor="guest-email">Email Address *</label>
                           <input
                             id="guest-email"
+                            autoComplete="email"
                             type="email"
                             value={guestInfo.email}
                             onChange={(e) =>
@@ -1578,12 +1616,13 @@ const CheckoutPage = () => {
                               })
                             }
                             placeholder="you@example.com"
+                            aria-invalid={!!guestInfoErrors.email}
                             className={
                               guestInfoErrors.email ? "input-error" : ""
                             }
                           />
                           {guestInfoErrors.email && (
-                            <span className="checkout-field-error">
+                            <span className="checkout-field-error" role="alert">
                               {guestInfoErrors.email}
                             </span>
                           )}
@@ -1593,6 +1632,7 @@ const CheckoutPage = () => {
                           <label htmlFor="guest-first-name">First Name *</label>
                           <input
                             id="guest-first-name"
+                            autoComplete="given-name"
                             type="text"
                             value={guestInfo.first_name}
                             onChange={(e) =>
@@ -1602,12 +1642,13 @@ const CheckoutPage = () => {
                               })
                             }
                             placeholder="Jane"
+                            aria-invalid={!!guestInfoErrors.first_name}
                             className={
                               guestInfoErrors.first_name ? "input-error" : ""
                             }
                           />
                           {guestInfoErrors.first_name && (
-                            <span className="checkout-field-error">
+                            <span className="checkout-field-error" role="alert">
                               {guestInfoErrors.first_name}
                             </span>
                           )}
@@ -1617,6 +1658,7 @@ const CheckoutPage = () => {
                           <label htmlFor="guest-last-name">Last Name *</label>
                           <input
                             id="guest-last-name"
+                            autoComplete="family-name"
                             type="text"
                             value={guestInfo.last_name || ""}
                             onChange={(e) =>
@@ -1626,12 +1668,13 @@ const CheckoutPage = () => {
                               })
                             }
                             placeholder="Doe"
+                            aria-invalid={!!guestInfoErrors.last_name}
                             className={
                               guestInfoErrors.last_name ? "input-error" : ""
                             }
                           />
                           {guestInfoErrors.last_name && (
-                            <span className="checkout-field-error">
+                            <span className="checkout-field-error" role="alert">
                               {guestInfoErrors.last_name}
                             </span>
                           )}
@@ -1641,6 +1684,7 @@ const CheckoutPage = () => {
                           <label htmlFor="guest-phone">Phone (optional)</label>
                           <input
                             id="guest-phone"
+                            autoComplete="tel"
                             type="tel"
                             value={guestInfo.phone || ""}
                             onChange={(e) =>
@@ -1650,12 +1694,13 @@ const CheckoutPage = () => {
                               })
                             }
                             placeholder="555 555"
+                            aria-invalid={!!guestInfoErrors.phone}
                             className={
                               guestInfoErrors.phone ? "input-error" : ""
                             }
                           />
                           {guestInfoErrors.phone && (
-                            <span className="checkout-field-error">
+                            <span className="checkout-field-error" role="alert">
                               {guestInfoErrors.phone}
                             </span>
                           )}
@@ -1674,6 +1719,7 @@ const CheckoutPage = () => {
                           <label htmlFor="g-line1">Address Line 1 *</label>
                           <input
                             id="g-line1"
+                            autoComplete="address-line1"
                             type="text"
                             value={guestAddress.address_line1}
                             onChange={(e) =>
@@ -1690,6 +1736,7 @@ const CheckoutPage = () => {
                           <label htmlFor="g-line2">Address Line 2</label>
                           <input
                             id="g-line2"
+                            autoComplete="address-line2"
                             type="text"
                             value={guestAddress.address_line2 || ""}
                             onChange={(e) =>
@@ -1706,6 +1753,7 @@ const CheckoutPage = () => {
                           <label htmlFor="g-city">City *</label>
                           <input
                             id="g-city"
+                            autoComplete="address-level2"
                             type="text"
                             value={guestAddress.city}
                             onChange={(e) =>
@@ -1722,6 +1770,7 @@ const CheckoutPage = () => {
                           <label htmlFor="g-state">State *</label>
                           <input
                             id="g-state"
+                            autoComplete="address-level1"
                             type="text"
                             value={guestAddress.state}
                             onChange={(e) =>
@@ -1739,6 +1788,7 @@ const CheckoutPage = () => {
                           <label htmlFor="g-zip">ZIP Code *</label>
                           <input
                             id="g-zip"
+                            autoComplete="postal-code"
                             type="text"
                             value={guestAddress.zip}
                             onChange={(e) =>
@@ -1755,6 +1805,7 @@ const CheckoutPage = () => {
                           <label htmlFor="g-country">Country</label>
                           <input
                             id="g-country"
+                            autoComplete="country-name"
                             type="text"
                             value={guestAddress.country || "USA"}
                             onChange={(e) =>
@@ -1816,6 +1867,7 @@ const CheckoutPage = () => {
                     </div>
 
                     <button
+                      type="button"
                       className="checkout-btn-add-address"
                       onClick={() => {
                         resetAddressForm();
@@ -1855,12 +1907,14 @@ const CheckoutPage = () => {
 
                 <div className="checkout-actions">
                   <button
+                    type="button"
                     className="checkout-btn-back"
                     onClick={() => setCurrentStep("cart")}
                   >
                     Back to Cart
                   </button>
                   <button
+                    type="button"
                     className="checkout-btn-continue"
                     onClick={handleContinueToPayment}
                     disabled={
@@ -1882,7 +1936,7 @@ const CheckoutPage = () => {
               <div className="checkout-section">
                 <h2 className="checkout-section-title">Payment Information</h2>
                 <div className="checkout-payment-placeholder">
-                  <FaCreditCard size={48} />
+                  <FaCreditCard size={48} aria-hidden="true" />
                   <p>Payment integration coming soon</p>
                   <p className="checkout-placeholder-text">
                     In production, this would integrate with Stripe, PayPal, or
@@ -1892,12 +1946,14 @@ const CheckoutPage = () => {
 
                 <div className="checkout-actions">
                   <button
+                    type="button"
                     className="checkout-btn-back"
                     onClick={() => setCurrentStep("shipping")}
                   >
                     Back to Shipping
                   </button>
                   <button
+                    type="button"
                     className="checkout-btn-continue"
                     onClick={handleContinueToReview}
                   >
@@ -1981,9 +2037,9 @@ const CheckoutPage = () => {
                           key={item.variant_id}
                           className="checkout-review-item"
                         >
-                          <img src={item.image} alt={item.name} />
+                          <img src={item.image} alt="" loading="lazy" />
                           <div className="checkout-review-item-details">
-                            <h4>{item.name}</h4>
+                            <h3>{item.name}</h3>
                             <p>
                               {item.color} {item.color && item.size && "•"}{" "}
                               {item.size}
@@ -2055,12 +2111,14 @@ const CheckoutPage = () => {
 
                 <div className="checkout-actions">
                   <button
+                    type="button"
                     className="checkout-btn-back"
                     onClick={() => setCurrentStep("payment")}
                   >
                     Back to Payment
                   </button>
                   <button
+                    type="button"
                     className="checkout-btn-place-order"
                     onClick={isGuest ? handlePlaceGuestOrder : handlePlaceOrder}
                     disabled={loading || (!isGuest && couponErrors.length > 0)}
@@ -2073,7 +2131,7 @@ const CheckoutPage = () => {
           </div>
 
           {/* Order summary sidebar — visible on all steps */}
-          <div className="checkout-sidebar">
+          <aside className="checkout-sidebar" aria-label="Order summary">
             <OrderSummary
               cartItems={cartItems}
               currentStep={currentStep}
@@ -2094,7 +2152,7 @@ const CheckoutPage = () => {
               userCouponUsage={userCouponUsage}
               isGuest={isGuest}
             />
-          </div>
+          </aside>
         </div>
       </div>
     </div>

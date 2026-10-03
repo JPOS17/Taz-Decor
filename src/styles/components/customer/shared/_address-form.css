@@ -1,127 +1,162 @@
 /* ==============================================================================
    ADDRESS FORM
-   Form for entering or editing a shipping address.
+   Create / edit form for a saved shipping address. Used inside a modal on the
+   checkout and profile pages
+   
    Prefix: address-form-*
    ============================================================================== */
 
 .address-form {
-  background: var(--color-surface-warm);
-  padding: 1.5rem;
-  border-radius: var(--radius-md);
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.25rem;
+  font-family: var(--font-sans);
+}
+
+.address-form-title {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-strongest);
 }
 
 .address-form-row {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.address-form-row:has(.address-form-group:nth-child(3)) {
-  grid-template-columns: 1fr 100px 150px;
-}
-
-.address-form-row:has(.address-form-group:nth-child(2)):not(:has(.address-form-group:nth-child(3))) {
-  grid-template-columns: 1fr 1fr;
 }
 
 .address-form-group {
   display: flex;
   flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
 }
 
 .address-form-group label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-mid);
-  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-text-strong);
 }
 
 .address-form-group input {
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
+  width: 100%;
+  padding: 10px 14px;
   background: var(--color-surface-solid);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
   color: var(--color-text-strongest);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.address-form-group input:hover {
+  border-color: var(--color-border-hover);
 }
 
 .address-form-group input:focus {
-  outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-mid);
   box-shadow: 0 0 0 3px var(--color-primary-focus-ring);
+}
+
+.address-form-group input::placeholder {
+  color: var(--color-text-faint);
 }
 
 .address-form-group-checkbox {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
-.address-form-group-checkbox input[type="checkbox"] {
+.address-form-group-checkbox input {
   width: 18px;
   height: 18px;
+  margin: 0;
+  accent-color: var(--color-primary);
   cursor: pointer;
 }
 
 .address-form-group-checkbox label {
-  font-size: 0.875rem;
-  color: var(--color-text-mid);
+  font-size: 0.9rem;
+  color: var(--color-text-strong);
   cursor: pointer;
 }
 
 .address-form-actions {
   display: flex;
-  gap: 1rem;
   justify-content: flex-end;
-  margin-top: 1.5rem;
-}
-
-.address-form-btn-cancel,
-.address-form-btn-save {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .address-form-btn-cancel {
-  background: var(--color-border-light);
+  padding: 0.7rem 1.4rem;
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
   color: var(--color-text-mid);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
 }
 
 .address-form-btn-cancel:hover {
-  background: var(--color-border);
+  background: var(--color-primary-alpha-06);
+  border-color: var(--color-primary-mid);
+  color: var(--color-primary);
 }
 
 .address-form-btn-save {
-  background: var(--color-primary);
+  padding: 0.7rem 1.6rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-btn-deep);
   color: var(--color-text-on-primary-alt);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-.address-form-btn-save:hover {
-  background: var(--color-primary-dark);
+.address-form-btn-save:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary-hover-dark) 100%);
+  box-shadow: var(--shadow-btn-deep-hover);
+  transform: translateY(-1px);
 }
 
 .address-form-btn-save:disabled {
-  background: var(--color-primary-disabled-end);
+  background: linear-gradient(135deg, var(--color-primary-disabled-start), var(--color-primary-disabled-end));
+  box-shadow: none;
   cursor: not-allowed;
 }
 
-/* ============================================================================
-   RESPONSIVE
-   ============================================================================ */
+.address-form-btn-cancel:focus-visible,
+.address-form-btn-save:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
 
-@media (max-width: 768px) {
-  .address-form-row:has(.address-form-group:nth-child(3)) {
-    grid-template-columns: 1fr;
+@media (max-width: 480px) {
+  .address-form-actions {
+    flex-direction: column-reverse;
   }
 
-  .address-form-row:has(.address-form-group:nth-child(2)):not(:has(.address-form-group:nth-child(3))) {
-    grid-template-columns: 1fr;
+  .address-form-btn-cancel,
+  .address-form-btn-save {
+    width: 100%;
   }
 }

@@ -48,7 +48,7 @@ const OrderSummary = ({
 }: OrderSummaryProps) => {
   return (
     <div className="order-summary-checkout-order-summary">
-      <h3 className="order-summary-title">Order Summary</h3>
+      <h2 className="order-summary-title">Order Summary</h2>
 
       {/* Cart item list */}
       <div className="order-summary-items">
@@ -68,11 +68,12 @@ const OrderSummary = ({
             <div key={item.variant_id} className="order-summary-item">
               <img
                 src={item.image}
-                alt={item.name}
+                alt=""
                 className="order-summary-item-image"
+                loading="lazy"
               />
               <div className="order-summary-item-details">
-                <h4>{item.name}</h4>
+                <h3 className="order-summary-item-name">{item.name}</h3>
                 <p className="order-summary-item-variant">
                   {item.color} {item.color && item.size && "•"} {item.size}
                 </p>
@@ -82,7 +83,7 @@ const OrderSummary = ({
                 {itemCoupon && (
                   <div className="order-summary-item-coupon-display">
                     <div className="order-summary-coupon-code-badge">
-                      <FaTag size={10} />
+                      <FaTag size={10} aria-hidden="true" />
                       <span>{itemCoupon.coupon_code}</span>
                     </div>
                     {itemCoupon.discount_type !== "bogo" && (
@@ -166,7 +167,11 @@ const OrderSummary = ({
           <span>
             {isFreeShipping ? (
               <span className="order-summary-free-shipping-text">
-                <FaShippingFast size={14} className="order-summary-free-shipping-icon" />
+                <FaShippingFast
+                  size={14}
+                  className="order-summary-free-shipping-icon"
+                  aria-hidden="true"
+                />
                 FREE
               </span>
             ) : currentStep === "cart" ? (
@@ -197,7 +202,7 @@ const OrderSummary = ({
           </strong>
         </div>
 
-        <div className="order-summary-divider"></div>
+        <div className="order-summary-divider" aria-hidden="true"></div>
 
         {/* Cart-level coupon */}
         {coupons && (
@@ -213,17 +218,15 @@ const OrderSummary = ({
                 userCouponUsage={userCouponUsage}
               />
             ) : selectedCartLevelCoupon ? (
-              <div className="cart-level-coupon-section">
-                <div className="cart-level-coupon-header">
-                  <h3 className="cart-level-coupon-title">
-                    <FaTag /> Cart Discount
+              <div className="cart-level-coupon-selector-section">
+                <div className="cart-level-coupon-selector-header">
+                  <h3 className="cart-level-coupon-selector-title">
+                    <FaTag aria-hidden="true" /> Cart Discount
                   </h3>
-                  <div className="selected-cart-coupon">
-                    <div className="selected-coupon-details">
-                      <span className="coupon-code">
-                        {selectedCartLevelCoupon.coupon_code}
-                      </span>
-                    </div>
+                  <div className="cart-level-coupon-selector-selected-coupon">
+                    <span className="cart-level-coupon-selector-coupon-code">
+                      {selectedCartLevelCoupon.coupon_code}
+                    </span>
                   </div>
                 </div>
               </div>

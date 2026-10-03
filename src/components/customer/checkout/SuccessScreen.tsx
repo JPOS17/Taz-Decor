@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaCheckCircle, FaFileAlt, FaHome } from "react-icons/fa";
 import DeliveryEstimate from "./DeliveryEstimate";
 
@@ -24,14 +24,12 @@ const SuccessScreen = ({
   isGuest,
   shippingMethodName,
 }: SuccessScreenProps) => {
-  const navigate = useNavigate();
-
   if (!orderResult) return null;
 
   return (
     <div className="success-screen-checkout-success">
       <div className="success-screen-content">
-        <div className="success-screen-icon-large">
+        <div className="success-screen-icon-large" aria-hidden="true">
           <FaCheckCircle />
         </div>
         <h1 className="success-screen-title">Order Successfully Placed!</h1>
@@ -62,30 +60,31 @@ const SuccessScreen = ({
 
         {/* CTAs — guest users see order lookup; authenticated users see order history */}
         <div className="success-screen-actions">
-          <button
-            className="success-screen-btn-primary success-screen-btn-large"
-            onClick={() =>
+          <Link
+            to={
               isGuest
-                ? navigate(`/order-lookup`)
-                : navigate(`/order-confirmation/${orderResult.order_number}`)
+                ? "/order-lookup"
+                : `/order-confirmation/${orderResult.order_number}`
             }
+            className="success-screen-btn-primary success-screen-btn-large"
           >
-            <FaFileAlt /> {isGuest ? "Look Up My Order" : "View Order Details"}
-          </button>
+            <FaFileAlt aria-hidden="true" />{" "}
+            {isGuest ? "Look Up My Order" : "View Order Details"}
+          </Link>
           {!isGuest && (
-            <button
+            <Link
+              to="/orders"
               className="success-screen-btn-secondary success-screen-btn-large"
-              onClick={() => navigate("/orders")}
             >
               View All Orders
-            </button>
+            </Link>
           )}
-          <button
+          <Link
+            to="/"
             className="success-screen-btn-outline success-screen-btn-large"
-            onClick={() => navigate("/")}
           >
-            <FaHome /> Continue Shopping
-          </button>
+            <FaHome aria-hidden="true" /> Continue Shopping
+          </Link>
         </div>
 
         {/* Guest order number reminder */}
@@ -108,15 +107,15 @@ const SuccessScreen = ({
           <p>
             <strong>What happens next?</strong>
           </p>
-          <ul>
-            <li>We'll send you order updates via email</li>
-            {shippingMethodName && (
-              <DeliveryEstimate
-                shippingMethodName={shippingMethodName}
-                className="success-screen-review-delivery-estimate"
-              />
-            )}
-          </ul>
+          <p className="success-screen-note-text">
+            We'll send you order updates via email.
+          </p>
+          {shippingMethodName && (
+            <DeliveryEstimate
+              shippingMethodName={shippingMethodName}
+              className="success-screen-review-delivery-estimate"
+            />
+          )}
         </div>
       </div>
     </div>

@@ -158,7 +158,7 @@ const DeliveryEstimate = ({
 
   return (
     <div className={`delivery-estimate ${className}`}>
-      <div className="delivery-estimate-icon">
+      <div className="delivery-estimate-icon" aria-hidden="true">
         <FaTruck />
       </div>
       <div className="delivery-estimate-body">

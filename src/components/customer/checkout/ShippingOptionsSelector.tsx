@@ -40,8 +40,12 @@ const ShippingOptionsSelector = ({
         <h3 className="shipping-options-selector-title">Shipping Method</h3>
         <div className="shipping-options-selector-free-shipping-notice">
           <div className="shipping-options-selector-free-shipping-icon-wrap">
-            <FaShippingFast size={32} />
-            <FaCheck className="shipping-options-selector-check-overlay" size={16} />
+            <FaShippingFast size={32} aria-hidden="true" />
+            <FaCheck
+              className="shipping-options-selector-check-overlay"
+              size={16}
+              aria-hidden="true"
+            />
           </div>
           <div className="shipping-options-selector-free-shipping-message">
             <h4>Shipping is covered!</h4>
@@ -69,10 +73,14 @@ const ShippingOptionsSelector = ({
     return (
       <div className="shipping-options-selector-container">
         <h3 className="shipping-options-selector-title">Shipping Method</h3>
-        <div className="shipping-options-selector-error">
-          <FaExclamationTriangle />
+        <div className="shipping-options-selector-error" role="alert">
+          <FaExclamationTriangle aria-hidden="true" />
           <p>{shippingError}</p>
-          <button onClick={onRetryCalculation} className="shipping-options-selector-btn-retry">
+          <button
+            type="button"
+            onClick={onRetryCalculation}
+            className="shipping-options-selector-btn-retry"
+          >
             Try again
           </button>
         </div>
@@ -92,11 +100,11 @@ const ShippingOptionsSelector = ({
   }
 
   return (
-    <div className="shipping-options-selector-container">
-      <h3 className="shipping-options-selector-title">
+    <fieldset className="shipping-options-selector-container">
+      <legend className="shipping-options-selector-title">
         Shipping Method ({shippingOptions.length} option
         {shippingOptions.length !== 1 ? "s" : ""} available)
-      </h3>
+      </legend>
 
       {/* Shipping rate options — each rendered as a radio button card */}
       <div className="shipping-options-selector-options-list">
@@ -142,7 +150,7 @@ const ShippingOptionsSelector = ({
           </label>
         ))}
       </div>
-    </div>
+    </fieldset>
   );
 };
 
