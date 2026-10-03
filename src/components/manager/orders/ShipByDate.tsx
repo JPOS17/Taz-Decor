@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Clock, AlertTriangle } from "lucide-react";
 
 interface ShipByDateProps {
@@ -113,10 +114,10 @@ const ShipByDate = ({
   // Maps each urgency state to its icon, CSS modifier, and subtext copy
   const urgencyConfig: Record<
     Exclude<UrgencyState, "shipped">,
-    { icon: React.ReactNode; modifier: string; subtext: string }
+    { icon: ReactNode; modifier: string; subtext: string }
   > = {
     "on-time": {
-      icon: <Clock size={16} />,
+      icon: <Clock size={14} />,
       modifier: "on-time",
       subtext:
         daysLeft === 1
@@ -124,12 +125,12 @@ const ShipByDate = ({
           : `${daysLeft} business days remaining`,
     },
     "due-today": {
-      icon: <AlertTriangle size={16} />,
+      icon: <AlertTriangle size={14} />,
       modifier: "due-today",
       subtext: "Must ship today",
     },
     overdue: {
-      icon: <AlertTriangle size={16} />,
+      icon: <AlertTriangle size={14} />,
       modifier: "overdue",
       subtext: "Overdue! Ship as soon as possible",
     },
@@ -137,19 +138,15 @@ const ShipByDate = ({
 
   const { icon, modifier, subtext } = urgencyConfig[urgency];
 
-  const capNote =
-    processingMax === 1
-      ? "Express — 1 day processing"
-      : "Standard — 2 day processing";
-
   return (
     <div className={`ship-by-date ship-by-date--${modifier} ${className}`}>
-      <div className="ship-by-date__icon">{icon}</div>
-      <div className="ship-by-date__body">
-        <span className="ship-by-date__label">Ship By&nbsp;</span>
-        <span className="ship-by-date__date">{formatDate(shipByDate)}</span>
-        <span className="ship-by-date__sub">{subtext}</span>
-        {/* <span className="ship-by-date__cap-note">{capNote}</span> */}
+      <div className="ship-by-date-icon" aria-hidden="true">
+        {icon}
+      </div>
+      <div className="ship-by-date-body">
+        <span className="ship-by-date-label">Ship by </span>
+        <span className="ship-by-date-date">{formatDate(shipByDate)}</span>
+        <span className="ship-by-date-sub">{subtext}</span>
       </div>
     </div>
   );

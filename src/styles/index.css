@@ -70,6 +70,8 @@
 
 /* -- manager-facing: orders -- */
 @import "./components/manager/orders/_ship-by-date.css";
+@import "./components/manager/orders/_order-status-badge.css";
+@import "./components/manager/orders/_expanded-order-row.css";
 
 /* -- manager-facing: shared -- */
 @import "./components/manager/shared/_manager-toast-notification.css";

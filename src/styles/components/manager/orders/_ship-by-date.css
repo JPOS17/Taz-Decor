@@ -1,105 +1,86 @@
 /* ==============================================================================
-   SHIP BY DATE
-   Ship-by date estimate shown on manager order rows.
+   SHIP BY DATE COMPONENT
+   Compact ship-by estimate shown on manager order rows
+   Neutral by default (on time), amber when due today, red when overdue
+   
    Prefix: ship-by-date-*
    ============================================================================== */
 
 .ship-by-date {
+  --ship-by-date-bg: #f3f3f4;
+  --ship-by-date-border: #e6e6e8;
+  --ship-by-date-icon: #52525b;
+  --ship-by-date-date: #111113;
+  --ship-by-date-sub: #52525b;
+
   display: inline-flex;
   align-items: flex-start;
   gap: 0.5rem;
-  padding: 0.5rem 0.85rem;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  margin-top: 0.5rem;
+  padding: 0.35rem 0.65rem;
+  background: var(--ship-by-date-bg);
+  border: 1px solid var(--ship-by-date-border);
+  border-radius: 8px;
 }
 
-@media (max-width: 515px) {
-  .ship-by-date {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .ship-by-date__icon {
-    margin-top: 0;
-  }
-}
-
-/* ── Icon ────────────────────────────────────────────────────────────────── */
-
-.ship-by-date__icon {
-  flex-shrink: 0;
+.ship-by-date-icon {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   margin-top: 2px;
+  color: var(--ship-by-date-icon);
 }
 
-/* ── Text ────────────────────────────────────────────────────────────────── */
-
-.ship-by-date__body {
+.ship-by-date-body {
   display: flex;
   flex-direction: column;
-  gap: 0.05rem;
   line-height: 1.3;
 }
 
-.ship-by-date__label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-wrap: wrap;
+/* The column header already says "Ship By", so the label is read by screen readers only */
+.ship-by-date-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
-/* The processing cap note next to the label — e.g. "· Express — 1 day processing" */
-.ship-by-date__cap-note {
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-  opacity: 0.75;
-  font-size: 0.63rem;
+.ship-by-date-date {
+  color: var(--ship-by-date-date);
+  font-size: 0.85rem;
+  font-weight: 650;
+  white-space: nowrap;
 }
 
-.ship-by-date__date {
-  font-size: 0.9rem;
-  font-weight: 700;
+.ship-by-date-sub {
+  color: var(--ship-by-date-sub);
+  font-size: 0.72rem;
+  white-space: nowrap;
 }
 
-.ship-by-date__sub {
-  font-size: 0.7rem;
-}
-
-/* =============================================================================
-   Urgency variants
-   ============================================================================= */
-
-/* On time — neutral blue */
-.ship-by-date--on-time {
-  background: var(--color-info-bg);
-  border-color: var(--color-status-shipped-border);
-  color: var(--color-info-text);
-}
-.ship-by-date--on-time .ship-by-date__label { color: var(--color-info); }
-.ship-by-date--on-time .ship-by-date__sub   { color: var(--color-info); }
-
-/* Due today — amber warning */
+/* Due today — amber */
 .ship-by-date--due-today {
-  background: var(--color-warning-bg-solid);
-  border-color: var(--color-warning-border);
-  color: var(--color-warning-text);
+  --ship-by-date-bg: #fdf5de;
+  --ship-by-date-border: #f1dc9c;
+  --ship-by-date-icon: #9a6b00;
+  --ship-by-date-date: #6e4d00;
+  --ship-by-date-sub: #9a6b00;
 }
-.ship-by-date--due-today .ship-by-date__label { color: var(--color-warning); }
-.ship-by-date--due-today .ship-by-date__sub   { color: var(--color-warning-hover); font-weight: 600; }
 
-/* Overdue — red alert */
-.ship-by-date--overdue {
-  background: var(--color-danger-bg-solid);
-  border-color: var(--color-danger-border-light);
-  color: var(--color-danger-dark);
+.ship-by-date--due-today .ship-by-date-sub {
+  font-weight: 600;
 }
-.ship-by-date--overdue .ship-by-date__label { color: var(--color-danger); }
-.ship-by-date--overdue .ship-by-date__date  { color: var(--color-danger-dark); }
-.ship-by-date--overdue .ship-by-date__sub   { color: var(--color-danger); font-weight: 600; }
+
+/* Overdue — red */
+.ship-by-date--overdue {
+  --ship-by-date-bg: #fdeeed;
+  --ship-by-date-border: #f3c9c5;
+  --ship-by-date-icon: #d1382e;
+  --ship-by-date-date: #a82a21;
+  --ship-by-date-sub: #d1382e;
+}
+
+.ship-by-date--overdue .ship-by-date-sub {
+  font-weight: 600;
+}
