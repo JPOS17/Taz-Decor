@@ -1,51 +1,57 @@
 /* ==============================================================================
    COUPON BANNER
-   Compact coupon banner shown on product cards and listings.
+   Item-level offers on the product page and inside the cart's coupon modal
+   Each offer is a row: a code button (copy and select) and a toggle that
+   expands the offer's details and eligible products
+   
    Prefix: coupon-banner-*
    ============================================================================== */
 
 .coupon-banner-compact {
-  background: var(--color-surface-gradient);
-  border: 1.5px solid var(--color-border-accent);
-  border-radius: var(--radius-lg);
   overflow: hidden;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-top: 3px solid var(--color-border-accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
   font-family: var(--font-sans);
   font-size: 0.875rem;
-  box-shadow: var(--shadow-sm);
 }
 
 .coupon-banner-header-compact {
-  background: var(--gradient-badge-success);
-  color: var(--color-text-on-primary-alt);
-  padding: 0.55rem 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  font-family: var(--font-sans);
+  color: var(--color-text-accent);
+  background: var(--color-surface-warm);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 /* ============================================================================
-   COUPON LIST
+   OFFER LIST
    ============================================================================ */
 
 .coupon-banner-list {
-  padding: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .coupon-banner-list-scrollable {
-  max-height: 200px;
+  max-height: 232px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-mid) var(--color-surface-alt);
+  scrollbar-color: var(--color-primary-mid) transparent;
   transition: max-height 0.3s ease;
 }
 
 .coupon-banner-list-scrollable.coupon-banner-list-has-expanded {
-  max-height: 500px;
+  max-height: 520px;
 }
 
 .coupon-banner-list-scrollable::-webkit-scrollbar {
@@ -53,177 +59,177 @@
 }
 
 .coupon-banner-list-scrollable::-webkit-scrollbar-track {
-  background: var(--color-primary-tint);
-  border-radius: var(--radius-sm);
+  background: transparent;
 }
 
 .coupon-banner-list-scrollable::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--color-primary-mid), var(--color-primary));
-  border-radius: var(--radius-sm);
+  background: var(--color-primary-mid);
+  border-radius: var(--radius-full);
 }
-
-.coupon-banner-list-scrollable::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--color-primary-hover), var(--color-primary-dark));
-}
-
-/* ============================================================================
-   COUPON ITEM
-   ============================================================================ */
 
 .coupon-banner-item {
-  border: 1.5px solid var(--color-border-image);
-  border-radius: var(--radius-md);
-  margin-bottom: 0.5rem;
-  overflow: hidden;
-  transition: all 0.22s ease;
-  cursor: pointer;
-  background: var(--color-surface-gradient);
-}
-
-.coupon-banner-item:hover {
-  border-color: var(--color-border-hover);
-  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background-color 0.2s ease;
 }
 
 .coupon-banner-item:last-child {
-  margin-bottom: 0;
+  border-bottom: none;
 }
 
-.coupon-banner-item-selected {
-  border-color: var(--color-primary);
-  background: var(--color-surface-alt);
-  box-shadow: var(--shadow-xs);
+.coupon-banner-item:hover {
+  background: var(--color-primary-alpha-03);
 }
 
-.coupon-banner-item-selected .coupon-banner-item-header {
-  background: var(--color-primary-bg-hover);
+.coupon-banner-item-selected,
+.coupon-banner-item-selected:hover {
+  background: var(--color-primary-alpha-06);
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.coupon-banner-item-ineligible {
+  opacity: 0.7;
 }
 
 /* ============================================================================
-   COUPON HEADER ROW
+   ROW HEADER — icon | code button | toggle
    ============================================================================ */
 
 .coupon-banner-item-header {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--color-surface-table-header);
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.8rem 0.9rem;
 }
 
 .coupon-banner-icon {
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  color: var(--color-primary);
+  width: 30px;
+  height: 30px;
+  background: var(--color-surface-warm);
+  border: 1px solid var(--color-border-light);
+  border-radius: 50%;
 }
 
-/* Per-discount-type icon colors — CouponBanner.tsx getCouponIcon() */
 .coupon-icon-warning { color: var(--color-warning); }
 .coupon-icon-success { color: var(--color-success); }
 .coupon-icon-primary { color: var(--color-primary); }
 
-.coupon-banner-content {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.coupon-banner-first-line {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-/* ============================================================================
-   COUPON CODE CHIP
-   ============================================================================ */
-
+/* Code button — a "coupon stub" pill */
 .coupon-banner-code {
-  background: var(--color-surface-alt);
-  border: 1.5px solid var(--color-primary-mid);
-  color: var(--color-primary-text);
-  font-family: 'Courier New', monospace;
-  font-weight: 700;
-  font-size: 0.72rem;
-  padding: 0.22rem 0.55rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  letter-spacing: 0.03em;
+  flex-shrink: 0;
+  gap: 0.35rem;
+  margin-top: 0.1rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--color-success-bg);
+  border: 1.5px dashed var(--color-success);
+  border-radius: var(--radius-sm);
+  color: var(--color-success-text);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.coupon-banner-code:hover {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-mid) 100%);
+.coupon-banner-code:hover:not(:disabled) {
+  background: var(--color-success);
   color: var(--color-text-on-primary-alt);
-  border-color: transparent;
-  box-shadow: var(--shadow-xs);
 }
 
-.coupon-banner-code-selected {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-mid) 100%);
+.coupon-banner-code-selected,
+.coupon-banner-code-selected:hover:not(:disabled) {
+  background: var(--color-primary);
+  border-style: solid;
+  border-color: var(--color-primary);
   color: var(--color-text-on-primary-alt);
-  border-color: transparent;
-  box-shadow: 0 0 0 3px var(--color-primary-focus-ring);
 }
 
-.coupon-banner-code-selected:hover {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-mid) 100%);
-}
-
-.coupon-banner-code-ineligible {
-  opacity: 0.5;
+.coupon-banner-code-ineligible,
+.coupon-banner-code-ineligible:hover:not(:disabled) {
+  background: var(--color-surface-chip);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 
-/* ============================================================================
-   COUPON TEXT
-   ============================================================================ */
+/* Toggle — deal text, conditions, and the chevron */
+.coupon-banner-toggle {
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.coupon-banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
 
 .coupon-banner-deal {
-  color: var(--color-primary-deep);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-text-strongest);
 }
 
 .coupon-banner-min-purchase {
-  font-size: 0.68rem;
+  font-size: 0.76rem;
   color: var(--color-text-muted);
-  font-style: italic;
 }
 
 .coupon-banner-free-shipping {
-  font-size: 0.68rem;
-  color: var(--color-success);
+  font-size: 0.76rem;
   font-weight: 700;
-  margin-top: 0.1rem;
-  letter-spacing: 0.02em;
+  color: var(--color-success);
 }
 
 .coupon-banner-expiration {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.63rem;
-  color: var(--color-danger);
-  margin-top: 0.1rem;
-  font-weight: 600;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
 }
 
 .coupon-banner-expand-icon {
   flex-shrink: 0;
+  margin-top: 0.3rem;
   color: var(--color-text-muted);
-  transition: transform 0.22s ease;
+  transition: transform 0.25s ease, color 0.2s ease;
+}
+
+.coupon-banner-toggle:hover .coupon-banner-expand-icon {
+  color: var(--color-primary);
 }
 
 .coupon-banner-expand-icon-expanded {
   transform: rotate(180deg);
+}
+
+.coupon-banner-code:focus-visible,
+.coupon-banner-toggle:focus-visible,
+.coupon-banner-view-all:focus-visible,
+.coupon-banner-product-card:focus-visible,
+.coupon-banner-guest-login-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 /* ============================================================================
@@ -231,65 +237,67 @@
    ============================================================================ */
 
 .coupon-banner-details {
-  padding: 0.75rem;
-  border-top: 1px solid var(--color-primary-border-light);
-  background: var(--color-surface-table-cell);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.2rem 0.9rem 1rem 3.4rem;
 }
 
 .coupon-banner-description {
-  font-size: 0.75rem;
-  color: var(--color-primary-text);
-  margin-bottom: 0.5rem;
-  line-height: 1.5;
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--color-text-strong);
 }
 
 .coupon-banner-info-note {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-  font-size: 0.68rem;
-  color: var(--color-primary-deep);
-  background: var(--color-primary-bg-light);
-  padding: 0.35rem 0.5rem;
-  border-radius: var(--radius-sm);
-  margin-bottom: 0.5rem;
-  border-left: 3px solid var(--color-primary-mid);
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  color: var(--color-info-text);
+  background: var(--color-info-bg);
+  border-radius: var(--radius-md);
+}
+
+.coupon-banner-info-note > svg {
+  flex-shrink: 0;
+  color: var(--color-info);
 }
 
 .coupon-banner-ineligible-reason {
-  font-size: 0.72rem;
-  color: var(--color-danger);
-  margin-bottom: 0.5rem;
-  font-style: italic;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-danger-dark);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
 }
 
-/* ============================================================================
-   BOGO EXPLANATION
-   ============================================================================ */
-
 .coupon-banner-bogo-explanation {
-  background: var(--color-primary-bg-light);
-  border-left: 3px solid var(--color-primary-mid);
-  padding: 0.5rem;
-  margin-top: 0.5rem;
-  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.85rem;
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-md);
 }
 
 .coupon-banner-bogo-title {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-  font-weight: 700;
-  font-size: 0.75rem;
-  color: var(--color-primary-text);
+  gap: 0.45rem;
   margin-bottom: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-warning-text);
 }
 
 .coupon-banner-bogo-text {
-  font-size: 0.7rem;
-  color: var(--color-primary-text);
   margin: 0;
+  font-size: 0.8rem;
   line-height: 1.5;
+  color: var(--color-warning-text-mid);
 }
 
 /* ============================================================================
@@ -297,181 +305,195 @@
    ============================================================================ */
 
 .coupon-banner-eligible-section {
-  margin-top: 0.75rem;
-  background: var(--color-surface-table-header);
-  border-radius: var(--radius-md);
-  padding: 0.5rem;
-  border: 1px solid var(--color-primary-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .coupon-banner-eligible-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .coupon-banner-eligible-title {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-  font-size: 0.75rem;
+  gap: 0.45rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--color-primary-deep);
+  color: var(--color-text-mid);
+}
+
+.coupon-banner-eligible-title > svg {
+  flex-shrink: 0;
+  color: var(--color-primary-mid);
 }
 
 .coupon-banner-view-all {
+  padding: 0;
   background: none;
   border: none;
-  color: var(--color-primary);
-  font-size: 0.68rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
+  color: var(--color-primary-text);
   font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
   transition: color 0.2s ease;
-  letter-spacing: 0.01em;
 }
 
 .coupon-banner-view-all:hover {
-  color: var(--color-primary-deepest);
+  color: var(--color-primary-dark);
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .coupon-banner-loading {
-  text-align: center;
-  padding: 0.5rem;
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
+  width: 28px;
+  height: 28px;
+  margin: 0.5rem auto;
+  border: 3px solid var(--color-primary-alpha-12);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: coupon-banner-spin 0.8s linear infinite;
 }
 
-/* ============================================================================
-   PRODUCT PREVIEW CARDS
-   ============================================================================ */
+@keyframes coupon-banner-spin {
+  to { transform: rotate(360deg); }
+}
 
 .coupon-banner-products-preview {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  padding-bottom: 0.4rem;
   overflow-x: auto;
-  padding-bottom: 0.25rem;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary-mid) var(--color-primary-tint);
+  scrollbar-color: var(--color-primary-mid) transparent;
 }
 
 .coupon-banner-products-preview::-webkit-scrollbar {
-  height: 4px;
+  height: 5px;
 }
 
 .coupon-banner-products-preview::-webkit-scrollbar-track {
-  background: var(--color-primary-tint);
-  border-radius: 2px;
+  background: transparent;
 }
 
 .coupon-banner-products-preview::-webkit-scrollbar-thumb {
   background: var(--color-primary-mid);
-  border-radius: 2px;
+  border-radius: var(--radius-full);
 }
 
+/* Product card — a button, so it works from the keyboard */
 .coupon-banner-product-card {
-  min-width: 80px;
-  max-width: 80px;
-  background: var(--color-surface-gradient);
-  border: 1.5px solid var(--color-border-image);
-  border-radius: var(--radius-sm);
-  padding: 0.375rem;
-  text-align: center;
+  display: flex;
+  flex: 0 0 96px;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 96px;
+  padding: 0.4rem;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  text-align: left;
   cursor: pointer;
-  transition: all 0.22s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .coupon-banner-product-card:hover {
-  transform: translateY(-2px);
+  border-color: var(--color-primary-mid);
   box-shadow: var(--shadow-img-hover);
-  border-color: var(--color-border-hover);
+  transform: translateY(-2px);
 }
 
 .coupon-banner-product-image {
+  display: block;
   width: 100%;
-  height: 60px;
-  object-fit: cover;
+  aspect-ratio: 1 / 1;
+  padding: 3px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  background: var(--color-surface-warm);
   border-radius: var(--radius-sm);
-  margin-bottom: 0.25rem;
 }
 
 .coupon-banner-product-name {
-  font-size: 0.63rem;
-  font-weight: 500;
-  color: var(--color-primary-deep);
-  margin-bottom: 0.125rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  line-height: 1.2;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-text-strongest);
 }
 
 .coupon-banner-product-price {
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--color-success);
+  color: var(--color-primary-deep);
 }
-
-/* ============================================================================
-   USAGE INFO & FOOTER
-   ============================================================================ */
 
 .coupon-banner-usage-info {
-  font-size: 0.68rem;
-  color: var(--color-text-muted);
-  margin-top: 0.5rem;
+  font-size: 0.76rem;
   font-style: italic;
-}
-
-.coupon-banner-footer {
-  background: var(--color-surface-table-header);
-  padding: 0.35rem 0.75rem;
-  font-size: 0.68rem;
   color: var(--color-text-muted);
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  border-top: 1px solid var(--color-primary-border-light);
 }
 
 /* ============================================================================
-   GUEST SIGN-IN NOTICE
+   FOOTER AND GUEST NOTICE
    ============================================================================ */
+
+.coupon-banner-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface-warm);
+  border-top: 1px solid var(--color-border-light);
+}
 
 .coupon-banner-guest-notice {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.85rem;
-  background: var(--color-danger-bg);
-  border: 1px solid var(--color-danger-border-light);
-  border-radius: var(--radius-sm);
-  color: var(--color-danger-dark);
-  font-size: 0.78rem;
-  font-family: var(--font-sans);
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-notice-text-dark);
+  background: var(--color-notice-bg);
+  border: 1px solid var(--color-notice-border);
+  border-radius: var(--radius-md);
+}
+
+.coupon-banner-guest-notice > svg {
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+  color: var(--color-notice-text);
 }
 
 .coupon-banner-guest-login-link {
+  padding: 0;
   background: none;
   border: none;
-  padding: 0;
-  font-family: var(--font-sans);
+  font-family: inherit;
   font-size: inherit;
   font-weight: 700;
-  color: var(--color-danger);
-  cursor: pointer;
+  color: var(--color-primary-text);
   text-decoration: underline;
   text-underline-offset: 2px;
-  transition: color 0.15s ease;
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
 .coupon-banner-guest-login-link:hover {
-  color: var(--color-danger-dark);
+  color: var(--color-primary-dark);
 }
 
 /* ============================================================================
@@ -479,16 +501,19 @@
    ============================================================================ */
 
 @media (max-width: 576px) {
-  .coupon-banner-compact {
-    font-size: 0.8rem;
+  .coupon-banner-item-header {
+    flex-wrap: wrap;
+    gap: 0.5rem 0.65rem;
+    padding: 0.75rem;
   }
 
-  .coupon-banner-product-card {
-    min-width: 70px;
-    max-width: 70px;
+  /* The toggle takes a full row under the icon and code */
+  .coupon-banner-toggle {
+    flex: 1 1 100%;
+    order: 3;
   }
 
-  .coupon-banner-product-image {
-    height: 50px;
+  .coupon-banner-details {
+    padding: 0.1rem 0.75rem 0.9rem;
   }
 }
