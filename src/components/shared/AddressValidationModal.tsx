@@ -1,3 +1,4 @@
+import { useEffect, useId, useRef } from "react";
 import { FaCheckCircle, FaExclamationTriangle, FaTimes } from "react-icons/fa";
 import type { AddressValidationResult } from "../../api/checkout";
 
@@ -18,6 +19,32 @@ const AddressValidationModal = ({
   const { is_valid, validation_results, original_address, validated_address } =
     validationResult;
 
+  const titleId = useId();
+  // The first action button receives focus when the dialog opens
+  const actionsRef = useRef<HTMLDivElement>(null);
+
+  // While open: focus the first action, lock page scroll, and let Escape cancel.
+  // Escape is caught in the capture phase and stopped, so a modal underneath
+  // (such as the address form) doesn't also close.
+  useEffect(() => {
+    actionsRef.current?.querySelector("button")?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      onCancel();
+    };
+    window.addEventListener("keydown", handleKeyDown, true);
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [onCancel]);
+
   // Normalize street fields — API may return street1 or address_line1 depending on the source
   const originalStreet1 =
     original_address.street1 || (original_address as any).address_line1 || "";
@@ -37,24 +64,40 @@ const AddressValidationModal = ({
 
   return (
     <div className="address-validation-modal-overlay">
-      <div className="address-validation-modal">
+      <div
+        className="address-validation-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+      >
         {/* Header */}
         <div className="address-validation-modal-header">
-          <h3>
+          <h2 id={titleId} className="address-validation-modal-title">
             {is_valid ? (
               <>
-                <FaCheckCircle className="address-validation-modal-header-icon-success" /> Address
-                Verification
+                <FaCheckCircle
+                  className="address-validation-modal-header-icon-success"
+                  aria-hidden="true"
+                />{" "}
+                Address Verification
               </>
             ) : (
               <>
-                <FaExclamationTriangle className="address-validation-modal-header-icon-warning" />{" "}
+                <FaExclamationTriangle
+                  className="address-validation-modal-header-icon-warning"
+                  aria-hidden="true"
+                />{" "}
                 Address Issue Detected
               </>
             )}
-          </h3>
-          <button className="address-validation-modal-close" onClick={onCancel}>
-            <FaTimes />
+          </h2>
+          <button
+            type="button"
+            className="address-validation-modal-close"
+            onClick={onCancel}
+            aria-label="Close address verification"
+          >
+            <FaTimes aria-hidden="true" />
           </button>
         </div>
 
@@ -75,7 +118,7 @@ const AddressValidationModal = ({
               <div className="address-validation-modal-address-comparison">
                 {/* Original address as entered by the user */}
                 <div className="address-validation-modal-address-column">
-                  <h4>You Entered:</h4>
+                  <h3>You Entered</h3>
                   <div className="address-validation-modal-address-box address-validation-modal-address-box-original">
                     <p>{originalStreet1}</p>
                     {originalStreet2 && <p>{originalStreet2}</p>}
@@ -87,7 +130,7 @@ const AddressValidationModal = ({
 
                 {/* USPS-corrected address */}
                 <div className="address-validation-modal-address-column">
-                  <h4>Suggested:</h4>
+                  <h3>Suggested</h3>
                   <div className="address-validation-modal-address-box address-validation-modal-address-box-corrected">
                     <p>{validated_address.street1}</p>
                     {validated_address.street2 && (
@@ -105,7 +148,7 @@ const AddressValidationModal = ({
 
           {/* State 3: invalid — shows USPS error messages and the address as entered */}
           {!is_valid && (
-            <div className="address-validation-modal-validation-error">
+            <div className="address-validation-modal-validation-error" role="alert">
               <p className="address-validation-modal-error-notice">
                 We couldn't verify this address. Please review your address
                 before continuing!
@@ -129,10 +172,10 @@ const AddressValidationModal = ({
         </div>
 
         {/* Actions */}
-        <div className="address-validation-modal-actions">
+        <div className="address-validation-modal-actions" ref={actionsRef}>
           {/* Valid, no corrections — single continue button */}
           {is_valid && !hasCorrections && (
-            <button className="address-validation-modal-btn-accept" onClick={onAcceptOriginal}>
+            <button type="button" className="address-validation-modal-btn-accept" onClick={onAcceptOriginal}>
               Continue
             </button>
           )}
@@ -141,12 +184,14 @@ const AddressValidationModal = ({
           {is_valid && hasCorrections && (
             <>
               <button
+                type="button"
                 className="address-validation-modal-btn-accept-original"
                 onClick={onAcceptOriginal}
               >
                 Use Original Address
               </button>
               <button
+                type="button"
                 className="address-validation-modal-btn-accept-corrected"
                 onClick={onAcceptCorrected}
               >
@@ -158,10 +203,11 @@ const AddressValidationModal = ({
           {/* Invalid — allow going back to edit or saving as-is */}
           {!is_valid && (
             <>
-              <button className="address-validation-modal-btn-cancel" onClick={onCancel}>
+              <button type="button" className="address-validation-modal-btn-cancel" onClick={onCancel}>
                 Go Back & Edit
               </button>
               <button
+                type="button"
                 className="address-validation-modal-btn-accept-anyway"
                 onClick={onAcceptOriginal}
               >

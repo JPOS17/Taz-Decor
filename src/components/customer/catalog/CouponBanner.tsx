@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaTag,
@@ -50,6 +50,8 @@ const CouponBanner = ({
 }: CouponBannerProps) => {
   const navigate = useNavigate();
   const { isAuthenticated, user, isLoading } = useAuth();
+  // Prefix for the ids that link each row's toggle button to its details panel
+  const idPrefix = useId();
 
   // ============================================================================
   // STATE MANAGEMENT
@@ -61,7 +63,6 @@ const CouponBanner = ({
   );
 
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
-  const [clickedCode, setClickedCode] = useState<string | null>(null);
   const [expandedCoupons, setExpandedCoupons] = useState<Set<number>>(
     new Set(),
   );
@@ -107,11 +108,11 @@ const CouponBanner = ({
   // Returns the appropriate icon for a coupon based on its discount type
   const getCouponIcon = (coupon: ProductCoupon) => {
     if (coupon.discount_type === "bogo") {
-      return <FaGift className="coupon-icon-warning" size={14} />;
+      return <FaGift className="coupon-icon-warning" size={14} aria-hidden="true" />;
     }
     if (coupon.discount_type === "percentage")
-      return <FaPercent className="coupon-icon-success" size={14} />;
-    return <FaTag className="coupon-icon-primary" size={14} />;
+      return <FaPercent className="coupon-icon-success" size={14} aria-hidden="true" />;
+    return <FaTag className="coupon-icon-primary" size={14} aria-hidden="true" />;
   };
 
   // Returns the human-readable discount description for a coupon row
@@ -245,7 +246,6 @@ const CouponBanner = ({
   const handleCouponClick = (coupon: ProductCoupon) => {
     if (onCouponSelect) {
       onCouponSelect(coupon);
-      setClickedCode(coupon.coupon_code);
     }
   };
 
@@ -263,9 +263,7 @@ const CouponBanner = ({
   };
 
   // Navigates to a product page
-  const handleProductClick = (e: React.MouseEvent, variantId: number) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleProductClick = (variantId: number) => {
     navigate(`/items/${variantId}`);
   };
 
@@ -282,11 +280,11 @@ const CouponBanner = ({
   return (
     <div className="coupon-banner-compact">
       <div className="coupon-banner-header-compact">
-        <FaTag size={12} />
+        <FaTag size={12} aria-hidden="true" />
         <span>Offers ({sortedCoupons.length})</span>
       </div>
 
-      <div
+      <ul
         className={[
           "coupon-banner-list",
           sortedCoupons.length > 2 ? "coupon-banner-list-scrollable" : "",
@@ -299,15 +297,17 @@ const CouponBanner = ({
           const isExpanded = expandedCoupons.has(coupon.coupon_id);
           const isBogo = coupon.discount_type === "bogo";
           const products = eligibleProducts[coupon.coupon_id] || [];
-          const isLoading = loadingProducts.has(coupon.coupon_id);
+          const isLoadingProducts = loadingProducts.has(coupon.coupon_id);
           const isSelected = selectedCoupon?.coupon_id === coupon.coupon_id;
           const eligible = isEligible(coupon);
           const ineligibilityReason = !eligible
             ? getIneligibilityReason(coupon)
             : "";
 
+          const detailsId = `${idPrefix}-coupon-${coupon.coupon_id}`;
+
           return (
-            <div
+            <li
               key={coupon.coupon_id}
               className={[
                 "coupon-banner-item",
@@ -318,108 +318,110 @@ const CouponBanner = ({
               ]
                 .filter(Boolean)
                 .join(" ")}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleCouponExpand(coupon.coupon_id);
-              }}
             >
               <div className="coupon-banner-item-header">
                 <div className="coupon-banner-icon">
                   {getCouponIcon(coupon)}
                 </div>
-                <div className="coupon-banner-content">
-                  <div className="coupon-banner-first-line">
-                    {/* Coupon code button */}
-                    <button
-                      className={[
-                        "coupon-banner-code",
-                        isSelected ? "coupon-banner-code-selected" : "",
-                        !eligible && isAuthenticated
-                          ? "coupon-banner-code-ineligible"
-                          : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!isAuthenticated) {
-                          toggleCouponExpand(coupon.coupon_id);
-                          return;
-                        }
-                        if (!eligible) return;
-                        copyCode(coupon.coupon_code);
-                        setClickedCode(coupon.coupon_code);
-                        handleCouponClick(coupon);
-                      }}
-                      disabled={!eligible && isAuthenticated}
-                      title={
-                        !isAuthenticated
-                          ? "Sign in to use this coupon"
-                          : !eligible
-                            ? ineligibilityReason
-                            : "Click to select this coupon"
-                      }
-                    >
-                      {copiedCode === coupon.coupon_code ? (
-                        <>
-                          <FaCheckCircle size={12} /> Selected!
-                        </>
-                      ) : (
-                        <>
-                          {isSelected && <FaCheckCircle size={12} />}
-                          {coupon.coupon_code}
-                        </>
-                      )}
-                    </button>
-                    <span className="coupon-banner-deal">
-                      {getCouponText(coupon)}
-                    </span>
-                  </div>
-
-                  {coupon.min_purchase_amount && (
-                    <div className="coupon-banner-min-purchase">
-                      Minimum purchase: ${coupon.min_purchase_amount.toFixed(2)}
-                    </div>
-                  )}
-
-                  {coupon.valid_until && (
-                    <div className="coupon-banner-expiration">
-                      <FaCalendar size={10} />
-                      <span>
-                        Expires:{" "}
-                        {formatDate(coupon.valid_until, false, "short")}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <FaChevronDown
-                  size={10}
+                {/* Code button — copies and selects the coupon */}
+                <button
+                  type="button"
                   className={[
-                    "coupon-banner-expand-icon",
-                    isExpanded ? "coupon-banner-expand-icon-expanded" : "",
+                    "coupon-banner-code",
+                    isSelected ? "coupon-banner-code-selected" : "",
+                    !eligible && isAuthenticated
+                      ? "coupon-banner-code-ineligible"
+                      : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                />
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      toggleCouponExpand(coupon.coupon_id);
+                      return;
+                    }
+                    if (!eligible) return;
+                    copyCode(coupon.coupon_code);
+                    handleCouponClick(coupon);
+                  }}
+                  disabled={!eligible && isAuthenticated}
+                  title={
+                    !isAuthenticated
+                      ? "Sign in to use this coupon"
+                      : !eligible
+                        ? ineligibilityReason
+                        : "Click to select this coupon"
+                  }
+                >
+                  {copiedCode === coupon.coupon_code ? (
+                    <>
+                      <FaCheckCircle size={12} aria-hidden="true" /> Selected!
+                    </>
+                  ) : (
+                    <>
+                      {isSelected && (
+                        <FaCheckCircle size={12} aria-hidden="true" />
+                      )}
+                      {coupon.coupon_code}
+                    </>
+                  )}
+                </button>
+
+                {/* Toggle — the rest of the row expands the coupon's details */}
+                <button
+                  type="button"
+                  className="coupon-banner-toggle"
+                  onClick={() => toggleCouponExpand(coupon.coupon_id)}
+                  aria-expanded={isExpanded}
+                  aria-controls={detailsId}
+                >
+                  <span className="coupon-banner-content">
+                    <span className="coupon-banner-deal">
+                      {getCouponText(coupon)}
+                    </span>
+
+                    {coupon.min_purchase_amount && (
+                      <span className="coupon-banner-min-purchase">
+                        Minimum purchase: $
+                        {coupon.min_purchase_amount.toFixed(2)}
+                      </span>
+                    )}
+
+                    {coupon.valid_until && (
+                      <span className="coupon-banner-expiration">
+                        <FaCalendar size={10} aria-hidden="true" />
+                        <span>
+                          Expires:{" "}
+                          {formatDate(coupon.valid_until, false, "short")}
+                        </span>
+                      </span>
+                    )}
+                  </span>
+                  <FaChevronDown
+                    size={10}
+                    className={[
+                      "coupon-banner-expand-icon",
+                      isExpanded ? "coupon-banner-expand-icon-expanded" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
 
               {/* Expanded details */}
               {isExpanded && (
-                <div
-                  className="coupon-banner-details"
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <div id={detailsId} className="coupon-banner-details">
                   {!isAuthenticated ? (
                     <div className="coupon-banner-guest-notice">
-                      <FaLock size={13} />
+                      <FaLock size={13} aria-hidden="true" />
                       <span>
                         Coupons are only applicable for signed-in users.{" "}
                         <button
+                          type="button"
                           className="coupon-banner-guest-login-link"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate("/login");
-                          }}
+                          onClick={() => navigate("/login")}
                         >
                           Sign in to redeem
                         </button>
@@ -442,7 +444,7 @@ const CouponBanner = ({
                       {coupon.discount_type === "percentage" &&
                         coupon.max_discount_amount && (
                           <div className="coupon-banner-info-note">
-                            <FaInfoCircle size={12} />
+                            <FaInfoCircle size={12} aria-hidden="true" />
                             <span>
                               Maximum discount: $
                               {coupon.max_discount_amount.toFixed(2)}
@@ -454,7 +456,7 @@ const CouponBanner = ({
                       {isBogo && (
                         <div className="coupon-banner-bogo-explanation">
                           <div className="coupon-banner-bogo-title">
-                            <FaInfoCircle size={12} />
+                            <FaInfoCircle size={12} aria-hidden="true" />
                             <span>How this works</span>
                           </div>
                           <p className="coupon-banner-bogo-text">
@@ -469,17 +471,15 @@ const CouponBanner = ({
                         <div className="coupon-banner-eligible-section">
                           <div className="coupon-banner-eligible-header">
                             <div className="coupon-banner-eligible-title">
-                              <FaBoxOpen size={12} />
+                              <FaBoxOpen size={12} aria-hidden="true" />
                               <span>
                                 Applies to: {getAppliesDescription(coupon)}
                               </span>
                             </div>
                             {coupon.applies_to_type === "all" && (
                               <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleViewAllProducts(coupon);
-                                }}
+                                type="button"
+                                onClick={() => handleViewAllProducts(coupon)}
                                 className="coupon-banner-view-all"
                               >
                                 View all →
@@ -489,33 +489,40 @@ const CouponBanner = ({
 
                           {coupon.applies_to_type !== "all" && (
                             <>
-                              {isLoading ? (
-                                <div className="coupon-banner-loading" />
+                              {isLoadingProducts ? (
+                                <div
+                                  className="coupon-banner-loading"
+                                  role="status"
+                                  aria-label="Loading eligible products"
+                                />
                               ) : products.length > 0 ? (
-                                <div className="coupon-banner-products-preview">
+                                <div
+                                  className="coupon-banner-products-preview"
+                                  role="group"
+                                  aria-label="Eligible products"
+                                >
                                   {products.map((product: EligibleProduct) => (
-                                    <div
+                                    <button
+                                      type="button"
                                       key={product.variant_id}
                                       className="coupon-banner-product-card"
-                                      onClick={(e) =>
-                                        handleProductClick(
-                                          e,
-                                          product.variant_id,
-                                        )
+                                      onClick={() =>
+                                        handleProductClick(product.variant_id)
                                       }
                                     >
                                       <img
                                         src={product.primary_image}
-                                        alt={product.name}
+                                        alt=""
                                         className="coupon-banner-product-image"
+                                        loading="lazy"
                                       />
                                       <div className="coupon-banner-product-name">
                                         {product.name}
                                       </div>
                                       <div className="coupon-banner-product-price">
-                                        ${Number(product.price).toFixed(2)}{" "}
+                                        ${Number(product.price).toFixed(2)}
                                       </div>
-                                    </div>
+                                    </button>
                                   ))}
                                 </div>
                               ) : null}
@@ -534,13 +541,13 @@ const CouponBanner = ({
                   )}
                 </div>
               )}
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
 
       <div className="coupon-banner-footer">
-        <FaTag size={10} /> Codes apply at checkout
+        <FaTag size={10} aria-hidden="true" /> Codes apply at checkout
       </div>
     </div>
   );

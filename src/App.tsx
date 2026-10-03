@@ -9,15 +9,9 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <div>
-          <div>
-            <TopBar />
-          </div>
-          <div>
-            <AppRoutes />
-          </div>
-          <div>
-            <Footer />
-          </div>
+          <TopBar />
+          <AppRoutes />
+          <Footer />
         </div>
       </CartProvider>
     </AuthProvider>
