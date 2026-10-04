@@ -14,6 +14,8 @@ interface CustomSelectProps {
   searchable?: boolean;
   className?: string;
   disabled?: boolean;
+  // Lets a <label htmlFor> point at the trigger button
+  id?: string;
 }
 
 export const CustomSelect = ({
@@ -24,6 +26,7 @@ export const CustomSelect = ({
   searchable = true,
   className = "",
   disabled = false,
+  id,
 }: CustomSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -74,6 +77,15 @@ export const CustomSelect = ({
     setSearchTerm("");
   };
 
+  // Escape closes the dropdown without selecting anything
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Escape" && isOpen) {
+      e.stopPropagation();
+      setIsOpen(false);
+      setSearchTerm("");
+    }
+  };
+
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -81,21 +93,28 @@ export const CustomSelect = ({
   return (
     <div
       ref={dropdownRef}
+      onKeyDown={handleKeyDown}
       className={`custom-select-container ${className} ${disabled ? "custom-select-disabled" : ""}`}
     >
       {/* Trigger button */}
-      <div
+      <button
+        type="button"
+        id={id}
         className={`custom-select-trigger ${isOpen ? "custom-select-open" : ""}`}
         onClick={() => !disabled && setIsOpen(!isOpen)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        disabled={disabled}
       >
         <span className={selectedOption ? "" : "custom-select-placeholder"}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
-          size={20}
+          size={18}
+          aria-hidden="true"
           className={`custom-select-arrow ${isOpen ? "custom-select-arrow-up" : ""}`}
         />
-      </div>
+      </button>
 
       {/* Dropdown */}
       {isOpen && !disabled && (
@@ -103,26 +122,34 @@ export const CustomSelect = ({
           {/* Search input */}
           {searchable && options.length > 5 && (
             <div className="custom-select-search">
-              <Search size={16} className="custom-select-search-icon" />
+              <Search
+                size={16}
+                className="custom-select-search-icon"
+                aria-hidden="true"
+              />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search..."
                 className="custom-select-search-input"
+                aria-label="Search options"
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
           )}
 
-          <div className="custom-select-options">
+          <div className="custom-select-options" role="listbox">
             {filteredOptions.length === 0 ? (
               <div className="custom-select-no-results">No results found</div>
             ) : (
               filteredOptions.map((option) => (
-                <div
+                <button
+                  type="button"
                   key={option.value}
+                  role="option"
+                  aria-selected={option.value === value}
                   className={`custom-select-option ${
                     option.value === value
                       ? "custom-select-option-selected"
@@ -131,7 +158,7 @@ export const CustomSelect = ({
                   onClick={() => handleSelect(option.value)}
                 >
                   {option.label}
-                </div>
+                </button>
               ))
             )}
           </div>

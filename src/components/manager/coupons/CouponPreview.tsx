@@ -144,13 +144,13 @@ export const CouponPreview = ({
   const formatDiscount = (cpn: Coupon) => {
     if (cpn.discount_type === "free_shipping_only") {
       return (
-        <span className="coupon-discount-shipping">Free Shipping Only</span>
+        <span className="coupon-discount-chip coupon-discount-chip--shipping">Free Shipping Only</span>
       );
     }
 
     if (cpn.discount_type === "bogo") {
       return (
-        <span className="coupon-discount-bogo">
+        <span className="coupon-discount-chip coupon-discount-chip--bogo">
           {getBOGOLabel(
             cpn.bogo_buy_quantity,
             cpn.bogo_get_quantity,
@@ -172,7 +172,7 @@ export const CouponPreview = ({
     // Fallback for free_shipping flag without a discount value
     if (cpn.free_shipping && !cpn.discount_value) {
       return (
-        <span className="coupon-discount-shipping">Free Shipping Only</span>
+        <span className="coupon-discount-chip coupon-discount-chip--shipping">Free Shipping Only</span>
       );
     }
 
@@ -187,29 +187,36 @@ export const CouponPreview = ({
 
   return (
     <div className="coupon-preview-container">
-      {/* Summary row */}
-      <div className="coupon-preview-summary">
-        <div className="coupon-preview-summary-grid">
-          <div>
-            <strong>Discount:</strong> {formatDiscount(coupon)}
+      {/* Summary tiles */}
+      <div className="coupon-preview-stats">
+        <div className="coupon-preview-stat">
+          <div className="coupon-preview-stat-label">Discount</div>
+          <div className="coupon-preview-stat-value">
+            {formatDiscount(coupon)}
           </div>
-          <div>
-            <strong>Applies To:</strong>{" "}
+        </div>
+        <div className="coupon-preview-stat">
+          <div className="coupon-preview-stat-label">Applies To</div>
+          <div className="coupon-preview-stat-value">
             {coupon.applies_to_name || "All Products"}
           </div>
-          {coupon.min_purchase_amount && (
-            <div>
-              <strong>Min Purchase:</strong> $
-              {coupon.min_purchase_amount.toFixed(2)}
-            </div>
-          )}
-          {coupon.max_discount_amount && (
-            <div>
-              <strong>Max Discount:</strong> $
-              {coupon.max_discount_amount.toFixed(2)}
-            </div>
-          )}
         </div>
+        {coupon.min_purchase_amount && (
+          <div className="coupon-preview-stat">
+            <div className="coupon-preview-stat-label">Min Purchase</div>
+            <div className="coupon-preview-stat-value">
+              ${coupon.min_purchase_amount.toFixed(2)}
+            </div>
+          </div>
+        )}
+        {coupon.max_discount_amount && (
+          <div className="coupon-preview-stat">
+            <div className="coupon-preview-stat-label">Max Discount</div>
+            <div className="coupon-preview-stat-value">
+              ${coupon.max_discount_amount.toFixed(2)}
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -231,7 +238,7 @@ export const CouponPreview = ({
             </strong>
             {coupon.discount_type === "bogo" && (
               <div className="coupon-preview-note">
-                * BOGO discounts apply when customer adds{" "}
+                BOGO discounts apply when customer adds{" "}
                 {(coupon.bogo_buy_quantity || 1) +
                   (coupon.bogo_get_quantity || 1)}
                 + items to cart (Buy {coupon.bogo_buy_quantity || 1}, Get{" "}
@@ -322,48 +329,41 @@ export const CouponPreview = ({
 
           {/* Totals summary */}
           {coupon.discount_value && coupon.discount_type !== "bogo" && (
-            <div className="coupon-preview-totals">
-              <div className="coupon-totals-grid">
-                <div>
-                  <div className="coupon-totals-label">Total Original</div>
-                  <div className="coupon-totals-value">
-                    $
-                    {previewProducts
-                      .reduce((sum, p) => sum + parseFloat(p.price), 0)
-                      .toFixed(2)}
-                  </div>
+            <div className="coupon-totals-grid">
+              <div className="coupon-totals-tile">
+                <div className="coupon-totals-label">Total Original</div>
+                <div className="coupon-totals-value">
+                  $
+                  {previewProducts
+                    .reduce((sum, p) => sum + parseFloat(p.price), 0)
+                    .toFixed(2)}
                 </div>
-                <div>
-                  <div className="coupon-totals-label">Total Savings</div>
-                  <div className="coupon-totals-value coupon-totals-savings">
-                    -$
-                    {previewProducts
-                      .reduce((sum, p) => {
-                        const original = parseFloat(p.price);
-                        const final = calculateDiscountedPrice(
-                          original,
-                          coupon,
-                        );
-                        return sum + (original - final);
-                      }, 0)
-                      .toFixed(2)}
-                  </div>
+              </div>
+              <div className="coupon-totals-tile">
+                <div className="coupon-totals-label">Total Savings</div>
+                <div className="coupon-totals-value coupon-totals-savings">
+                  -$
+                  {previewProducts
+                    .reduce((sum, p) => {
+                      const original = parseFloat(p.price);
+                      const final = calculateDiscountedPrice(original, coupon);
+                      return sum + (original - final);
+                    }, 0)
+                    .toFixed(2)}
                 </div>
-                <div>
-                  <div className="coupon-totals-label">
-                    Total After Discount
-                  </div>
-                  <div className="coupon-totals-value coupon-totals-final">
-                    $
-                    {previewProducts
-                      .reduce((sum, p) => {
-                        return (
-                          sum +
-                          calculateDiscountedPrice(parseFloat(p.price), coupon)
-                        );
-                      }, 0)
-                      .toFixed(2)}
-                  </div>
+              </div>
+              <div className="coupon-totals-tile">
+                <div className="coupon-totals-label">Total After Discount</div>
+                <div className="coupon-totals-value coupon-totals-final">
+                  $
+                  {previewProducts
+                    .reduce((sum, p) => {
+                      return (
+                        sum +
+                        calculateDiscountedPrice(parseFloat(p.price), coupon)
+                      );
+                    }, 0)
+                    .toFixed(2)}
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, AlertCircle, X } from "lucide-react";
 import {
   fetchCoupons,
   createCoupon,
@@ -30,8 +30,6 @@ import ConfirmationModal from "../../../components/manager/shared/ManagerConfirm
 import { useConfirmationModal } from "../../../hooks/useConfirmationModal";
 
 const CouponsPage = () => {
-  const navigate = useNavigate();
-
   // ============================================================================
   // STATE MANAGEMENT
   // ============================================================================
@@ -462,73 +460,108 @@ const CouponsPage = () => {
     resetForm();
   };
 
+  // Resets every list filter back to its default
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setAppliesToFilter("all");
+    setLocationFilter("all");
+  };
+
+  // True when any filter differs from its default (drives the empty-state wording)
+  const hasActiveFilters =
+    searchQuery !== "" ||
+    statusFilter !== "all" ||
+    appliesToFilter !== "all" ||
+    locationFilter !== "all";
+
+  // Closes the read-only preview modal
+  const handleClosePreview = () => {
+    setShowPreviewModal(false);
+    setPreviewCoupon(null);
+  };
+
   // ============================================================================
   // RENDER
   // ============================================================================
 
   return (
-    <div className="manager-page accent-coupons">
+    <div className="coupons-page">
       {/* Header */}
-      <div className="mgr-header">
-        <div className="mgr-header-inner">
-          <div>
-            <button
-              className="mgr-back-button"
-              onClick={() => navigate("/manager")}
-            >
-              <ArrowLeft size={16} />
-              Back to Dashboard
-            </button>
-            <h1 className="mgr-header-title">Coupons & Discounts</h1>
-            <p className="mgr-header-subtitle">
-              Create and manage discount codes
-            </p>
-          </div>
-        </div>
-      </div>
+      <header className="coupons-header">
+        <div className="coupons-container">
+          <Link to="/manager" className="coupons-back-link">
+            <ArrowLeft size={15} aria-hidden="true" />
+            Back to Dashboard
+          </Link>
+          <div className="coupons-header-row">
+            <div>
+              <p className="coupons-eyebrow">Manager</p>
+              <h1 className="coupons-title">Coupons &amp; Discounts</h1>
+              <p className="coupons-subtitle">
+                Create and manage discount codes
+              </p>
+            </div>
 
-      {/* Main Content */}
-      <div className="mgr-container">
-        <div className="mgr-body">
-          {/* Inline error alert */}
-          {error && <div className="coupon-error-alert">{error}</div>}
-
-          {/* Create Coupon action button */}
-          <div className="coupon-create-action">
+            {/* Create Coupon action button */}
             <button
+              type="button"
               onClick={() => setShowCreateModal(true)}
-              className="mgr-btn mgr-btn-primary"
+              className="coupons-btn coupons-btn--primary"
             >
-              <Plus size={20} />
+              <Plus size={16} aria-hidden="true" />
               Create Coupon
             </button>
           </div>
-
-          {/* Filter bar */}
-          <CouponFilters
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            appliesToFilter={appliesToFilter}
-            setAppliesToFilter={setAppliesToFilter}
-            locationFilter={locationFilter}
-            setLocationFilter={setLocationFilter}
-            locations={locations}
-          />
-
-          {/* Coupons table */}
-          <CouponsTable
-            coupons={coupons}
-            loading={loading}
-            onPreview={handlePreviewCoupon}
-            onToggleStatus={handleToggleStatus}
-            onEdit={openEditModal}
-            onDelete={handleDeleteCoupon}
-            onCopyCode={copyToClipboard}
-          />
         </div>
-      </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="coupons-container coupons-main">
+        {/* Inline error alert */}
+        {error && (
+          <div className="coupon-error-alert" role="alert">
+            <AlertCircle size={18} aria-hidden="true" />
+            <span className="coupon-error-alert-text">{error}</span>
+            <button
+              type="button"
+              className="coupon-error-alert-close"
+              onClick={() => setError(null)}
+              aria-label="Dismiss error"
+            >
+              <X size={14} aria-hidden="true" />
+            </button>
+          </div>
+        )}
+
+        {/* Filter bar */}
+        <CouponFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          appliesToFilter={appliesToFilter}
+          setAppliesToFilter={setAppliesToFilter}
+          locationFilter={locationFilter}
+          setLocationFilter={setLocationFilter}
+          locations={locations}
+          resultCount={coupons.length}
+          loading={loading}
+          onClearFilters={handleClearFilters}
+        />
+
+        {/* Coupons table */}
+        <CouponsTable
+          coupons={coupons}
+          loading={loading}
+          onPreview={handlePreviewCoupon}
+          onToggleStatus={handleToggleStatus}
+          onEdit={openEditModal}
+          onDelete={handleDeleteCoupon}
+          onCopyCode={copyToClipboard}
+          hasActiveFilters={hasActiveFilters}
+        />
+      </main>
 
       {/* Create/Edit Wizard Modal */}
       {(showCreateModal || editingCoupon) && (
@@ -557,31 +590,47 @@ const CouponsPage = () => {
 
       {/* Preview Modal */}
       {showPreviewModal && previewCoupon && (
-        <div className="mgr-modal-overlay">
-          <div className="mgr-modal-content coupon-preview-modal">
+        <div className="coupons-modal-overlay" onClick={handleClosePreview}>
+          <div
+            className="coupons-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="coupons-preview-title"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Preview modal header */}
-            <div className="coupon-preview-modal-header">
-              <h2 className="coupon-preview-modal-title">
-                Coupon Preview: {previewCoupon.coupon_code}
-              </h2>
+            <div className="coupons-modal-header">
+              <div>
+                <p className="coupons-modal-eyebrow">Coupon preview</p>
+                <h2 id="coupons-preview-title" className="coupons-modal-title">
+                  <code className="coupon-code-display">
+                    {previewCoupon.coupon_code}
+                  </code>
+                </h2>
+              </div>
+              <button
+                type="button"
+                className="coupons-modal-close"
+                onClick={handleClosePreview}
+                aria-label="Close preview"
+              >
+                <X size={18} />
+              </button>
             </div>
 
-            <CouponPreview
-              coupon={previewCoupon}
-              onClose={() => {
-                setShowPreviewModal(false);
-                setPreviewCoupon(null);
-              }}
-            />
+            <div className="coupons-modal-body">
+              <CouponPreview
+                coupon={previewCoupon}
+                onClose={handleClosePreview}
+              />
+            </div>
 
             {/* Preview modal footer */}
-            <div className="coupon-preview-modal-footer">
+            <div className="coupons-modal-footer">
               <button
-                onClick={() => {
-                  setShowPreviewModal(false);
-                  setPreviewCoupon(null);
-                }}
-                className="mgr-btn mgr-btn-secondary"
+                type="button"
+                onClick={handleClosePreview}
+                className="coupons-btn coupons-btn--secondary"
               >
                 Close
               </button>
